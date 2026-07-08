@@ -5,10 +5,10 @@
 | 장 | Lab 문서 | Notebook | Python program |
 | --- | --- | --- | --- |
 | 1장 데이터 품질 | `ch01_data_quality/README.md` | `ch01_data_quality/pandas_data_quality_lab.ipynb` | `ch01_data_quality/build_quality_report.py` |
-| 2장 모델 품질 | `ch02_model_quality/evaluation-lab.md`, `ch02_model_quality/data-metric-connection.md` | `ch02_model_quality/model_evaluation_lab.ipynb`, `ch02_model_quality/data_metric_connection_lab.ipynb` | `ch02_model_quality/train_baseline.py`, `ch02_model_quality/evaluate_and_record.py` |
-| 3장 서빙 | `ch03_serving/fastapi.md`, `ch03_serving/train-serving-skew.md` | `ch03_serving/fastapi_serving_lab.ipynb` | `ch03_serving/check_serving_contract.py` |
+| 2장 모델 품질 | `ch02_model_quality/README.md` | `ch02_model_quality/model_evaluation_lab.ipynb`, `ch02_model_quality/data_metric_connection_lab.ipynb` | `ch02_model_quality/train_baseline.py`, `ch02_model_quality/evaluate_and_record.py`, `ch02_model_quality/build_comparison_artifacts.py` |
+| 3장 서빙 | `ch03_serving/README.md` | `ch03_serving/fastapi_serving_lab.ipynb` | `ch03_serving/check_serving_contract.py` |
 | 4장 운영 관측 | `ch04_observability/README.md` | `ch04_observability/observability_lab.ipynb` | `ch04_observability/build_observability_artifacts.py` |
-| 5장 QA 전략 | `ch05_qa_strategy/*.md` | `ch05_qa_strategy/qa_strategy_lab.ipynb` | `ch05_qa_strategy/build_qa_artifacts.py` |
+| 5장 QA 전략 | `ch05_qa_strategy/README.md` | `ch05_qa_strategy/qa_strategy_lab.ipynb` | `ch05_qa_strategy/build_qa_artifacts.py` |
 
 Notebook은 수강생이 중간 출력과 QA 해석을 확인하는 주 실습 자료입니다. 각 Notebook은 JupyterLite에서도 실행되도록 로컬 패키지 import, 서버 실행, pickle 모델 로딩 없이 브라우저 안의 소형 실습 샘플과 미니 계산 함수로 구성합니다. Python program은 같은 판단 흐름을 전체 데이터와 저장소 공통 코드로 재생성하고, 모델 파일, 품질 리포트, 로그, 메트릭, Grafana dashboard, QA checklist 같은 산출물을 만들거나 계약 검증을 자동화할 때 사용합니다.
 

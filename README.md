@@ -181,14 +181,15 @@ uv run python scripts/course.py lab-data-quality
 
 | 순서 | 따라갈 코드 | 역할 |
 | --- | --- | --- |
-| 1 | `labs/ch02_model_quality/model_evaluation_lab.ipynb` | test 데이터에서 score, prediction, confusion matrix, metric 해석 |
-| 2 | `labs/ch02_model_quality/great_expectations_lab.ipynb` | degraded validation 데이터의 검증 실패를 prepared artifact와 연결 |
-| 3 | `labs/ch02_model_quality/data_metric_connection_lab.ipynb` | 데이터 품질 신호와 metric 변화가 같은 사건인지 확인 |
-| 4 | `labs/ch02_model_quality/mlflow_tracking_lab.ipynb` | 로컬 평가 기록과 MLflow/JSON 기록 범위 확인 |
-| 5 | `labs/ch02_model_quality/train_baseline.py` | 기준 모델 재학습 |
-| 6 | `labs/ch02_model_quality/evaluate_and_record.py` | test 평가와 experiment JSON/MLflow 기록 생성 |
-| 7 | `labs/ch02_model_quality/build_comparison_artifacts.py` | baseline/degraded/test 비교 artifact와 보고서 생성 |
-| 8 | `artifacts/reports/chapter_02_model_quality_comparison.md` | 최종 모델 품질 비교 판단 확인 |
+| 1 | `labs/ch02_model_quality/README.md` | 2장 모델 평가와 데이터-지표 연결 실습의 전체 흐름 확인 |
+| 2 | `labs/ch02_model_quality/model_evaluation_lab.ipynb` | test 데이터에서 score, prediction, confusion matrix, metric 해석 |
+| 3 | `labs/ch02_model_quality/great_expectations_lab.ipynb` | degraded validation 데이터의 검증 실패를 prepared artifact와 연결 |
+| 4 | `labs/ch02_model_quality/data_metric_connection_lab.ipynb` | 데이터 품질 신호와 metric 변화가 같은 사건인지 확인 |
+| 5 | `labs/ch02_model_quality/mlflow_tracking_lab.ipynb` | 로컬 평가 기록과 MLflow/JSON 기록 범위 확인 |
+| 6 | `labs/ch02_model_quality/train_baseline.py` | 기준 모델 재학습 |
+| 7 | `labs/ch02_model_quality/evaluate_and_record.py` | test 평가와 experiment JSON/MLflow 기록 생성 |
+| 8 | `labs/ch02_model_quality/build_comparison_artifacts.py` | baseline/degraded/test 비교 artifact와 보고서 생성 |
+| 9 | `artifacts/reports/chapter_02_model_quality_comparison.md` | 최종 모델 품질 비교 판단 확인 |
 
 2장 CLI 재생성은 script 3개를 순서대로 직접 실행합니다.
 
@@ -210,11 +211,10 @@ uv run python scripts/course.py lab-model-quality
 
 | 순서 | 따라갈 코드 | 역할 |
 | --- | --- | --- |
-| 1 | `labs/ch03_serving/fastapi_serving_lab.ipynb` | 요청 payload, 응답 schema, validation failure, train-serving skew 확인 |
-| 2 | `labs/ch03_serving/fastapi.md` | FastAPI serving 구조와 확인 기준 읽기 |
-| 3 | `labs/ch03_serving/train-serving-skew.md` | 학습 데이터와 serving 입력 차이의 QA 의미 확인 |
-| 4 | `labs/ch03_serving/check_serving_contract.py` | API 계약 자동 확인 |
-| 5 | `outputs/check_serving_contract_prediction_events.jsonl` | 계약 확인 중 생성된 prediction event 확인 |
+| 1 | `labs/ch03_serving/README.md` | FastAPI serving 구조, 계약 확인 기준, train-serving skew 의미 확인 |
+| 2 | `labs/ch03_serving/fastapi_serving_lab.ipynb` | 요청 payload, 응답 schema, validation failure, train-serving skew 확인 |
+| 3 | `labs/ch03_serving/check_serving_contract.py` | API 계약 자동 확인 |
+| 4 | `outputs/check_serving_contract_prediction_events.jsonl` | 계약 확인 중 생성된 prediction event 확인 |
 
 CLI로 확인할 때는 실제 script를 직접 실행합니다.
 
@@ -260,14 +260,10 @@ uv run python scripts/course.py lab-observability
 
 | 순서 | 따라갈 코드 | 역할 |
 | --- | --- | --- |
-| 1 | `labs/ch05_qa_strategy/qa_strategy_lab.ipynb` | drift, score 분포, incident trace, release criteria를 하나의 판단 흐름으로 연결 |
-| 2 | `labs/ch05_qa_strategy/input-drift.md` | 입력 drift 판단 기준 확인 |
-| 3 | `labs/ch05_qa_strategy/score-prediction-distribution.md` | score와 prediction 분포 변화 해석 |
-| 4 | `labs/ch05_qa_strategy/incident-tracing.md` | 운영 이슈 추적 문장 작성 기준 확인 |
-| 5 | `labs/ch05_qa_strategy/release-criteria.md` | release 승인/보류 기준 확인 |
-| 6 | `labs/ch05_qa_strategy/checklist.md` | 최종 QA checklist 작성 기준 확인 |
-| 7 | `labs/ch05_qa_strategy/build_qa_artifacts.py` | QA 전략 리포트와 checklist 재생성 |
-| 8 | `artifacts/reports/release_approval.md`, `artifacts/reports/ai_qa_checklist.md` | 최종 판단 문서 확인 |
+| 1 | `labs/ch05_qa_strategy/README.md` | input drift, score/prediction 분포, incident trace, release criteria, checklist 기준 확인 |
+| 2 | `labs/ch05_qa_strategy/qa_strategy_lab.ipynb` | drift, score 분포, incident trace, release criteria를 하나의 판단 흐름으로 연결 |
+| 3 | `labs/ch05_qa_strategy/build_qa_artifacts.py` | QA 전략 리포트와 checklist 재생성 |
+| 4 | `artifacts/reports/release_approval.md`, `artifacts/reports/ai_qa_checklist.md` | 최종 판단 문서 확인 |
 
 CLI로 재생성할 때는 실제 script를 직접 실행합니다.
 
