@@ -1,0 +1,23 @@
+{
+  "artifact_type": "prepared_container_status",
+  "chapter": "03_serving",
+  "source_demo": "demos/ch03_docker_kubernetes/scripts/check_container.sh",
+  "execution_mode": "prepared_sample",
+  "scope_note": "JupyterLite cannot run Docker. Learners inspect this prepared status output and separate it from live API evidence.",
+  "container": {
+    "name": "ai-quality-serving",
+    "image": "ttamlops-ai-quality-serving:chapter-03",
+    "status": "running",
+    "published_port": "8000:8000"
+  },
+  "health_check": {
+    "endpoint": "http://localhost:8000/health",
+    "status_code": 200,
+    "response": {
+      "status": "ok",
+      "model_version": "baseline-2026-07",
+      "threshold": 0.5
+    }
+  },
+  "qa_judgment": "Prepared evidence supports container startup and health response inspection, but it does not prove the learner's browser session called a live container."
+}

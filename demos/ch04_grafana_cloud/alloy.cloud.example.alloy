@@ -1,0 +1,102 @@
+logging {
+  level  = "info"
+  format = "logfmt"
+}
+
+loki.source.file "ai_quality_logs" {
+  targets = [
+    {
+      __path__     = "/var/lib/ai-quality/logs/chapter_04_anomaly_events.jsonl",
+      service      = sys.env("GRAFANA_LABEL_SERVICE"),
+      environment  = sys.env("GRAFANA_LABEL_ENVIRONMENT"),
+      job          = "ai-quality-training",
+      course_stage = "chapter_04",
+    },
+  ]
+
+  forward_to = [loki.write.grafanacloud.receiver]
+}
+
+loki.write "grafanacloud" {
+  endpoint {
+    url = sys.env("GRAFANA_LOKI_PUSH_URL")
+
+    basic_auth {
+      username = sys.env("GRAFANA_LOKI_USER")
+      password = sys.env("GRAFANA_TELEMETRY_TOKEN")
+    }
+  }
+}
+
+prometheus.scrape "ai_quality_metrics" {
+  targets = [
+    {
+      __address__  = "host.docker.internal:9108",
+      service      = sys.env("GRAFANA_LABEL_SERVICE"),
+      environment  = sys.env("GRAFANA_LABEL_ENVIRONMENT"),
+      job          = "ai-quality-training",
+      course_stage = "chapter_04",
+    },
+  ]
+
+  scrape_interval = "10s"
+  forward_to      = [prometheus.remote_write.grafanacloud.receiver]
+}
+
+prometheus.remote_write "grafanacloud" {
+  endpoint {
+    url = sys.env("GRAFANA_PROM_REMOTE_WRITE_URL")
+
+    basic_auth {
+      username = sys.env("GRAFANA_PROM_USER")
+      password = sys.env("GRAFANA_TELEMETRY_TOKEN")
+    }
+  }
+}
+
+otelcol.receiver.otlp "ai_quality_traces" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+
+  output {
+    traces = [
+      otelcol.connector.servicegraph.ai_quality.input,
+      otelcol.processor.batch.ai_quality_traces.input,
+    ]
+  }
+}
+
+otelcol.connector.servicegraph "ai_quality" {
+  dimensions = ["http.method"]
+
+  output {
+    metrics = [otelcol.exporter.prometheus.ai_quality_service_graph.input]
+  }
+}
+
+otelcol.exporter.prometheus "ai_quality_service_graph" {
+  forward_to = [prometheus.remote_write.grafanacloud.receiver]
+}
+
+otelcol.processor.batch "ai_quality_traces" {
+  output {
+    traces = [otelcol.exporter.otlp.grafanacloud.input]
+  }
+}
+
+otelcol.exporter.otlp "grafanacloud" {
+  client {
+    endpoint = sys.env("GRAFANA_TEMPO_OTLP_GRPC_ENDPOINT")
+    auth     = otelcol.auth.basic.grafanacloud.handler
+  }
+}
+
+otelcol.auth.basic "grafanacloud" {
+  username = sys.env("GRAFANA_TEMPO_USER")
+  password = sys.env("GRAFANA_TELEMETRY_TOKEN")
+}

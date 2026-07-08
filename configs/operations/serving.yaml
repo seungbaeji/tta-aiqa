@@ -1,0 +1,6 @@
+host: 127.0.0.1
+port: 8000
+model_path: artifacts/models/chapter_02_baseline.pkl
+model_version: v1
+threshold: 0.5
+event_log_path: artifacts/logs/prediction_events.jsonl

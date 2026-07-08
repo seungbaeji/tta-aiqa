@@ -1,0 +1,1 @@
+"""QA strategy infrastructure adapters."""

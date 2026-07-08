@@ -1,0 +1,54 @@
+target_column: label
+
+required_columns:
+  - patient_id
+  - heart_rate
+  - respiratory_rate
+  - timestamp
+  - body_temperature
+  - oxygen_saturation
+  - systolic_blood_pressure
+  - diastolic_blood_pressure
+  - label
+
+model_feature_columns:
+  - heart_rate
+  - respiratory_rate
+  - body_temperature
+  - oxygen_saturation
+  - systolic_blood_pressure
+  - diastolic_blood_pressure
+
+derived_feature_columns:
+  - derived_hrv
+  - derived_pulse_pressure
+  - derived_bmi
+  - derived_map
+
+metadata_columns:
+  - patient_id
+  - timestamp
+  - age
+  - gender
+  - weight_kg
+  - height_m
+
+column_rename_map:
+  Patient ID: patient_id
+  Heart Rate: heart_rate
+  Respiratory Rate: respiratory_rate
+  Timestamp: timestamp
+  Body Temperature: body_temperature
+  Oxygen Saturation: oxygen_saturation
+  Systolic Blood Pressure: systolic_blood_pressure
+  Diastolic Blood Pressure: diastolic_blood_pressure
+  Age: age
+  Gender: gender
+  Weight (kg): weight_kg
+  Height (m): height_m
+  Derived_HRV: derived_hrv
+  Derived_Pulse_Pressure: derived_pulse_pressure
+  Derived_BMI: derived_bmi
+  Derived_MAP: derived_map
+  Risk Category: label
+

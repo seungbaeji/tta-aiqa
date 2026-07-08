@@ -14,6 +14,7 @@ __pycache__/
 data/raw/
 outputs/
 mlruns/
+artifacts/mlflow.db
 artifacts/mlruns/
 artifacts/mlflow/
 

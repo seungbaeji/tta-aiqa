@@ -1,0 +1,8 @@
+image_name: ai-quality-serving
+image_tag: chapter-03
+container_name: ai-quality-serving
+container_port: 8000
+host_port: 8000
+runtime_env:
+  MODEL_VERSION: v1
+  MODEL_THRESHOLD: "0.5"

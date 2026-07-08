@@ -1,0 +1,25 @@
+{
+  "run_name": "model_test_eval",
+  "params": {
+    "dataset_name": "vital_signs_test",
+    "dataset_version": "v1-test",
+    "model_name": "chapter_02_baseline",
+    "model_version": "v1",
+    "feature_columns": "heart_rate,respiratory_rate,body_temperature,oxygen_saturation,systolic_blood_pressure,diastolic_blood_pressure",
+    "label_mapping": "High Risk=high_risk, Low Risk=low_risk",
+    "operating_threshold": 0.5
+  },
+  "metrics": {
+    "accuracy": 0.7005799420057994,
+    "precision": 1.0,
+    "recall": 0.42656070471083873,
+    "f1_score": 0.5980267132022282,
+    "auroc": 0.7200131087038283,
+    "pr_auc": 0.8032543372412452,
+    "false_positive": 0.0,
+    "false_negative": 5989.0
+  },
+  "artifacts": [
+    "/Users/seungbaeji/Workspace/tta/ttamlops-2607/artifacts/models/chapter_02_baseline.pkl"
+  ]
+}

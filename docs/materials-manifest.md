@@ -8,6 +8,7 @@
 | --- | --- | --- |
 | `labs/` | `labs/**/*.ipynb`, `labs/**/*.py`, `labs/**/*.md` | 교재가 안내하는 장별 실습 경로 |
 | `data/` | `data/*.csv`, `jupyterlite/files/data/*.csv` | 데이터 품질, 모델 평가, 운영 판단 예제 데이터 |
+| `jupyterlite/files/` | `jupyterlite/files/**/*.ipynb`, 소형 데이터, prepared evidence | 설치 없는 브라우저 실습 경로 |
 | `artifacts/reports/` | `artifacts/reports/*.md`, `jupyterlite/files/artifacts/reports/*.md` | 판단 문장과 최종 보고서에 인용할 리포트 |
 | `artifacts/experiments/` | `artifacts/experiments/**` | 모델 평가 조건, threshold, metric 비교 기록 |
 | `artifacts/logs/` | `artifacts/logs/**` | API 요청, 검증 실패, 운영 로그 확인 |
@@ -21,6 +22,8 @@
 | `configs/operations/` | `configs/operations/*.yaml` | 운영 설정과 실행 중 기준 확인 |
 | `configs/lineage/` | `configs/lineage/*.yaml` | 데이터와 artifact 관계 확인 |
 | `configs/qa_strategy/` | `configs/qa_strategy/*.yaml` | 승인 기준과 QA checklist 기준 |
+| `packages/ai-quality/` | `packages/ai-quality/src/**`, package metadata | lab script와 notebook 공통 로직 |
+| `demos/` | `demos/ch02_*`, `demos/ch03_*`, `demos/ch04_*` | MLflow, Docker, Grafana 로컬 demo 보조 자료 |
 
 ## 제외할 자료
 
@@ -31,6 +34,7 @@
 | 강의 제작 repository의 `docs/`, `site/` | 교재는 온라인 사이트로 제공 |
 | `jupyterlite/_output/`, `jupyterlite/dist/`, `dist/` | 빌드 산출물 |
 | `artifacts/mlflow.db`, `mlruns/`, `artifacts/mlruns/` | 환경 의존성이 크고 개인 실행 결과와 충돌 가능 |
+| `Human Vital Sign Dataset.zip` | 원본 압축 파일은 CSV 실습 데이터와 중복되고 용량 관리 부담이 큼 |
 | `__pycache__/` | 실행 캐시 |
 
 ## 원칙

@@ -1,0 +1,19 @@
+services:
+  alloy:
+    image: grafana/alloy:latest
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - /etc/alloy/config.alloy
+    env_file:
+      - ../../.env
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    ports:
+      - "12345:12345"
+      - "4317:4317"
+      - "4318:4318"
+    volumes:
+      - ./alloy.cloud.example.alloy:/etc/alloy/config.alloy:ro
+      - ../../artifacts/logs:/var/lib/ai-quality/logs:ro

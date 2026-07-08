@@ -2,24 +2,44 @@
 name = "ai-quality-course-student"
 version = "0.1.0"
 description = "Student workspace for AI quality and observability course labs"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-  "ipykernel>=6.29",
-  "jupyter>=1.1",
-  "numpy>=1.26",
-  "pandas>=2.2",
-  "scikit-learn>=1.5",
-  "requests>=2.32",
-  "pydantic>=2.8",
+  "ttamlops-ai-quality",
 ]
 
 [dependency-groups]
+lab = [
+  "ipykernel>=7.3.0",
+  "jupyter>=1.1",
+  "nbclient>=0.11.0",
+  "ttamlops-ai-quality[model,serving]",
+]
+demo = [
+  "ttamlops-ai-quality[demo,model,serving]",
+]
 dev = [
+  "mypy>=1.10",
+  "pandas-stubs>=2.2",
   "pytest>=8.3",
   "ruff>=0.6",
 ]
 
-[tool.ruff]
-line-length = 100
-target-version = "py311"
+[tool.uv]
+package = false
 
+[tool.uv.sources]
+ttamlops-ai-quality = { workspace = true }
+
+[tool.uv.workspace]
+members = [
+  "packages/ai-quality",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+extend-exclude = ["*.ipynb"]
+
+[tool.ruff.lint]
+select = ["B", "E", "F", "I", "UP"]

@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 15s
+  external_labels:
+    service: ai-quality-serving
+    environment: training
+
+scrape_configs:
+  - job_name: ai-quality-training
+    static_configs:
+      - targets:
+          - 127.0.0.1:9108
+
+remote_write:
+  - url: ${GRAFANA_PROM_REMOTE_WRITE_URL}
+    basic_auth:
+      username: ${GRAFANA_PROM_USER}
+      password: ${GRAFANA_TELEMETRY_TOKEN}

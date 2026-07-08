@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-quality-serving
+  namespace: ai-quality
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-quality-serving
+  template:
+    metadata:
+      labels:
+        app: ai-quality-serving
+    spec:
+      containers:
+        - name: serving-api
+          image: ai-quality-serving:chapter-03
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: ai-quality-serving-config
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10

@@ -1,0 +1,209 @@
+version: 1
+description: Course data lineage contract for AI QA training materials.
+nodes:
+  - id: kaggle_source
+    path: data/human_vital_signs_dataset_2024.csv
+    type: source_dataset
+    produced_by: external_kaggle_dataset
+    parents: []
+    used_in_chapters: [overview]
+    allowed_claim: Original classroom source before course schema normalization.
+    forbidden_claim: Do not use as a model metric, operational incident, or release decision artifact.
+
+  - id: vital_signs_raw
+    path: data/vital_signs.csv
+    type: dataset
+    produced_by: labs/prepare_data.py
+    parents: [kaggle_source]
+    used_in_chapters: [overview]
+    allowed_claim: Raw source loaded into the course workspace before quality-rule filtering.
+    forbidden_claim: Do not claim model evaluation readiness from this file.
+
+  - id: vital_signs_standardized
+    path: data/vital_signs_standardized.csv
+    type: dataset
+    produced_by: labs/prepare_data.py
+    parents: [vital_signs_raw]
+    used_in_chapters: [overview]
+    allowed_claim: Course schema and label values are normalized for downstream splits.
+    forbidden_claim: Do not use as train, validation, test, or operational evidence directly.
+
+  - id: evaluation_baseline
+    path: data/vital_signs_evaluation_baseline.csv
+    type: dataset
+    produced_by: split_course_datasets
+    parents: [vital_signs_standardized]
+    used_in_chapters: [1]
+    allowed_claim: Data quality checks can support whether model evaluation may start.
+    forbidden_claim: Do not claim operational current input is normal from this baseline.
+
+  - id: train
+    path: data/vital_signs_train.csv
+    type: dataset
+    produced_by: split_course_datasets
+    parents: [vital_signs_standardized]
+    used_in_chapters: [2]
+    allowed_claim: Baseline model can be trained from this split.
+    forbidden_claim: Do not report train metrics as model quality or release evidence.
+
+  - id: valid_baseline
+    path: data/vital_signs_valid_baseline.csv
+    type: dataset
+    produced_by: split_course_datasets
+    parents: [vital_signs_standardized]
+    used_in_chapters: [2]
+    allowed_claim: Threshold and validation comparisons can be made before final test use.
+    forbidden_claim: Do not use validation results as final selected-model performance.
+
+  - id: valid_degraded
+    path: data/vital_signs_valid_degraded.csv
+    type: dataset
+    produced_by: build_degraded_dataset
+    parents: [valid_baseline]
+    used_in_chapters: [2]
+    allowed_claim: Data-condition degradation can be replayed under the same model and threshold.
+    forbidden_claim: Do not claim this file is an operational dump or confirmed root cause.
+
+  - id: test
+    path: data/vital_signs_test.csv
+    type: dataset
+    produced_by: split_course_datasets
+    parents: [vital_signs_standardized]
+    used_in_chapters: [2]
+    allowed_claim: Selected model and threshold can be evaluated for final test metrics.
+    forbidden_claim: Do not tune thresholds or explain operational current incidents from test.
+
+  - id: operational_holdout
+    path: data/vital_signs_operational_holdout.csv
+    type: dataset
+    produced_by: split_course_datasets
+    parents: [vital_signs_standardized]
+    used_in_chapters: [3, 4, 5]
+    allowed_claim: Operational request, log, and release-gate examples can be derived without reusing train, validation, or test data.
+    forbidden_claim: Do not train or tune the chapter 2 model from operational holdout.
+
+  - id: serving_requests_valid
+    path: data/serving_requests_valid.csv
+    type: request_dataset
+    produced_by: build_serving_requests
+    parents: [operational_holdout]
+    used_in_chapters: [3, 4, 5]
+    allowed_claim: Baseline serving request payloads support API contract and operational baseline checks.
+    forbidden_claim: Do not treat request payloads as labeled model evaluation data.
+
+  - id: serving_requests_current
+    path: data/serving_requests_current.csv
+    type: request_dataset
+    produced_by: build_current_operational_requests
+    parents: [operational_holdout]
+    used_in_chapters: [4, 5]
+    allowed_claim: Current batch input composition can be compared with the operational baseline.
+    forbidden_claim: Do not claim current batch shift alone proves model failure.
+
+  - id: serving_requests_current_stream
+    path: data/serving_requests_current_stream.csv
+    type: request_dataset
+    produced_by: build_current_operational_requests
+    parents: [operational_holdout]
+    used_in_chapters: [4, 5]
+    allowed_claim: Current streaming input composition can feed live observability demonstrations.
+    forbidden_claim: Do not treat stream volume as a larger independent evaluation dataset.
+
+  - id: serving_requests_invalid
+    path: data/serving_requests_invalid.csv
+    type: request_dataset
+    produced_by: build_invalid_serving_requests
+    parents: [operational_holdout]
+    used_in_chapters: [3, 4]
+    allowed_claim: Invalid payload examples can verify schema rejection and validation failure handling.
+    forbidden_claim: Do not include invalid payload rows in normal score-distribution analysis.
+
+  - id: operational_baseline_events
+    path: data/operational_baseline_events.jsonl
+    type: event_log
+    produced_by: build_operational_events
+    parents: [serving_requests_valid, train]
+    used_in_chapters: [4, 5]
+    allowed_claim: Operational baseline score, prediction, threshold, latency, and request fields can be compared with current events.
+    forbidden_claim: Do not use event logs as replacement for final test metrics.
+
+  - id: operational_current_events
+    path: data/operational_current_events.jsonl
+    type: event_log
+    produced_by: build_operational_events
+    parents: [serving_requests_current, train]
+    used_in_chapters: [4, 5]
+    allowed_claim: Current operational signals can support incident candidates and release-gate follow-up.
+    forbidden_claim: Do not conclude root cause without checking model version, threshold, input quality, and service state.
+
+  - id: operational_current_stream_events
+    path: data/operational_current_stream_events.jsonl
+    type: event_log
+    produced_by: build_operational_events
+    parents: [serving_requests_current_stream, train]
+    used_in_chapters: [4, 5]
+    allowed_claim: Streaming operational signals can populate Grafana Cloud during live demonstrations.
+    forbidden_claim: Do not use stream replay as proof that production traffic has the same distribution.
+
+  - id: release_regression_cases
+    path: data/release_regression_cases.csv
+    type: release_dataset
+    produced_by: build_release_regression_cases
+    parents: [operational_holdout]
+    used_in_chapters: [5]
+    allowed_claim: Release approval rules can be re-applied to holdout-based pass, shifted, and invalid-input cases.
+    forbidden_claim: Do not use release regression cases as new training data.
+
+  - id: model_test_eval
+    path: artifacts/experiments/chapter_02/model_test_eval.json
+    type: evaluation_artifact
+    produced_by: labs/ch02_model_quality/evaluate_and_record.py
+    parents: [train, test]
+    used_in_chapters: [2, 5]
+    allowed_claim: Selected model and threshold test metrics are traceable.
+    forbidden_claim: Do not use this artifact as evidence for current operational batch drift.
+
+  - id: validation_degradation_comparison
+    path: artifacts/experiments/chapter_02/validation_degradation_comparison.json
+    type: comparison_artifact
+    produced_by: labs/ch02_model_quality/build_comparison_artifacts.py
+    parents: [train, valid_baseline, valid_degraded]
+    used_in_chapters: [2]
+    allowed_claim: Same-model and same-threshold validation degradation can be compared.
+    forbidden_claim: Do not present validation replay as confirmed production root cause.
+
+  - id: drift_report
+    path: artifacts/reports/drift_report.md
+    type: report
+    produced_by: labs/ch05_qa_strategy/build_qa_artifacts.py
+    parents: [serving_requests_valid, serving_requests_current, operational_baseline_events, operational_current_events]
+    used_in_chapters: [5]
+    allowed_claim: Current input composition and score/prediction movement can be reported as cause candidates.
+    forbidden_claim: Do not call drift the confirmed cause without follow-up evidence.
+
+  - id: quality_issue_trace
+    path: artifacts/reports/quality_issue_trace.md
+    type: report
+    produced_by: labs/ch05_qa_strategy/build_qa_artifacts.py
+    parents: [drift_report, operational_current_events]
+    used_in_chapters: [5]
+    allowed_claim: Candidate causes, owners, audit references, and next actions can be tracked.
+    forbidden_claim: Do not treat candidate status as final root-cause closure.
+
+  - id: release_approval
+    path: artifacts/reports/release_approval.md
+    type: report
+    produced_by: labs/ch05_qa_strategy/build_qa_artifacts.py
+    parents: [release_regression_cases, operational_current_events]
+    used_in_chapters: [5]
+    allowed_claim: Approval or conditional hold can be justified against configured rules and unresolved risks.
+    forbidden_claim: Do not claim live deployment validation when live evidence is unverified.
+
+  - id: ai_qa_checklist
+    path: artifacts/reports/ai_qa_checklist.md
+    type: report
+    produced_by: labs/ch05_qa_strategy/build_qa_artifacts.py
+    parents: [evaluation_baseline, model_test_eval, validation_degradation_comparison, drift_report, quality_issue_trace, release_approval]
+    used_in_chapters: [5]
+    allowed_claim: Final QA sign-off rows can cite the evidence path and next action.
+    forbidden_claim: Do not use checklist completion as a substitute for the underlying evidence.
