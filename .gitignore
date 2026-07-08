@@ -12,6 +12,17 @@ __pycache__/
 
 # Local data and generated outputs
 data/raw/
+data/drift_requests.csv
+data/operational_baseline_events.jsonl
+data/operational_current_events.jsonl
+data/operational_current_stream_events.jsonl
+data/release_regression_cases.csv
+data/serving_requests.csv
+data/serving_requests_current.csv
+data/serving_requests_current_stream.csv
+data/serving_requests_invalid.csv
+data/serving_requests_valid.csv
+data/vital_signs*.csv
 outputs/
 mlruns/
 artifacts/mlflow.db

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from typing import Any
 
 from ai_quality.labs.ch03_serving import (
@@ -18,6 +19,10 @@ def _schema_names(openapi: dict[str, Any]) -> list[str]:
 
 def main() -> None:
     """Check schema exposure, valid prediction, invalid request, and skew."""
+    os.environ.setdefault(
+        "EVENT_LOG_PATH",
+        "outputs/check_serving_contract_prediction_events.jsonl",
+    )
     client = build_test_client()
 
     openapi = client.get("/openapi.json").json()
