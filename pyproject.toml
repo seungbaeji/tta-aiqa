@@ -1,0 +1,25 @@
+[project]
+name = "ai-quality-course-student"
+version = "0.1.0"
+description = "Student workspace for AI quality and observability course labs"
+requires-python = ">=3.11"
+dependencies = [
+  "ipykernel>=6.29",
+  "jupyter>=1.1",
+  "numpy>=1.26",
+  "pandas>=2.2",
+  "scikit-learn>=1.5",
+  "requests>=2.32",
+  "pydantic>=2.8",
+]
+
+[dependency-groups]
+dev = [
+  "pytest>=8.3",
+  "ruff>=0.6",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
