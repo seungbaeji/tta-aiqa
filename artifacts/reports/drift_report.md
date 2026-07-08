@@ -50,5 +50,5 @@
 
 | signal | baseline | current | delta |
 | --- | ---: | ---: | ---: |
-| average_score | 0.5016 | 0.6411 | 0.1395 |
+| average_score | 0.5020 | 0.6402 | 0.1382 |
 | high_risk_rate | 0.2167 | 0.4583 | 0.2417 |

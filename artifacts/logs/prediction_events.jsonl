@@ -33,4 +33,3 @@
 {"request_id": "lab-03-request-001", "model_version": "v1", "score": 0.7312803370227537, "threshold": 0.5, "prediction": "high_risk"}
 {"request_id": "lab-03-request-001", "model_version": "v1", "score": 0.7312803370227537, "threshold": 0.5, "prediction": "high_risk"}
 {"request_id": "lab-03-request-001", "model_version": "v1", "score": 0.9421679742304839, "threshold": 0.5, "prediction": "high_risk"}
-{"request_id": "lab-03-request-001", "model_version": "v1", "score": 0.9489955282011341, "threshold": 0.5, "prediction": "high_risk"}
