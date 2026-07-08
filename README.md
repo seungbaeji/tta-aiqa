@@ -73,6 +73,12 @@ root `data/`에는 원본 CSV인 `data/human_vital_signs_dataset_2024.csv`만 Gi
 uv run python scripts/course.py prepare-data
 ```
 
+위 명령은 다음 직접 실행 명령과 같습니다.
+
+```bash
+uv run python labs/prepare_data.py
+```
+
 생성되는 root `data/` 파생 파일은 로컬 실습 준비물이며 Git에는 커밋하지 않습니다.
 
 ### 4-2. 전체 산출물 재생성
@@ -87,13 +93,13 @@ uv run python scripts/course.py labs
 
 장별로 확인하려면 다음 명령을 하나씩 실행합니다.
 
-| 장 | 명령 | 주요 산출물 |
-| --- | --- | --- |
-| 1장 | `uv run python scripts/course.py lab-data-quality` | `artifacts/reports/chapter_01_quality_report.md` |
-| 2장 | `uv run python scripts/course.py lab-model-quality` | `artifacts/models/chapter_02_baseline.pkl`, `artifacts/experiments/chapter_02/*.json`, `artifacts/reports/chapter_02_model_quality_comparison.md` |
-| 3장 | `uv run python scripts/course.py lab-serving` | `outputs/check_serving_contract_prediction_events.jsonl` |
-| 4장 | `uv run python scripts/course.py lab-observability` | `artifacts/logs/*.jsonl`, `artifacts/metrics/chapter_04_anomaly.prom`, `artifacts/grafana/*.json`, `artifacts/reports/quality_issue_trace.md` |
-| 5장 | `uv run python scripts/course.py lab-qa-strategy` | `artifacts/reports/drift_report.md`, `release_approval.md`, `ai_qa_checklist.md` |
+| 장 | wrapper 명령 | 실제 실행되는 Python script | 주요 산출물 |
+| --- | --- | --- | --- |
+| 1장 | `uv run python scripts/course.py lab-data-quality` | `uv run python labs/ch01_data_quality/build_quality_report.py` | `artifacts/reports/chapter_01_quality_report.md` |
+| 2장 | `uv run python scripts/course.py lab-model-quality` | 아래 2장 script 3개를 순서대로 실행 | `artifacts/models/chapter_02_baseline.pkl`, `artifacts/experiments/chapter_02/*.json`, `artifacts/reports/chapter_02_model_quality_comparison.md` |
+| 3장 | `uv run python scripts/course.py lab-serving` | `uv run python labs/ch03_serving/check_serving_contract.py` | `outputs/check_serving_contract_prediction_events.jsonl` |
+| 4장 | `uv run python scripts/course.py lab-observability` | `uv run python labs/ch04_observability/build_observability_artifacts.py` | `artifacts/logs/*.jsonl`, `artifacts/metrics/chapter_04_anomaly.prom`, `artifacts/grafana/*.json`, `artifacts/reports/quality_issue_trace.md` |
+| 5장 | `uv run python scripts/course.py lab-qa-strategy` | `uv run python labs/ch05_qa_strategy/build_qa_artifacts.py` | `artifacts/reports/drift_report.md`, `release_approval.md`, `ai_qa_checklist.md` |
 
 ### 4-3. 실행 후 정리
 
@@ -144,6 +150,8 @@ uv run jupyter lab
 | 3 | 파생 데이터 생성 | `uv run python scripts/course.py prepare-data` | `data/vital_signs_train.csv`, `data/serving_requests_valid.csv` 등 생성 |
 | 4 | 전체 흐름 선택 | Jupyter Lab 또는 장별 CLI | notebook 확인인지 로컬 재생성인지 구분 |
 
+`scripts/course.py`는 수강생이 외울 실행 파일이 아니라, Windows/macOS/Linux에서 같은 명령으로 장별 script를 호출하기 위한 wrapper입니다. 실제 코드를 직접 실행하려면 `uv run python labs/.../*.py` 형태를 사용합니다. 두 방식은 같은 Python 환경과 같은 repository 경로에서 실행됩니다.
+
 ### 6-2. 1장 데이터 품질
 
 모델 평가 전에 데이터가 평가 가능한 구조인지 확인합니다.
@@ -155,7 +163,13 @@ uv run jupyter lab
 | 3 | `labs/ch01_data_quality/build_quality_report.py` | 전체 데이터 기준 품질 리포트 재생성 |
 | 4 | `artifacts/reports/chapter_01_quality_report.md` | 데이터 품질 판단 문장 확인 |
 
-CLI로 재생성할 때는 다음 명령을 실행합니다.
+CLI로 재생성할 때는 실제 script를 직접 실행합니다.
+
+```bash
+uv run python labs/ch01_data_quality/build_quality_report.py
+```
+
+같은 작업을 wrapper로 실행할 수도 있습니다.
 
 ```bash
 uv run python scripts/course.py lab-data-quality
@@ -176,7 +190,15 @@ uv run python scripts/course.py lab-data-quality
 | 7 | `labs/ch02_model_quality/build_comparison_artifacts.py` | baseline/degraded/test 비교 artifact와 보고서 생성 |
 | 8 | `artifacts/reports/chapter_02_model_quality_comparison.md` | 최종 모델 품질 비교 판단 확인 |
 
-CLI로 재생성할 때는 다음 명령을 실행합니다.
+2장 CLI 재생성은 script 3개를 순서대로 직접 실행합니다.
+
+```bash
+uv run python labs/ch02_model_quality/train_baseline.py
+uv run python labs/ch02_model_quality/evaluate_and_record.py
+uv run python labs/ch02_model_quality/build_comparison_artifacts.py
+```
+
+같은 작업을 wrapper로 실행할 수도 있습니다.
 
 ```bash
 uv run python scripts/course.py lab-model-quality
@@ -194,7 +216,13 @@ uv run python scripts/course.py lab-model-quality
 | 4 | `labs/ch03_serving/check_serving_contract.py` | API 계약 자동 확인 |
 | 5 | `outputs/check_serving_contract_prediction_events.jsonl` | 계약 확인 중 생성된 prediction event 확인 |
 
-CLI로 확인할 때는 다음 명령을 실행합니다.
+CLI로 확인할 때는 실제 script를 직접 실행합니다.
+
+```bash
+uv run python labs/ch03_serving/check_serving_contract.py
+```
+
+같은 작업을 wrapper로 실행할 수도 있습니다.
 
 ```bash
 uv run python scripts/course.py lab-serving
@@ -214,7 +242,13 @@ uv run python scripts/course.py lab-serving
 | 6 | `artifacts/grafana/*.json` | dashboard panel과 Grafana Cloud payload preview 확인 |
 | 7 | `artifacts/reports/quality_issue_trace.md` | 관측 신호를 owner와 next action으로 연결 |
 
-CLI로 재생성할 때는 다음 명령을 실행합니다.
+CLI로 재생성할 때는 실제 script를 직접 실행합니다.
+
+```bash
+uv run python labs/ch04_observability/build_observability_artifacts.py
+```
+
+같은 작업을 wrapper로 실행할 수도 있습니다.
 
 ```bash
 uv run python scripts/course.py lab-observability
@@ -235,7 +269,13 @@ uv run python scripts/course.py lab-observability
 | 7 | `labs/ch05_qa_strategy/build_qa_artifacts.py` | QA 전략 리포트와 checklist 재생성 |
 | 8 | `artifacts/reports/release_approval.md`, `artifacts/reports/ai_qa_checklist.md` | 최종 판단 문서 확인 |
 
-CLI로 재생성할 때는 다음 명령을 실행합니다.
+CLI로 재생성할 때는 실제 script를 직접 실행합니다.
+
+```bash
+uv run python labs/ch05_qa_strategy/build_qa_artifacts.py
+```
+
+같은 작업을 wrapper로 실행할 수도 있습니다.
 
 ```bash
 uv run python scripts/course.py lab-qa-strategy
@@ -245,14 +285,18 @@ uv run python scripts/course.py lab-qa-strategy
 
 장별 script를 한 번에 실행할 때의 내부 순서는 다음과 같습니다.
 
-| 순서 | 실행되는 작업 | 생성 또는 갱신되는 주요 경로 |
+| 순서 | 직접 실행 명령 | 생성 또는 갱신되는 주요 경로 |
 | --- | --- | --- |
-| 1 | `prepare-data` | `data/vital_signs*.csv`, `data/serving_requests*.csv`, `data/*events.jsonl` |
-| 2 | `lab-data-quality` | `artifacts/reports/chapter_01_quality_report.md` |
-| 3 | `lab-model-quality` | `artifacts/models/`, `artifacts/experiments/chapter_02/`, `artifacts/reports/chapter_02_model_quality_comparison.md` |
-| 4 | `lab-serving` | `outputs/check_serving_contract_prediction_events.jsonl` |
-| 5 | `lab-observability` | `artifacts/logs/`, `artifacts/metrics/`, `artifacts/grafana/`, `artifacts/reports/quality_issue_trace.md` |
-| 6 | `lab-qa-strategy` | `artifacts/reports/drift_report.md`, `release_approval.md`, `ai_qa_checklist.md` |
+| 1 | `uv run python labs/prepare_data.py` | `data/vital_signs*.csv`, `data/serving_requests*.csv`, `data/*events.jsonl` |
+| 2 | `uv run python labs/ch01_data_quality/build_quality_report.py` | `artifacts/reports/chapter_01_quality_report.md` |
+| 3 | `uv run python labs/ch02_model_quality/train_baseline.py` | `artifacts/models/chapter_02_baseline.pkl` |
+| 4 | `uv run python labs/ch02_model_quality/evaluate_and_record.py` | `artifacts/experiments/chapter_02/model_test_eval.json`, `artifacts/mlflow.db` |
+| 5 | `uv run python labs/ch02_model_quality/build_comparison_artifacts.py` | `artifacts/experiments/chapter_02/validation_degradation_comparison.json`, `artifacts/reports/chapter_02_model_quality_comparison.md` |
+| 6 | `uv run python labs/ch03_serving/check_serving_contract.py` | `outputs/check_serving_contract_prediction_events.jsonl` |
+| 7 | `uv run python labs/ch04_observability/build_observability_artifacts.py` | `artifacts/logs/`, `artifacts/metrics/`, `artifacts/grafana/`, `artifacts/reports/quality_issue_trace.md` |
+| 8 | `uv run python labs/ch05_qa_strategy/build_qa_artifacts.py` | `artifacts/reports/drift_report.md`, `release_approval.md`, `ai_qa_checklist.md` |
+
+전체 순서를 wrapper로 한 번에 실행하려면 다음 명령을 사용합니다.
 
 ```bash
 uv run python scripts/course.py labs
