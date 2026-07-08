@@ -5,7 +5,7 @@
 | 경로 | 용도 | Git 포함 여부 |
 | --- | --- | --- |
 | `human_vital_signs_dataset_2024.csv` | 파생 실습 데이터를 만드는 원본 CSV | 포함 |
-| `vital_signs*.csv`, `serving_requests*.csv`, `drift_requests.csv`, `release_regression_cases.csv`, `operational_*.jsonl` | `make prepare-data` 또는 `make labs`가 원본에서 생성하는 파생 데이터 | 제외 |
+| `vital_signs*.csv`, `serving_requests*.csv`, `drift_requests.csv`, `release_regression_cases.csv`, `operational_*.jsonl` | `uv run python scripts/course.py prepare-data` 또는 `uv run python scripts/course.py labs`가 원본에서 생성하는 파생 데이터 | 제외 |
 | `raw/` | 원본 또는 대용량 데이터 | 제외 |
 | `derived/` | raw에서 다시 만든 학습용 데이터 | 필요 시 포함 또는 재생성 |
 
