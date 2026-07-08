@@ -125,13 +125,159 @@ git restore artifacts
 
 ## 6. 실습 순서
 
-| 순서 | 작업                                                                              |
-| ---- | --------------------------------------------------------------------------------- |
-| 1    | 온라인 교재에서 해당 장의 개념을 읽습니다                                         |
-| 2    | `labs/`에서 장별 notebook 또는 Python script를 확인합니다                         |
-| 3    | 필요하면 같은 evidence를 로컬에서 재생성합니다                                    |
-| 4    | `artifacts/`의 결과를 확인합니다                                                  |
-| 5    | `artifacts/reports/`의 템플릿이나 준비된 리포트를 기준으로 판단 문장을 작성합니다 |
+실습은 온라인 교재의 개념 설명을 읽은 뒤, `labs/`의 notebook으로 판단 흐름을 따라가고, 필요한 경우 Python script로 같은 evidence를 로컬에서 재생성하는 순서로 진행합니다. Notebook은 해석과 중간 출력을 확인하는 주 실습 자료이고, Python script는 전체 데이터 기준 산출물을 다시 만드는 재현 경로입니다.
+
+로컬에서 notebook을 열어 따라가려면 먼저 Jupyter Lab을 실행합니다.
+
+```bash
+uv run jupyter lab
+```
+
+### 6-1. 공통 준비
+
+모든 장별 실습 전에 repository 구조와 파생 데이터를 준비합니다.
+
+| 순서 | 작업 | 명령 또는 파일 | 확인할 것 |
+| --- | --- | --- | --- |
+| 1 | 환경 설치 | `uv sync --group lab --group demo --group dev` | `.venv`가 생성되고 의존성이 설치되는지 확인 |
+| 2 | 구조 확인 | `uv run python scripts/course.py smoke` | `student repo structure is ready` 출력 |
+| 3 | 파생 데이터 생성 | `uv run python scripts/course.py prepare-data` | `data/vital_signs_train.csv`, `data/serving_requests_valid.csv` 등 생성 |
+| 4 | 전체 흐름 선택 | Jupyter Lab 또는 장별 CLI | notebook 확인인지 로컬 재생성인지 구분 |
+
+### 6-2. 1장 데이터 품질
+
+모델 평가 전에 데이터가 평가 가능한 구조인지 확인합니다.
+
+| 순서 | 따라갈 코드 | 역할 |
+| --- | --- | --- |
+| 1 | `labs/ch01_data_quality/pandas_data_quality_lab.ipynb` | 데이터 로딩, schema, 결측, 범위, label 분포를 셀 단위로 확인 |
+| 2 | `labs/ch01_data_quality/utils.py` | notebook에서 쓰는 1장 helper의 책임 확인 |
+| 3 | `labs/ch01_data_quality/build_quality_report.py` | 전체 데이터 기준 품질 리포트 재생성 |
+| 4 | `artifacts/reports/chapter_01_quality_report.md` | 데이터 품질 판단 문장 확인 |
+
+CLI로 재생성할 때는 다음 명령을 실행합니다.
+
+```bash
+uv run python scripts/course.py lab-data-quality
+```
+
+### 6-3. 2장 모델 품질
+
+데이터 품질 전제가 모델 지표와 어떻게 연결되는지 확인합니다. 2장은 notebook과 script가 여러 개이므로 아래 순서대로 진행합니다.
+
+| 순서 | 따라갈 코드 | 역할 |
+| --- | --- | --- |
+| 1 | `labs/ch02_model_quality/model_evaluation_lab.ipynb` | test 데이터에서 score, prediction, confusion matrix, metric 해석 |
+| 2 | `labs/ch02_model_quality/great_expectations_lab.ipynb` | degraded validation 데이터의 검증 실패를 prepared artifact와 연결 |
+| 3 | `labs/ch02_model_quality/data_metric_connection_lab.ipynb` | 데이터 품질 신호와 metric 변화가 같은 사건인지 확인 |
+| 4 | `labs/ch02_model_quality/mlflow_tracking_lab.ipynb` | 로컬 평가 기록과 MLflow/JSON 기록 범위 확인 |
+| 5 | `labs/ch02_model_quality/train_baseline.py` | 기준 모델 재학습 |
+| 6 | `labs/ch02_model_quality/evaluate_and_record.py` | test 평가와 experiment JSON/MLflow 기록 생성 |
+| 7 | `labs/ch02_model_quality/build_comparison_artifacts.py` | baseline/degraded/test 비교 artifact와 보고서 생성 |
+| 8 | `artifacts/reports/chapter_02_model_quality_comparison.md` | 최종 모델 품질 비교 판단 확인 |
+
+CLI로 재생성할 때는 다음 명령을 실행합니다.
+
+```bash
+uv run python scripts/course.py lab-model-quality
+```
+
+### 6-4. 3장 서빙 계약
+
+예측 API가 단순히 score를 반환하는지보다, 요청/응답 계약이 추적 가능한 evidence를 남기는지 확인합니다.
+
+| 순서 | 따라갈 코드 | 역할 |
+| --- | --- | --- |
+| 1 | `labs/ch03_serving/fastapi_serving_lab.ipynb` | 요청 payload, 응답 schema, validation failure, train-serving skew 확인 |
+| 2 | `labs/ch03_serving/fastapi.md` | FastAPI serving 구조와 확인 기준 읽기 |
+| 3 | `labs/ch03_serving/train-serving-skew.md` | 학습 데이터와 serving 입력 차이의 QA 의미 확인 |
+| 4 | `labs/ch03_serving/check_serving_contract.py` | API 계약 자동 확인 |
+| 5 | `outputs/check_serving_contract_prediction_events.jsonl` | 계약 확인 중 생성된 prediction event 확인 |
+
+CLI로 확인할 때는 다음 명령을 실행합니다.
+
+```bash
+uv run python scripts/course.py lab-serving
+```
+
+### 6-5. 4장 운영 관측
+
+운영 로그, metric, dashboard JSON을 연결해 모델 평가만으로 설명되지 않는 운영 품질 신호를 확인합니다.
+
+| 순서 | 따라갈 코드 | 역할 |
+| --- | --- | --- |
+| 1 | `labs/ch04_observability/observability_lab.ipynb` | structured log, request trace, Prometheus metric, dashboard panel을 순서대로 확인 |
+| 2 | `labs/ch04_observability/build_observability_artifacts.py` | 로그, metric, Grafana payload, issue trace 재생성 |
+| 3 | `artifacts/logs/chapter_04_normal_events.jsonl` | baseline 운영 이벤트 확인 |
+| 4 | `artifacts/logs/chapter_04_anomaly_events.jsonl` | current/anomaly 운영 이벤트 확인 |
+| 5 | `artifacts/metrics/chapter_04_anomaly.prom` | Prometheus metric 확인 |
+| 6 | `artifacts/grafana/*.json` | dashboard panel과 Grafana Cloud payload preview 확인 |
+| 7 | `artifacts/reports/quality_issue_trace.md` | 관측 신호를 owner와 next action으로 연결 |
+
+CLI로 재생성할 때는 다음 명령을 실행합니다.
+
+```bash
+uv run python scripts/course.py lab-observability
+```
+
+### 6-6. 5장 QA 전략
+
+앞 장에서 만든 데이터 품질, 모델 품질, serving, observability evidence를 release 판단으로 묶습니다.
+
+| 순서 | 따라갈 코드 | 역할 |
+| --- | --- | --- |
+| 1 | `labs/ch05_qa_strategy/qa_strategy_lab.ipynb` | drift, score 분포, incident trace, release criteria를 하나의 판단 흐름으로 연결 |
+| 2 | `labs/ch05_qa_strategy/input-drift.md` | 입력 drift 판단 기준 확인 |
+| 3 | `labs/ch05_qa_strategy/score-prediction-distribution.md` | score와 prediction 분포 변화 해석 |
+| 4 | `labs/ch05_qa_strategy/incident-tracing.md` | 운영 이슈 추적 문장 작성 기준 확인 |
+| 5 | `labs/ch05_qa_strategy/release-criteria.md` | release 승인/보류 기준 확인 |
+| 6 | `labs/ch05_qa_strategy/checklist.md` | 최종 QA checklist 작성 기준 확인 |
+| 7 | `labs/ch05_qa_strategy/build_qa_artifacts.py` | QA 전략 리포트와 checklist 재생성 |
+| 8 | `artifacts/reports/release_approval.md`, `artifacts/reports/ai_qa_checklist.md` | 최종 판단 문서 확인 |
+
+CLI로 재생성할 때는 다음 명령을 실행합니다.
+
+```bash
+uv run python scripts/course.py lab-qa-strategy
+```
+
+### 6-7. 전체 재생성 순서
+
+장별 script를 한 번에 실행할 때의 내부 순서는 다음과 같습니다.
+
+| 순서 | 실행되는 작업 | 생성 또는 갱신되는 주요 경로 |
+| --- | --- | --- |
+| 1 | `prepare-data` | `data/vital_signs*.csv`, `data/serving_requests*.csv`, `data/*events.jsonl` |
+| 2 | `lab-data-quality` | `artifacts/reports/chapter_01_quality_report.md` |
+| 3 | `lab-model-quality` | `artifacts/models/`, `artifacts/experiments/chapter_02/`, `artifacts/reports/chapter_02_model_quality_comparison.md` |
+| 4 | `lab-serving` | `outputs/check_serving_contract_prediction_events.jsonl` |
+| 5 | `lab-observability` | `artifacts/logs/`, `artifacts/metrics/`, `artifacts/grafana/`, `artifacts/reports/quality_issue_trace.md` |
+| 6 | `lab-qa-strategy` | `artifacts/reports/drift_report.md`, `release_approval.md`, `ai_qa_checklist.md` |
+
+```bash
+uv run python scripts/course.py labs
+```
+
+### 6-8. 실습 후 확인과 정리
+
+로컬 재생성 후에는 어떤 파일을 근거로 판단했는지 먼저 확인합니다.
+
+```bash
+git status --short
+```
+
+보고서에는 `artifacts/reports/` 아래 파일 경로와 실행 범위를 함께 적습니다. 로컬 생성 파일을 지우려면 다음 명령을 실행합니다.
+
+```bash
+uv run python scripts/course.py clean-data
+uv run python scripts/course.py clean
+```
+
+prepared artifact를 배포 상태로 되돌리려면 다음 명령을 사용합니다.
+
+```bash
+git restore artifacts
+```
 
 ## 7. 실습 경로 구분
 
