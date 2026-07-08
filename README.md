@@ -158,7 +158,7 @@ uv run jupyter lab
 
 | 순서 | 따라갈 코드 | 역할 |
 | --- | --- | --- |
-| 1 | `labs/ch01_data_quality/pandas_data_quality_lab.ipynb` | 데이터 로딩, schema, 결측, 범위, label 분포를 셀 단위로 확인 |
+| 1 | `labs/ch01_data_quality/1_pandas_data_quality_lab.ipynb` | 데이터 로딩, schema, 결측, 범위, label 분포를 셀 단위로 확인 |
 | 2 | `labs/ch01_data_quality/utils.py` | notebook에서 쓰는 1장 helper의 책임 확인 |
 | 3 | `labs/ch01_data_quality/build_quality_report.py` | 전체 데이터 기준 품질 리포트 재생성 |
 | 4 | `artifacts/reports/chapter_01_quality_report.md` | 데이터 품질 판단 문장 확인 |
@@ -182,10 +182,10 @@ uv run python scripts/course.py lab-data-quality
 | 순서 | 따라갈 코드 | 역할 |
 | --- | --- | --- |
 | 1 | `labs/ch02_model_quality/README.md` | 2장 모델 평가와 데이터-지표 연결 실습의 전체 흐름 확인 |
-| 2 | `labs/ch02_model_quality/model_evaluation_lab.ipynb` | test 데이터에서 score, prediction, confusion matrix, metric 해석 |
-| 3 | `labs/ch02_model_quality/great_expectations_lab.ipynb` | degraded validation 데이터의 검증 실패를 prepared artifact와 연결 |
-| 4 | `labs/ch02_model_quality/data_metric_connection_lab.ipynb` | 데이터 품질 신호와 metric 변화가 같은 사건인지 확인 |
-| 5 | `labs/ch02_model_quality/mlflow_tracking_lab.ipynb` | 로컬 평가 기록과 MLflow/JSON 기록 범위 확인 |
+| 2 | `labs/ch02_model_quality/3_model_evaluation_lab.ipynb` | test 데이터에서 score, prediction, confusion matrix, metric 해석 |
+| 3 | `labs/ch02_model_quality/2_great_expectations_lab.ipynb` | degraded validation 데이터의 검증 실패를 prepared artifact와 연결 |
+| 4 | `labs/ch02_model_quality/4_data_metric_connection_lab.ipynb` | 데이터 품질 신호와 metric 변화가 같은 사건인지 확인 |
+| 5 | `labs/ch02_model_quality/5_mlflow_tracking_lab.ipynb` | 로컬 평가 기록과 MLflow/JSON 기록 범위 확인 |
 | 6 | `labs/ch02_model_quality/train_baseline.py` | 기준 모델 재학습 |
 | 7 | `labs/ch02_model_quality/evaluate_and_record.py` | test 평가와 experiment JSON/MLflow 기록 생성 |
 | 8 | `labs/ch02_model_quality/build_comparison_artifacts.py` | baseline/degraded/test 비교 artifact와 보고서 생성 |
