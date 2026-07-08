@@ -1,0 +1,17 @@
+target_column: label
+
+feature_columns:
+  - heart_rate
+  - respiratory_rate
+  - body_temperature
+  - oxygen_saturation
+  - systolic_blood_pressure
+  - diastolic_blood_pressure
+
+excluded_columns:
+  - patient_id
+  - timestamp
+  - derived_hrv
+  - derived_pulse_pressure
+  - derived_bmi
+  - derived_map

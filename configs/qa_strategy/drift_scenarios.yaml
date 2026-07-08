@@ -1,0 +1,11 @@
+input_shift:
+  baseline_dataset: data/serving_requests.csv
+  current_dataset: data/drift_requests.csv
+  review_threshold_ratio: 0.1
+prediction_shift:
+  baseline_scenario: normal
+  current_scenario: anomaly
+  high_risk_rate_delta_threshold: 0.15
+operational_shift:
+  error_rate_delta_threshold: 0.03
+  latency_delta_ms_threshold: 100

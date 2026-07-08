@@ -1,0 +1,62 @@
+# TYPE ai_quality_request_total counter
+ai_quality_request_total 120
+# TYPE ai_quality_error_total counter
+ai_quality_error_total 8
+# TYPE ai_quality_validation_failure_total counter
+ai_quality_validation_failure_total 8
+# TYPE ai_quality_latency_average_ms gauge
+ai_quality_latency_average_ms 223.750
+# TYPE ai_quality_score_average gauge
+ai_quality_score_average 0.697500
+# TYPE ai_quality_high_risk_rate gauge
+ai_quality_high_risk_rate 0.900000
+# TYPE ai_quality_valid_request_total counter
+ai_quality_valid_request_total 112
+# TYPE ai_quality_valid_score_average gauge
+ai_quality_valid_score_average 0.697500
+# TYPE ai_quality_valid_high_risk_rate gauge
+ai_quality_valid_high_risk_rate 0.901786
+# TYPE ai_quality_prediction_count gauge
+ai_quality_prediction_count{prediction="high_risk",scope="all"} 108
+ai_quality_prediction_count{prediction="low_risk",scope="all"} 12
+ai_quality_prediction_count{prediction="high_risk",scope="valid"} 101
+ai_quality_prediction_count{prediction="low_risk",scope="valid"} 11
+# TYPE ai_quality_score_bucket_count gauge
+ai_quality_score_bucket_count{bucket="0.0-0.2",scope="all"} 0
+ai_quality_score_bucket_count{bucket="0.2-0.4",scope="all"} 0
+ai_quality_score_bucket_count{bucket="0.4-0.6",scope="all"} 36
+ai_quality_score_bucket_count{bucket="0.6-0.8",scope="all"} 48
+ai_quality_score_bucket_count{bucket="0.8-1.0",scope="all"} 36
+ai_quality_score_bucket_count{bucket="0.0-0.2",scope="valid"} 0
+ai_quality_score_bucket_count{bucket="0.2-0.4",scope="valid"} 0
+ai_quality_score_bucket_count{bucket="0.4-0.6",scope="valid"} 33
+ai_quality_score_bucket_count{bucket="0.6-0.8",scope="valid"} 46
+ai_quality_score_bucket_count{bucket="0.8-1.0",scope="valid"} 33
+# TYPE ai_quality_input_mean_delta gauge
+ai_quality_input_mean_delta{feature="heart_rate"} 10.491667
+ai_quality_input_mean_delta{feature="oxygen_saturation"} -1.469766
+# TYPE ai_quality_score_average_delta gauge
+ai_quality_score_average_delta 0.222500
+# TYPE ai_quality_high_risk_rate_delta gauge
+ai_quality_high_risk_rate_delta 0.400000
+# TYPE ai_quality_input_histogram_count gauge
+ai_quality_input_histogram_count{feature="heart_rate",bucket="60.00~67.80",scope="baseline"} 23
+ai_quality_input_histogram_count{feature="heart_rate",bucket="60.00~67.80",scope="current"} 0
+ai_quality_input_histogram_count{feature="heart_rate",bucket="67.80~75.60",scope="baseline"} 24
+ai_quality_input_histogram_count{feature="heart_rate",bucket="67.80~75.60",scope="current"} 0
+ai_quality_input_histogram_count{feature="heart_rate",bucket="75.60~83.40",scope="baseline"} 23
+ai_quality_input_histogram_count{feature="heart_rate",bucket="75.60~83.40",scope="current"} 16
+ai_quality_input_histogram_count{feature="heart_rate",bucket="83.40~91.20",scope="baseline"} 25
+ai_quality_input_histogram_count{feature="heart_rate",bucket="83.40~91.20",scope="current"} 58
+ai_quality_input_histogram_count{feature="heart_rate",bucket="91.20~99.00",scope="baseline"} 25
+ai_quality_input_histogram_count{feature="heart_rate",bucket="91.20~99.00",scope="current"} 46
+ai_quality_input_histogram_count{feature="oxygen_saturation",bucket="95.03~96.02",scope="baseline"} 29
+ai_quality_input_histogram_count{feature="oxygen_saturation",bucket="95.03~96.02",scope="current"} 58
+ai_quality_input_histogram_count{feature="oxygen_saturation",bucket="96.02~97.02",scope="baseline"} 22
+ai_quality_input_histogram_count{feature="oxygen_saturation",bucket="96.02~97.02",scope="current"} 52
+ai_quality_input_histogram_count{feature="oxygen_saturation",bucket="97.02~98.01",scope="baseline"} 17
+ai_quality_input_histogram_count{feature="oxygen_saturation",bucket="97.02~98.01",scope="current"} 10
+ai_quality_input_histogram_count{feature="oxygen_saturation",bucket="98.01~99.00",scope="baseline"} 16
+ai_quality_input_histogram_count{feature="oxygen_saturation",bucket="98.01~99.00",scope="current"} 0
+ai_quality_input_histogram_count{feature="oxygen_saturation",bucket="99.00~99.99",scope="baseline"} 36
+ai_quality_input_histogram_count{feature="oxygen_saturation",bucket="99.00~99.99",scope="current"} 0

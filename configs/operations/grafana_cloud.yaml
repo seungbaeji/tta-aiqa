@@ -1,0 +1,8 @@
+stack_name: ai-quality-training
+logs_datasource: grafanacloud-logs
+metrics_datasource: grafanacloud-prom
+dashboard_uid: ai-quality-overview
+labels:
+  service: ai-quality-serving
+  environment: training
+payload_preview_path: artifacts/grafana/grafana_cloud_payload_preview.json

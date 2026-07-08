@@ -1,0 +1,6 @@
+namespace: ai-quality
+deployment_name: ai-quality-serving
+service_name: ai-quality-serving
+app_label: ai-quality-serving
+container_port: 8000
+service_port: 80

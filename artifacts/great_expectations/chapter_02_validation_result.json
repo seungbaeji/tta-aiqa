@@ -1,0 +1,63 @@
+{
+  "dataset_name": "vital_signs_valid_degraded.csv",
+  "row_count": 30003,
+  "expectation_results": [
+    {
+      "expectation_type": "expect_column_to_exist",
+      "column": "label",
+      "success": true,
+      "unexpected_count": 0,
+      "unexpected_ratio": 0.0,
+      "observed_value": "exists",
+      "qa_reason": "모델 평가 전 라벨(label) 컬럼이 필요합니다."
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "column": "label",
+      "success": true,
+      "unexpected_count": 0,
+      "unexpected_ratio": 0.0,
+      "observed_value": "missing_count=0",
+      "qa_reason": "라벨(label) 결측은 지표(metric) 계산 신뢰도를 낮춥니다."
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "column": "heart_rate",
+      "success": false,
+      "unexpected_count": 1501,
+      "unexpected_ratio": 5.002833050028331,
+      "observed_value": "missing_count=1501",
+      "qa_reason": "모델 입력 특성(feature) 결측은 점수(score) 계산을 불안정하게 만들 수 있습니다."
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_in_set",
+      "column": "label",
+      "success": true,
+      "unexpected_count": 0,
+      "unexpected_ratio": 0.0,
+      "observed_value": "invalid_count=0",
+      "qa_reason": "허용된 이진 분류(binary classification) 라벨만 모델 평가에 사용해야 합니다."
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "column": "oxygen_saturation",
+      "success": false,
+      "unexpected_count": 1201,
+      "unexpected_ratio": 4.002933040029331,
+      "observed_value": "allowed=0..100",
+      "qa_reason": "허용 범위 밖 특성(feature)은 점수(score) 분포를 왜곡할 수 있습니다."
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "column": "heart_rate",
+      "success": true,
+      "unexpected_count": 0,
+      "unexpected_ratio": 0.0,
+      "observed_value": "allowed=1..250",
+      "qa_reason": "허용 범위 밖 특성(feature)은 점수(score) 분포를 왜곡할 수 있습니다."
+    }
+  ],
+  "success": false,
+  "success_count": 4,
+  "failure_count": 2
+}
