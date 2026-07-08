@@ -15,7 +15,7 @@
 
 ## 2. 준비
 
-Python 3.11 이상과 `uv`를 사용합니다. `uv`는 Astral에서 제공하는 Python package/project manager입니다. 설치 파일과 자세한 안내는 [공식 설치 문서](https://docs.astral.sh/uv/getting-started/installation/)에서 확인합니다.
+Python 3.11을 기준으로 실습합니다. 이 repository에는 `.python-version`을 3.11로 두어 `uv`가 같은 Python 계열을 우선 사용하도록 합니다. `uv`는 Astral에서 제공하는 Python package/project manager입니다. 설치 파일과 자세한 안내는 [공식 설치 문서](https://docs.astral.sh/uv/getting-started/installation/)에서 확인합니다.
 
 ### 2-1. uv 설치
 
@@ -37,7 +37,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 uv --version
 ```
 
-Python이 없거나 버전이 맞지 않으면 `uv`로 Python을 설치할 수 있습니다.
+Python 3.11이 없으면 `uv`로 설치합니다.
 
 ```bash
 uv python install 3.11
@@ -63,13 +63,19 @@ uv run python scripts/course.py smoke
 
 `smoke`는 교재에서 참조하는 기본 폴더가 있는지만 확인합니다. 모델 품질이나 운영 품질 결론을 만들지는 않습니다.
 
-## 4. 실습 데이터 준비
+## 4. 실습 데이터와 산출물 준비
 
 root `data/`에는 원본 CSV인 `data/human_vital_signs_dataset_2024.csv`만 Git에 포함합니다. 장별 실습에서 사용하는 파생 CSV/JSONL은 원본에서 다시 생성합니다.
+
+### 4-1. 데이터 생성
 
 ```bash
 uv run python scripts/course.py prepare-data
 ```
+
+생성되는 root `data/` 파생 파일은 로컬 실습 준비물이며 Git에는 커밋하지 않습니다.
+
+### 4-2. 전체 산출물 재생성
 
 전체 lab 산출물까지 한 번에 재생성하려면 다음 명령을 사용합니다.
 
@@ -77,7 +83,32 @@ uv run python scripts/course.py prepare-data
 uv run python scripts/course.py labs
 ```
 
-생성된 파생 데이터는 로컬 실습 준비물이며 Git에는 커밋하지 않습니다.
+이 명령은 `artifacts/` 아래 prepared evidence도 다시 씁니다. 수강생이 “준비된 artifact 확인”만 한 경우와 “로컬에서 재생성”한 경우를 보고서에 구분해서 적어야 합니다.
+
+장별로 확인하려면 다음 명령을 하나씩 실행합니다.
+
+| 장 | 명령 | 주요 산출물 |
+| --- | --- | --- |
+| 1장 | `uv run python scripts/course.py lab-data-quality` | `artifacts/reports/chapter_01_quality_report.md` |
+| 2장 | `uv run python scripts/course.py lab-model-quality` | `artifacts/models/chapter_02_baseline.pkl`, `artifacts/experiments/chapter_02/*.json`, `artifacts/reports/chapter_02_model_quality_comparison.md` |
+| 3장 | `uv run python scripts/course.py lab-serving` | `outputs/check_serving_contract_prediction_events.jsonl` |
+| 4장 | `uv run python scripts/course.py lab-observability` | `artifacts/logs/*.jsonl`, `artifacts/metrics/chapter_04_anomaly.prom`, `artifacts/grafana/*.json`, `artifacts/reports/quality_issue_trace.md` |
+| 5장 | `uv run python scripts/course.py lab-qa-strategy` | `artifacts/reports/drift_report.md`, `release_approval.md`, `ai_qa_checklist.md` |
+
+### 4-3. 실행 후 정리
+
+로컬 생성 데이터와 runtime output을 지우려면 다음 명령을 실행합니다.
+
+```bash
+uv run python scripts/course.py clean-data
+uv run python scripts/course.py clean
+```
+
+prepared artifact를 강의 배포 상태로 되돌리려면 Git 기준으로 복구합니다.
+
+```bash
+git restore artifacts
+```
 
 ## 5. Repository 구성
 
