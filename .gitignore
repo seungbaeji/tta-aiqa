@@ -33,6 +33,10 @@ artifacts/mlflow/
 # Environment
 .env
 .env.*
+.argocd/
+*.pem
+*_deploy_key
+*_deploy_key.pub
 
 # OS/editor
 .DS_Store

@@ -15,6 +15,30 @@
 
 ## 2. 준비
 
+교육장 VM을 사용하는 실습에서는 먼저 VM에 접속합니다. Docker, Kubernetes, Argo CD, KServe, Grafana Cloud와 연결되는 실습은 개인 PC가 아니라 준비된 VM에서 실행하는 흐름을 기준으로 합니다.
+
+```bash
+ssh -o PreferredAuthentications=password \
+  -o PubkeyAuthentication=no \
+  -J mrml-bastion@146.56.41.109 \
+  tta@10.99.0.20
+```
+
+접속 후에는 VM 안에서 이 repository 위치로 이동합니다. 비밀번호는 터미널에 직접 입력하고, 문서나 notebook에 남기지 않습니다. VM 접속이 되지 않으면 3장 Argo CD/KServe live 확인과 4장 Grafana Cloud 전송 실습은 진행하지 않고, 준비된 artifact 확인으로 범위를 제한합니다.
+
+VS Code로 실습하려면 `Remote - SSH` 확장을 사용합니다. 개인 PC의 `~/.ssh/config`에 다음 설정을 추가합니다.
+
+```sshconfig
+Host tta-aiqa-vm
+  HostName 10.99.0.20
+  User tta
+  ProxyJump mrml-bastion@146.56.41.109
+  PreferredAuthentications password
+  PubkeyAuthentication no
+```
+
+VS Code에서 `Remote-SSH: Connect to Host...`를 실행한 뒤 `tta-aiqa-vm`을 선택합니다. 접속이 완료되면 VM 안의 이 repository 폴더를 열고 아래 준비 명령을 실행합니다.
+
 Python 3.11을 기준으로 실습합니다. 이 repository에는 `.python-version`을 3.11로 두어 `uv`가 같은 Python 계열을 우선 사용하도록 합니다. `uv`는 Astral에서 제공하는 Python package/project manager입니다. 설치 파일과 자세한 안내는 [공식 설치 문서](https://docs.astral.sh/uv/getting-started/installation/)에서 확인합니다.
 
 ### 2-1. uv 설치

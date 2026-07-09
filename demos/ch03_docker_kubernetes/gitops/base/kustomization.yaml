@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: ai-quality
+resources:
+  - namespace.yaml
+  - observability-config.yaml
+  - inferenceservice.yaml
+labels:
+  - pairs:
+      app.kubernetes.io/name: ai-quality-risk-classifier
+      app.kubernetes.io/part-of: tta-mlops-course
+      ai-quality/model-name: risk-classifier
+      ai-quality/model-alias: candidate
