@@ -1,6 +1,6 @@
 """Notebook utilities for course Jupyter and JupyterLite workbooks.
 
-The notebooks should show the QA evidence path, not long package bootstrap
+The notebooks should show the QA 확인 경로, not long package bootstrap
 logic. This module keeps Lite/package setup and repeated runtime glue out of
 the learner-facing cells.
 """
@@ -89,12 +89,12 @@ def resolve_course_path(relative_path: str) -> Path:
 
 
 def read_json_artifact(relative_path: str) -> Any:
-    """Read a small JSON artifact used as prepared notebook evidence."""
+    """Read a small JSON artifact used as 준비된 notebook 확인 결과."""
     return json.loads(resolve_course_path(relative_path).read_text(encoding="utf-8"))
 
 
 def read_text_artifact(relative_path: str) -> str:
-    """Read a small text artifact used as prepared notebook evidence."""
+    """Read a small text artifact used as 준비된 notebook 확인 결과."""
     return resolve_course_path(relative_path).read_text(encoding="utf-8")
 
 

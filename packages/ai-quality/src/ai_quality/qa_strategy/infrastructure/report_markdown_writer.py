@@ -19,14 +19,9 @@ def render_drift_report_markdown(
 ) -> str:
     """Render drift and prediction distribution report."""
     lines = [
-        "# 입력/예측 변화 요약",
+        "# Drift Report",
         "",
-        (
-            "현재 배치가 기준 배치와 어떻게 달라졌는지 확인하는 요약입니다. "
-            "이 파일만으로 자연 시간 drift나 모델 결함을 확정하지 않습니다."
-        ),
-        "",
-        "## 입력 특성 변화",
+        "## Input Distribution",
         "",
         "| feature | baseline_mean | current_mean | delta | delta_ratio | shifted |",
         "| --- | ---: | ---: | ---: | ---: | --- |",
@@ -45,7 +40,31 @@ def render_drift_report_markdown(
     lines.extend(
         [
             "",
-            "## 점수와 예측 변화",
+            "## Input Distribution Buckets",
+            "",
+            "| feature | bin | baseline_count | current_count |",
+            "| --- | --- | ---: | ---: |",
+        ]
+    )
+    for item in feature_comparisons:
+        for label, baseline_count, current_count in zip(
+            item.histogram_bins,
+            item.baseline_histogram,
+            item.current_histogram,
+            strict=False,
+        ):
+            lines.append(
+                "| "
+                f"{item.feature} | "
+                f"{label} | "
+                f"{baseline_count} | "
+                f"{current_count} |"
+            )
+
+    lines.extend(
+        [
+            "",
+            "## Score And Prediction Distribution",
             "",
             "| signal | baseline | current | delta |",
             "| --- | ---: | ---: | ---: |",
@@ -89,7 +108,7 @@ def render_issue_trace_markdown(report: IssueTraceReport) -> str:
 
 
 def render_approval_report_markdown(decision: ApprovalDecision) -> str:
-    """Render release approval report."""
+    """Render deployment decision report."""
 
     def format_observed(value: float | bool | str) -> str:
         if isinstance(value, bool):
@@ -101,29 +120,31 @@ def render_approval_report_markdown(decision: ApprovalDecision) -> str:
     failed_checks = ", ".join(decision.failed_checks) or "-"
     notes = "<br>".join(decision.notes)
     lines = [
-        "# 릴리스 판단 요약",
+        "# Deployment Decision Report",
+        "",
+        "## Decision Summary",
         "",
         (
-            "승인 여부와 실패 기준만 먼저 확인하는 요약입니다. "
-            "상세 원인 후보는 `quality_issue_trace.md`에서 확인합니다."
+            "| recommendation | approved | failed_checks | unresolved_risks | "
+            "re_evaluation_condition |"
+        ),
+        "| --- | --- | --- | --- | --- |",
+        (
+            f"| {decision.recommendation or '-'} | "
+            f"{decision.approved} | "
+            f"{failed_checks} | "
+            f"{', '.join(risk.area for risk in decision.unresolved_risks) or '-'} | "
+            f"{decision.re_evaluation_condition or '-'} |"
         ),
         "",
-        f"- recommendation: {decision.recommendation or '-'}",
-        f"- approved: {decision.approved}",
-        f"- failed_checks: {failed_checks}",
-        (
-            "- unresolved_risks: "
-            f"{', '.join(risk.area for risk in decision.unresolved_risks) or '-'}"
-        ),
-        f"- re_evaluation_condition: {decision.re_evaluation_condition or '-'}",
-        f"- notes: {notes or '-'}",
+        "| approved | failed_checks | notes |",
+        "| --- | --- | --- |",
+        f"| {decision.approved} | {failed_checks} | {notes} |",
         "",
     ]
     if decision.check_results:
         lines.extend(
             [
-                "## 기준별 결과",
-                "",
                 "| check | observed | criterion | result |",
                 "| --- | --- | --- | --- |",
             ]
@@ -141,9 +162,9 @@ def render_approval_report_markdown(decision: ApprovalDecision) -> str:
     if decision.unresolved_risks:
         lines.extend(
             [
-                "## 미해소 리스크",
+                "## Unresolved Deployment Checks",
                 "",
-                "| area | status | evidence | owner | next_action |",
+                "| area | status | 확인 결과 | owner | next_action |",
                 "| --- | --- | --- | --- | --- |",
             ]
         )
@@ -155,6 +176,29 @@ def render_approval_report_markdown(decision: ApprovalDecision) -> str:
                 f"{risk.evidence} | "
                 f"{risk.owner} | "
                 f"{risk.next_action} |"
+            )
+        lines.append("")
+    if decision.risk_tradeoffs:
+        lines.extend(
+            [
+                "## Deployment Risk Tradeoff",
+                "",
+                (
+                    "| decision | company_risk | 확인 결과 | missing_check | "
+                    "owner | next_action |"
+                ),
+                "| --- | --- | --- | --- | --- | --- |",
+            ]
+        )
+        for tradeoff in decision.risk_tradeoffs:
+            lines.append(
+                "| "
+                f"{tradeoff.decision} | "
+                f"{tradeoff.company_risk} | "
+                f"{tradeoff.evidence} | "
+                f"{tradeoff.missing_evidence} | "
+                f"{tradeoff.owner} | "
+                f"{tradeoff.next_action} |"
             )
         lines.append("")
     return "\n".join(lines)

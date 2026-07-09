@@ -89,17 +89,6 @@ async def ensure_pandas() -> Any:
         return importlib.import_module("pandas")
 
 
-async def ensure_sklearn() -> Any:
-    """Import scikit-learn, installing it in JupyterLite when needed."""
-    try:
-        return importlib.import_module("sklearn")
-    except ModuleNotFoundError:
-        import piplite
-
-        await piplite.install("scikit-learn")
-        return importlib.import_module("sklearn")
-
-
 async def ensure_ai_quality_lite() -> Any:
     """Import ai_quality.lite, installing the Lite wheel without js.window."""
     try:

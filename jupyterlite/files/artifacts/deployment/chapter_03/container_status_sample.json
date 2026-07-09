@@ -1,7 +1,7 @@
 {
   "artifact_type": "prepared_container_status",
   "chapter": "03_serving",
-  "source_demo": "demos/ch03_docker_kubernetes/scripts/check_container.sh",
+  "source_demo": "demos/ch03_docker_kubernetes/scripts/01_check_container.sh",
   "execution_mode": "prepared_sample",
   "scope_note": "JupyterLite cannot run Docker. Learners inspect this prepared status output and separate it from live API evidence.",
   "container": {

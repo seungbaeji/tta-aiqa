@@ -9,7 +9,9 @@
 | 산출물 | 경로 | 사용 방식 |
 | --- | --- | --- |
 | Lab 문서 | `labs/ch04_observability/README.md` | 운영 관측 실습 흐름과 QA 해석 확인 |
-| Notebook | `labs/ch04_observability/observability_lab.ipynb` | 로그 생성, 메트릭 생성, 정상/이상 비교를 셀 단위로 실행 |
+| 초급 Notebook 1 | `labs/ch04_observability/01_read_logs.ipynb` | JSONL 로그에서 요청 단위 필드 확인 |
+| 초급 Notebook 2 | `labs/ch04_observability/02_compare_operational_numbers.ipynb` | 오류율, 지연 시간, score, prediction 변화 비교 |
+| 참고 Notebook | `labs/ch04_observability/03_observability_lab.ipynb` | 전체 운영 관측 흐름을 한 번에 다시 볼 때 사용 |
 | CLI 스크립트 | `labs/ch04_observability/*.py` | Notebook과 같은 흐름을 명령행에서 단계별 실행 |
 
 ## 4-6-1. 정상 상태의 로그와 지표 확인
@@ -20,7 +22,7 @@
 | --- | --- |
 | 실습 목표 | 정상/이상 예측 이벤트(prediction event)를 JSONL 로그로 생성 |
 | 준비 데이터 | 코드로 생성하는 정상 상태와 이상 상태 이벤트 |
-| 실행 코드 | `labs/ch04_observability/build_observability_artifacts.py` |
+| 실행 코드 | `labs/ch04_observability/04_build_observability_artifacts.py` |
 | 예상 결과 | 정상 로그와 이상 로그 JSONL 파일 생성 |
 | QA 해석 | 기준선이 있어야 현재 상태가 이상인지 판단 가능 |
 | 실패 시 확인 | `artifacts/logs` 디렉터리와 파일 경로 확인 |
@@ -28,7 +30,7 @@
 이 실행은 정상/이상 로그와 메트릭을 만들어 운영 품질 비교의 기준 증거를 생성합니다. 실행 환경은 저장소 루트의 로컬 shell이며, 실행 코드는 다음과 같습니다.
 
 ```bash
-uv run --group lab python labs/ch04_observability/build_observability_artifacts.py
+uv run --group lab python labs/ch04_observability/04_build_observability_artifacts.py
 ```
 
 실행 후 다음 파일이 생성됩니다.
@@ -38,7 +40,7 @@ artifacts/logs/chapter_04_normal_events.jsonl
 artifacts/logs/chapter_04_anomaly_events.jsonl
 ```
 
-이 파일은 보고서용 120건 current incident sample로 생성됩니다. 다만 Grafana Cloud streaming Demo는 같은 종류의 JSONL 로그를 계속 append할 수 있으므로, 수강생은 숫자를 인용하기 전에 `artifacts/metrics/chapter_04_anomaly.prom`의 `ai_quality_request_total`과 로그 행 수가 같은 사건 단위를 가리키는지 확인합니다. 행 수가 120건보다 많다면 streaming 실행 이력이 섞인 상태일 수 있으므로 `uv run --group lab python labs/ch04_observability/build_observability_artifacts.py`로 보고서용 산출물을 다시 만든 뒤 인용합니다.
+이 파일은 보고서용 120건 current incident sample로 생성됩니다. 다만 Grafana Cloud streaming Demo는 같은 종류의 JSONL 로그를 계속 append할 수 있으므로, 수강생은 숫자를 인용하기 전에 `artifacts/metrics/chapter_04_anomaly.prom`의 `ai_quality_request_total`과 로그 행 수가 같은 사건 단위를 가리키는지 확인합니다. 행 수가 120건보다 많다면 streaming 실행 이력이 섞인 상태일 수 있으므로 `uv run --group lab python labs/ch04_observability/04_build_observability_artifacts.py`로 보고서용 산출물을 다시 만든 뒤 인용합니다.
 
 **QA 해석에서는 정상 로그와 이상 로그의 필드가 같은지 먼저 확인합니다.** 필드 구조가 다르면 대시보드 비교가 어렵습니다. 그다음 요청 수(request count), 오류(error), 검증 실패(validation failure), 점수(score), 예측(prediction), 지연 시간(latency)을 비교합니다.
 
@@ -52,12 +54,12 @@ artifacts/logs/chapter_04_anomaly_events.jsonl
 | --- | --- |
 | 실습 목표 | `request_id`로 이상 상태 대표 요청 조회 |
 | 준비 데이터 | `artifacts/logs/chapter_04_anomaly_events.jsonl` |
-| 실행 코드 | `labs/ch04_observability/observability_lab.ipynb` |
+| 실행 코드 | `labs/ch04_observability/01_read_logs.ipynb` |
 | 예상 결과 | `current-0008` 요청의 `trace_id`, `score`, `prediction`, `latency_ms` 확인 |
 | QA 해석 | 대표 요청의 점수, 임계값(threshold), 예측을 근거로 원인 후보를 좁힘 |
 | 실패 시 확인 | 4-6-1 로그 생성 여부와 `request_id` 값 확인 |
 
-이 실행에서 확인할 핵심은 대표 요청의 `trace_id`, 점수, 임계값, 예측, 지연 시간이 함께 추적되는지입니다. Notebook에서는 `labs/ch04_observability/observability_lab.ipynb`의 `request_id` 조회 셀을 실행합니다. 명령행에서 로그와 메트릭 산출물을 다시 만들 때는 `uv run --group lab python labs/ch04_observability/build_observability_artifacts.py`를 사용합니다.
+이 실행에서 확인할 핵심은 대표 요청의 `trace_id`, 점수, 임계값, 예측, 지연 시간이 함께 추적되는지입니다. Notebook에서는 `labs/ch04_observability/01_read_logs.ipynb`의 `request_id` 조회 셀을 실행합니다. 명령행에서 로그와 메트릭 산출물을 다시 만들 때는 `uv run --group lab python labs/ch04_observability/04_build_observability_artifacts.py`를 사용합니다.
 
 이 출력에서 확인할 핵심은 대표 요청 하나가 대시보드 신호를 추적할 수 있는 필드를 갖는지입니다. 예상 결과는 다음과 같은 형태입니다.
 
@@ -87,7 +89,7 @@ request_id=current-0008
 | --- | --- |
 | 실습 목표 | Prometheus 형식 메트릭 생성과 정상/이상 상태 비교 |
 | 준비 데이터 | 정상/이상 JSONL 로그 |
-| 실행 코드 | `observability_lab.ipynb`, `build_observability_artifacts.py` |
+| 실행 코드 | `02_compare_operational_numbers.ipynb`, `04_build_observability_artifacts.py` |
 | 예상 결과 | 오류율(error rate), 지연 시간, 전체 이벤트와 유효 요청 기준 `high_risk` 비율, 평균 점수 증가 확인 |
 | QA 해석 | 입력 검증 실패, 운영 부하, 입력 분포 변화 후보 분리 |
 | 실패 시 확인 | 정상 상태와 이상 상태 로그 파일, 메트릭 계산 대상 확인 |
@@ -95,7 +97,7 @@ request_id=current-0008
 Prometheus text 형식의 메트릭은 정상/이상 상태의 변화 규모를 비교하는 증거입니다. 먼저 메트릭을 생성합니다.
 
 ```bash
-uv run --group lab python labs/ch04_observability/build_observability_artifacts.py
+uv run --group lab python labs/ch04_observability/04_build_observability_artifacts.py
 ```
 
 핵심 출력은 다음과 같습니다.
@@ -112,7 +114,7 @@ ai_quality_valid_score_average 0.643703
 ai_quality_valid_high_risk_rate 0.464286
 ```
 
-정상 기준선과 이상 상태(anomaly) 비교는 `labs/ch04_observability/observability_lab.ipynb`의 정상/이상 비교 셀에서 확인합니다.
+정상 기준선과 이상 상태(anomaly) 비교는 `labs/ch04_observability/02_compare_operational_numbers.ipynb`의 정상/이상 비교 셀에서 확인합니다.
 
 이 출력에서 확인할 핵심은 오류율, 지연 시간, `high_risk` 비율, 평균 점수가 같은 방향으로 변했는지입니다. 예상 결과는 다음과 같은 형태입니다.
 
@@ -164,7 +166,7 @@ QA 해석에서는 검증 실패를 운영 품질 문제로 기록합니다. 모
 마지막 Lab은 이상 상태(anomaly) 기준의 대시보드 JSON(dashboard JSON), Grafana Cloud 페이로드 미리보기(payload preview), Tempo trace preview, drift 후보 metric을 생성합니다.
 
 ```bash
-uv run --group lab python labs/ch04_observability/build_observability_artifacts.py
+uv run --group lab python labs/ch04_observability/04_build_observability_artifacts.py
 ```
 
 수강생은 `artifacts/grafana/ai_quality_overview_dashboard.json`과 `artifacts/grafana/ai_quality_details_dashboard.json`을 열어 패널 쿼리(panel query)를 확인하고, `artifacts/grafana/grafana_cloud_payload_preview.json`에서 라벨과 로그 필드가 충분한지 확인합니다. Tempo 연결을 진행하지 않는 경우에도 `artifacts/traces/chapter_04_tempo_payload.json`을 열어 `course_trace_id`와 span 이름이 요청 흐름을 설명하는지 확인합니다.
