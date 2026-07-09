@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import os
 import urllib.request
 import warnings
@@ -27,6 +28,10 @@ from ai_quality.model_quality.infrastructure.sklearn_classifier import (
     load_model,
     predict_positive_scores,
 )
+from ai_quality.model_quality.ports.experiment_tracker import (
+    DatasetInput,
+    ModelArtifact,
+)
 
 
 @dataclass(frozen=True)
@@ -37,6 +42,9 @@ class EvaluationRecordResult:
     json_path: Path
     mlflow_path: Path | None
     mlflow_tracking_uri: str | None
+    dataset_version: str
+    dataset_digest: str
+    model_version: str
 
 
 def resolve_mlflow_tracking_uri() -> str | None:
@@ -49,14 +57,22 @@ def resolve_mlflow_tracking_uri() -> str | None:
         with urllib.request.urlopen(tracking_uri, timeout=2.0) as response:
             if response.status != 200:
                 warnings.warn(
-                    f"MLFLOW_TRACKING_URI '{tracking_uri}' is not ready (HTTP {response.status}). "
-                    "Skip MLflow tracking."
+                    (
+                        f"MLFLOW_TRACKING_URI '{tracking_uri}' is not ready "
+                        f"(HTTP {response.status}). "
+                        "Skip MLflow tracking."
+                    ),
+                    stacklevel=2,
                 )
                 return None
     except Exception as error:
         warnings.warn(
-            f"Could not connect to MLFLOW_TRACKING_URI '{tracking_uri}': {type(error).__name__}: {error}. "
-            "Skip MLflow tracking."
+            (
+                f"Could not connect to MLFLOW_TRACKING_URI '{tracking_uri}': "
+                f"{type(error).__name__}: {error}. "
+                "Skip MLflow tracking."
+            ),
+            stacklevel=2,
         )
         return None
     return tracking_uri
@@ -115,6 +131,15 @@ def load_dataset(filename: str) -> pd.DataFrame:
     return pd.read_csv(dataset_path(filename))
 
 
+def file_sha256(path: Path) -> str:
+    """Return a stable content digest for a local artifact or dataset."""
+    digest = hashlib.sha256()
+    with path.open("rb") as file:
+        for chunk in iter(lambda: file.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def print_report(report: EvaluationReport) -> None:
     """Print a compact QA-oriented report."""
     matrix = report.confusion_matrix
@@ -143,11 +168,13 @@ def print_report(report: EvaluationReport) -> None:
 
 def record_model_test_evaluation() -> EvaluationRecordResult:
     """Evaluate the scikit-learn baseline and record comparison context."""
-    dataframe = load_dataset("vital_signs_test.csv")
+    test_dataset_path = dataset_path("vital_signs_test.csv")
+    dataframe = pd.read_csv(test_dataset_path)
     features = feature_columns()
     target = target_column()
     threshold = operating_threshold()
-    model = load_model(chapter_model_path())
+    model_path = chapter_model_path()
+    model = load_model(model_path)
     scores = predict_positive_scores(model, dataframe, features)
     report = calculate_binary_metrics(
         labels=list(dataframe[target]),
@@ -156,11 +183,19 @@ def record_model_test_evaluation() -> EvaluationRecordResult:
         dataset_name="vital_signs_test",
     )
 
+    dataset_digest = file_sha256(test_dataset_path)
+    dataset_version = f"v1-test+sha256:{dataset_digest[:12]}"
+    model_version = "v1"
+    input_example = dataframe.loc[:, features].head(5)
+    output_example = model.predict_proba(input_example)[:, 1]
     params = {
         "dataset_name": report.dataset_name,
-        "dataset_version": "v1-test",
+        "dataset_version": dataset_version,
+        "dataset_digest": dataset_digest,
+        "dataset_source_path": str(test_dataset_path),
         "model_name": "chapter_02_baseline",
-        "model_version": "v1",
+        "model_version": model_version,
+        "model_artifact_path": str(model_path),
         "feature_columns": ",".join(features),
         "label_mapping": "High Risk=high_risk, Low Risk=low_risk",
         "operating_threshold": threshold,
@@ -175,17 +210,45 @@ def record_model_test_evaluation() -> EvaluationRecordResult:
         "false_positive": float(report.confusion_matrix.false_positive),
         "false_negative": float(report.confusion_matrix.false_negative),
     }
+    datasets = [
+        DatasetInput(
+            name=report.dataset_name,
+            version=dataset_version,
+            path=test_dataset_path,
+            context="evaluation",
+            target_column=target,
+            digest=dataset_digest,
+            dataframe=dataframe,
+        )
+    ]
+    model_artifact = ModelArtifact(
+        name="chapter_02_baseline",
+        version=model_version,
+        path=model_path,
+        model=model,
+        input_example=input_example,
+        output_example=output_example,
+    )
+    tags = {
+        "course_chapter": "02",
+        "qa_stage": "model_quality",
+        "dataset_name": report.dataset_name,
+        "dataset_version": dataset_version,
+        "model_name": "chapter_02_baseline",
+        "model_version": model_version,
+        "run_purpose": "test_evaluation_record",
+    }
 
     json_path = JsonExperimentTracker.for_chapter("chapter_02").log_run(
         run_name="model_test_eval",
         params=params,
         metrics=metrics,
-        artifacts=[chapter_model_path()],
+        artifacts=[model_path],
+        datasets=datasets,
+        model_artifact=model_artifact,
+        tags=tags,
     )
     mlflow_tracking_uri = resolve_mlflow_tracking_uri()
-    artifact_paths = []
-    if not mlflow_tracking_uri:
-        artifact_paths = [chapter_model_path()]
 
     mlflow_path = MlflowExperimentTracker(
         "ai-quality-chapter-02",
@@ -194,7 +257,10 @@ def record_model_test_evaluation() -> EvaluationRecordResult:
         run_name="model_test_eval",
         params=params,
         metrics=metrics,
-        artifacts=artifact_paths,
+        artifacts=[json_path, model_path],
+        datasets=datasets,
+        model_artifact=model_artifact,
+        tags=tags,
     )
 
     return EvaluationRecordResult(
@@ -202,4 +268,7 @@ def record_model_test_evaluation() -> EvaluationRecordResult:
         json_path=json_path,
         mlflow_path=mlflow_path,
         mlflow_tracking_uri=mlflow_tracking_uri,
+        dataset_version=dataset_version,
+        dataset_digest=dataset_digest,
+        model_version=model_version,
     )

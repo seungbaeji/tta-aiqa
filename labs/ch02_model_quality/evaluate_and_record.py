@@ -13,6 +13,10 @@ def main() -> None:
     result = record_model_test_evaluation()
 
     print_report(result.report)
+    print("dataset lineage")
+    print(f"version={result.dataset_version}")
+    print(f"digest={result.dataset_digest}")
+    print(f"model_version={result.model_version}")
     print("experiment artifact")
     print(result.json_path)
     if result.mlflow_path is not None:

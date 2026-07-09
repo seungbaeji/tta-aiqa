@@ -13,6 +13,10 @@ def main() -> None:
     result = record_model_test_evaluation()
 
     print_report(result.report)
+    print("dataset lineage")
+    print(f"version={result.dataset_version}")
+    print(f"digest={result.dataset_digest}")
+    print(f"model_version={result.model_version}")
     print("experiment artifact")
     print(result.json_path)
     if result.mlflow_path is not None:
@@ -22,6 +26,8 @@ def main() -> None:
         )
         print("mlflow tracking")
         print(tracking_uri)
+        print("mlflow run contents")
+        print("params, metrics, dataset input, tags, JSON artifact, sklearn model")
     else:
         if result.mlflow_tracking_uri is None:
             print("mlflow package is not installed. JSON artifact was created.")
