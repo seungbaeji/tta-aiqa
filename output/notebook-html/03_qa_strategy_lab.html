@@ -7817,12 +7817,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=4fdbcea4">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=4fdbcea4">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -7861,6 +7861,30 @@ a.anchor-link {
 </div>
 </div>
 </div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>[notebook role]
+- package_module: ai_quality.lite
+- notebook_role: final_deployment_evidence_workbook
+- release_context: 배포 회의 전 확인 결과 정리
+
+[읽을 산출물과 근거 경계]
+- data_quality: chapter_01_quality_report.md | 평가 가능성 확인이며 운영 current 정상으로 확대하지 않습니다.
+- model_quality: model_test_eval.json | 선택된 모델과 threshold의 test 평가로 한정합니다.
+- validation_comparison: validation_degradation_comparison.json | validation 품질 저하 비교이며 운영 root cause 확정이 아닙니다.
+- operational_current: drift_report.md, quality_issue_trace.md | current batch 입력 구성 변화와 운영 검증 실패 후보입니다.
+- gitops_serving: Argo CD Application, KServe InferenceService | 배포 의도와 live sync 확인 결과를 분리합니다.
+- deployment_check: release_approval.md, ai_qa_checklist.md | 실패 기준과 미검증 항목을 확인 결과 path로 남깁니다.
+</pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=32169fb9">
 <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -7875,12 +7899,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=e414a04d">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=e414a04d">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">fallback_requests</span> <span class="o">=</span> <span class="n">sample_vital_signs</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">120</span><span class="p">)</span>
@@ -7910,6 +7934,118 @@ a.anchor-link {
 </div>
 </div>
 </div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>[입력 데이터 범위]
+- serving_requests_valid: embedded JupyterLite sample, rows=12, grain=one serving request sample
+- serving_requests_current: embedded JupyterLite sample, rows=12, grain=one serving request sample
+- feature_count: 6
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>feature</th>
+<th>baseline_mean</th>
+<th>current_mean</th>
+<th>mean_delta</th>
+<th>delta_ratio</th>
+<th>shifted</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>2</th>
+<td>body_temperature</td>
+<td>37.3083</td>
+<td>37.3083</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>False</td>
+</tr>
+<tr>
+<th>5</th>
+<td>diastolic_blood_pressure</td>
+<td>84.6667</td>
+<td>84.6667</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>False</td>
+</tr>
+<tr>
+<th>0</th>
+<td>heart_rate</td>
+<td>98.9091</td>
+<td>98.9091</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>False</td>
+</tr>
+<tr>
+<th>3</th>
+<td>oxygen_saturation</td>
+<td>94.1667</td>
+<td>94.1667</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>False</td>
+</tr>
+<tr>
+<th>1</th>
+<td>respiratory_rate</td>
+<td>21.5000</td>
+<td>21.5000</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>False</td>
+</tr>
+<tr>
+<th>4</th>
+<td>systolic_blood_pressure</td>
+<td>135.5000</td>
+<td>135.5000</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>False</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>shifted_features=none
+</pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=967a4531">
 <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -7925,12 +8061,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=fce018ec">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=fce018ec">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">drift_report_text</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">read_text_artifact</span><span class="p">(</span><span class="s2">"artifacts/reports/drift_report.md"</span><span class="p">)</span>
@@ -7951,6 +8087,37 @@ a.anchor-link {
 </div>
 </div>
 </div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>[drift_report.md preview]
+# Drift Report
+
+## Input Distribution
+
+| feature | baseline_mean | current_mean | delta | delta_ratio | shifted |
+| --- | ---: | ---: | ---: | ---: | --- |
+| heart_rate | 79.3417 | 89.8333 | 10.4917 | 0.1322 | True |
+| respiratory_rate | 15.8417 | 15.7083 | -0.1333 | -0.0084 | False |
+| body_temperature | 36.7583 | 36.7128 | -0.0455 | -0.0012 | False |
+| oxygen_saturation | 97.5631 | 96.0934 | -1.4698 | -0.0151 | True |
+| systolic_blood_pressure | 123.9000 | 123.5583 | -0.3417 | -0.0028 | False |
+| diastolic_blood_pressure | 80.3333 | 79.5583 | -0.7750 | -0.0096 | False |
+
+[report checks]
+- drift_report_exists: True
+- shifted_features_from_notebook: none
+- mentions_heart_rate: True
+- mentions_oxygen_saturation: True
+</pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=e435a2e1">
 <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -7965,12 +8132,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=d88807a6">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=d88807a6">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">read_jsonl_artifact</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">max_events</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="mi">120</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]:</span>
@@ -7999,6 +8166,154 @@ a.anchor-link {
 </div>
 </div>
 </div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>signal</th>
+<th>baseline</th>
+<th>current</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>average_latency_ms</td>
+<td>103.7500</td>
+<td>223.7500</td>
+</tr>
+<tr>
+<th>1</th>
+<td>average_score</td>
+<td>0.5016</td>
+<td>0.6411</td>
+</tr>
+<tr>
+<th>2</th>
+<td>error_count</td>
+<td>0.0000</td>
+<td>8.0000</td>
+</tr>
+<tr>
+<th>3</th>
+<td>error_rate</td>
+<td>0.0000</td>
+<td>0.0667</td>
+</tr>
+<tr>
+<th>4</th>
+<td>high_risk_count</td>
+<td>26.0000</td>
+<td>55.0000</td>
+</tr>
+<tr>
+<th>5</th>
+<td>high_risk_rate</td>
+<td>0.2167</td>
+<td>0.4583</td>
+</tr>
+<tr>
+<th>6</th>
+<td>low_risk_count</td>
+<td>94.0000</td>
+<td>65.0000</td>
+</tr>
+<tr>
+<th>7</th>
+<td>request_count</td>
+<td>120.0000</td>
+<td>120.0000</td>
+</tr>
+<tr>
+<th>8</th>
+<td>valid_high_risk_rate</td>
+<td>0.2167</td>
+<td>0.4643</td>
+</tr>
+<tr>
+<th>9</th>
+<td>valid_request_count</td>
+<td>120.0000</td>
+<td>112.0000</td>
+</tr>
+<tr>
+<th>10</th>
+<td>validation_failure_count</td>
+<td>0.0000</td>
+<td>8.0000</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>baseline_average_score</th>
+<th>current_average_score</th>
+<th>average_score_delta</th>
+<th>baseline_high_risk_rate</th>
+<th>current_high_risk_rate</th>
+<th>high_risk_rate_delta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>0.5016</td>
+<td>0.6411</td>
+<td>0.1395</td>
+<td>0.2167</td>
+<td>0.4583</td>
+<td>0.2416</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=8f5e22f0">
 <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -8013,12 +8328,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=3023a3b8">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=3023a3b8">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">quality_report</span> <span class="o">=</span> <span class="n">compare_snapshots</span><span class="p">(</span><span class="n">baseline_snapshot</span><span class="p">,</span> <span class="n">current_snapshot</span><span class="p">)</span>
@@ -8041,6 +8356,129 @@ a.anchor-link {
 </div>
 </div>
 </div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>signal</th>
+<th>observed</th>
+<th>candidate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>error_rate_delta</td>
+<td>0.0667</td>
+<td>api_validation</td>
+</tr>
+<tr>
+<th>1</th>
+<td>latency_delta_ms</td>
+<td>120.0000</td>
+<td>service_latency</td>
+</tr>
+<tr>
+<th>2</th>
+<td>high_risk_rate_delta</td>
+<td>0.2416</td>
+<td>prediction_shift</td>
+</tr>
+<tr>
+<th>3</th>
+<td>average_score_delta</td>
+<td>0.1395</td>
+<td>score_distribution_shift</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>candidate</th>
+<th>evidence</th>
+<th>owner</th>
+<th>next_action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>prediction_shift</td>
+<td>high_risk_rate_delta=0.2416</td>
+<td>ML Engineering</td>
+<td>점수 분포와 임계값 설정을 비교합니다.</td>
+</tr>
+<tr>
+<th>1</th>
+<td>api_validation</td>
+<td>request_id=current-0000; failed_field=oxygen_s...</td>
+<td>Client Integration</td>
+<td>검증 실패 필드와 입력 출처를 확인합니다.</td>
+</tr>
+<tr>
+<th>2</th>
+<td>service_latency</td>
+<td>latency_delta_ms=120.0</td>
+<td>Platform/MLOps</td>
+<td>서비스 부하와 배포 상태를 확인합니다.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre># Quality Issue Trace\n\n| category | evidence | owner | audit_reference | next_action |\n| --- | --- | --- | --- | --- |\n| input_case_mix_shift | shifted_features=heart_rate, oxygen_saturation | Data Engineering | artifacts/reports/drift_report.md#input-distribution | 최근 입력 출처와 전처리 변경을 확인합니다. |\n| prediction_shift | high_risk_rate_delta=0.2417 | ML Engineering | artifacts/reports/drift_report.md#score-and-prediction-distribution | 점수 분포와 임계값 설정을 비교합니다. |\n| api_validation | error_rate_delta=0.0667 | Client Integration | request_id=current-0000, client_id=partner-feed-v2, source_system=upstream-partner-feed, failed_field=oxygen_saturation | 검증 실패 예시에서 failed_field, client_id, source_system을 확인하고 Client Integration owner에게 전달합니다. |\n| service_latency | latency_delta_ms=120.0 | Platform/MLOps | artifacts/grafana/ai_quality_overview_dashboard.json#average-latency | 서비스 부하, 의존성 지연, Pod 상태를 확인합니다. |
+</pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=2f709f39">
 <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -8055,12 +8493,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=48d40750">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=48d40750">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">release_cases</span><span class="p">,</span> <span class="n">deployment_case_source</span> <span class="o">=</span> <span class="n">load_csv_or_sample</span><span class="p">(</span>
@@ -8092,6 +8530,87 @@ a.anchor-link {
 </div>
 </div>
 </div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>[배포 확인 예제 데이터]
+- source: embedded JupyterLite sample
+- row_grain: one release check sample
+- row_count: 12
+- label_values: high_risk, low_risk
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>label</th>
+<th>count</th>
+<th>ratio_pct</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>low_risk</td>
+<td>6</td>
+<td>50.0</td>
+</tr>
+<tr>
+<th>1</th>
+<td>high_risk</td>
+<td>6</td>
+<td>50.0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>
+[label_basis_check.md preview]
+# Label Basis Check
+
+| source | target_column | allowed_labels | label_mapping | evaluation_ready |
+| --- | --- | --- | --- | --- |
+| data/release_regression_cases.csv | label | high_risk, low_risk | High Risk-&gt;high_risk, Low Risk-&gt;low_risk, high_risk-&gt;high_risk, low_risk-&gt;low_risk | True |
+
+| label | count |
+| --- | ---: |
+| high_risk | 37 |
+| low_risk | 33 |
+
+| positive_label | positive_count | negative_label | negative_count | invalid_count | missing_count | positive_rate |
+</pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=8cfa40a8">
 <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -8106,12 +8625,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=f1c0a1e5">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=f1c0a1e5">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">release_approval_text</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">read_text_artifact</span><span class="p">(</span><span class="s2">"artifacts/reports/release_approval.md"</span><span class="p">)</span>
@@ -8181,6 +8700,54 @@ a.anchor-link {
 </div>
 </div>
 </div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>[배포 확인 요약]
+- failed_checks: recall, error_rate
+- unresolved_risks: live_deployment
+
+[기준별 결과]
+- precision: pass | observed=1.0000 | criterion=&gt;= 0.6000
+- recall: fail | observed=0.5926 | criterion=&gt;= 0.6000
+- error_rate: fail | observed=0.0667 | criterion=&lt;= 0.0500
+- latency: pass | observed=223.7500 | criterion=&lt;= 250.0000 ms
+- prepared_api_contract: pass | observed=True | criterion=local/prepared contract check is True
+
+[미확인 항목]
+- live_deployment: unverified | owner=Platform/MLOps
+
+[report consistency]
+- precision_pass_in_report: pass
+- failed_checks_from_report: recall, error_rate
+- unresolved_risks_from_report: live_deployment
+# Deployment Decision Report
+
+## Decision Summary
+
+| recommendation | approved | failed_checks | unresolved_risks | re_evaluation_condition |
+| --- | --- | --- | --- | --- |
+| conditional_hold | False | recall, error_rate | live_deployment | failed_checks와 unresolved_risks가 해소되고 owner별 확인 결과가 같은 배포 기준을 만족하면 재평가합니다. |
+
+| approved | failed_checks | notes |
+| --- | --- | --- |
+| False | recall, error_rate | 실패한 기준을 검토할 때까지 배포를 보류합니다. |
+
+| check | observed | criterion | result |
+| --- | --- | --- | --- |
+| precision | 1.0000 | &gt;= 0.6000 | pass |
+| recall | 0.5926 | &gt;= 0.6000 | fail |
+| error_rate | 0.0667 | &lt;= 0.0500 | fail |
+| latency | 223.7500 | &lt;= 250.0000 ms | pass |
+</pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=603a0cfc">
 <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -8192,12 +8759,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=0fc37ffa">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=0fc37ffa">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [8]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">find_optional_file</span><span class="p">(</span><span class="n">candidates</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
@@ -8218,15 +8785,15 @@ a.anchor-link {
 <span class="p">)</span>
 <span class="n">kserve_path</span><span class="p">,</span> <span class="n">kserve_text</span> <span class="o">=</span> <span class="n">find_optional_file</span><span class="p">(</span>
     <span class="p">[</span>
-        <span class="s2">"demos/ch03_docker_kubernetes/gitops/base/inferenceservice.yaml"</span><span class="p">,</span>
-        <span class="s2">"artifacts/deployment/chapter_03/gitops/base/inferenceservice.yaml"</span><span class="p">,</span>
-        <span class="s2">"../artifacts/deployment/chapter_03/gitops/base/inferenceservice.yaml"</span><span class="p">,</span>
+        <span class="s2">"demos/ch03_docker_kubernetes/argocd-resources/base/inferenceservice.yaml"</span><span class="p">,</span>
+        <span class="s2">"artifacts/deployment/chapter_03/argocd-resources/base/inferenceservice.yaml"</span><span class="p">,</span>
+        <span class="s2">"../artifacts/deployment/chapter_03/argocd-resources/base/inferenceservice.yaml"</span><span class="p">,</span>
     <span class="p">]</span>
 <span class="p">)</span>
 
 <span class="n">gitops_checks</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">(</span><span class="s2">"Argo CD Application manifest"</span><span class="p">,</span> <span class="s2">"checked"</span> <span class="k">if</span> <span class="n">argocd_path</span> <span class="k">else</span> <span class="s2">"missing"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">argocd_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">argocd_path</span> <span class="k">else</span> <span class="s2">"not found"</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">"Argo CD source path"</span><span class="p">,</span> <span class="s2">"checked"</span> <span class="k">if</span> <span class="s2">"gitops/overlays/dev"</span> <span class="ow">in</span> <span class="n">argocd_text</span> <span class="k">else</span> <span class="s2">"missing"</span><span class="p">,</span> <span class="s2">"spec.source.path"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Argo CD source path"</span><span class="p">,</span> <span class="s2">"checked"</span> <span class="k">if</span> <span class="s2">"argocd-resources/overlays/student"</span> <span class="ow">in</span> <span class="n">argocd_text</span> <span class="k">else</span> <span class="s2">"missing"</span><span class="p">,</span> <span class="s2">"spec.source.path"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"Argo CD live sync"</span><span class="p">,</span> <span class="s2">"unverified"</span><span class="p">,</span> <span class="s2">"requires argocd app sync output"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"KServe InferenceService manifest"</span><span class="p">,</span> <span class="s2">"checked"</span> <span class="k">if</span> <span class="n">kserve_path</span> <span class="k">else</span> <span class="s2">"missing"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">kserve_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">kserve_path</span> <span class="k">else</span> <span class="s2">"not found"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"KServe candidate alias"</span><span class="p">,</span> <span class="s2">"checked"</span> <span class="k">if</span> <span class="s2">"ai-quality/model-alias: candidate"</span> <span class="ow">in</span> <span class="n">kserve_text</span> <span class="k">else</span> <span class="s2">"missing"</span><span class="p">,</span> <span class="s2">"metadata label"</span><span class="p">),</span>
@@ -8237,6 +8804,25 @@ a.anchor-link {
 <span class="k">for</span> <span class="n">check</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">gitops_checks</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"- </span><span class="si">{</span><span class="n">check</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>[GitOps/KServe 확인]
+- Argo CD Application manifest: checked | /Users/seungbaeji/Workspace/tta/tta-aiqa/demos/ch03_docker_kubernetes/argocd/application.yaml
+- Argo CD source path: checked | spec.source.path
+- Argo CD live sync: unverified | requires argocd app sync output
+- KServe InferenceService manifest: checked | /Users/seungbaeji/Workspace/tta/tta-aiqa/demos/ch03_docker_kubernetes/argocd-resources/base/inferenceservice.yaml
+- KServe candidate alias: checked | metadata label
+- KServe readiness: unverified | requires kubectl get inferenceservice
+</pre>
 </div>
 </div>
 </div>
@@ -8267,12 +8853,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=22792006">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=22792006">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [9]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">checklist_text</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">read_text_artifact</span><span class="p">(</span><span class="s2">"artifacts/reports/ai_qa_checklist.md"</span><span class="p">)</span>
@@ -8305,6 +8891,32 @@ a.anchor-link {
 </div>
 </div>
 </div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>[최종 체크리스트]
+- input distribution: ready | owner=Data Engineering | 확인 결과=drift_report.md
+- score and prediction distribution: blocked | owner=ML Engineering | 확인 결과=drift_report.md
+- api validation failures: blocked | owner=Client Integration | 확인 결과=quality_issue_trace.md
+- service latency: blocked | owner=Platform/MLOps | 확인 결과=quality_issue_trace.md
+- live deployment evidence: blocked | owner=Platform/MLOps | 확인 결과=release_approval.md
+- release report summary: blocked | owner=QA Lead | 확인 결과=release_approval.md
+
+[체크리스트 산출물 확인]
+- deployment_ready_state: True
+- conditional_hold_status_present: True
+- live_deployment_unverified: True
+- owner_next_action: True
+deployment_ready False
+</pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=bf368e29">
 <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -8318,12 +8930,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=84f7ae53">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=84f7ae53">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [10]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">owner_actions</span> <span class="o">=</span> <span class="n">candidates</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">"candidate"</span><span class="p">,</span> <span class="s2">"owner"</span><span class="p">,</span> <span class="s2">"next_action"</span><span class="p">]]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s2">"records"</span><span class="p">)</span>
@@ -8343,6 +8955,23 @@ a.anchor-link {
 <span class="k">for</span> <span class="n">check</span><span class="p">,</span> <span class="n">observed</span><span class="p">,</span> <span class="n">owner</span><span class="p">,</span> <span class="n">next_action</span> <span class="ow">in</span> <span class="n">final_check_result_packet</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"- </span><span class="si">{</span><span class="n">check</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">observed</span><span class="si">}</span><span class="s2"> | owner=</span><span class="si">{</span><span class="n">owner</span><span class="si">}</span><span class="s2"> | next=</span><span class="si">{</span><span class="n">next_action</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>[최종 확인 결과]
+- input_shift: none | owner=Data Engineering | next=데이터 수집 경로와 upstream feed 변경 여부 확인
+- prediction_shift: high_risk_rate_delta=0.2416 | owner=ML Engineering | next=threshold와 score distribution 재확인
+- api_validation: error_rate_delta=0.0667 | owner=Client Integration | next=failed_field와 client payload 변경 확인
+- deployment_check: failed_checks=['recall', 'error_rate'], unresolved_risks=['live_deployment'] | owner=QA Lead | next=같은 배포 기준과 live 배포 확인 결과로 재확인
+</pre>
 </div>
 </div>
 </div>

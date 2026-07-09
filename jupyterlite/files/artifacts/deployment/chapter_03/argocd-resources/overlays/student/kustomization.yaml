@@ -1,0 +1,23 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+labels:
+  - pairs:
+      app.kubernetes.io/instance: ai-quality-risk-classifier-student
+      ai-quality/environment: student
+patches:
+  - target:
+      kind: InferenceService
+      name: ai-quality-risk-classifier
+    patch: |-
+      - op: replace
+        path: /spec/predictor/sklearn/storageUri
+        value: pvc://ai-quality-models/artifacts/risk-classifier/candidate-dev
+      - op: add
+        path: /metadata/annotations/ai-quality~1deployment-check
+        value: manual-sync-required-before-deploy
+  - target:
+      kind: Ingress
+      name: mlflow-tracking
+    path: ingress-host-patch.yaml

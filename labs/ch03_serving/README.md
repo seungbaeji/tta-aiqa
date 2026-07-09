@@ -19,6 +19,8 @@
 | Notebook 7 | `labs/ch03_serving/07_argocd_kserve_manifest.ipynb` | Argo CD Application과 KServe InferenceService 핵심 문자열 확인 |
 | Notebook 8 | `labs/ch03_serving/08_argocd_gitops_live_check.ipynb` | live sync, KServe Ready, endpoint 확인 항목 정리 |
 | GitOps 확인 script | `demos/ch03_docker_kubernetes/scripts/02_check_argocd_manifests.sh` | MLflow/KServe manifest render와 dry-run 확인 |
+| Argo CD 연결 script | `demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh` | GitHub Deploy key 생성, Argo CD repo 연결, Application 등록, sync 실행 |
+| Argo CD resource | `demos/ch03_docker_kubernetes/argocd-resources/` | Argo CD가 바라볼 Kustomize base와 수강생 overlay |
 
 ## 직접 실행 순서
 
@@ -34,6 +36,54 @@ bash demos/ch03_docker_kubernetes/scripts/02_check_argocd_manifests.sh
 ```bash
 uv run python scripts/course.py lab-serving
 ```
+
+## Argo CD live 연결 순서
+
+Argo CD 실습은 `kubectl apply`를 직접 반복하는 실습이 아니라, Git repository에 있는 배포 파일을 Argo CD가 cluster desired state로 읽게 만드는 실습입니다. 그래서 live sync 전에는 다음 두 가지가 필요합니다.
+
+| 준비 항목 | 의미 |
+| --- | --- |
+| Git repository credential | Argo CD가 수강생 Git repository를 읽을 수 있어야 함 |
+| Argo CD Application | 어떤 repo, branch, path를 cluster에 맞출지 선언해야 함 |
+
+Argo CD가 바라볼 path는 다음입니다.
+
+```text
+demos/ch03_docker_kubernetes/argocd-resources/overlays/student
+```
+
+이 path는 Kustomize overlay입니다. `base`에는 공통 MLflow/KServe resource가 있고, `overlays/student`에는 수강생별로 바뀌는 값이 들어갑니다. 특히 MLflow UI ingress 주소는 각자 실습 환경마다 다르므로 아래 파일을 먼저 수정합니다.
+
+```text
+demos/ch03_docker_kubernetes/argocd-resources/overlays/student/ingress-host-patch.yaml
+```
+
+예시는 다음과 같습니다.
+
+```yaml
+- op: replace
+  path: /spec/rules/0/host
+  value: mlflow.<your-ingress-domain>
+```
+
+그 다음 live 환경에서는 아래 순서로 진행합니다.
+
+```bash
+bash demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh check
+bash demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh key
+
+# 출력된 public key를 GitHub repository Settings -> Deploy keys에 추가합니다.
+# Allow write access는 체크하지 않습니다.
+
+ARGOCD_REPO_URL=git@github.com:<your-org-or-user>/<your-repo>.git \
+  bash demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh connect
+
+bash demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh sync
+```
+
+`connect`는 Argo CD에 repository credential을 등록하고, `demos/ch03_docker_kubernetes/argocd/application.yaml`의 Application을 cluster에 등록합니다. 이 Application의 `source.path`가 위 Kustomize overlay를 가리켜야 합니다. `sync`는 Git의 desired state와 cluster live state를 비교한 뒤 Argo CD를 통해 적용합니다.
+
+live cluster나 Argo CD CLI가 없는 환경에서는 sync 성공이라고 쓰지 않습니다. 이 경우에는 manifest inspection과 Kustomize render 확인까지만 기록합니다.
 
 
 ## 3-3. FastAPI 기반 예측 API 확인

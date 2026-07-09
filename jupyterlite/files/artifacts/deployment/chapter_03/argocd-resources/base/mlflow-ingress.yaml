@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mlflow-tracking
+  labels:
+    app.kubernetes.io/name: mlflow-tracking
+    app.kubernetes.io/component: model-registry
+    ai-quality/course-chapter: "03"
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+    ai-quality/student-edit: "Set spec.rules[0].host in overlays/student/ingress-host-patch.yaml before live sync."
+spec:
+  rules:
+    - host: mlflow.example.invalid
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mlflow-tracking
+                port:
+                  number: 5000

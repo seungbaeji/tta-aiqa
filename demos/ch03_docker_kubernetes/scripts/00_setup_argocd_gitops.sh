@@ -4,7 +4,7 @@ set -euo pipefail
 COMMAND="${1:-help}"
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP_FILE="${ROOT_DIR}/argocd/application.yaml"
-OVERLAY_DIR="${ROOT_DIR}/gitops/overlays/dev"
+OVERLAY_DIR="${ROOT_DIR}/argocd-resources/overlays/student"
 APP_NAME="${ARGOCD_APP_NAME:-ai-quality-risk-classifier}"
 REPO_SSH_URL="${ARGOCD_REPO_URL:-git@github.com:seungbaeji/tta-aiqa.git}"
 KEY_DIR="${ARGOCD_KEY_DIR:-.argocd}"
@@ -26,6 +26,14 @@ Environment:
   ARGOCD_REPO_URL           Git SSH URL. Default: ${REPO_SSH_URL}
   ARGOCD_SSH_PRIVATE_KEY    Private key path. Default: ${KEY_PATH}
   ARGOCD_APP_NAME           Argo CD app name. Default: ${APP_NAME}
+
+Typical live order:
+  1. bash demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh check
+  2. Edit demos/ch03_docker_kubernetes/argocd-resources/overlays/student/ingress-host-patch.yaml
+  3. bash demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh key
+  4. Add the printed public key to GitHub repository Deploy keys
+  5. bash demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh connect
+  6. bash demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh sync
 EOF
 }
 
@@ -33,13 +41,15 @@ check_manifests() {
   echo "[check] Argo CD Application manifest"
   test -f "${APP_FILE}"
   grep -q "kind: Application" "${APP_FILE}"
-  grep -q "path: demos/ch03_docker_kubernetes/gitops/overlays/dev" "${APP_FILE}"
+  grep -q "path: demos/ch03_docker_kubernetes/argocd-resources/overlays/student" "${APP_FILE}"
 
   echo "[check] Kustomize overlay files"
   test -f "${OVERLAY_DIR}/kustomization.yaml"
-  test -f "${ROOT_DIR}/gitops/base/mlflow-tracking.yaml"
-  test -f "${ROOT_DIR}/gitops/base/inferenceservice.yaml"
-  test -f "${ROOT_DIR}/gitops/base/observability-config.yaml"
+  test -f "${ROOT_DIR}/argocd-resources/base/mlflow-tracking.yaml"
+  test -f "${ROOT_DIR}/argocd-resources/base/mlflow-ingress.yaml"
+  test -f "${ROOT_DIR}/argocd-resources/base/inferenceservice.yaml"
+  test -f "${ROOT_DIR}/argocd-resources/base/observability-config.yaml"
+  test -f "${OVERLAY_DIR}/ingress-host-patch.yaml"
 
   if [[ "${CHECK_LIVE_KUBECTL:-0}" == "1" ]] && command -v kubectl >/dev/null 2>&1; then
     echo "[dry-run] Validate Argo CD Application shape with kubectl client dry-run"
@@ -55,7 +65,11 @@ check_manifests() {
     kustomize build "${OVERLAY_DIR}" >/tmp/ai-quality-kserve-rendered.yaml
     grep -q "kind: Deployment" /tmp/ai-quality-kserve-rendered.yaml
     grep -q "name: mlflow-tracking" /tmp/ai-quality-kserve-rendered.yaml
+    grep -q "kind: Ingress" /tmp/ai-quality-kserve-rendered.yaml
     grep -q "kind: InferenceService" /tmp/ai-quality-kserve-rendered.yaml
+    if grep -q "REPLACE_WITH_YOUR_INGRESS_DOMAIN" /tmp/ai-quality-kserve-rendered.yaml; then
+      echo "[warn] Ingress host still has the course placeholder. Edit ${OVERLAY_DIR}/ingress-host-patch.yaml before live sync."
+    fi
   else
     echo "[skip] kustomize is not installed; overlay file inspection completed"
   fi
@@ -146,7 +160,7 @@ connect_repo_and_app() {
 sync_app() {
   if ! command -v argocd >/dev/null 2>&1; then
     echo "argocd CLI is required for live diff/sync." >&2
-    echo "Fallback: inspect demos/ch03_docker_kubernetes/argocd/application.yaml and gitops/overlays/dev." >&2
+    echo "Fallback: inspect demos/ch03_docker_kubernetes/argocd/application.yaml and argocd-resources/overlays/student." >&2
     exit 1
   fi
 

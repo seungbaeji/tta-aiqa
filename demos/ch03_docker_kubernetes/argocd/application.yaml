@@ -14,7 +14,7 @@ spec:
   source:
     repoURL: REPLACE_WITH_COURSE_GIT_REPO_URL
     targetRevision: HEAD
-    path: demos/ch03_docker_kubernetes/gitops/overlays/dev
+    path: demos/ch03_docker_kubernetes/argocd-resources/overlays/student
   destination:
     server: https://kubernetes.default.svc
     namespace: ai-quality

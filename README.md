@@ -208,24 +208,25 @@ uv run python scripts/course.py lab-data-quality
 | --- | --- | --- |
 | 1 | `labs/ch02_model_quality/README.md` | 2장 모델 평가와 데이터-지표 연결 실습의 전체 흐름 확인 |
 | 2 | `labs/ch02_model_quality/01_score_threshold.ipynb` | score, threshold, prediction 관계 확인 |
-| 3 | `labs/ch02_model_quality/02_precision_recall.ipynb` | TP/FP/FN과 Precision/Recall 직접 계산 |
-| 4 | `labs/ch02_model_quality/03_read_metric_record.ipynb` | 준비된 평가 기록에서 metric과 조건 확인 |
-| 5 | `labs/ch02_model_quality/04_great_expectations_api_basics_lab.ipynb` | GE API 기본 흐름 확인 |
-| 6 | `labs/ch02_model_quality/05_great_expectations_lab.ipynb` | degraded validation 데이터의 검증 실패를 prepared artifact와 연결 |
-| 7 | `labs/ch02_model_quality/06_model_evaluation_lab.ipynb` | 전체 모델 평가 흐름을 참고용으로 확인 |
-| 8 | `labs/ch02_model_quality/07_data_metric_connection_lab.ipynb` | 데이터 품질 신호와 metric 변화가 같은 사건인지 확인 |
-| 9 | `labs/ch02_model_quality/08_mlflow_tracking_lab.ipynb` | 로컬 평가 기록과 MLflow/JSON 기록 범위 확인 |
-| 10 | `labs/ch02_model_quality/09_train_baseline.py` | 기준 모델 재학습 |
-| 11 | `labs/ch02_model_quality/10_evaluate_and_record.py` | test 평가와 experiment JSON/MLflow 기록 생성 |
-| 12 | `labs/ch02_model_quality/11_build_comparison_artifacts.py` | baseline/degraded/test 비교 artifact와 보고서 생성 |
-| 13 | `artifacts/reports/chapter_02_model_quality_comparison.md` | 최종 모델 품질 비교 판단 확인 |
+| 3 | `labs/ch02_model_quality/02_train_evaluate_track_lab.ipynb` | 여러 후보 모델을 반복 학습하고 평가/기록 table 생성 |
+| 4 | `labs/ch02_model_quality/03_precision_recall.ipynb` | TP/FP/FN과 Precision/Recall 직접 계산 |
+| 5 | `labs/ch02_model_quality/04_read_metric_record.ipynb` | 준비된 평가 기록에서 metric과 조건 확인 |
+| 6 | `labs/ch02_model_quality/05_great_expectations_api_basics_lab.ipynb` | GE API 기본 흐름 확인 |
+| 7 | `labs/ch02_model_quality/06_great_expectations_lab.ipynb` | degraded validation 데이터의 검증 실패를 prepared artifact와 연결 |
+| 8 | `labs/ch02_model_quality/07_model_evaluation_lab.ipynb` | 전체 모델 평가 흐름을 참고용으로 확인 |
+| 9 | `labs/ch02_model_quality/08_data_metric_connection_lab.ipynb` | 데이터 품질 신호와 metric 변화가 같은 사건인지 확인 |
+| 10 | `labs/ch02_model_quality/09_mlflow_tracking_lab.ipynb` | 로컬 평가 기록과 MLflow/JSON 기록 범위 확인 |
+| 11 | `labs/ch02_model_quality/10_train_baseline.py` | 기준 모델 재학습 |
+| 12 | `labs/ch02_model_quality/11_evaluate_and_record.py` | test 평가와 experiment JSON/MLflow 기록 생성 |
+| 13 | `labs/ch02_model_quality/12_build_comparison_artifacts.py` | baseline/degraded/test 비교 artifact와 보고서 생성 |
+| 14 | `artifacts/reports/chapter_02_model_quality_comparison.md` | 최종 모델 품질 비교 판단 확인 |
 
 2장 CLI 재생성은 script 3개를 순서대로 직접 실행합니다.
 
 ```bash
-uv run python labs/ch02_model_quality/09_train_baseline.py
-uv run python labs/ch02_model_quality/10_evaluate_and_record.py
-uv run python labs/ch02_model_quality/11_build_comparison_artifacts.py
+uv run python labs/ch02_model_quality/10_train_baseline.py
+uv run python labs/ch02_model_quality/11_evaluate_and_record.py
+uv run python labs/ch02_model_quality/12_build_comparison_artifacts.py
 ```
 
 같은 작업을 wrapper로 실행할 수도 있습니다.
@@ -321,9 +322,9 @@ uv run python scripts/course.py lab-qa-strategy
 | --- | --- | --- |
 | 1 | `uv run python labs/prepare_data.py` | `data/vital_signs*.csv`, `data/serving_requests*.csv`, `data/*events.jsonl` |
 | 2 | `uv run python labs/ch01_data_quality/04_build_quality_report.py` | `artifacts/reports/chapter_01_quality_report.md` |
-| 3 | `uv run python labs/ch02_model_quality/09_train_baseline.py` | `artifacts/models/chapter_02_baseline.pkl` |
-| 4 | `uv run python labs/ch02_model_quality/10_evaluate_and_record.py` | `artifacts/experiments/chapter_02/model_test_eval.json`, `artifacts/mlflow.db` |
-| 5 | `uv run python labs/ch02_model_quality/11_build_comparison_artifacts.py` | `artifacts/experiments/chapter_02/validation_degradation_comparison.json`, `artifacts/reports/chapter_02_model_quality_comparison.md` |
+| 3 | `uv run python labs/ch02_model_quality/10_train_baseline.py` | `artifacts/models/chapter_02_baseline.pkl` |
+| 4 | `uv run python labs/ch02_model_quality/11_evaluate_and_record.py` | `artifacts/experiments/chapter_02/model_test_eval.json`, `artifacts/mlflow.db` |
+| 5 | `uv run python labs/ch02_model_quality/12_build_comparison_artifacts.py` | `artifacts/experiments/chapter_02/validation_degradation_comparison.json`, `artifacts/reports/chapter_02_model_quality_comparison.md` |
 | 6 | `uv run python labs/ch03_serving/04_check_serving_contract.py` | `outputs/check_serving_contract_prediction_events.jsonl` |
 | 7 | `bash demos/ch03_docker_kubernetes/scripts/02_check_argocd_manifests.sh` | Argo CD/KServe manifest render 결과 |
 | 8 | `uv run python labs/ch04_observability/04_build_observability_artifacts.py` | `artifacts/logs/`, `artifacts/metrics/`, `artifacts/grafana/`, `artifacts/reports/quality_issue_trace.md` |

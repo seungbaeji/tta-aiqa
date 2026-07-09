@@ -20,8 +20,9 @@
 | 1장 | `labs/ch01_data_quality/01_load_and_columns.ipynb` | 평가 데이터 파일을 열고 필수 컬럼 존재를 확인합니다 |
 | 1장 | `labs/ch01_data_quality/02_missing_range_label.ipynb` | 결측, 범위, label 분포를 작은 표로 확인합니다 |
 | 2장 | `labs/ch02_model_quality/01_score_threshold.ipynb` | score와 threshold가 prediction으로 바뀌는 흐름을 봅니다 |
-| 2장 | `labs/ch02_model_quality/02_precision_recall.ipynb` | TP, FP, FN, Precision, Recall을 직접 계산합니다 |
-| 2장 | `labs/ch02_model_quality/03_read_metric_record.ipynb` | 준비된 metric 기록 파일을 읽고 같은 기준으로 기록된 값을 확인합니다 |
+| 2장 | `labs/ch02_model_quality/02_train_evaluate_track_lab.ipynb` | 후보 모델을 반복 학습하고 평가 결과를 run 기록으로 남깁니다 |
+| 2장 | `labs/ch02_model_quality/03_precision_recall.ipynb` | TP, FP, FN, Precision, Recall을 직접 계산합니다 |
+| 2장 | `labs/ch02_model_quality/04_read_metric_record.ipynb` | 준비된 metric 기록 파일을 읽고 같은 기준으로 기록된 값을 확인합니다 |
 | 3장 | `labs/ch03_serving/01_container_basics.ipynb` | image/container, Dockerfile, Compose 실행 조건을 확인합니다 |
 | 3장 | `labs/ch03_serving/02_mlflow_model_uri.ipynb` | MLflow candidate URI와 평가 기록의 연결을 확인합니다 |
 | 3장 | `labs/ch03_serving/03_fastapi_compose_serving.ipynb` | FastAPI + Compose 기반 요청/응답 계약을 확인합니다 |

@@ -9,19 +9,19 @@
 | 산출물 | 경로 | 사용 방식 |
 | --- | --- | --- |
 | Lab 문서 | `docs/02_model_quality/data-metric-connection.md` | 데이터 품질 신호와 지표 변화 해석 |
-| 초급 Notebook | `labs/ch02_model_quality/02_precision_recall.ipynb` | 기준 데이터셋과 품질 저하 데이터셋의 FP/FN, Precision, Recall 비교 |
-| 초급 Notebook | `labs/ch02_model_quality/03_read_metric_record.ipynb` | metric 기록에서 데이터셋, 모델 버전, threshold 조건 확인 |
-| Lite Notebook | `jupyterlite/files/02_model_quality/02_precision_recall.ipynb` | 브라우저에서 지표와 오류 유형 비교 |
-| Lite Notebook | `jupyterlite/files/02_model_quality/03_read_metric_record.ipynb` | 브라우저에서 metric 기록 확인 |
-| 참고 Notebook | `labs/ch02_model_quality/07_data_metric_connection_lab.ipynb` | 전체 데이터-지표 연결 흐름을 한 번에 다시 볼 때 사용 |
+| 초급 Notebook | `labs/ch02_model_quality/03_precision_recall.ipynb` | 기준 데이터셋과 품질 저하 데이터셋의 FP/FN, Precision, Recall 비교 |
+| 초급 Notebook | `labs/ch02_model_quality/04_read_metric_record.ipynb` | metric 기록에서 데이터셋, 모델 버전, threshold 조건 확인 |
+| Lite Notebook | `jupyterlite/files/02_model_quality/03_precision_recall.ipynb` | 브라우저에서 지표와 오류 유형 비교 |
+| Lite Notebook | `jupyterlite/files/02_model_quality/04_read_metric_record.ipynb` | 브라우저에서 metric 기록 확인 |
+| 참고 Notebook | `labs/ch02_model_quality/08_data_metric_connection_lab.ipynb` | 전체 데이터-지표 연결 흐름을 한 번에 다시 볼 때 사용 |
 | 비교 JSON artifact | `artifacts/experiments/chapter_02/validation_degradation_comparison.json` | validation 기준/품질 저하 평가 metrics, delta, score/prediction distribution, threshold analysis 확인 |
 | 보고서용 비교 리포트 | `artifacts/reports/chapter_02_model_quality_comparison.md` | 릴리스 회의 보고서에 인용할 비교표와 QA 판단 확인 |
 | CLI 재실행 경로 | `make lab-model-quality` | 기준선 모델과 2장 비교 산출물 재생성 |
 
 !!! note "브라우저 실습"
-    설치 없이 확인하려면 <a href="../../jupyterlite/lab/index.html?path=02_model_quality/02_precision_recall.ipynb">JupyterLite에서 Precision과 Recall 확인</a>을 열고, 이어서 <a href="../../jupyterlite/lab/index.html?path=02_model_quality/03_read_metric_record.ipynb">metric 기록 확인</a>을 엽니다. 이 경로에서 확인한 값은 prepared evidence 기반의 브라우저 실습 결과로 기록합니다.
+    설치 없이 확인하려면 <a href="../../jupyterlite/lab/index.html?path=02_model_quality/03_precision_recall.ipynb">JupyterLite에서 Precision과 Recall 확인</a>을 열고, 이어서 <a href="../../jupyterlite/lab/index.html?path=02_model_quality/04_read_metric_record.ipynb">metric 기록 확인</a>을 엽니다. 이 경로에서 확인한 값은 prepared evidence 기반의 브라우저 실습 결과로 기록합니다.
 
-Notebook으로 실습한다면 `labs/ch02_model_quality/02_precision_recall.ipynb`를 먼저 열고, 이어서 `labs/ch02_model_quality/03_read_metric_record.ipynb`를 실행합니다. 명령행에서는 `make lab-model-quality`로 2-4-2 기준선 모델과 2장 비교 산출물을 다시 만들 수 있습니다. 읽기 전용 확인에서는 `validation_degradation_comparison.json`과 보고서용 Markdown을 열어 기준 validation 데이터셋과 품질 저하 validation 데이터셋의 지표, 점수 분위수, 예측 분포를 확인합니다.
+Notebook으로 실습한다면 `labs/ch02_model_quality/03_precision_recall.ipynb`를 먼저 열고, 이어서 `labs/ch02_model_quality/04_read_metric_record.ipynb`를 실행합니다. 명령행에서는 `make lab-model-quality`로 2-4-2 기준선 모델과 2장 비교 산출물을 다시 만들 수 있습니다. 읽기 전용 확인에서는 `validation_degradation_comparison.json`과 보고서용 Markdown을 열어 기준 validation 데이터셋과 품질 저하 validation 데이터셋의 지표, 점수 분위수, 예측 분포를 확인합니다.
 
 ## 2-5-1. 기준 데이터셋과 품질 저하 데이터셋 비교
 
@@ -29,7 +29,7 @@ Notebook으로 실습한다면 `labs/ch02_model_quality/02_precision_recall.ipyn
 
 **이 비교에서 중요한 전제는 모델과 임계값(threshold)을 고정한다는 점입니다.** 모델 버전이나 임계값이 함께 바뀌면 지표 변화의 원인을 데이터 품질로 보기 어렵습니다. 2-5는 데이터 조건 변화에 집중하므로 2-4에서 만든 기준선 모델과 운영 임계값 `0.50`을 그대로 사용합니다.
 
-이 실행에서 확인할 핵심은 같은 모델과 threshold에서 데이터 조건 변화만 비교했는지입니다. Notebook에서는 `labs/ch02_model_quality/02_precision_recall.ipynb`의 지표 비교 셀과 `03_read_metric_record.ipynb`의 조건 확인 셀을 실행합니다. 명령행에서 전체 Lab 산출물을 다시 만들 때는 `make lab-model-quality`를 사용합니다. 이미 준비된 artifact가 있다면 `artifacts/reports/chapter_02_model_quality_comparison.md`에서 같은 비교표를 먼저 확인합니다.
+이 실행에서 확인할 핵심은 같은 모델과 threshold에서 데이터 조건 변화만 비교했는지입니다. Notebook에서는 `labs/ch02_model_quality/03_precision_recall.ipynb`의 지표 비교 셀과 `04_read_metric_record.ipynb`의 조건 확인 셀을 실행합니다. 명령행에서 전체 Lab 산출물을 다시 만들 때는 `make lab-model-quality`를 사용합니다. 이미 준비된 artifact가 있다면 `artifacts/reports/chapter_02_model_quality_comparison.md`에서 같은 비교표를 먼저 확인합니다.
 
 prepared artifact에서 확인할 핵심 값은 다음과 같습니다.
 

@@ -86,9 +86,9 @@ def lab_data_quality() -> None:
 
 
 def lab_model_quality() -> None:
-    run_python("labs/ch02_model_quality/09_train_baseline.py")
-    run_python("labs/ch02_model_quality/10_evaluate_and_record.py")
-    run_python("labs/ch02_model_quality/11_build_comparison_artifacts.py")
+    run_python("labs/ch02_model_quality/10_train_baseline.py")
+    run_python("labs/ch02_model_quality/11_evaluate_and_record.py")
+    run_python("labs/ch02_model_quality/12_build_comparison_artifacts.py")
 
 
 def lab_serving() -> None:

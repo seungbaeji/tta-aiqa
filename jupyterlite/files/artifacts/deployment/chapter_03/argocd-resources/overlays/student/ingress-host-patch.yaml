@@ -1,0 +1,3 @@
+- op: replace
+  path: /spec/rules/0/host
+  value: mlflow.REPLACE_WITH_YOUR_INGRESS_DOMAIN.example.com

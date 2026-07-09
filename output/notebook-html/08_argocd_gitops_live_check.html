@@ -7817,12 +7817,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=f6f4c81b">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=f6f4c81b">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -7849,16 +7849,20 @@ a.anchor-link {
         <span class="s2">"artifacts/deployment/chapter_03/argocd/application.yaml"</span><span class="p">,</span>
     <span class="p">],</span>
     <span class="s2">"gitops_overlay"</span><span class="p">:</span> <span class="p">[</span>
-        <span class="s2">"demos/ch03_docker_kubernetes/gitops/overlays/dev/kustomization.yaml"</span><span class="p">,</span>
-        <span class="s2">"artifacts/deployment/chapter_03/gitops/overlays/dev/kustomization.yaml"</span><span class="p">,</span>
+        <span class="s2">"demos/ch03_docker_kubernetes/argocd-resources/overlays/student/kustomization.yaml"</span><span class="p">,</span>
+        <span class="s2">"artifacts/deployment/chapter_03/argocd-resources/overlays/student/kustomization.yaml"</span><span class="p">,</span>
     <span class="p">],</span>
     <span class="s2">"kserve_base"</span><span class="p">:</span> <span class="p">[</span>
-        <span class="s2">"demos/ch03_docker_kubernetes/gitops/base/inferenceservice.yaml"</span><span class="p">,</span>
-        <span class="s2">"artifacts/deployment/chapter_03/gitops/base/inferenceservice.yaml"</span><span class="p">,</span>
+        <span class="s2">"demos/ch03_docker_kubernetes/argocd-resources/base/inferenceservice.yaml"</span><span class="p">,</span>
+        <span class="s2">"artifacts/deployment/chapter_03/argocd-resources/base/inferenceservice.yaml"</span><span class="p">,</span>
     <span class="p">],</span>
     <span class="s2">"observability_config"</span><span class="p">:</span> <span class="p">[</span>
-        <span class="s2">"demos/ch03_docker_kubernetes/gitops/base/observability-config.yaml"</span><span class="p">,</span>
-        <span class="s2">"artifacts/deployment/chapter_03/gitops/base/observability-config.yaml"</span><span class="p">,</span>
+        <span class="s2">"demos/ch03_docker_kubernetes/argocd-resources/base/observability-config.yaml"</span><span class="p">,</span>
+        <span class="s2">"artifacts/deployment/chapter_03/argocd-resources/base/observability-config.yaml"</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">"ingress_host_patch"</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">"demos/ch03_docker_kubernetes/argocd-resources/overlays/student/ingress-host-patch.yaml"</span><span class="p">,</span>
+        <span class="s2">"artifacts/deployment/chapter_03/argocd-resources/overlays/student/ingress-host-patch.yaml"</span><span class="p">,</span>
     <span class="p">],</span>
 <span class="p">}</span>
 
@@ -7901,6 +7905,24 @@ a.anchor-link {
 </div>
 </div>
 </div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>[manifest files]
+- argocd_application: found | demos/ch03_docker_kubernetes/argocd/application.yaml
+- gitops_overlay: found | demos/ch03_docker_kubernetes/argocd-resources/overlays/student/kustomization.yaml
+- kserve_base: found | demos/ch03_docker_kubernetes/argocd-resources/base/inferenceservice.yaml
+- observability_config: found | demos/ch03_docker_kubernetes/argocd-resources/base/observability-config.yaml
+- ingress_host_patch: found | demos/ch03_docker_kubernetes/argocd-resources/overlays/student/ingress-host-patch.yaml
+</pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=989fa1c7">
 <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -7908,7 +7930,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>이 출력에서 확인할 핵심은 실습 확인 결과의 출처입니다. 네 파일이 모두 <code>found</code>여야 GitOps 배포 파일 inspection을 진행할 수 있습니다. 파일이 없으면 배포 실습 문제가 아니라 course artifact 누락 문제로 기록합니다.</p>
+<p>이 출력에서 확인할 핵심은 실습 확인 결과의 출처입니다. 다섯 파일이 모두 <code>found</code>여야 GitOps 배포 파일 inspection을 진행할 수 있습니다. 파일이 없으면 배포 실습 문제가 아니라 course artifact 누락 문제로 기록합니다.</p>
 </div>
 </div>
 </div>
@@ -7923,12 +7945,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=e2804543">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=e2804543">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">application</span> <span class="o">=</span> <span class="n">read_yaml</span><span class="p">(</span><span class="n">MANIFESTS</span><span class="p">[</span><span class="s2">"argocd_application"</span><span class="p">])</span>
@@ -7957,6 +7979,27 @@ a.anchor-link {
 </div>
 </div>
 </div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>
+[Argo CD Application]
+- name: ai-quality-risk-classifier
+- repoURL: REPLACE_WITH_COURSE_GIT_REPO_URL
+- targetRevision: HEAD
+- source.path: demos/ch03_docker_kubernetes/argocd-resources/overlays/student
+- destination.namespace: ai-quality
+- syncOptions: CreateNamespace=true, ApplyOutOfSyncOnly=true
+repoURL_status=placeholder; live_sync_evidence=unverified
+</pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=a8b5b213">
 <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -7964,7 +8007,93 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>이 표에서 확인할 핵심은 <code>source.path</code>입니다. Argo CD가 <code>demos/ch03_docker_kubernetes/gitops/overlays/dev</code>가 아닌 다른 경로를 바라보면 후보 모델 endpoint가 아닌 다른 manifest를 동기화할 수 있습니다.</p>
+<p>이 표에서 확인할 핵심은 <code>source.path</code>입니다. Argo CD가 <code>demos/ch03_docker_kubernetes/argocd-resources/overlays/student</code>가 아닌 다른 경로를 바라보면 후보 모델 endpoint가 아닌 다른 manifest를 동기화할 수 있습니다.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=957cb649">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h2 id="3.-Git-repository-%EC%97%B0%EA%B2%B0%EA%B3%BC-ingress-host-%EC%A4%80%EB%B9%84">3. Git repository 연결과 ingress host 준비<a class="anchor-link" href="#3.-Git-repository-%EC%97%B0%EA%B2%B0%EA%B3%BC-ingress-host-%EC%A4%80%EB%B9%84">¶</a></h2><p>이 셀에서는 live sync 전에 사람이 준비해야 하는 값을 확인합니다. Argo CD는 Git repository를 읽어 cluster에 적용하므로, 수강생 repository URL과 읽기 권한이 필요합니다. 또한 MLflow UI ingress host는 실습 환경마다 다르기 때문에 placeholder가 남아 있으면 live sync 준비가 끝난 것이 아닙니다.</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=3de500f1">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [3]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">ingress_patch_path</span><span class="p">,</span> <span class="n">ingress_patch_selected</span> <span class="o">=</span> <span class="n">resolve_any</span><span class="p">(</span><span class="n">MANIFESTS</span><span class="p">[</span><span class="s2">"ingress_host_patch"</span><span class="p">])</span>
+<span class="n">ingress_patch</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">ingress_patch_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">))</span>
+<span class="n">ingress_host</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">"value"</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">ingress_patch</span> <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"path"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"/spec/rules/0/host"</span><span class="p">)</span>
+<span class="n">ingress_placeholder</span> <span class="o">=</span> <span class="s2">"REPLACE_WITH_YOUR_INGRESS_DOMAIN"</span> <span class="ow">in</span> <span class="n">ingress_host</span>
+
+<span class="n">show_items</span><span class="p">(</span>
+    <span class="s2">"Live sync 전 수강생 수정값"</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="p">(</span><span class="s2">"git repository URL"</span><span class="p">,</span> <span class="n">source</span><span class="p">[</span><span class="s2">"repoURL"</span><span class="p">]),</span>
+        <span class="p">(</span><span class="s2">"Argo CD source.path"</span><span class="p">,</span> <span class="n">source</span><span class="p">[</span><span class="s2">"path"</span><span class="p">]),</span>
+        <span class="p">(</span><span class="s2">"ingress patch file"</span><span class="p">,</span> <span class="n">ingress_patch_selected</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"MLflow ingress host"</span><span class="p">,</span> <span class="n">ingress_host</span><span class="p">),</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"ingress_host_status=placeholder"</span> <span class="k">if</span> <span class="n">ingress_placeholder</span> <span class="k">else</span> <span class="s2">"ingress_host_status=configured"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"[실행 순서]"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"1. bash demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh check"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"2. edit demos/ch03_docker_kubernetes/argocd-resources/overlays/student/ingress-host-patch.yaml"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"3. bash demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh key"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"4. add the printed public key to GitHub Deploy keys"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"5. ARGOCD_REPO_URL=git@github.com:&lt;your-org-or-user&gt;/&lt;your-repo&gt;.git bash demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh connect"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"6. bash demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh sync"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>
+[Live sync 전 수강생 수정값]
+- git repository URL: REPLACE_WITH_COURSE_GIT_REPO_URL
+- Argo CD source.path: demos/ch03_docker_kubernetes/argocd-resources/overlays/student
+- ingress patch file: demos/ch03_docker_kubernetes/argocd-resources/overlays/student/ingress-host-patch.yaml
+- MLflow ingress host: mlflow.REPLACE_WITH_YOUR_INGRESS_DOMAIN.example.com
+ingress_host_status=placeholder
+
+[실행 순서]
+1. bash demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh check
+2. edit demos/ch03_docker_kubernetes/argocd-resources/overlays/student/ingress-host-patch.yaml
+3. bash demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh key
+4. add the printed public key to GitHub Deploy keys
+5. ARGOCD_REPO_URL=git@github.com:&lt;your-org-or-user&gt;/&lt;your-repo&gt;.git bash demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh connect
+6. bash demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh sync
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=66fc091e">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>출력에서 <code>repoURL</code>이 placeholder이면 아직 Argo CD가 어떤 Git repository를 읽을지 모릅니다. <code>MLflow ingress host</code>에 placeholder가 남아 있으면 MLflow UI 주소도 아직 정해지지 않았습니다. 두 값 중 하나라도 준비되지 않았다면 sync 성공을 주장하지 않고, <code>manifest inspection</code>까지만 확인했다고 씁니다.</p>
 </div>
 </div>
 </div>
@@ -7975,16 +8104,16 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="3.-KServe-%EB%B0%B0%ED%8F%AC-%ED%8C%8C%EC%9D%BC-inspection">3. KServe 배포 파일 inspection<a class="anchor-link" href="#3.-KServe-%EB%B0%B0%ED%8F%AC-%ED%8C%8C%EC%9D%BC-inspection">¶</a></h2><p>이 셀에서는 KServe <code>InferenceService</code>가 MLflow candidate와 연결되어 있는지 확인하는 것입니다. <code>InferenceService</code>는 endpoint 의도를 선언하지만, 실제 추론은 model format에 맞는 runtime container가 수행합니다.</p>
+<h2 id="4.-KServe-%EB%B0%B0%ED%8F%AC-%ED%8C%8C%EC%9D%BC-inspection">4. KServe 배포 파일 inspection<a class="anchor-link" href="#4.-KServe-%EB%B0%B0%ED%8F%AC-%ED%8C%8C%EC%9D%BC-inspection">¶</a></h2><p>이 셀에서는 KServe <code>InferenceService</code>가 MLflow candidate와 연결되어 있는지 확인하는 것입니다. <code>InferenceService</code>는 endpoint 의도를 선언하지만, 실제 추론은 model format에 맞는 runtime container가 수행합니다.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=01548dd7">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=01548dd7">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">inference_service</span> <span class="o">=</span> <span class="n">read_yaml</span><span class="p">(</span><span class="n">MANIFESTS</span><span class="p">[</span><span class="s2">"kserve_base"</span><span class="p">])</span>
@@ -8011,6 +8140,27 @@ a.anchor-link {
 </div>
 </div>
 </div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>
+[KServe InferenceService]
+- kind: InferenceService
+- model_alias: candidate
+- mlflow_model_uri: models:/risk-classifier@candidate
+- protocolVersion: v2
+- storageUri: pvc://ai-quality-models/artifacts/risk-classifier/candidate
+- response_log_fields: request_id,model_version,score,threshold,prediction,latency_ms,validation_failure
+kserve_control_plane=InferenceService; data_plane=Kubernetes Pod and ServingRuntime
+</pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=84447011">
 <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -8029,16 +8179,16 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="4.-Observability-contract-inspection">4. Observability contract inspection<a class="anchor-link" href="#4.-Observability-contract-inspection">¶</a></h2><p>이 셀에서는 4장에서 찾을 telemetry field가 배포 manifest에 명시되어 있는지 확인하는 것입니다. Argo CD sync와 KServe Ready가 있어도 이 필드가 없으면 배포 확인에서 endpoint 확인 결과를 설명하기 어렵습니다.</p>
+<h2 id="5.-Observability-contract-inspection">5. Observability contract inspection<a class="anchor-link" href="#5.-Observability-contract-inspection">¶</a></h2><p>이 셀에서는 4장에서 찾을 telemetry field가 배포 manifest에 명시되어 있는지 확인하는 것입니다. Argo CD sync와 KServe Ready가 있어도 이 필드가 없으면 배포 확인에서 endpoint 확인 결과를 설명하기 어렵습니다.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=a06015e2">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=a06015e2">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">observability</span> <span class="o">=</span> <span class="n">read_yaml</span><span class="p">(</span><span class="n">MANIFESTS</span><span class="p">[</span><span class="s2">"observability_config"</span><span class="p">])</span>
@@ -8063,6 +8213,34 @@ a.anchor-link {
 </div>
 </div>
 </div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>
+[Serving config]
+- MODEL_ALIAS: candidate
+- MODEL_VERSION: candidate-v2
+- DEPLOYMENT_CHECK: candidate_model_deployment
+
+[4장에서 다시 확인할 응답/로그 필드]
+- request_id
+- model_version
+- model_alias
+- score
+- threshold
+- prediction
+- latency_ms
+- validation_failure
+telemetry_contract_fields=request_id,model_version,model_alias,score,threshold,prediction,latency_ms,validation_failure
+</pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cb4f41a7">
 <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -8081,16 +8259,16 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="5.-Live-sync-%EA%B0%80%EB%8A%A5%EC%84%B1-%ED%99%95%EC%9D%B8">5. Live sync 가능성 확인<a class="anchor-link" href="#5.-Live-sync-%EA%B0%80%EB%8A%A5%EC%84%B1-%ED%99%95%EC%9D%B8">¶</a></h2><p>이 셀에서는 지금 환경에서 live Argo CD sync를 주장할 수 있는지 확인하는 것입니다. CLI가 없거나 repository URL이 placeholder이면 live sync는 미확인으로 두고, manifest inspection 확인 결과만 보고합니다.</p>
+<h2 id="6.-Live-sync-%EA%B0%80%EB%8A%A5%EC%84%B1-%ED%99%95%EC%9D%B8">6. Live sync 가능성 확인<a class="anchor-link" href="#6.-Live-sync-%EA%B0%80%EB%8A%A5%EC%84%B1-%ED%99%95%EC%9D%B8">¶</a></h2><p>이 셀에서는 지금 환경에서 live Argo CD sync를 주장할 수 있는지 확인하는 것입니다. CLI가 없거나 repository URL이 placeholder이면 live sync는 미확인으로 두고, manifest inspection 확인 결과만 보고합니다.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=25b7356e">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=25b7356e">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">command_available</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -8099,6 +8277,7 @@ a.anchor-link {
 <span class="n">repo_url</span> <span class="o">=</span> <span class="n">source</span><span class="p">[</span><span class="s2">"repoURL"</span><span class="p">]</span>
 <span class="n">live_readiness</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">(</span><span class="s2">"repoURL_configured"</span><span class="p">,</span> <span class="s2">"pass"</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">repo_url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"REPLACE_WITH"</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"blocked"</span><span class="p">,</span> <span class="s2">"실제 Git repository URL 필요"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"ingress_host_configured"</span><span class="p">,</span> <span class="s2">"pass"</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">ingress_placeholder</span> <span class="k">else</span> <span class="s2">"blocked"</span><span class="p">,</span> <span class="s2">"수강생별 MLflow ingress 주소 필요"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"kubectl_cli"</span><span class="p">,</span> <span class="s2">"pass"</span> <span class="k">if</span> <span class="n">command_available</span><span class="p">(</span><span class="s2">"kubectl"</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"blocked"</span><span class="p">,</span> <span class="s2">"Application 등록과 KServe status 확인 필요"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"argocd_cli"</span><span class="p">,</span> <span class="s2">"pass"</span> <span class="k">if</span> <span class="n">command_available</span><span class="p">(</span><span class="s2">"argocd"</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"blocked"</span><span class="p">,</span> <span class="s2">"diff/sync/wait 실행 필요"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"kustomize_cli"</span><span class="p">,</span> <span class="s2">"pass"</span> <span class="k">if</span> <span class="n">command_available</span><span class="p">(</span><span class="s2">"kustomize"</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"optional"</span><span class="p">,</span> <span class="s2">"overlay render 확인 가능"</span><span class="p">),</span>
@@ -8111,6 +8290,26 @@ a.anchor-link {
 <span class="k">else</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">"live_sync_evidence=checkable; required_checks=argocd_diff,argocd_sync,argocd_wait,kserve_ready"</span><span class="p">)</span>
 </pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>
+[live 확인 준비 상태]
+- repoURL_configured: blocked | 실제 Git repository URL 필요
+- ingress_host_configured: blocked | 수강생별 MLflow ingress 주소 필요
+- kubectl_cli: pass | Application 등록과 KServe status 확인 필요
+- argocd_cli: pass | diff/sync/wait 실행 필요
+- kustomize_cli: pass | overlay render 확인 가능
+live_sync_evidence=unverified; evidence_scope=manifest_inspection
+</pre>
 </div>
 </div>
 </div>
@@ -8133,16 +8332,16 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="6.-%EB%B0%B0%ED%8F%AC-%ED%99%95%EC%9D%B8-%EA%B2%B0%EA%B3%BC-%EC%9E%91%EC%84%B1">6. 배포 확인 결과 작성<a class="anchor-link" href="#6.-%EB%B0%B0%ED%8F%AC-%ED%99%95%EC%9D%B8-%EA%B2%B0%EA%B3%BC-%EC%9E%91%EC%84%B1">¶</a></h2><p>이 셀에서는 3장에서 4장으로 넘길 확인 결과 행를 만드는 것입니다. 이 row는 4장 observability notebook과 5장 배포 확인 notebook에서 그대로 사용합니다.</p>
+<h2 id="7.-%EB%B0%B0%ED%8F%AC-%ED%99%95%EC%9D%B8-%EA%B2%B0%EA%B3%BC-%EC%9E%91%EC%84%B1">7. 배포 확인 결과 작성<a class="anchor-link" href="#7.-%EB%B0%B0%ED%8F%AC-%ED%99%95%EC%9D%B8-%EA%B2%B0%EA%B3%BC-%EC%9E%91%EC%84%B1">¶</a></h2><p>이 셀에서는 3장에서 4장으로 넘길 확인 결과 행를 만드는 것입니다. 이 row는 4장 observability notebook과 5장 배포 확인 notebook에서 그대로 사용합니다.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=25d87215">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=25d87215">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">live_sync_status</span> <span class="o">=</span> <span class="s2">"verified"</span> <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">status</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">"pass"</span><span class="p">,</span> <span class="s2">"optional"</span><span class="p">}</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">live_readiness</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"unverified"</span>
@@ -8151,6 +8350,7 @@ a.anchor-link {
     <span class="p">(</span><span class="s2">"check_scope"</span><span class="p">,</span> <span class="s2">"후보 모델 배포 확인"</span><span class="p">,</span> <span class="s2">"보고서 범위"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"model_uri"</span><span class="p">,</span> <span class="n">annotations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ai-quality/mlflow-model-uri"</span><span class="p">),</span> <span class="s2">"inspection"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"gitops_path"</span><span class="p">,</span> <span class="n">source</span><span class="p">[</span><span class="s2">"path"</span><span class="p">],</span> <span class="s2">"inspection"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"mlflow_ingress_host"</span><span class="p">,</span> <span class="n">ingress_host</span><span class="p">,</span> <span class="s2">"student-edit"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"argocd_app"</span><span class="p">,</span> <span class="n">application</span><span class="p">[</span><span class="s2">"metadata"</span><span class="p">][</span><span class="s2">"name"</span><span class="p">],</span> <span class="s2">"inspection"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"kserve_resource"</span><span class="p">,</span> <span class="s2">"InferenceService/ai-quality-risk-classifier-dev"</span><span class="p">,</span> <span class="s2">"inspection"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"telemetry_fields"</span><span class="p">,</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">telemetry_fields</span><span class="p">),</span> <span class="s2">"4장 확인 대상"</span><span class="p">),</span>
@@ -8165,6 +8365,27 @@ a.anchor-link {
 </div>
 </div>
 </div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>[4장으로 넘길 확인 항목]
+- check_scope: 후보 모델 배포 확인 (보고서 범위)
+- model_uri: models:/risk-classifier@candidate (inspection)
+- gitops_path: demos/ch03_docker_kubernetes/argocd-resources/overlays/student (inspection)
+- mlflow_ingress_host: mlflow.REPLACE_WITH_YOUR_INGRESS_DOMAIN.example.com (student-edit)
+- argocd_app: ai-quality-risk-classifier (inspection)
+- kserve_resource: InferenceService/ai-quality-risk-classifier-dev (inspection)
+- telemetry_fields: request_id, model_version, model_alias, score, threshold, prediction, latency_ms, validation_failure (4장 확인 대상)
+- live_sync: unverified (environment-dependent)
+</pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=c6802776">
 <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -8172,8 +8393,8 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>이 확인 결과 행로 쓸 수 있는 보고서 문장은 다음과 같습니다.</p>
-<p><code>risk-classifier@candidate</code>는 Argo CD Application <code>ai-quality-risk-classifier</code>의 GitOps path <code>demos/ch03_docker_kubernetes/gitops/overlays/dev</code>에 선언되어 있고, KServe <code>InferenceService</code>는 candidate storage URI와 응답/로그 필드를 포함합니다. 현재 환경의 live sync 상태는 <code>verified/unverified</code>로 구분해 4장 observability 확인 결과와 5장 배포 확인에서 다시 확인합니다.</p>
+<p>이 확인 결과 행으로 쓸 수 있는 보고서 문장은 다음과 같습니다.</p>
+<p><code>risk-classifier@candidate</code>는 Argo CD Application <code>ai-quality-risk-classifier</code>의 GitOps path <code>demos/ch03_docker_kubernetes/argocd-resources/overlays/student</code>에 선언되어 있고, KServe <code>InferenceService</code>는 candidate storage URI와 응답/로그 필드를 포함합니다. MLflow ingress host는 수강생 환경에 맞게 수정되어야 하며, 현재 환경의 live sync 상태는 <code>verified/unverified</code>로 구분해 4장 observability 확인 결과와 5장 배포 확인에서 다시 확인합니다.</p>
 </div>
 </div>
 </div>

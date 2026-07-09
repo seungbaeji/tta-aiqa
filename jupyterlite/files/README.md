@@ -11,8 +11,9 @@
 | 1장 | `01_data_quality/01_load_and_columns.ipynb` | 데이터 파일과 필수 컬럼 확인 |
 | 1장 | `01_data_quality/02_missing_range_label.ipynb` | 결측, 범위, label 분포 확인 |
 | 2장 | `02_model_quality/01_score_threshold.ipynb` | score와 threshold 흐름 확인 |
-| 2장 | `02_model_quality/02_precision_recall.ipynb` | Precision과 Recall 직접 계산 |
-| 2장 | `02_model_quality/03_read_metric_record.ipynb` | 준비된 metric 기록 읽기 |
+| 2장 | `02_model_quality/02_train_evaluate_track_lab.ipynb` | 후보 모델 반복 학습과 run 기록 확인 |
+| 2장 | `02_model_quality/03_precision_recall.ipynb` | Precision과 Recall 직접 계산 |
+| 2장 | `02_model_quality/04_read_metric_record.ipynb` | 준비된 metric 기록 읽기 |
 | 3장 | `03_serving/01_container_basics.ipynb` | 컨테이너와 Compose 파일 존재 확인 |
 | 3장 | `03_serving/02_mlflow_model_uri.ipynb` | MLflow candidate URI와 평가 기록 연결 확인 |
 | 3장 | `03_serving/03_fastapi_compose_serving.ipynb` | FastAPI 요청/응답 계약을 browser fallback으로 확인 |
