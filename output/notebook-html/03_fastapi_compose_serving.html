@@ -7852,12 +7852,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=179d2382">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=179d2382">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -7895,6 +7895,68 @@ a.anchor-link {
 </div>
 </div>
 </div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>item</th>
+<th>value</th>
+<th>qa_use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>package_module</td>
+<td>ai_quality.lite</td>
+<td>Lite 또는 local helper 기준을 확인합니다.</td>
+</tr>
+<tr>
+<th>1</th>
+<td>external_api_base_url</td>
+<td>not_set</td>
+<td>외부 API가 지정되면 `/predict`로 실제 호출을 시도합니다.</td>
+</tr>
+<tr>
+<th>2</th>
+<td>fallback_mode</td>
+<td>lite_contract_simulation</td>
+<td>외부 API가 없거나 실패하면 같은 계약의 fallback 응답으로 실습을 진행합니다.</td>
+</tr>
+<tr>
+<th>3</th>
+<td>required_response_fields</td>
+<td>request_id, model_version, score, threshold, p...</td>
+<td>운영 추적에 필요한 최소 응답 필드입니다.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0e04831c">
 <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -7909,12 +7971,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=5641ea8d">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=5641ea8d">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">payload</span> <span class="o">=</span> <span class="n">serving_payload</span><span class="p">()</span>
@@ -7960,6 +8022,238 @@ a.anchor-link {
 </div>
 </div>
 </div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>check</th>
+<th>observed</th>
+<th>qa_use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>payload_source</td>
+<td>serving_payload() sample</td>
+<td>실습용 정상 요청 출처를 남깁니다.</td>
+</tr>
+<tr>
+<th>1</th>
+<td>row_grain</td>
+<td>one prediction request</td>
+<td>한 요청이 모델 입력 sample 하나임을 설명합니다.</td>
+</tr>
+<tr>
+<th>2</th>
+<td>feature_count</td>
+<td>6</td>
+<td>학습 feature와 API feature 수를 비교합니다.</td>
+</tr>
+<tr>
+<th>3</th>
+<td>request_id_present</td>
+<td>True</td>
+<td>응답과 로그 연결 가능성을 확인합니다.</td>
+</tr>
+<tr>
+<th>4</th>
+<td>threshold_expected</td>
+<td>0.5</td>
+<td>score를 prediction으로 바꿀 운영 기준입니다.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>field</th>
+<th>value</th>
+<th>role</th>
+<th>python_type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>request_id</td>
+<td>lab-03-valid-001</td>
+<td>trace_key</td>
+<td>str</td>
+</tr>
+<tr>
+<th>1</th>
+<td>heart_rate</td>
+<td>118</td>
+<td>model_feature</td>
+<td>int</td>
+</tr>
+<tr>
+<th>2</th>
+<td>respiratory_rate</td>
+<td>25</td>
+<td>model_feature</td>
+<td>int</td>
+</tr>
+<tr>
+<th>3</th>
+<td>body_temperature</td>
+<td>37.9</td>
+<td>model_feature</td>
+<td>float</td>
+</tr>
+<tr>
+<th>4</th>
+<td>oxygen_saturation</td>
+<td>92</td>
+<td>model_feature</td>
+<td>int</td>
+</tr>
+<tr>
+<th>5</th>
+<td>systolic_blood_pressure</td>
+<td>146</td>
+<td>model_feature</td>
+<td>int</td>
+</tr>
+<tr>
+<th>6</th>
+<td>diastolic_blood_pressure</td>
+<td>92</td>
+<td>model_feature</td>
+<td>int</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>feature</th>
+<th>in_payload</th>
+<th>numeric</th>
+<th>value</th>
+<th>qa_status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>heart_rate</td>
+<td>True</td>
+<td>True</td>
+<td>118.0</td>
+<td>pass</td>
+</tr>
+<tr>
+<th>1</th>
+<td>respiratory_rate</td>
+<td>True</td>
+<td>True</td>
+<td>25.0</td>
+<td>pass</td>
+</tr>
+<tr>
+<th>2</th>
+<td>body_temperature</td>
+<td>True</td>
+<td>True</td>
+<td>37.9</td>
+<td>pass</td>
+</tr>
+<tr>
+<th>3</th>
+<td>oxygen_saturation</td>
+<td>True</td>
+<td>True</td>
+<td>92.0</td>
+<td>pass</td>
+</tr>
+<tr>
+<th>4</th>
+<td>systolic_blood_pressure</td>
+<td>True</td>
+<td>True</td>
+<td>146.0</td>
+<td>pass</td>
+</tr>
+<tr>
+<th>5</th>
+<td>diastolic_blood_pressure</td>
+<td>True</td>
+<td>True</td>
+<td>92.0</td>
+<td>pass</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=83ea54ca">
 <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -7975,12 +8269,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=21ff74e9">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=21ff74e9">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">invalid_payload</span> <span class="o">=</span> <span class="p">{</span>
@@ -8001,6 +8295,66 @@ a.anchor-link {
 </div>
 </div>
 </div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>input_issue</th>
+<th>payload_value</th>
+<th>expected_response</th>
+<th>qa_reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>heart_rate_type</td>
+<td>not-a-number</td>
+<td>422</td>
+<td>숫자 feature 타입 오류는 schema 검증에서 차단되어야 합니다.</td>
+</tr>
+<tr>
+<th>1</th>
+<td>missing_required_features</td>
+<td>[body_temperature, diastolic_blood_pressure, o...</td>
+<td>422</td>
+<td>필수 feature 누락은 예측 로직 전에 차단되어야 합니다.</td>
+</tr>
+<tr>
+<th>2</th>
+<td>request_id_present</td>
+<td>lab-03-invalid-001</td>
+<td>included_in_error_context</td>
+<td>실패 요청도 추적 가능해야 합니다.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=db408891">
 <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -8015,12 +8369,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=ea62d4de">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=ea62d4de">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">call_predict</span><span class="p">(</span><span class="n">payload_to_send</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]:</span>
@@ -8098,6 +8452,186 @@ a.anchor-link {
 </div>
 </div>
 </div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>item</th>
+<th>value</th>
+<th>qa_use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>response_source</td>
+<td>lite_contract_simulation</td>
+<td>live API evidence인지 fallback evidence인지 구분합니다.</td>
+</tr>
+<tr>
+<th>1</th>
+<td>status_code</td>
+<td>200</td>
+<td>정상 경로는 200이어야 합니다.</td>
+</tr>
+<tr>
+<th>2</th>
+<td>fallback_reason</td>
+<td>not_applicable</td>
+<td>외부 API 실패 시 fallback 사용 사유를 남깁니다.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>field</th>
+<th>value</th>
+<th>present</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>request_id</td>
+<td>lab-03-valid-001</td>
+<td>True</td>
+</tr>
+<tr>
+<th>1</th>
+<td>model_version</td>
+<td>v1</td>
+<td>True</td>
+</tr>
+<tr>
+<th>2</th>
+<td>score</td>
+<td>0.3521</td>
+<td>True</td>
+</tr>
+<tr>
+<th>3</th>
+<td>threshold</td>
+<td>0.5</td>
+<td>True</td>
+</tr>
+<tr>
+<th>4</th>
+<td>prediction</td>
+<td>low_risk</td>
+<td>True</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>gate</th>
+<th>observed</th>
+<th>qa_status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>status_200</td>
+<td>True</td>
+<td>pass</td>
+</tr>
+<tr>
+<th>1</th>
+<td>required_fields_present</td>
+<td>True</td>
+<td>pass</td>
+</tr>
+<tr>
+<th>2</th>
+<td>request_id_round_trip</td>
+<td>True</td>
+<td>pass</td>
+</tr>
+<tr>
+<th>3</th>
+<td>threshold_matches_ch02</td>
+<td>True</td>
+<td>pass</td>
+</tr>
+<tr>
+<th>4</th>
+<td>prediction_label_allowed</td>
+<td>True</td>
+<td>pass</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0093db8e">
 <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -8113,12 +8647,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=fa7c3602">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=fa7c3602">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">score_value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">valid_response_payload</span><span class="p">[</span><span class="s2">"score"</span><span class="p">])</span>
@@ -8141,6 +8675,74 @@ a.anchor-link {
 </div>
 </div>
 </div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>step</th>
+<th>observed</th>
+<th>qa_meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>score</td>
+<td>0.3521</td>
+<td>prediction 이전의 연속값입니다.</td>
+</tr>
+<tr>
+<th>1</th>
+<td>threshold</td>
+<td>0.5</td>
+<td>class 변환 기준입니다.</td>
+</tr>
+<tr>
+<th>2</th>
+<td>expected_prediction</td>
+<td>low_risk</td>
+<td>score와 threshold로 계산한 기대 class입니다.</td>
+</tr>
+<tr>
+<th>3</th>
+<td>response_prediction</td>
+<td>low_risk</td>
+<td>API가 실제 반환한 class입니다.</td>
+</tr>
+<tr>
+<th>4</th>
+<td>consistency</td>
+<td>True</td>
+<td>응답 내부 변환 기준 일치 여부입니다.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=b855c2bc">
 <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -8155,12 +8757,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=6844898e">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=6844898e">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">openapi</span> <span class="o">=</span> <span class="n">openapi_contract</span><span class="p">()</span>
@@ -8206,6 +8808,214 @@ a.anchor-link {
 </div>
 </div>
 </div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>schema</th>
+<th>present</th>
+<th>qa_use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>PredictionPayload</td>
+<td>True</td>
+<td>요청 feature와 request_id 계약</td>
+</tr>
+<tr>
+<th>1</th>
+<td>PredictionOutput</td>
+<td>True</td>
+<td>응답 추적 필드 계약</td>
+</tr>
+<tr>
+<th>2</th>
+<td>HTTPValidationError</td>
+<td>True</td>
+<td>검증 오류 응답 계약</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>field</th>
+<th>required</th>
+<th>documented_type</th>
+<th>training_feature</th>
+<th>qa_status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>request_id</td>
+<td>False</td>
+<td>string</td>
+<td>False</td>
+<td>pass</td>
+</tr>
+<tr>
+<th>1</th>
+<td>heart_rate</td>
+<td>True</td>
+<td>number</td>
+<td>True</td>
+<td>pass</td>
+</tr>
+<tr>
+<th>2</th>
+<td>respiratory_rate</td>
+<td>True</td>
+<td>number</td>
+<td>True</td>
+<td>pass</td>
+</tr>
+<tr>
+<th>3</th>
+<td>body_temperature</td>
+<td>True</td>
+<td>number</td>
+<td>True</td>
+<td>pass</td>
+</tr>
+<tr>
+<th>4</th>
+<td>oxygen_saturation</td>
+<td>True</td>
+<td>number</td>
+<td>True</td>
+<td>pass</td>
+</tr>
+<tr>
+<th>5</th>
+<td>systolic_blood_pressure</td>
+<td>True</td>
+<td>number</td>
+<td>True</td>
+<td>pass</td>
+</tr>
+<tr>
+<th>6</th>
+<td>diastolic_blood_pressure</td>
+<td>True</td>
+<td>number</td>
+<td>True</td>
+<td>pass</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>field</th>
+<th>required</th>
+<th>present_in_actual_response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>request_id</td>
+<td>True</td>
+<td>True</td>
+</tr>
+<tr>
+<th>1</th>
+<td>model_version</td>
+<td>True</td>
+<td>True</td>
+</tr>
+<tr>
+<th>2</th>
+<td>score</td>
+<td>True</td>
+<td>True</td>
+</tr>
+<tr>
+<th>3</th>
+<td>threshold</td>
+<td>True</td>
+<td>True</td>
+</tr>
+<tr>
+<th>4</th>
+<td>prediction</td>
+<td>True</td>
+<td>True</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=7f7f6301">
 <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -8221,12 +9031,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=c79a7185">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=c79a7185">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">invalid_call</span> <span class="o">=</span> <span class="n">call_predict</span><span class="p">(</span><span class="n">invalid_payload</span><span class="p">)</span>
@@ -8255,6 +9065,188 @@ a.anchor-link {
 </div>
 </div>
 </div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>source</th>
+<th>status_code</th>
+<th>fallback_reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>lite_contract_simulation</td>
+<td>422</td>
+<td>not_applicable</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>gate</th>
+<th>observed</th>
+<th>qa_status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>status_422</td>
+<td>True</td>
+<td>pass</td>
+</tr>
+<tr>
+<th>1</th>
+<td>has_detail</td>
+<td>True</td>
+<td>pass</td>
+</tr>
+<tr>
+<th>2</th>
+<td>field_level_errors</td>
+<td>True</td>
+<td>pass</td>
+</tr>
+<tr>
+<th>3</th>
+<td>prediction_not_returned</td>
+<td>True</td>
+<td>pass</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>loc</th>
+<th>msg</th>
+<th>type</th>
+<th>field</th>
+<th>owner_hint</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>[body, heart_rate]</td>
+<td>Input should be a valid number</td>
+<td>float_parsing</td>
+<td>heart_rate</td>
+<td>client_or_upstream_payload</td>
+</tr>
+<tr>
+<th>1</th>
+<td>[body, respiratory_rate]</td>
+<td>Field required</td>
+<td>missing</td>
+<td>respiratory_rate</td>
+<td>client_or_upstream_payload</td>
+</tr>
+<tr>
+<th>2</th>
+<td>[body, body_temperature]</td>
+<td>Field required</td>
+<td>missing</td>
+<td>body_temperature</td>
+<td>client_or_upstream_payload</td>
+</tr>
+<tr>
+<th>3</th>
+<td>[body, oxygen_saturation]</td>
+<td>Field required</td>
+<td>missing</td>
+<td>oxygen_saturation</td>
+<td>client_or_upstream_payload</td>
+</tr>
+<tr>
+<th>4</th>
+<td>[body, systolic_blood_pressure]</td>
+<td>Field required</td>
+<td>missing</td>
+<td>systolic_blood_pressure</td>
+<td>client_or_upstream_payload</td>
+</tr>
+<tr>
+<th>5</th>
+<td>[body, diastolic_blood_pressure]</td>
+<td>Field required</td>
+<td>missing</td>
+<td>diastolic_blood_pressure</td>
+<td>client_or_upstream_payload</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cf4dc6ae">
 <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -8270,12 +9262,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=3b4f81cf">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=3b4f81cf">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [8]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">container_status</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">read_first_json_artifact</span><span class="p">(</span>
@@ -8295,14 +9287,14 @@ a.anchor-link {
 
 <span class="n">mlflow_manifest_path</span><span class="p">,</span> <span class="n">mlflow_manifest</span> <span class="o">=</span> <span class="n">read_first_text_artifact</span><span class="p">(</span>
     <span class="p">[</span>
-        <span class="s2">"demos/ch03_docker_kubernetes/argocd-resources/base/mlflow-tracking.yaml"</span><span class="p">,</span>
-        <span class="s2">"artifacts/deployment/chapter_03/argocd-resources/base/mlflow-tracking.yaml"</span><span class="p">,</span>
+        <span class="s2">"demos/ch03_docker_kubernetes/gitops/base/mlflow-tracking.yaml"</span><span class="p">,</span>
+        <span class="s2">"artifacts/deployment/chapter_03/gitops/base/mlflow-tracking.yaml"</span><span class="p">,</span>
     <span class="p">]</span>
 <span class="p">)</span>
 <span class="n">kserve_manifest_path</span><span class="p">,</span> <span class="n">kserve_manifest</span> <span class="o">=</span> <span class="n">read_first_text_artifact</span><span class="p">(</span>
     <span class="p">[</span>
-        <span class="s2">"demos/ch03_docker_kubernetes/argocd-resources/base/inferenceservice.yaml"</span><span class="p">,</span>
-        <span class="s2">"artifacts/deployment/chapter_03/argocd-resources/base/inferenceservice.yaml"</span><span class="p">,</span>
+        <span class="s2">"demos/ch03_docker_kubernetes/gitops/base/inferenceservice.yaml"</span><span class="p">,</span>
+        <span class="s2">"artifacts/deployment/chapter_03/gitops/base/inferenceservice.yaml"</span><span class="p">,</span>
     <span class="p">]</span>
 <span class="p">)</span>
 
@@ -8340,6 +9332,202 @@ a.anchor-link {
 </div>
 </div>
 </div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>artifact</th>
+<th>check</th>
+<th>observed</th>
+<th>qa_interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>container</td>
+<td>execution_mode</td>
+<td>prepared_sample</td>
+<td>prepared sample 여부를 표시합니다.</td>
+</tr>
+<tr>
+<th>1</th>
+<td>container</td>
+<td>status</td>
+<td>running</td>
+<td>container startup 흐름의 예시입니다.</td>
+</tr>
+<tr>
+<th>2</th>
+<td>container</td>
+<td>health_status_code</td>
+<td>200</td>
+<td>prepared health response 예시입니다.</td>
+</tr>
+<tr>
+<th>3</th>
+<td>container</td>
+<td>model_version</td>
+<td>baseline-2026-07</td>
+<td>서빙 설정의 model_version 노출 예시입니다.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>artifact</th>
+<th>check</th>
+<th>observed</th>
+<th>qa_interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>kubernetes</td>
+<td>mlflow_manifest_path</td>
+<td>demos/ch03_docker_kubernetes/gitops/base/mlflo...</td>
+<td>MLflow를 Kubernetes에 먼저 배포하는 파일입니다.</td>
+</tr>
+<tr>
+<th>1</th>
+<td>kubernetes</td>
+<td>mlflow_deployment</td>
+<td>True</td>
+<td>MLflow tracking 서버 선언 여부입니다.</td>
+</tr>
+<tr>
+<th>2</th>
+<td>kubernetes</td>
+<td>mlflow_service</td>
+<td>True</td>
+<td>cluster 내부 접근 경로 선언 여부입니다.</td>
+</tr>
+<tr>
+<th>3</th>
+<td>kubernetes</td>
+<td>model_artifact_pvc</td>
+<td>True</td>
+<td>모델 artifact 저장 위치 선언 여부입니다.</td>
+</tr>
+<tr>
+<th>4</th>
+<td>kserve</td>
+<td>inferenceservice</td>
+<td>True</td>
+<td>모델 serving 후보 선언 여부입니다.</td>
+</tr>
+<tr>
+<th>5</th>
+<td>kserve</td>
+<td>storage_uri</td>
+<td>True</td>
+<td>KServe가 MLflow/model artifact 저장 위치와 이어지는지 확인합니다.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>evidence</th>
+<th>source</th>
+<th>can_claim</th>
+<th>cannot_claim</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>api_response</td>
+<td>lite_contract_simulation</td>
+<td>요청/응답 계약 확인</td>
+<td>container 또는 pod readiness 검증</td>
+</tr>
+<tr>
+<th>1</th>
+<td>container_sample</td>
+<td>prepared_sample</td>
+<td>container smoke 흐름 예시 확인</td>
+<td>현재 세션의 live Docker 실행</td>
+</tr>
+<tr>
+<th>2</th>
+<td>gitops_manifest</td>
+<td>repository_files</td>
+<td>MLflow/KServe 배포 선언 확인</td>
+<td>Argo CD sync 또는 KServe Ready 성공</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=2ef2b260">
 <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -8355,12 +9543,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=c99e1eae">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=c99e1eae">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [9]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">manifest_checks_passed</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">manifest_table</span><span class="p">[</span><span class="s2">"observed"</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
@@ -8402,6 +9590,77 @@ a.anchor-link {
 <span class="n">display</span><span class="p">(</span><span class="n">serving_packet</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">report_sentence</span><span class="p">)</span>
 </pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>evidence</th>
+<th>observed</th>
+<th>qa_judgment</th>
+<th>owner</th>
+<th>next_action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>valid_predict_response</td>
+<td>source=lite_contract_simulation, status=200, m...</td>
+<td>정상 응답 추적 필드가 확인되었습니다.</td>
+<td>QA/Serving</td>
+<td>4장에서 같은 request_id와 score/prediction 로그를 확인합니다.</td>
+</tr>
+<tr>
+<th>1</th>
+<td>invalid_payload_response</td>
+<td>status=422, error_fields=['heart_rate', 'respi...</td>
+<td>입력 계약 위반이 422로 분리되었습니다.</td>
+<td>QA/Client Owner</td>
+<td>4장에서 validation failure 로그와 실패 필드를 집계합니다.</td>
+</tr>
+<tr>
+<th>2</th>
+<td>deployment_boundary</td>
+<td>container=prepared_sample, mlflow_kserve_manif...</td>
+<td>manifest는 배포 선언 증거이며 live API 호출 증거와 분리합니다.</td>
+<td>QA/Platform</td>
+<td>Kubernetes 환경이 제공되면 Argo CD sync와 KServe Ready...</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>/predict 확인은 source=lite_contract_simulation 기준으로 수행했으며 status=200, model_version=v1, threshold=0.5, prediction=low_risk을 확인했습니다. 잘못된 payload는 status=422로 분리되었고, Kubernetes manifest에서는 MLflow tracking resource와 KServe InferenceService 선언을 확인했습니다. 다만 manifest inspection은 live sync 성공이나 endpoint 응답 성공을 의미하지 않습니다. 4장에서는 같은 필드가 structured log와 prediction distribution에 남는지 확인합니다.
+</pre>
 </div>
 </div>
 </div>

@@ -5,7 +5,7 @@ APP_NAME="${ARGOCD_APP_NAME:-ai-quality-risk-classifier}"
 
 if ! command -v argocd >/dev/null 2>&1; then
   echo "argocd CLI is required for live diff/sync." >&2
-  echo "Fallback: inspect demos/ch03_docker_kubernetes/argocd/application.yaml and argocd-resources/overlays/student." >&2
+  echo "Fallback: inspect demos/ch03_docker_kubernetes/argocd/application.yaml and gitops/overlays/student." >&2
   exit 1
 fi
 

@@ -20,7 +20,7 @@
 | Notebook 8 | `labs/ch03_serving/08_argocd_gitops_live_check.ipynb` | live sync, KServe Ready, endpoint 확인 항목 정리 |
 | GitOps 확인 script | `demos/ch03_docker_kubernetes/scripts/02_check_argocd_manifests.sh` | MLflow/KServe manifest render와 dry-run 확인 |
 | Argo CD 연결 script | `demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh` | GitHub Deploy key 생성, Argo CD repo 연결, Application 등록, sync 실행 |
-| Argo CD resource | `demos/ch03_docker_kubernetes/argocd-resources/` | Argo CD가 바라볼 Kustomize base와 수강생 overlay |
+| Argo CD resource | `demos/ch03_docker_kubernetes/gitops/` | Argo CD가 바라볼 Kustomize base와 수강생 overlay |
 
 ## 직접 실행 순서
 
@@ -49,13 +49,13 @@ Argo CD 실습은 `kubectl apply`를 직접 반복하는 실습이 아니라, Gi
 Argo CD가 바라볼 path는 다음입니다.
 
 ```text
-demos/ch03_docker_kubernetes/argocd-resources/overlays/student
+demos/ch03_docker_kubernetes/gitops/overlays/student
 ```
 
 이 path는 Kustomize overlay입니다. `base`에는 공통 MLflow/KServe resource가 있고, `overlays/student`에는 수강생별로 바뀌는 값이 들어갑니다. 특히 MLflow UI ingress 주소는 각자 실습 환경마다 다르므로 아래 파일을 먼저 수정합니다.
 
 ```text
-demos/ch03_docker_kubernetes/argocd-resources/overlays/student/ingress-host-patch.yaml
+demos/ch03_docker_kubernetes/gitops/overlays/student/ingress-host-patch.yaml
 ```
 
 예시는 다음과 같습니다.

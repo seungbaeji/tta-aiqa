@@ -7825,7 +7825,7 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">utils</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">runtime</span>
@@ -7848,12 +7848,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=b06c6fda">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=b06c6fda">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
@@ -7866,10 +7866,10 @@ a.anchor-link {
     <span class="n">Path</span><span class="p">(</span><span class="s2">"../../artifacts/experiments/chapter_02/model_test_eval.json"</span><span class="p">),</span>
 <span class="p">]</span>
 <span class="n">manifest_paths</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">Path</span><span class="p">(</span><span class="s2">"demos/ch03_docker_kubernetes/argocd-resources/base/inferenceservice.yaml"</span><span class="p">),</span>
-    <span class="n">Path</span><span class="p">(</span><span class="s2">"../../demos/ch03_docker_kubernetes/argocd-resources/base/inferenceservice.yaml"</span><span class="p">),</span>
-    <span class="n">Path</span><span class="p">(</span><span class="s2">"artifacts/deployment/chapter_03/argocd-resources/base/inferenceservice.yaml"</span><span class="p">),</span>
-    <span class="n">Path</span><span class="p">(</span><span class="s2">"../artifacts/deployment/chapter_03/argocd-resources/base/inferenceservice.yaml"</span><span class="p">),</span>
+    <span class="n">Path</span><span class="p">(</span><span class="s2">"demos/ch03_docker_kubernetes/gitops/base/inferenceservice.yaml"</span><span class="p">),</span>
+    <span class="n">Path</span><span class="p">(</span><span class="s2">"../../demos/ch03_docker_kubernetes/gitops/base/inferenceservice.yaml"</span><span class="p">),</span>
+    <span class="n">Path</span><span class="p">(</span><span class="s2">"artifacts/deployment/chapter_03/gitops/base/inferenceservice.yaml"</span><span class="p">),</span>
+    <span class="n">Path</span><span class="p">(</span><span class="s2">"../artifacts/deployment/chapter_03/gitops/base/inferenceservice.yaml"</span><span class="p">),</span>
 <span class="p">]</span>
 
 <span class="n">metric_path</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">path</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">metric_paths</span> <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">())</span>
@@ -7885,6 +7885,20 @@ a.anchor-link {
 </div>
 </div>
 </div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>metric record: ../../artifacts/experiments/chapter_02/model_test_eval.json
+serving manifest: ../../demos/ch03_docker_kubernetes/gitops/base/inferenceservice.yaml
+</pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=bd09a1f2">
 <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -7896,12 +7910,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=c3c74c38">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=c3c74c38">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">mlflow_uri</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"ai-quality/mlflow-model-uri:\s*(\S+)"</span><span class="p">,</span> <span class="n">manifest_text</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -7919,6 +7933,63 @@ a.anchor-link {
 </div>
 </div>
 </div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[3]:</div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>field</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>mlflow_model_uri</td>
+<td>models:/risk-classifier@candidate</td>
+</tr>
+<tr>
+<th>1</th>
+<td>registered_model</td>
+<td>risk-classifier</td>
+</tr>
+<tr>
+<th>2</th>
+<td>alias</td>
+<td>candidate</td>
+</tr>
+<tr>
+<th>3</th>
+<td>kserve_storage_uri</td>
+<td>pvc://ai-quality-models/artifacts/risk-classif...</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=b7f0f390">
 <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -7930,12 +8001,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=be29f7d8">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=be29f7d8">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">params</span> <span class="o">=</span> <span class="n">metric_record</span><span class="p">[</span><span class="s2">"params"</span><span class="p">]</span>
@@ -7952,6 +8023,83 @@ a.anchor-link {
     <span class="p">{</span><span class="s2">"check"</span><span class="p">:</span> <span class="s2">"serving_candidate"</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">:</span> <span class="n">mlflow_uri</span><span class="p">},</span>
 <span class="p">])</span>
 </pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[4]:</div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>check</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>dataset</td>
+<td>vital_signs_test</td>
+</tr>
+<tr>
+<th>1</th>
+<td>model_version</td>
+<td>v1</td>
+</tr>
+<tr>
+<th>2</th>
+<td>threshold</td>
+<td>0.5</td>
+</tr>
+<tr>
+<th>3</th>
+<td>precision</td>
+<td>1.0</td>
+</tr>
+<tr>
+<th>4</th>
+<td>recall</td>
+<td>0.4266</td>
+</tr>
+<tr>
+<th>5</th>
+<td>false_positive</td>
+<td>0</td>
+</tr>
+<tr>
+<th>6</th>
+<td>false_negative</td>
+<td>5989</td>
+</tr>
+<tr>
+<th>7</th>
+<td>serving_candidate</td>
+<td>models:/risk-classifier@candidate</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 </div>

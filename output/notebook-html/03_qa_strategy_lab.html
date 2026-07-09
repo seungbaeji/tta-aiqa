@@ -8785,15 +8785,15 @@ a.anchor-link {
 <span class="p">)</span>
 <span class="n">kserve_path</span><span class="p">,</span> <span class="n">kserve_text</span> <span class="o">=</span> <span class="n">find_optional_file</span><span class="p">(</span>
     <span class="p">[</span>
-        <span class="s2">"demos/ch03_docker_kubernetes/argocd-resources/base/inferenceservice.yaml"</span><span class="p">,</span>
-        <span class="s2">"artifacts/deployment/chapter_03/argocd-resources/base/inferenceservice.yaml"</span><span class="p">,</span>
-        <span class="s2">"../artifacts/deployment/chapter_03/argocd-resources/base/inferenceservice.yaml"</span><span class="p">,</span>
+        <span class="s2">"demos/ch03_docker_kubernetes/gitops/base/inferenceservice.yaml"</span><span class="p">,</span>
+        <span class="s2">"artifacts/deployment/chapter_03/gitops/base/inferenceservice.yaml"</span><span class="p">,</span>
+        <span class="s2">"../artifacts/deployment/chapter_03/gitops/base/inferenceservice.yaml"</span><span class="p">,</span>
     <span class="p">]</span>
 <span class="p">)</span>
 
 <span class="n">gitops_checks</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">(</span><span class="s2">"Argo CD Application manifest"</span><span class="p">,</span> <span class="s2">"checked"</span> <span class="k">if</span> <span class="n">argocd_path</span> <span class="k">else</span> <span class="s2">"missing"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">argocd_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">argocd_path</span> <span class="k">else</span> <span class="s2">"not found"</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">"Argo CD source path"</span><span class="p">,</span> <span class="s2">"checked"</span> <span class="k">if</span> <span class="s2">"argocd-resources/overlays/student"</span> <span class="ow">in</span> <span class="n">argocd_text</span> <span class="k">else</span> <span class="s2">"missing"</span><span class="p">,</span> <span class="s2">"spec.source.path"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Argo CD source path"</span><span class="p">,</span> <span class="s2">"checked"</span> <span class="k">if</span> <span class="s2">"gitops/overlays/student"</span> <span class="ow">in</span> <span class="n">argocd_text</span> <span class="k">else</span> <span class="s2">"missing"</span><span class="p">,</span> <span class="s2">"spec.source.path"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"Argo CD live sync"</span><span class="p">,</span> <span class="s2">"unverified"</span><span class="p">,</span> <span class="s2">"requires argocd app sync output"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"KServe InferenceService manifest"</span><span class="p">,</span> <span class="s2">"checked"</span> <span class="k">if</span> <span class="n">kserve_path</span> <span class="k">else</span> <span class="s2">"missing"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">kserve_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">kserve_path</span> <span class="k">else</span> <span class="s2">"not found"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"KServe candidate alias"</span><span class="p">,</span> <span class="s2">"checked"</span> <span class="k">if</span> <span class="s2">"ai-quality/model-alias: candidate"</span> <span class="ow">in</span> <span class="n">kserve_text</span> <span class="k">else</span> <span class="s2">"missing"</span><span class="p">,</span> <span class="s2">"metadata label"</span><span class="p">),</span>
@@ -8819,7 +8819,7 @@ a.anchor-link {
 - Argo CD Application manifest: checked | /Users/seungbaeji/Workspace/tta/tta-aiqa/demos/ch03_docker_kubernetes/argocd/application.yaml
 - Argo CD source path: checked | spec.source.path
 - Argo CD live sync: unverified | requires argocd app sync output
-- KServe InferenceService manifest: checked | /Users/seungbaeji/Workspace/tta/tta-aiqa/demos/ch03_docker_kubernetes/argocd-resources/base/inferenceservice.yaml
+- KServe InferenceService manifest: checked | /Users/seungbaeji/Workspace/tta/tta-aiqa/demos/ch03_docker_kubernetes/gitops/base/inferenceservice.yaml
 - KServe candidate alias: checked | metadata label
 - KServe readiness: unverified | requires kubectl get inferenceservice
 </pre>

@@ -7834,21 +7834,21 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=f3ee694e">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=f3ee694e">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="n">candidates</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">Path</span><span class="p">(</span><span class="s2">"demos/ch03_docker_kubernetes/argocd-resources/base/mlflow-tracking.yaml"</span><span class="p">),</span>
-    <span class="n">Path</span><span class="p">(</span><span class="s2">"../../demos/ch03_docker_kubernetes/argocd-resources/base/mlflow-tracking.yaml"</span><span class="p">),</span>
-    <span class="n">Path</span><span class="p">(</span><span class="s2">"artifacts/deployment/chapter_03/argocd-resources/base/mlflow-tracking.yaml"</span><span class="p">),</span>
-    <span class="n">Path</span><span class="p">(</span><span class="s2">"../artifacts/deployment/chapter_03/argocd-resources/base/mlflow-tracking.yaml"</span><span class="p">),</span>
+    <span class="n">Path</span><span class="p">(</span><span class="s2">"demos/ch03_docker_kubernetes/gitops/base/mlflow-tracking.yaml"</span><span class="p">),</span>
+    <span class="n">Path</span><span class="p">(</span><span class="s2">"../../demos/ch03_docker_kubernetes/gitops/base/mlflow-tracking.yaml"</span><span class="p">),</span>
+    <span class="n">Path</span><span class="p">(</span><span class="s2">"artifacts/deployment/chapter_03/gitops/base/mlflow-tracking.yaml"</span><span class="p">),</span>
+    <span class="n">Path</span><span class="p">(</span><span class="s2">"../artifacts/deployment/chapter_03/gitops/base/mlflow-tracking.yaml"</span><span class="p">),</span>
 <span class="p">]</span>
 
 <span class="n">manifest_path</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">path</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">candidates</span> <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">()),</span> <span class="kc">None</span><span class="p">)</span>
@@ -7856,6 +7856,19 @@ a.anchor-link {
 <span class="k">assert</span> <span class="n">manifest_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"MLflow Kubernetes manifest를 찾지 못했습니다."</span>
 <span class="n">manifest_text</span> <span class="o">=</span> <span class="n">manifest_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span>
 </pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>manifest_path=../../demos/ch03_docker_kubernetes/gitops/base/mlflow-tracking.yaml
+</pre>
 </div>
 </div>
 </div>
@@ -7871,12 +7884,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=f1e129d6">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=f1e129d6">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
@@ -7889,6 +7902,58 @@ a.anchor-link {
 
 <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">objects</span><span class="p">)</span>
 </pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[2]:</div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>kind</th>
+<th>name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>PersistentVolumeClaim</td>
+<td>ai-quality-models</td>
+</tr>
+<tr>
+<th>1</th>
+<td>Deployment</td>
+<td>mlflow-tracking</td>
+</tr>
+<tr>
+<th>2</th>
+<td>Service</td>
+<td>mlflow-tracking</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 </div>
@@ -7915,12 +7980,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=42b354d1">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=42b354d1">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">sync_waves</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">'argocd.argoproj.io/sync-wave:\s*"?([^"\n]+)"?'</span><span class="p">,</span> <span class="n">manifest_text</span><span class="p">)</span>
@@ -7930,6 +7995,21 @@ a.anchor-link {
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"artifact_root=</span><span class="si">{</span><span class="n">artifact_root</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">artifact_root</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">'missing'</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"mlflow_live_check=requires argocd sync and kubectl rollout/status"</span><span class="p">)</span>
 </pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>sync_waves=['0', '1', '2']
+artifact_root=file:///mlflow/artifacts
+mlflow_live_check=requires argocd sync and kubectl rollout/status
+</pre>
 </div>
 </div>
 </div>

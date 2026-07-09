@@ -1,7 +1,7 @@
-# Chapter 03 Argo CD Resources
+# Chapter 03 GitOps Resources
 
-This directory contains the Kubernetes resources watched by Argo CD in the
-Chapter 03 serving lab.
+This directory contains the GitOps Kubernetes resources watched by Argo CD in
+the Chapter 03 serving lab.
 
 The lab uses Kustomize so students can keep shared resources in `base` and edit
 only the small environment-specific overlay under `overlays/student`.

@@ -7849,20 +7849,20 @@ a.anchor-link {
         <span class="s2">"artifacts/deployment/chapter_03/argocd/application.yaml"</span><span class="p">,</span>
     <span class="p">],</span>
     <span class="s2">"gitops_overlay"</span><span class="p">:</span> <span class="p">[</span>
-        <span class="s2">"demos/ch03_docker_kubernetes/argocd-resources/overlays/student/kustomization.yaml"</span><span class="p">,</span>
-        <span class="s2">"artifacts/deployment/chapter_03/argocd-resources/overlays/student/kustomization.yaml"</span><span class="p">,</span>
+        <span class="s2">"demos/ch03_docker_kubernetes/gitops/overlays/student/kustomization.yaml"</span><span class="p">,</span>
+        <span class="s2">"artifacts/deployment/chapter_03/gitops/overlays/student/kustomization.yaml"</span><span class="p">,</span>
     <span class="p">],</span>
     <span class="s2">"kserve_base"</span><span class="p">:</span> <span class="p">[</span>
-        <span class="s2">"demos/ch03_docker_kubernetes/argocd-resources/base/inferenceservice.yaml"</span><span class="p">,</span>
-        <span class="s2">"artifacts/deployment/chapter_03/argocd-resources/base/inferenceservice.yaml"</span><span class="p">,</span>
+        <span class="s2">"demos/ch03_docker_kubernetes/gitops/base/inferenceservice.yaml"</span><span class="p">,</span>
+        <span class="s2">"artifacts/deployment/chapter_03/gitops/base/inferenceservice.yaml"</span><span class="p">,</span>
     <span class="p">],</span>
     <span class="s2">"observability_config"</span><span class="p">:</span> <span class="p">[</span>
-        <span class="s2">"demos/ch03_docker_kubernetes/argocd-resources/base/observability-config.yaml"</span><span class="p">,</span>
-        <span class="s2">"artifacts/deployment/chapter_03/argocd-resources/base/observability-config.yaml"</span><span class="p">,</span>
+        <span class="s2">"demos/ch03_docker_kubernetes/gitops/base/observability-config.yaml"</span><span class="p">,</span>
+        <span class="s2">"artifacts/deployment/chapter_03/gitops/base/observability-config.yaml"</span><span class="p">,</span>
     <span class="p">],</span>
     <span class="s2">"ingress_host_patch"</span><span class="p">:</span> <span class="p">[</span>
-        <span class="s2">"demos/ch03_docker_kubernetes/argocd-resources/overlays/student/ingress-host-patch.yaml"</span><span class="p">,</span>
-        <span class="s2">"artifacts/deployment/chapter_03/argocd-resources/overlays/student/ingress-host-patch.yaml"</span><span class="p">,</span>
+        <span class="s2">"demos/ch03_docker_kubernetes/gitops/overlays/student/ingress-host-patch.yaml"</span><span class="p">,</span>
+        <span class="s2">"artifacts/deployment/chapter_03/gitops/overlays/student/ingress-host-patch.yaml"</span><span class="p">,</span>
     <span class="p">],</span>
 <span class="p">}</span>
 
@@ -7914,10 +7914,10 @@ a.anchor-link {
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>[manifest files]
 - argocd_application: found | demos/ch03_docker_kubernetes/argocd/application.yaml
-- gitops_overlay: found | demos/ch03_docker_kubernetes/argocd-resources/overlays/student/kustomization.yaml
-- kserve_base: found | demos/ch03_docker_kubernetes/argocd-resources/base/inferenceservice.yaml
-- observability_config: found | demos/ch03_docker_kubernetes/argocd-resources/base/observability-config.yaml
-- ingress_host_patch: found | demos/ch03_docker_kubernetes/argocd-resources/overlays/student/ingress-host-patch.yaml
+- gitops_overlay: found | demos/ch03_docker_kubernetes/gitops/overlays/student/kustomization.yaml
+- kserve_base: found | demos/ch03_docker_kubernetes/gitops/base/inferenceservice.yaml
+- observability_config: found | demos/ch03_docker_kubernetes/gitops/base/observability-config.yaml
+- ingress_host_patch: found | demos/ch03_docker_kubernetes/gitops/overlays/student/ingress-host-patch.yaml
 </pre>
 </div>
 </div>
@@ -7991,7 +7991,7 @@ a.anchor-link {
 - name: ai-quality-risk-classifier
 - repoURL: REPLACE_WITH_COURSE_GIT_REPO_URL
 - targetRevision: HEAD
-- source.path: demos/ch03_docker_kubernetes/argocd-resources/overlays/student
+- source.path: demos/ch03_docker_kubernetes/gitops/overlays/student
 - destination.namespace: ai-quality
 - syncOptions: CreateNamespace=true, ApplyOutOfSyncOnly=true
 repoURL_status=placeholder; live_sync_evidence=unverified
@@ -8007,7 +8007,7 @@ repoURL_status=placeholder; live_sync_evidence=unverified
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>이 표에서 확인할 핵심은 <code>source.path</code>입니다. Argo CD가 <code>demos/ch03_docker_kubernetes/argocd-resources/overlays/student</code>가 아닌 다른 경로를 바라보면 후보 모델 endpoint가 아닌 다른 manifest를 동기화할 수 있습니다.</p>
+<p>이 표에서 확인할 핵심은 <code>source.path</code>입니다. Argo CD가 <code>demos/ch03_docker_kubernetes/gitops/overlays/student</code>가 아닌 다른 경로를 바라보면 후보 모델 endpoint가 아닌 다른 manifest를 동기화할 수 있습니다.</p>
 </div>
 </div>
 </div>
@@ -8049,7 +8049,7 @@ repoURL_status=placeholder; live_sync_evidence=unverified
 <span class="nb">print</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"[실행 순서]"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"1. bash demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh check"</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"2. edit demos/ch03_docker_kubernetes/argocd-resources/overlays/student/ingress-host-patch.yaml"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"2. edit demos/ch03_docker_kubernetes/gitops/overlays/student/ingress-host-patch.yaml"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"3. bash demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh key"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"4. add the printed public key to GitHub Deploy keys"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"5. ARGOCD_REPO_URL=git@github.com:&lt;your-org-or-user&gt;/&lt;your-repo&gt;.git bash demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh connect"</span><span class="p">)</span>
@@ -8069,14 +8069,14 @@ repoURL_status=placeholder; live_sync_evidence=unverified
 <pre>
 [Live sync 전 수강생 수정값]
 - git repository URL: REPLACE_WITH_COURSE_GIT_REPO_URL
-- Argo CD source.path: demos/ch03_docker_kubernetes/argocd-resources/overlays/student
-- ingress patch file: demos/ch03_docker_kubernetes/argocd-resources/overlays/student/ingress-host-patch.yaml
+- Argo CD source.path: demos/ch03_docker_kubernetes/gitops/overlays/student
+- ingress patch file: demos/ch03_docker_kubernetes/gitops/overlays/student/ingress-host-patch.yaml
 - MLflow ingress host: mlflow.REPLACE_WITH_YOUR_INGRESS_DOMAIN.example.com
 ingress_host_status=placeholder
 
 [실행 순서]
 1. bash demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh check
-2. edit demos/ch03_docker_kubernetes/argocd-resources/overlays/student/ingress-host-patch.yaml
+2. edit demos/ch03_docker_kubernetes/gitops/overlays/student/ingress-host-patch.yaml
 3. bash demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh key
 4. add the printed public key to GitHub Deploy keys
 5. ARGOCD_REPO_URL=git@github.com:&lt;your-org-or-user&gt;/&lt;your-repo&gt;.git bash demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh connect
@@ -8375,7 +8375,7 @@ live_sync_evidence=unverified; evidence_scope=manifest_inspection
 <pre>[4장으로 넘길 확인 항목]
 - check_scope: 후보 모델 배포 확인 (보고서 범위)
 - model_uri: models:/risk-classifier@candidate (inspection)
-- gitops_path: demos/ch03_docker_kubernetes/argocd-resources/overlays/student (inspection)
+- gitops_path: demos/ch03_docker_kubernetes/gitops/overlays/student (inspection)
 - mlflow_ingress_host: mlflow.REPLACE_WITH_YOUR_INGRESS_DOMAIN.example.com (student-edit)
 - argocd_app: ai-quality-risk-classifier (inspection)
 - kserve_resource: InferenceService/ai-quality-risk-classifier-dev (inspection)
@@ -8394,7 +8394,7 @@ live_sync_evidence=unverified; evidence_scope=manifest_inspection
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <p>이 확인 결과 행으로 쓸 수 있는 보고서 문장은 다음과 같습니다.</p>
-<p><code>risk-classifier@candidate</code>는 Argo CD Application <code>ai-quality-risk-classifier</code>의 GitOps path <code>demos/ch03_docker_kubernetes/argocd-resources/overlays/student</code>에 선언되어 있고, KServe <code>InferenceService</code>는 candidate storage URI와 응답/로그 필드를 포함합니다. MLflow ingress host는 수강생 환경에 맞게 수정되어야 하며, 현재 환경의 live sync 상태는 <code>verified/unverified</code>로 구분해 4장 observability 확인 결과와 5장 배포 확인에서 다시 확인합니다.</p>
+<p><code>risk-classifier@candidate</code>는 Argo CD Application <code>ai-quality-risk-classifier</code>의 GitOps path <code>demos/ch03_docker_kubernetes/gitops/overlays/student</code>에 선언되어 있고, KServe <code>InferenceService</code>는 candidate storage URI와 응답/로그 필드를 포함합니다. MLflow ingress host는 수강생 환경에 맞게 수정되어야 하며, 현재 환경의 live sync 상태는 <code>verified/unverified</code>로 구분해 4장 observability 확인 결과와 5장 배포 확인에서 다시 확인합니다.</p>
 </div>
 </div>
 </div>

@@ -18,12 +18,13 @@
 | `artifacts/deployment/` | `artifacts/deployment/**` | 배포 확인과 운영 상태 증거 |
 | `artifacts/traces/` | `artifacts/traces/**` | request 흐름과 trace 확인 |
 | `artifacts/models/` | `artifacts/models/**` | 모델 평가 재현에 필요한 모델 파일 |
+| `docs/03_serving/argocd-gitops.md` | `docs/03_serving/argocd-gitops.md` | Argo CD GitOps 연결 흐름을 수강생 repository 안에서 확인하기 위한 보조 문서 |
 | `configs/validation/` | `configs/validation/*.yaml` | feature, label, 데이터 품질 기준 |
 | `configs/operations/` | `configs/operations/*.yaml` | 운영 설정과 실행 중 기준 확인 |
 | `configs/lineage/` | `configs/lineage/*.yaml` | 데이터와 artifact 관계 확인 |
 | `configs/qa_strategy/` | `configs/qa_strategy/*.yaml` | 승인 기준과 QA checklist 기준 |
 | `packages/ai-quality/` | `packages/ai-quality/src/**`, package metadata | lab script와 notebook 공통 로직 |
-| `demos/` | `demos/ch02_*`, `demos/ch03_*`, `demos/ch04_*` | MLflow, Docker, Grafana 로컬 demo 보조 자료 |
+| `demos/` | `demos/ch02_*`, `demos/ch03_*`, `demos/ch04_*` | MLflow, Docker, GitOps, Grafana 로컬 demo 보조 자료 |
 
 ## 제외할 자료
 
