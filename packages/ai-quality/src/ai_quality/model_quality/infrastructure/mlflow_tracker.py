@@ -94,7 +94,7 @@ class MlflowExperimentTracker:
                 source=str(dataset.path),
                 targets=dataset.target_column,
                 name=dataset.name,
-                digest=dataset.digest,
+                digest=dataset.digest[:36] if dataset.digest else None,
             )
             mlflow.log_input(
                 mlflow_dataset,
