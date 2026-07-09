@@ -43,6 +43,11 @@ def run_python(script: str) -> None:
     subprocess.run([sys.executable, script], cwd=ROOT, check=True)
 
 
+def run_bash(script: str) -> None:
+    """Run a Bash script from the repository root."""
+    subprocess.run(["bash", script], cwd=ROOT, check=True)
+
+
 def smoke() -> None:
     """Check the expected repository structure."""
     required_paths = [
@@ -77,25 +82,26 @@ def prepare_data() -> None:
 
 
 def lab_data_quality() -> None:
-    run_python("labs/ch01_data_quality/build_quality_report.py")
+    run_python("labs/ch01_data_quality/04_build_quality_report.py")
 
 
 def lab_model_quality() -> None:
-    run_python("labs/ch02_model_quality/train_baseline.py")
-    run_python("labs/ch02_model_quality/evaluate_and_record.py")
-    run_python("labs/ch02_model_quality/build_comparison_artifacts.py")
+    run_python("labs/ch02_model_quality/09_train_baseline.py")
+    run_python("labs/ch02_model_quality/10_evaluate_and_record.py")
+    run_python("labs/ch02_model_quality/11_build_comparison_artifacts.py")
 
 
 def lab_serving() -> None:
-    run_python("labs/ch03_serving/check_serving_contract.py")
+    run_python("labs/ch03_serving/04_check_serving_contract.py")
+    run_bash("demos/ch03_docker_kubernetes/scripts/02_check_argocd_manifests.sh")
 
 
 def lab_observability() -> None:
-    run_python("labs/ch04_observability/build_observability_artifacts.py")
+    run_python("labs/ch04_observability/04_build_observability_artifacts.py")
 
 
 def lab_qa_strategy() -> None:
-    run_python("labs/ch05_qa_strategy/build_qa_artifacts.py")
+    run_python("labs/ch05_qa_strategy/04_build_qa_artifacts.py")
 
 
 def labs() -> None:

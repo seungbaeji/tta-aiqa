@@ -3,7 +3,7 @@
 이 Demo는 Great Expectations의 핵심 개념인 expectation, validation result, Data Docs 해석을 준비된 산출물로 확인하기 위한 자료입니다. 시간이 있는 수강생은 직접 실행하고, 시간이 부족하면 생성된 artifact를 열어 실패 rule과 QA 조치 후보를 확인합니다.
 
 ```bash
-uv run python demos/ch02_great_expectations/run_demo.py
+uv run python demos/ch02_great_expectations/01_run_great_expectations_demo.py
 ```
 
 생성 artifact는 `artifacts/great_expectations` 아래에 저장됩니다.

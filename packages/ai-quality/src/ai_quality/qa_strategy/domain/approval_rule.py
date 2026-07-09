@@ -1,4 +1,4 @@
-"""Release approval domain objects."""
+"""Deployment approval domain objects."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class ApprovalCriteria:
-    """Release approval criteria."""
+    """Deployment approval criteria."""
 
     minimum_precision: float
     minimum_recall: float
@@ -38,7 +38,7 @@ class ApprovalRisk:
 
 @dataclass(frozen=True)
 class ReleaseRiskTradeoff:
-    """Risk created by one release gate decision option."""
+    """Risk created by one deployment decision option."""
 
     decision: str
     company_risk: str

@@ -1,19 +1,21 @@
 # 5장 QA 전략 Lab
 
-5장은 앞 장의 데이터 품질, 모델 품질, serving, observability evidence를 release 승인/보류 판단으로 묶는 실습입니다.
+5장은 앞 장의 데이터 품질, 모델 품질, serving, observability 확인 결과를 배포 승인/보류 판단으로 묶는 실습입니다.
 
 ## 실습 자료
 
 | 구분 | 경로 | 역할 |
 | --- | --- | --- |
 | README | `labs/ch05_qa_strategy/README.md` | 5장 QA 전략 실습 목적, 실행 순서, QA 해석 |
-| Notebook | `labs/ch05_qa_strategy/qa_strategy_lab.ipynb` | drift, score 분포, incident trace, release criteria 연결 |
-| QA artifact script | `labs/ch05_qa_strategy/build_qa_artifacts.py` | drift report, release approval, checklist 생성 |
+| 초급 Notebook 1 | `labs/ch05_qa_strategy/01_collect_release_evidence.ipynb` | 입력 변화, score/prediction 변화, 원인 후보 근거 확인 |
+| 초급 Notebook 2 | `labs/ch05_qa_strategy/02_read_release_report.ipynb` | release report의 근거, owner, next action 확인 |
+| 참고 Notebook | `labs/ch05_qa_strategy/03_qa_strategy_lab.ipynb` | 전체 5장 흐름을 한 번에 다시 볼 때 사용 |
+| QA artifact script | `labs/ch05_qa_strategy/04_build_qa_artifacts.py` | drift report, 배포 판단, checklist 생성 |
 
 ## 직접 실행 순서
 
 ```bash
-uv run python labs/ch05_qa_strategy/build_qa_artifacts.py
+uv run python labs/ch05_qa_strategy/04_build_qa_artifacts.py
 ```
 
 같은 작업을 wrapper로 실행할 수도 있습니다.
@@ -34,8 +36,9 @@ uv run python scripts/course.py lab-qa-strategy
 | 산출물 | 경로 | 사용 방식 |
 | --- | --- | --- |
 | Lab 문서 | `labs/ch05_qa_strategy/README.md` | current batch 입력 분포 변화의 의미와 QA 해석 확인 |
-| Notebook | `labs/ch05_qa_strategy/qa_strategy_lab.ipynb` | 5장 Lab 흐름을 셀 단위로 실행 |
-| CLI 스크립트 | `labs/ch05_qa_strategy/build_qa_artifacts.py` | 입력 분포 비교와 drift report 생성 |
+| 초급 Notebook | `labs/ch05_qa_strategy/01_collect_release_evidence.ipynb` | 입력 분포 변화와 입력 구성 변화 리포트 기초값 확인 |
+| 참고 Notebook | `labs/ch05_qa_strategy/03_qa_strategy_lab.ipynb` | 전체 5장 흐름을 한 번에 다시 볼 때 사용 |
+| CLI 스크립트 | `labs/ch05_qa_strategy/04_build_qa_artifacts.py` | 입력 분포 비교와 drift report 생성 |
 
 ## 5-1-1. 입력 분포란 무엇인가
 
@@ -98,7 +101,7 @@ def compare_input_distribution(
 이 실행은 입력 분포 변화 후보를 리포트와 표준 출력으로 남깁니다. 실행 코드는 다음과 같습니다.
 
 ```bash
-uv run python labs/ch05_qa_strategy/build_qa_artifacts.py
+uv run python labs/ch05_qa_strategy/04_build_qa_artifacts.py
 ```
 
 이 출력에서 확인할 핵심은 어떤 특성이 기준선과 달라졌고 그 변화가 후속 점수/예측 분석으로 이어지는지입니다. 예상 결과는 다음과 같은 형태입니다. 마지막 줄에는 생성된 드리프트 리포트(drift report) 경로가 출력됩니다. 실제 경로는 실행 위치에 따라 절대 경로로 보일 수 있습니다.
@@ -158,8 +161,9 @@ QA 보고에서는 “입력 변화 발생”이라고만 쓰지 말고, 현재 
 | 산출물 | 경로 | 사용 방식 |
 | --- | --- | --- |
 | Lab 문서 | `labs/ch05_qa_strategy/README.md` | 점수와 예측 분포 변화의 의미와 QA 해석 확인 |
-| Notebook | `labs/ch05_qa_strategy/qa_strategy_lab.ipynb` | 5장 Lab 흐름을 셀 단위로 실행 |
-| CLI 산출물 생성 | `labs/ch05_qa_strategy/build_qa_artifacts.py` | 점수 평균, `high_risk` 비율 변화, 입력 구성 변화 리포트 생성 |
+| 초급 Notebook | `labs/ch05_qa_strategy/01_collect_release_evidence.ipynb` | score/prediction 분포와 변화 지표 확인 |
+| 참고 Notebook | `labs/ch05_qa_strategy/03_qa_strategy_lab.ipynb` | 전체 5장 흐름을 한 번에 다시 볼 때 사용 |
+| CLI 산출물 생성 | `labs/ch05_qa_strategy/04_build_qa_artifacts.py` | 점수 평균, `high_risk` 비율 변화, 입력 구성 변화 리포트 생성 |
 
 ## 5-2-1. 점수 분포(score distribution) 이해
 
@@ -206,7 +210,7 @@ def compare_score_distribution(
     )
 ```
 
-이 실행에서 확인할 핵심은 평균 점수 변화와 `high_risk` 비율 변화가 같은 방향으로 움직였는지입니다. Notebook에서는 `labs/ch05_qa_strategy/qa_strategy_lab.ipynb`의 score/prediction distribution 셀을 실행합니다. 명령행에서 5장 QA 산출물을 다시 만들 때는 `uv run python labs/ch05_qa_strategy/build_qa_artifacts.py`를 사용합니다.
+이 실행에서 확인할 핵심은 평균 점수 변화와 `high_risk` 비율 변화가 같은 방향으로 움직였는지입니다. Notebook에서는 `labs/ch05_qa_strategy/01_collect_release_evidence.ipynb`의 score/prediction distribution 셀을 실행합니다. 명령행에서 5장 QA 산출물을 다시 만들 때는 `uv run python labs/ch05_qa_strategy/04_build_qa_artifacts.py`를 사용합니다.
 
 이 출력에서 확인할 핵심은 입력 구성 변화가 점수와 예측 변화의 원인 후보로 남을 만큼 동반되는지입니다. 예상 결과는 기준선과 현재(current)의 평균 점수, `high_risk` 비율 차이를 보여줍니다.
 
@@ -246,8 +250,9 @@ QA는 임계값 근처 샘플에 주의해야 합니다. 점수가 0.49~0.51에 
 | 산출물 | 경로 | 사용 방식 |
 | --- | --- | --- |
 | Lab 문서 | `labs/ch05_qa_strategy/README.md` | 이상 징후 분석 순서와 원인 후보 정리 방식 확인 |
-| Notebook | `labs/ch05_qa_strategy/qa_strategy_lab.ipynb` | 5장 Lab 흐름을 셀 단위로 실행 |
-| CLI 스크립트 | `labs/ch05_qa_strategy/build_qa_artifacts.py` | 입력, 점수, 운영 신호를 원인 후보로 연결 |
+| 초급 Notebook | `labs/ch05_qa_strategy/01_collect_release_evidence.ipynb` | current 배치와 후보 추적표 확인 |
+| 참고 Notebook | `labs/ch05_qa_strategy/03_qa_strategy_lab.ipynb` | 전체 5장 흐름을 한 번에 다시 볼 때 사용 |
+| CLI 스크립트 | `labs/ch05_qa_strategy/04_build_qa_artifacts.py` | 입력, 점수, 운영 신호를 원인 후보로 연결 |
 
 **분석 순서는 다음과 같습니다. 이 순서의 목적은 원인을 빠르게 하나로 정하는 것이 아니라, 확인할 후보를 누락하지 않는 것입니다.**
 
@@ -306,7 +311,7 @@ def trace_quality_issue(
 이 실행은 후보 원인, owner, audit reference, 다음 확인 항목을 하나의 추적 리포트로 남깁니다. 실행 코드는 다음과 같습니다.
 
 ```bash
-uv run python labs/ch05_qa_strategy/build_qa_artifacts.py
+uv run python labs/ch05_qa_strategy/04_build_qa_artifacts.py
 ```
 
 이 출력에서 확인할 핵심은 원인 후보가 데이터, 예측, 검증 실패, 지연 시간으로 분리되어 있는지입니다. 예상 출력은 다음과 같은 형태입니다.
@@ -368,7 +373,7 @@ issue candidates
 | --- | --- | --- | --- |
 | 데이터 | 특성 분포 변화, 검증 실패 | `Data Engineering` | 입력 출처(source)와 전처리 확인 |
 | 모델 | AUROC/PR-AUC 하락, 점수 구분력 저하 | `ML Engineering` | 모델 평가 재실행 |
-| 설정 | 임계값, 모델 버전 불일치 | `Release Owner` | 배포 설정 확인 |
+| 설정 | 임계값, 모델 버전 불일치 | `Deployment Owner` | 배포 설정 확인 |
 | 운영 | 오류율, 지연 시간 증가 | `Platform/MLOps` 또는 `Client Integration` | API와 인프라 상태 확인 |
 
 **QA 보고서에는 확정 원인과 후보 원인을 구분해야 합니다.** 근거가 부족한 상태에서 원인을 단정하면 후속 조치가 잘못될 수 있습니다.
@@ -386,7 +391,7 @@ issue candidates
 | 데이터 검증 결과 | 필수 컬럼, 라벨(label), 관심 클래스 표본 수(Positive support) | 평가 결과 자체를 제한적으로 해석 |
 | 모델 지표 | 정밀도(Precision), 재현율(Recall), PR-AUC, FP/FN | 품질 기준 미달 또는 추가 임계값(threshold) 검토가 필요 |
 | API 계약 | 입력 스키마(schema), 오류 응답, `request_id` | 운영 요청 처리와 추적이 불안정 |
-| Live 배포 증거 | `/health`, `/predict`, Pod readiness, 응답 `model_version`, `threshold` | 실제 운영 환경 준비를 승인 근거로 쓰기 어려움 |
+| Live 배포 확인 결과 | `/health`, `/predict`, Pod readiness, 응답 `model_version`, `threshold` | 실제 운영 환경 준비를 승인 근거로 쓰기 어려움 |
 | 설정값 | 모델 버전(model_version), 임계값 | 평가 기준과 운영 기준이 달라질 가능 |
 | 운영 신호 | 오류율(error rate), 지연 시간(latency), 검증 실패(validation failure) | 배포 후 서비스 품질 기준을 벗어날 가능성이 있음 |
 | 운영 관측(observability) | 로그, 메트릭(metric), 대시보드(dashboard) | 문제 발생 시 원인 추적이 어려움 |
@@ -429,10 +434,10 @@ def evaluate_release_approval(
 
 승인 기준은 `configs/qa_strategy/approval_rules.yaml`에 둡니다. 이 파일은 최소 정밀도, 최소 재현율, 최대 오류율, 최대 평균 지연 시간(average latency)을 정의합니다. 운영 조직에서는 이 값을 서비스 위험도와 운영 정책에 맞게 조정해야 합니다.
 
-이 실행은 작은 `release_candidate` 평가 결과와 운영 관측 이벤트를 함께 사용해 승인 판단 리포트를 만듭니다. 실행 환경은 저장소 루트의 로컬 shell입니다.
+이 실행은 작은 `배포 후보` 평가 결과와 운영 관측 이벤트를 함께 사용해 승인 판단 리포트를 만듭니다. 실행 환경은 저장소 루트의 로컬 shell입니다.
 
 ```bash
-uv run python labs/ch05_qa_strategy/build_qa_artifacts.py
+uv run python labs/ch05_qa_strategy/04_build_qa_artifacts.py
 ```
 
 이 출력에서 확인할 핵심은 조건부 보류 판단이 어떤 실패 기준과 미검증 리스크에서 나왔는지입니다. 예상 출력은 다음과 같은 형태입니다.
@@ -446,8 +451,8 @@ recall=0.5926 criterion=>=0.6000 result=fail
 error_rate=0.0667 criterion=<=0.0500 result=fail
 prepared_api_contract=True result=pass
 unresolved_risks=('live_deployment',)
-- approve_now risk: 기준 미달 지표와 미검증 live evidence를 운영에 반영할 수 있음
-- conditional_hold risk: 릴리스 지연과 현재 운영 버전 유지 부담이 생김
+- approve_now risk: 기준 미달 지표와 미검증 live 확인 결과를 운영에 반영할 수 있음
+- conditional_hold risk: 배포 지연과 현재 운영 버전 유지 부담이 생김
 - 실패한 기준을 검토할 때까지 배포를 보류합니다.
 <repo>/artifacts/reports/release_approval.md
 ```
@@ -458,14 +463,14 @@ unresolved_risks=('live_deployment',)
 | --- | --- |
 | `artifacts/reports/release_approval.md` | 승인 여부, 실패한 기준, 관측값, 기준값, 미검증 운영 리스크, 승인/보류 리스크, owner, 재평가 조건 |
 
-**QA 해석에서는 `approved=False` 자체보다 실패 기준별 관측값을 먼저 읽습니다.** 위 예시는 Precision은 `1.0000`으로 최소 기준 `0.6000`을 통과했지만, Recall은 `0.5926`으로 최소 기준 `0.6000`에 근소하게 미달하고 error rate가 `0.0667`로 최대 기준 `0.0500`을 초과한 상황입니다. `prepared_api_contract=True`는 준비된 계약 확인이 통과했다는 의미이지 live deployment 검증이 끝났다는 의미가 아닙니다. 따라서 다음 조치는 모델만 재학습하는 것이 아니라 평가 데이터, 임계값, 오류 로그, 운영 이벤트, live smoke evidence를 함께 확인하는 쪽으로 잡아야 합니다.
+**QA 해석에서는 `approved=False` 자체보다 실패 기준별 관측값을 먼저 읽습니다.** 위 예시는 Precision은 `1.0000`으로 최소 기준 `0.6000`을 통과했지만, Recall은 `0.5926`으로 최소 기준 `0.6000`에 근소하게 미달하고 error rate가 `0.0667`로 최대 기준 `0.0500`을 초과한 상황입니다. `prepared_api_contract=True`는 준비된 계약 확인이 통과했다는 의미이지 live 배포 검증이 끝났다는 의미가 아닙니다. 따라서 다음 조치는 모델만 재학습하는 것이 아니라 평가 데이터, 임계값, 오류 로그, 운영 이벤트, live smoke 확인 결과를 함께 확인하는 쪽으로 잡아야 합니다.
 
 보고서 문장은 다음처럼 양쪽 리스크를 모두 남깁니다.
 
 | 판단 | 리스크 | 근거 | 재평가 조건 |
 | --- | --- | --- | --- |
 | 승인 | 기준 미달 상태가 운영에 반영되어 FN과 오류 요청이 증가할 수 있음 | `recall`, `error_rate` 실패 | 실패 기준 재측정과 검증 실패 원인 확인 |
-| 보류 | 릴리스 지연과 현재 운영 버전 유지 부담이 생김 | `latency`, `prepared_api_contract`는 통과하지만 `live_deployment`는 미검증 | owner별 next action 완료 후 같은 기준으로 재평가 |
+| 보류 | 배포 지연과 현재 운영 버전 유지 부담이 생김 | `latency`, `prepared_api_contract`는 통과하지만 `live_deployment`는 미검증 | owner별 next action 완료 후 같은 기준으로 재평가 |
 | 추가 확인 | 원인 단정 전 조사 시간이 필요함 | drift, prediction shift, api validation, latency 후보 존재 | `quality_issue_trace.md`의 owner와 audit reference 확인 |
 
 ## 5-6-2. API 계약과 설정값 확인
@@ -484,7 +489,7 @@ API 계약과 설정값은 다음처럼 확인합니다.
 | `request_id` | 로그 추적 가능 |
 | Live 배포 | 실제 `/health`, `/predict`, Pod readiness, 응답 `model_version`, `threshold`가 확인됨 |
 
-**QA 코멘트에는 “API 정상”처럼 넓게 쓰지 않습니다.** “필수 입력 누락 시 오류 응답 확인”, “응답에 `model_version`과 `threshold` 포함”, “로그에서 `request_id` 검색 가능”처럼 승인 기준을 관측 가능한 항목으로 남깁니다. 이번 로컬 실습에서는 live Kubernetes 요청을 필수로 실행하지 않으므로, live 증거가 없으면 “운영 배포 검증 완료”라고 쓰지 않고 `live_deployment=unverified`로 남깁니다.
+**QA 코멘트에는 “API 정상”처럼 넓게 쓰지 않습니다.** “필수 입력 누락 시 오류 응답 확인”, “응답에 `model_version`과 `threshold` 포함”, “로그에서 `request_id` 검색 가능”처럼 승인 기준을 관측 가능한 항목으로 남깁니다. 이번 로컬 실습에서는 live Kubernetes 요청을 필수로 실행하지 않으므로, live 확인 결과가 없으면 “운영 배포 검증 완료”라고 쓰지 않고 `live_deployment=unverified`로 남깁니다.
 
 ## 5-6-3. 로그와 대시보드 기반 운영 준비 확인
 
@@ -519,17 +524,18 @@ API 계약과 설정값은 다음처럼 확인합니다.
 
 ## 5-8. AI QA 체크리스트 정리 [Lab]
 
-5-8 Lab의 목표는 앞에서 만든 입력 구성 변화 리포트(`drift_report.md`), 예측 변화 리포트(prediction shift report), 원인 후보, 승인/조건부 보류 판단을 최종 QA 체크리스트와 release gate 문서로 묶는 것입니다. 체크리스트는 외우는 목록이 아니라, 품질 판단의 근거, 차단 상태, 다음 조치를 남기는 실무 산출물입니다.
+5-8 Lab의 목표는 앞에서 만든 입력 구성 변화 리포트(`drift_report.md`), 예측 변화 리포트(prediction shift report), 원인 후보, 승인/조건부 보류 판단을 최종 QA 체크리스트와 배포 판단 문서로 묶는 것입니다. 체크리스트는 외우는 목록이 아니라, 품질 판단의 근거, 차단 상태, 다음 조치를 남기는 실무 산출물입니다.
 
 **이 Lab에서는 새 분석을 많이 추가하지 않습니다.** 5-1부터 5-6까지 만든 산출물을 다시 연결해 “무엇을 확인했고, 어떤 근거가 있으며, 다음에 무엇을 해야 하는가”를 한 장으로 정리합니다.
 
-이 Lab의 핵심은 앞 단계 evidence path를 조건부 보류와 재평가 조건이 있는 release gate 산출물로 묶는 것입니다.
+이 Lab의 핵심은 앞 단계 확인 결과 path를 조건부 보류와 재평가 조건이 있는 배포 판단 산출물로 묶는 것입니다.
 
 | 산출물 | 경로 | 사용 방식 |
 | --- | --- | --- |
 | Lab 문서 | `labs/ch05_qa_strategy/README.md` | 최종 체크리스트 구성과 QA 코멘트 예시 확인 |
-| Notebook | `labs/ch05_qa_strategy/qa_strategy_lab.ipynb` | 5장 Lab 흐름을 셀 단위로 실행 |
-| CLI 스크립트 | `labs/ch05_qa_strategy/build_qa_artifacts.py` | 체크리스트 템플릿과 이번 사건 제출용 `ai_qa_checklist.md` 생성 |
+| 초급 Notebook | `labs/ch05_qa_strategy/02_read_release_report.ipynb` | release report의 근거, owner, next action 확인 |
+| 참고 Notebook | `labs/ch05_qa_strategy/03_qa_strategy_lab.ipynb` | 전체 5장 흐름을 한 번에 다시 볼 때 사용 |
+| CLI 스크립트 | `labs/ch05_qa_strategy/04_build_qa_artifacts.py` | 체크리스트 템플릿과 이번 사건 제출용 `ai_qa_checklist.md` 생성 |
 
 실습 준비물은 다음과 같습니다. 앞 단계 산출물이 없으면 체크리스트는 형식만 남고 판단 근거가 비게 됩니다.
 
@@ -539,7 +545,7 @@ API 계약과 설정값은 다음처럼 확인합니다.
 | `label_basis_check.md` | 라벨 허용값, 라벨 매핑, 클래스별 표본 수 |
 | 5-2 예측 변화 출력 | 점수(score) 평균과 `high_risk` 예측 비율 변화 |
 | `quality_issue_trace.md` | 원인 후보, owner, audit reference, 다음 확인 항목 |
-| `release_approval.md` | 승인 여부, 실패 기준, live deployment 미검증 리스크, 승인/보류 리스크, 재평가 조건 |
+| `release_approval.md` | 승인 여부, 실패 기준, live 배포 미검증 리스크, 승인/보류 리스크, 재평가 조건 |
 | `configs/qa_strategy/qa_checklist.yaml` | 반복 사용 체크리스트 항목 |
 
 최종 체크리스트에는 data lineage도 함께 남깁니다. 여기서 lineage는 별도 플랫폼 화면이 아니라, **이번 판단에 사용한 데이터와 산출물이 어느 단계에서 파생되었는지 보여주는 근거 연결표**입니다. 이 연결표가 있어야 reviewer가 “test 결과인지, 운영 current batch 결과인지, validation 재현 결과인지”를 구분할 수 있습니다.
@@ -550,9 +556,9 @@ API 계약과 설정값은 다음처럼 확인합니다.
 | 모델 기준 평가 | `vital_signs_train.csv`, `vital_signs_test.csv` | `model_test_eval.json` | test는 선택된 모델과 threshold의 최종 모델 평가에만 사용 |
 | 데이터 조건 변화 비교 | `vital_signs_valid_baseline.csv`, `vital_signs_valid_degraded.csv` | `validation_degradation_comparison.json` | 품질 저하 validation 비교를 운영 root cause 확정으로 쓰지 않음 |
 | 운영 current 관측 | `serving_requests_current.csv`, `operational_current_events.jsonl` | `drift_report.md`, `quality_issue_trace.md` | current batch 입력 구성 변화와 검증 실패를 후보 근거로 표현 |
-| 릴리스 판단 | `release_regression_cases.csv` | `release_approval.md`, `ai_qa_checklist.md` | 조건부 보류와 재평가 조건을 owner와 evidence path로 남김 |
+| 배포 판단 | `release_regression_cases.csv` | `release_approval.md`, `ai_qa_checklist.md` | 조건부 보류와 재평가 조건을 owner와 확인 결과 path로 남김 |
 
-이 표는 수강생이 최종 보고서에 붙일 수 있는 감사 추적(audit trail)의 최소 형태입니다. 예를 들어 `high_risk` 비율 증가를 쓸 때는 `model_test_eval.json`이 아니라 `drift_report.md`와 `operational_current_events.jsonl`을 근거로 삼아야 합니다. 반대로 모델 자체 성능 기준을 말할 때는 운영 로그가 아니라 `model_test_eval.json`과 approval rule을 확인해야 합니다.
+이 표는 수강생이 최종 보고서에 붙일 수 있는 감사 추적(audit trail)의 최소 형태입니다. 예를 들어 `high_risk` 비율 증가를 쓸 때는 `model_test_eval.json`이 아니라 `drift_report.md`와 `operational_current_events.jsonl`을 근거로 삼아야 합니다. 반대로 모델 자체 성능 기준을 말할 때는 운영 로그가 아니라 `model_test_eval.json`과 배포 기준을 확인해야 합니다.
 
 ## 5-8-1. 데이터 품질 체크리스트
 
@@ -666,10 +672,10 @@ def build_qa_checklist(config: dict[str, Any]) -> QAChecklist:
     return QAChecklist(items=tuple(items))
 ```
 
-이 실행은 최종 체크리스트와 release gate 제출본을 같은 evidence path 기준으로 생성합니다. 실행 환경은 저장소 루트의 로컬 shell이며, 실행 코드는 다음과 같습니다.
+이 실행은 최종 체크리스트와 배포 판단 제출본을 같은 확인 결과 path 기준으로 생성합니다. 실행 환경은 저장소 루트의 로컬 shell이며, 실행 코드는 다음과 같습니다.
 
 ```bash
-uv run python labs/ch05_qa_strategy/build_qa_artifacts.py
+uv run python labs/ch05_qa_strategy/04_build_qa_artifacts.py
 ```
 
 이 출력에서 확인할 핵심은 라벨 기준, 승인 판단, 체크리스트 템플릿, 제출용 점검본이 모두 생성되었는지입니다. 예상 출력은 다음과 같은 형태입니다.
@@ -681,7 +687,7 @@ qa_checklist_template=<repo>/artifacts/reports/ai_qa_checklist_template.md
 qa_checklist=<repo>/artifacts/reports/ai_qa_checklist.md
 ```
 
-이 산출물들은 최종 보고서의 판단, evidence path, owner, next action을 뒷받침합니다.
+이 산출물들은 최종 보고서의 판단, 확인 결과 path, owner, next action을 뒷받침합니다.
 
 | 파일 | 내용 |
 | --- | --- |
@@ -689,7 +695,7 @@ qa_checklist=<repo>/artifacts/reports/ai_qa_checklist.md
 | `artifacts/reports/ai_qa_checklist.md` | 이번 사건 제출용 점검본, 항목별 상태, 근거, QA 코멘트, 담당, 다음 조치 |
 | `artifacts/reports/label_basis_check.md` | `high_risk`, `low_risk` 허용값과 표본 수, invalid/missing count |
 
-**`ai_qa_checklist_template.md`는 반복 점검 템플릿이고, `ai_qa_checklist.md`는 이번 사건에 값을 채운 제출용 sign-off입니다.** 제출용 파일은 체크박스만 보여주지 않고 `pass`, `fail`, `unverified`, `hold` 같은 상태와 evidence path, 담당자, 다음 조치를 함께 남깁니다. 따라서 수강생은 최종 보고서에 아래 내용을 체크리스트 행으로 연결해 제출합니다.
+**`ai_qa_checklist_template.md`는 반복 점검 템플릿이고, `ai_qa_checklist.md`는 이번 사건에 값을 채운 제출용 sign-off입니다.** 제출용 파일은 체크박스만 보여주지 않고 `pass`, `fail`, `unverified`, `hold` 같은 상태와 확인 결과 path, 담당자, 다음 조치를 함께 남깁니다. 따라서 수강생은 최종 보고서에 아래 내용을 체크리스트 행으로 연결해 제출합니다.
 
 | 보고 항목 | 이번 실습에서 남길 내용 |
 | --- | --- |
@@ -697,9 +703,9 @@ qa_checklist=<repo>/artifacts/reports/ai_qa_checklist.md
 | 실패 기준 | `recall=0.5926`, `error_rate=0.0667` |
 | 라벨 기준 | `label_basis_check.md`에서 `invalid_count=0`, `missing_count=0`, `high_risk=37`, `low_risk=33` |
 | 미검증 리스크 | `release_approval.md`에서 `live_deployment=unverified` |
-| 확인 owner | `Data Engineering`, `ML Engineering`, `Client Integration`, `Platform/MLOps`, `QA Lead`, `Release Owner` |
+| 확인 owner | `Data Engineering`, `ML Engineering`, `Client Integration`, `Platform/MLOps`, `QA Lead`, `Deployment Owner` |
 | 감사 추적 | `quality_issue_trace.md`의 audit reference와 검증 실패 대표 요청 |
-| 재평가 조건 | owner별 next action 완료 후 같은 approval rule로 재실행 |
+| 재평가 조건 | owner별 next action 완료 후 같은 배포 기준으로 재실행 |
 
 AI QA 체크리스트의 마무리 기준은 다음과 같습니다.
 
@@ -711,7 +717,7 @@ AI QA 체크리스트의 마무리 기준은 다음과 같습니다.
 | 원인 후보 추적 | `quality_issue_trace.md` 생성 |
 | 승인/보류 판단 | `release_approval.md` 생성 |
 | 체크리스트 템플릿 | `ai_qa_checklist_template.md` 생성 |
-| 제출용 점검본 | `ai_qa_checklist.md`에서 `릴리스 준비 상태=blocked`, `status=hold`, `live_deployment=unverified`, owner와 next action 확인 |
+| 제출용 점검본 | `ai_qa_checklist.md`에서 `배포 준비 상태=blocked`, `status=hold`, `live_deployment=unverified`, owner와 next action 확인 |
 
 실패 시에는 먼저 `configs/qa_strategy/qa_checklist.yaml` 문법을 확인합니다. 체크리스트 항목 수가 문서와 다르면 설정 파일이 변경되었는지 확인하고, 산출물 파일이 생성되지 않으면 `artifacts/reports/` 경로 쓰기 권한과 실행 위치를 확인합니다.
 

@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ai-quality-risk-classifier
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: ai-quality-risk-classifier
+    app.kubernetes.io/part-of: candidate-model-deployment-check
+    ai-quality/course-chapter: "03"
+  annotations:
+    ai-quality/course-note: "Set spec.source.repoURL to the learner repository before live sync."
+spec:
+  project: default
+  source:
+    repoURL: REPLACE_WITH_COURSE_GIT_REPO_URL
+    targetRevision: HEAD
+    path: demos/ch03_docker_kubernetes/gitops/overlays/dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ai-quality
+  syncPolicy:
+    automated:
+      enabled: false
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+  revisionHistoryLimit: 3

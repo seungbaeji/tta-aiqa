@@ -119,11 +119,11 @@ uv run python scripts/course.py labs
 
 | 장 | wrapper 명령 | 실제 실행되는 Python script | 주요 산출물 |
 | --- | --- | --- | --- |
-| 1장 | `uv run python scripts/course.py lab-data-quality` | `uv run python labs/ch01_data_quality/build_quality_report.py` | `artifacts/reports/chapter_01_quality_report.md` |
+| 1장 | `uv run python scripts/course.py lab-data-quality` | `uv run python labs/ch01_data_quality/04_build_quality_report.py` | `artifacts/reports/chapter_01_quality_report.md` |
 | 2장 | `uv run python scripts/course.py lab-model-quality` | 아래 2장 script 3개를 순서대로 실행 | `artifacts/models/chapter_02_baseline.pkl`, `artifacts/experiments/chapter_02/*.json`, `artifacts/reports/chapter_02_model_quality_comparison.md` |
-| 3장 | `uv run python scripts/course.py lab-serving` | `uv run python labs/ch03_serving/check_serving_contract.py` | `outputs/check_serving_contract_prediction_events.jsonl` |
-| 4장 | `uv run python scripts/course.py lab-observability` | `uv run python labs/ch04_observability/build_observability_artifacts.py` | `artifacts/logs/*.jsonl`, `artifacts/metrics/chapter_04_anomaly.prom`, `artifacts/grafana/*.json`, `artifacts/reports/quality_issue_trace.md` |
-| 5장 | `uv run python scripts/course.py lab-qa-strategy` | `uv run python labs/ch05_qa_strategy/build_qa_artifacts.py` | `artifacts/reports/drift_report.md`, `release_approval.md`, `ai_qa_checklist.md` |
+| 3장 | `uv run python scripts/course.py lab-serving` | FastAPI 계약 확인, Argo CD/KServe manifest 검사 | `outputs/check_serving_contract_prediction_events.jsonl`, GitOps render 결과 |
+| 4장 | `uv run python scripts/course.py lab-observability` | `uv run python labs/ch04_observability/04_build_observability_artifacts.py` | `artifacts/logs/*.jsonl`, `artifacts/metrics/chapter_04_anomaly.prom`, `artifacts/grafana/*.json`, `artifacts/reports/quality_issue_trace.md` |
+| 5장 | `uv run python scripts/course.py lab-qa-strategy` | `uv run python labs/ch05_qa_strategy/04_build_qa_artifacts.py` | `artifacts/reports/drift_report.md`, `release_approval.md`, `ai_qa_checklist.md` |
 
 ### 4-3. 실행 후 정리
 
@@ -182,15 +182,16 @@ uv run jupyter lab
 
 | 순서 | 따라갈 코드 | 역할 |
 | --- | --- | --- |
-| 1 | `labs/ch01_data_quality/1_pandas_data_quality_lab.ipynb` | 데이터 로딩, schema, 결측, 범위, label 분포를 셀 단위로 확인 |
-| 2 | `labs/ch01_data_quality/utils.py` | notebook에서 쓰는 1장 helper의 책임 확인 |
-| 3 | `labs/ch01_data_quality/build_quality_report.py` | 전체 데이터 기준 품질 리포트 재생성 |
-| 4 | `artifacts/reports/chapter_01_quality_report.md` | 데이터 품질 판단 문장 확인 |
+| 1 | `labs/ch01_data_quality/01_load_and_columns.ipynb` | 데이터 파일, 행/열 수, 필수 컬럼 확인 |
+| 2 | `labs/ch01_data_quality/02_missing_range_label.ipynb` | 결측, 범위, label 분포 확인 |
+| 3 | `labs/ch01_data_quality/03_pandas_data_quality_lab.ipynb` | 전체 1장 흐름을 참고용으로 다시 확인 |
+| 4 | `labs/ch01_data_quality/04_build_quality_report.py` | 전체 데이터 기준 품질 리포트 재생성 |
+| 5 | `artifacts/reports/chapter_01_quality_report.md` | 데이터 품질 판단 문장 확인 |
 
 CLI로 재생성할 때는 실제 script를 직접 실행합니다.
 
 ```bash
-uv run python labs/ch01_data_quality/build_quality_report.py
+uv run python labs/ch01_data_quality/04_build_quality_report.py
 ```
 
 같은 작업을 wrapper로 실행할 수도 있습니다.
@@ -206,21 +207,25 @@ uv run python scripts/course.py lab-data-quality
 | 순서 | 따라갈 코드 | 역할 |
 | --- | --- | --- |
 | 1 | `labs/ch02_model_quality/README.md` | 2장 모델 평가와 데이터-지표 연결 실습의 전체 흐름 확인 |
-| 2 | `labs/ch02_model_quality/3_model_evaluation_lab.ipynb` | test 데이터에서 score, prediction, confusion matrix, metric 해석 |
-| 3 | `labs/ch02_model_quality/2_great_expectations_lab.ipynb` | degraded validation 데이터의 검증 실패를 prepared artifact와 연결 |
-| 4 | `labs/ch02_model_quality/4_data_metric_connection_lab.ipynb` | 데이터 품질 신호와 metric 변화가 같은 사건인지 확인 |
-| 5 | `labs/ch02_model_quality/5_mlflow_tracking_lab.ipynb` | 로컬 평가 기록과 MLflow/JSON 기록 범위 확인 |
-| 6 | `labs/ch02_model_quality/train_baseline.py` | 기준 모델 재학습 |
-| 7 | `labs/ch02_model_quality/evaluate_and_record.py` | test 평가와 experiment JSON/MLflow 기록 생성 |
-| 8 | `labs/ch02_model_quality/build_comparison_artifacts.py` | baseline/degraded/test 비교 artifact와 보고서 생성 |
-| 9 | `artifacts/reports/chapter_02_model_quality_comparison.md` | 최종 모델 품질 비교 판단 확인 |
+| 2 | `labs/ch02_model_quality/01_score_threshold.ipynb` | score, threshold, prediction 관계 확인 |
+| 3 | `labs/ch02_model_quality/02_precision_recall.ipynb` | TP/FP/FN과 Precision/Recall 직접 계산 |
+| 4 | `labs/ch02_model_quality/03_read_metric_record.ipynb` | 준비된 평가 기록에서 metric과 조건 확인 |
+| 5 | `labs/ch02_model_quality/04_great_expectations_api_basics_lab.ipynb` | GE API 기본 흐름 확인 |
+| 6 | `labs/ch02_model_quality/05_great_expectations_lab.ipynb` | degraded validation 데이터의 검증 실패를 prepared artifact와 연결 |
+| 7 | `labs/ch02_model_quality/06_model_evaluation_lab.ipynb` | 전체 모델 평가 흐름을 참고용으로 확인 |
+| 8 | `labs/ch02_model_quality/07_data_metric_connection_lab.ipynb` | 데이터 품질 신호와 metric 변화가 같은 사건인지 확인 |
+| 9 | `labs/ch02_model_quality/08_mlflow_tracking_lab.ipynb` | 로컬 평가 기록과 MLflow/JSON 기록 범위 확인 |
+| 10 | `labs/ch02_model_quality/09_train_baseline.py` | 기준 모델 재학습 |
+| 11 | `labs/ch02_model_quality/10_evaluate_and_record.py` | test 평가와 experiment JSON/MLflow 기록 생성 |
+| 12 | `labs/ch02_model_quality/11_build_comparison_artifacts.py` | baseline/degraded/test 비교 artifact와 보고서 생성 |
+| 13 | `artifacts/reports/chapter_02_model_quality_comparison.md` | 최종 모델 품질 비교 판단 확인 |
 
 2장 CLI 재생성은 script 3개를 순서대로 직접 실행합니다.
 
 ```bash
-uv run python labs/ch02_model_quality/train_baseline.py
-uv run python labs/ch02_model_quality/evaluate_and_record.py
-uv run python labs/ch02_model_quality/build_comparison_artifacts.py
+uv run python labs/ch02_model_quality/09_train_baseline.py
+uv run python labs/ch02_model_quality/10_evaluate_and_record.py
+uv run python labs/ch02_model_quality/11_build_comparison_artifacts.py
 ```
 
 같은 작업을 wrapper로 실행할 수도 있습니다.
@@ -229,21 +234,28 @@ uv run python labs/ch02_model_quality/build_comparison_artifacts.py
 uv run python scripts/course.py lab-model-quality
 ```
 
-### 6-4. 3장 서빙 계약
+### 6-4. 3장 Container, MLflow, Serving, Kubernetes
 
-예측 API가 단순히 score를 반환하는지보다, 요청/응답 계약이 추적 가능한 evidence를 남기는지 확인합니다.
+3장은 모델을 운영 환경으로 옮기는 흐름을 단계별로 확인합니다. 먼저 Linux 기반 container 개념과 Dockerfile을 확인하고, MLflow container에서 후보 모델 기록을 남긴 뒤, FastAPI를 Compose로 serving합니다. 그 다음 Kubernetes 개념을 짧게 잡고, Kubernetes에는 MLflow를 먼저 배포한 뒤 Argo CD로 KServe 배포를 확인합니다.
 
 | 순서 | 따라갈 코드 | 역할 |
 | --- | --- | --- |
-| 1 | `labs/ch03_serving/README.md` | FastAPI serving 구조, 계약 확인 기준, train-serving skew 의미 확인 |
-| 2 | `labs/ch03_serving/fastapi_serving_lab.ipynb` | 요청 payload, 응답 schema, validation failure, train-serving skew 확인 |
-| 3 | `labs/ch03_serving/check_serving_contract.py` | API 계약 자동 확인 |
-| 4 | `outputs/check_serving_contract_prediction_events.jsonl` | 계약 확인 중 생성된 prediction event 확인 |
+| 1 | `labs/ch03_serving/01_container_basics.ipynb` | image/container, Dockerfile, Compose 실행 조건 확인 |
+| 2 | `demos/ch02_mlflow/01_run_with_docker_mlflow.sh` | MLflow를 container로 띄우고 새 모델 평가 기록 생성 |
+| 3 | `labs/ch03_serving/02_mlflow_model_uri.ipynb` | MLflow candidate URI와 평가 기록 연결 확인 |
+| 4 | `labs/ch03_serving/03_fastapi_compose_serving.ipynb` | FastAPI + Compose 기반 `/health`, `/predict` 계약 확인 |
+| 5 | `labs/ch03_serving/04_check_serving_contract.py` | FastAPI 계약 자동 확인 |
+| 6 | `labs/ch03_serving/05_kubernetes_concepts.ipynb` | desired/live state, controller, scheduler, etcd 개념 확인 |
+| 7 | `labs/ch03_serving/06_kubernetes_mlflow_manifest.ipynb` | Kubernetes MLflow Deployment/Service/PVC manifest 확인 |
+| 8 | `labs/ch03_serving/07_argocd_kserve_manifest.ipynb` | Argo CD Application과 KServe InferenceService 확인 |
+| 9 | `labs/ch03_serving/08_argocd_gitops_live_check.ipynb` | live sync 가능 조건과 KServe Ready 확인 항목 정리 |
+| 10 | `demos/ch03_docker_kubernetes/scripts/02_check_argocd_manifests.sh` | GitOps manifest render 확인 |
 
 CLI로 확인할 때는 실제 script를 직접 실행합니다.
 
 ```bash
-uv run python labs/ch03_serving/check_serving_contract.py
+uv run python labs/ch03_serving/04_check_serving_contract.py
+bash demos/ch03_docker_kubernetes/scripts/02_check_argocd_manifests.sh
 ```
 
 같은 작업을 wrapper로 실행할 수도 있습니다.
@@ -258,8 +270,8 @@ uv run python scripts/course.py lab-serving
 
 | 순서 | 따라갈 코드 | 역할 |
 | --- | --- | --- |
-| 1 | `labs/ch04_observability/observability_lab.ipynb` | structured log, request trace, Prometheus metric, dashboard panel을 순서대로 확인 |
-| 2 | `labs/ch04_observability/build_observability_artifacts.py` | 로그, metric, Grafana payload, issue trace 재생성 |
+| 1 | `labs/ch04_observability/03_observability_lab.ipynb` | structured log, request trace, Prometheus metric, dashboard panel을 순서대로 확인 |
+| 2 | `labs/ch04_observability/04_build_observability_artifacts.py` | 로그, metric, Grafana payload, issue trace 재생성 |
 | 3 | `artifacts/logs/chapter_04_normal_events.jsonl` | baseline 운영 이벤트 확인 |
 | 4 | `artifacts/logs/chapter_04_anomaly_events.jsonl` | current/anomaly 운영 이벤트 확인 |
 | 5 | `artifacts/metrics/chapter_04_anomaly.prom` | Prometheus metric 확인 |
@@ -269,7 +281,7 @@ uv run python scripts/course.py lab-serving
 CLI로 재생성할 때는 실제 script를 직접 실행합니다.
 
 ```bash
-uv run python labs/ch04_observability/build_observability_artifacts.py
+uv run python labs/ch04_observability/04_build_observability_artifacts.py
 ```
 
 같은 작업을 wrapper로 실행할 수도 있습니다.
@@ -285,14 +297,14 @@ uv run python scripts/course.py lab-observability
 | 순서 | 따라갈 코드 | 역할 |
 | --- | --- | --- |
 | 1 | `labs/ch05_qa_strategy/README.md` | input drift, score/prediction 분포, incident trace, release criteria, checklist 기준 확인 |
-| 2 | `labs/ch05_qa_strategy/qa_strategy_lab.ipynb` | drift, score 분포, incident trace, release criteria를 하나의 판단 흐름으로 연결 |
-| 3 | `labs/ch05_qa_strategy/build_qa_artifacts.py` | QA 전략 리포트와 checklist 재생성 |
+| 2 | `labs/ch05_qa_strategy/03_qa_strategy_lab.ipynb` | drift, score 분포, incident trace, release criteria를 하나의 판단 흐름으로 연결 |
+| 3 | `labs/ch05_qa_strategy/04_build_qa_artifacts.py` | QA 전략 리포트와 checklist 재생성 |
 | 4 | `artifacts/reports/release_approval.md`, `artifacts/reports/ai_qa_checklist.md` | 최종 판단 문서 확인 |
 
 CLI로 재생성할 때는 실제 script를 직접 실행합니다.
 
 ```bash
-uv run python labs/ch05_qa_strategy/build_qa_artifacts.py
+uv run python labs/ch05_qa_strategy/04_build_qa_artifacts.py
 ```
 
 같은 작업을 wrapper로 실행할 수도 있습니다.
@@ -308,13 +320,14 @@ uv run python scripts/course.py lab-qa-strategy
 | 순서 | 직접 실행 명령 | 생성 또는 갱신되는 주요 경로 |
 | --- | --- | --- |
 | 1 | `uv run python labs/prepare_data.py` | `data/vital_signs*.csv`, `data/serving_requests*.csv`, `data/*events.jsonl` |
-| 2 | `uv run python labs/ch01_data_quality/build_quality_report.py` | `artifacts/reports/chapter_01_quality_report.md` |
-| 3 | `uv run python labs/ch02_model_quality/train_baseline.py` | `artifacts/models/chapter_02_baseline.pkl` |
-| 4 | `uv run python labs/ch02_model_quality/evaluate_and_record.py` | `artifacts/experiments/chapter_02/model_test_eval.json`, `artifacts/mlflow.db` |
-| 5 | `uv run python labs/ch02_model_quality/build_comparison_artifacts.py` | `artifacts/experiments/chapter_02/validation_degradation_comparison.json`, `artifacts/reports/chapter_02_model_quality_comparison.md` |
-| 6 | `uv run python labs/ch03_serving/check_serving_contract.py` | `outputs/check_serving_contract_prediction_events.jsonl` |
-| 7 | `uv run python labs/ch04_observability/build_observability_artifacts.py` | `artifacts/logs/`, `artifacts/metrics/`, `artifacts/grafana/`, `artifacts/reports/quality_issue_trace.md` |
-| 8 | `uv run python labs/ch05_qa_strategy/build_qa_artifacts.py` | `artifacts/reports/drift_report.md`, `release_approval.md`, `ai_qa_checklist.md` |
+| 2 | `uv run python labs/ch01_data_quality/04_build_quality_report.py` | `artifacts/reports/chapter_01_quality_report.md` |
+| 3 | `uv run python labs/ch02_model_quality/09_train_baseline.py` | `artifacts/models/chapter_02_baseline.pkl` |
+| 4 | `uv run python labs/ch02_model_quality/10_evaluate_and_record.py` | `artifacts/experiments/chapter_02/model_test_eval.json`, `artifacts/mlflow.db` |
+| 5 | `uv run python labs/ch02_model_quality/11_build_comparison_artifacts.py` | `artifacts/experiments/chapter_02/validation_degradation_comparison.json`, `artifacts/reports/chapter_02_model_quality_comparison.md` |
+| 6 | `uv run python labs/ch03_serving/04_check_serving_contract.py` | `outputs/check_serving_contract_prediction_events.jsonl` |
+| 7 | `bash demos/ch03_docker_kubernetes/scripts/02_check_argocd_manifests.sh` | Argo CD/KServe manifest render 결과 |
+| 8 | `uv run python labs/ch04_observability/04_build_observability_artifacts.py` | `artifacts/logs/`, `artifacts/metrics/`, `artifacts/grafana/`, `artifacts/reports/quality_issue_trace.md` |
+| 9 | `uv run python labs/ch05_qa_strategy/04_build_qa_artifacts.py` | `artifacts/reports/drift_report.md`, `release_approval.md`, `ai_qa_checklist.md` |
 
 전체 순서를 wrapper로 한 번에 실행하려면 다음 명령을 사용합니다.
 
