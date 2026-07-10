@@ -434,6 +434,12 @@ argocd login gitops.lab.mrml.dev --insecure
 Username: tta
 Password: 12345!
 
+# k3s가 꺼졌을 때 재시작
+sudo systemctl status k3s
+sudo systemctl restart k3s
+sudo systemctl status k3s
+kubectl --kubeconfig ~/.kube/k3s.yaml get nodes
+
 # k3s kubeconfig 복사
 mkdir -p ~/.kube
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/k3s.yaml
@@ -454,5 +460,11 @@ argocd cluster add default \
 
 # 등록 확인
 argocd cluster list
+
+# k3s가 꺼졌을 때 재시작
+sudo systemctl status k3s
+sudo systemctl restart k3s
+sudo systemctl status k3s
+kubectl --kubeconfig ~/.kube/k3s.yaml get nodes
 
 ```
