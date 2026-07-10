@@ -418,3 +418,15 @@ uv run python scripts/course.py labs
 macOS나 Linux에서 `make`를 사용할 수 있다면 같은 작업을 `make setup`, `make smoke`, `make labs`로 실행해도 됩니다. Windows에서는 `uv run python scripts/course.py ...` 명령을 기준으로 진행합니다.
 
 장별 실습은 온라인 교재의 순서에 맞춰 진행합니다.
+
+## ARGOCD CLI
+
+```bash
+curl -sSL -o argocd \
+  https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+
+chmod +x argocd
+sudo mv argocd /usr/local/bin/argocd
+
+argocd version --client
+```
