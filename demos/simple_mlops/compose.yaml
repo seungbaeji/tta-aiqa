@@ -1,0 +1,128 @@
+services:
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.12.2
+    restart: unless-stopped
+    command:
+      - mlflow
+      - server
+      - --host
+      - 0.0.0.0
+      - --port
+      - "5000"
+      - --backend-store-uri
+      - sqlite:////mlflow/mlflow.db
+      - --default-artifact-root
+      - /mlflow/artifacts
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlflow-data:/mlflow
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000', timeout=2)"
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  trainer:
+    build: .
+    profiles:
+      - train
+    command: ["python", "train.py", "--repeat", "1"]
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MODEL_PATH: /app/models/latest_model.joblib
+      METADATA_PATH: /app/models/latest_metadata.json
+    volumes:
+      - ../../data:/app/data:ro
+      - ./models:/app/models
+    depends_on:
+      mlflow:
+        condition: service_healthy
+
+  trainer-loop:
+    build: .
+    profiles:
+      - train-loop
+      - continuous
+    restart: unless-stopped
+    command: ["python", "train.py", "--repeat", "0", "--interval", "60"]
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MODEL_PATH: /app/models/latest_model.joblib
+      METADATA_PATH: /app/models/latest_metadata.json
+    volumes:
+      - ../../data:/app/data:ro
+      - ./models:/app/models
+    depends_on:
+      mlflow:
+        condition: service_healthy
+
+  api:
+    build: .
+    restart: unless-stopped
+    environment:
+      MODEL_PATH: /app/models/latest_model.joblib
+      METADATA_PATH: /app/models/latest_metadata.json
+      EVENTS_PATH: /app/events/predictions.jsonl
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./models:/app/models
+      - ./events:/app/events
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)"
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  traffic:
+    build: .
+    profiles:
+      - traffic
+    command:
+      - python
+      - send_fake_traffic.py
+      - --api-url
+      - http://api:8000
+      - --count
+      - "30"
+      - --sleep
+      - "0.2"
+    volumes:
+      - ../../data:/app/data:ro
+      - ./events:/app/events
+    depends_on:
+      api:
+        condition: service_healthy
+
+  traffic-loop:
+    build: .
+    profiles:
+      - traffic-loop
+      - continuous
+    restart: unless-stopped
+    command:
+      - python
+      - send_fake_traffic.py
+      - --api-url
+      - http://api:8000
+      - --loop
+      - --sleep
+      - "2"
+    volumes:
+      - ../../data:/app/data:ro
+      - ./events:/app/events
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  mlflow-data:
