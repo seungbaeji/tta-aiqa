@@ -4,7 +4,7 @@ This directory contains the GitOps Kubernetes resources watched by Argo CD in
 the Chapter 03 serving lab.
 
 The lab uses Kustomize so students can keep shared resources in `base` and edit
-only the small environment-specific overlay under `overlays/student`.
+only the small environment-specific overlay under `overlays/tta`.
 
 ## Structure
 
@@ -12,27 +12,30 @@ only the small environment-specific overlay under `overlays/student`.
 | --- | --- |
 | `base/namespace.yaml` | Target namespace for the lab resources |
 | `base/mlflow-tracking.yaml` | Kubernetes `Deployment`, `Service`, and model PVC for MLflow tracking |
-| `base/mlflow-ingress.yaml` | Ingress resource for opening the MLflow UI |
+| `base/mlflow-ingress.yaml` | Ingress resource for cluster-side MLflow routing inspection |
 | `base/inferenceservice.yaml` | KServe `InferenceService` for the `risk-classifier@candidate` model |
 | `base/observability-config.yaml` | Telemetry fields that must appear in response/log checks |
-| `overlays/student/kustomization.yaml` | Student overlay used by the Argo CD `Application` |
-| `overlays/student/ingress-host-patch.yaml` | Student-specific MLflow ingress host patch |
-| `../argocd/application.yaml` | Argo CD `Application` pointing to the student overlay |
+| `overlays/tta/kustomization.yaml` | TTA overlay used by the Argo CD `Application` |
+| `overlays/tta/ingress-host-patch.yaml` | TTA-specific MLflow ingress host patch |
+| `../demos/ch03_docker_kubernetes/argocd/application.yaml` | Argo CD `Application` pointing to the tta overlay |
 
 ## Student Edit Point
 
-Before live sync, edit only the ingress host patch.
+Students normally inspect the ingress host patch without changing it. The
+browser access path for MLflow in class is the Bastion tunnel
+`http://localhost:5000`, not this Kubernetes ingress host. Edit only this patch
+when the instructor assigns a cluster ingress host for the lab.
 
 ```yaml
-# overlays/student/ingress-host-patch.yaml
+# overlays/tta/ingress-host-patch.yaml
 - op: replace
   path: /spec/rules/0/host
   value: mlflow.REPLACE_WITH_YOUR_INGRESS_DOMAIN.example.com
 ```
 
-Replace the placeholder with the host assigned to the student's VM, DNS, or
-tunnel. The `base` manifest keeps a deliberately invalid default host so it is
-not accidentally used as a real endpoint.
+Replace the placeholder with the host assigned by the instructor. The `base`
+manifest keeps a deliberately invalid default host so it is not accidentally
+used as a real endpoint.
 
 ## Argo CD Connection Flow
 
@@ -58,7 +61,7 @@ ARGOCD_REPO_URL=git@github.com:<your-org-or-user>/<your-repo>.git \
 bash demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh sync
 ```
 
-`connect` replaces the placeholder `repoURL` in `../argocd/application.yaml` at
+`connect` replaces the placeholder `repoURL` in `../demos/ch03_docker_kubernetes/argocd/application.yaml` at
 apply time. The file can stay generic in the course repository.
 
 ## Lab Rule

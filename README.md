@@ -15,18 +15,14 @@
 
 ## 2. 준비
 
-교육장 VM을 사용하는 실습에서는 먼저 VM에 접속합니다. Docker, Kubernetes, Argo CD, KServe, Grafana Cloud와 연결되는 실습은 개인 PC가 아니라 준비된 VM에서 실행하는 흐름을 기준으로 합니다.
+교육장 VM을 사용하는 실습에서는 실행 위치와 UI 확인 경로를 분리합니다. Docker, Kubernetes, Argo CD, KServe, Grafana Cloud와 연결되는 명령은 준비된 VM에서 실행하고, MLflow, FastAPI docs, Grafana 같은 웹 UI는 Bastion local forwarding으로 Windows PC 브라우저에서 확인합니다. VM에 접속하는 방식은 두 가지입니다.
 
-```bash
-ssh -o PreferredAuthentications=password \
-  -o PubkeyAuthentication=no \
-  -J mrml-bastion@146.56.41.109 \
-  tta@10.99.0.20
-```
+| 방식 | 권장 상황 | 실행 위치 | UI 확인 |
+| --- | --- | --- | --- |
+| VS Code Remote-SSH | notebook, 파일 수정, 긴 실습 | VS Code가 연결된 VM 터미널 | Bastion local forwarding 기준 |
+| Windows PC Bastion tunnel | MLflow, FastAPI, Grafana UI를 개인 PC 브라우저에서 확인 | VM shell과 Windows 터널 터미널 분리 | Windows PC `localhost` |
 
-접속 후에는 VM 안에서 이 repository 위치로 이동합니다. 비밀번호는 터미널에 직접 입력하고, 문서나 notebook에 남기지 않습니다. VM 접속이 되지 않으면 3장 Argo CD/KServe live 확인과 4장 Grafana Cloud 전송 실습은 진행하지 않고, 준비된 artifact 확인으로 범위를 제한합니다.
-
-VS Code로 실습하려면 `Remote - SSH` 확장을 사용합니다. 개인 PC의 `~/.ssh/config`에 다음 설정을 추가합니다.
+VS Code로 실습하려면 `Remote - SSH` 확장을 사용합니다. Windows PC의 `~/.ssh/config`에 다음 설정을 추가합니다.
 
 ```sshconfig
 Host tta-aiqa-vm
@@ -37,7 +33,38 @@ Host tta-aiqa-vm
   PubkeyAuthentication no
 ```
 
-VS Code에서 `Remote-SSH: Connect to Host...`를 실행한 뒤 `tta-aiqa-vm`을 선택합니다. 접속이 완료되면 VM 안의 이 repository 폴더를 열고 아래 준비 명령을 실행합니다.
+VS Code에서 `Remote-SSH: Connect to Host...`를 실행한 뒤 `tta-aiqa-vm`을 선택합니다. 접속이 완료되면 VM 안의 이 repository 폴더를 열고 아래 준비 명령을 실행합니다. VS Code 접속은 실행과 파일 확인을 위한 경로이며, 웹 UI 확인은 아래 Bastion tunnel 주소를 기준으로 합니다.
+
+Windows PC에서 VM shell만 열 때는 Windows Terminal 또는 PowerShell에서 아래 명령을 사용합니다.
+
+```bash
+ssh -o PreferredAuthentications=password \
+  -o PubkeyAuthentication=no \
+  -J mrml-bastion@146.56.41.109 \
+  tta@10.99.0.20
+```
+
+접속 후에는 VM 안에서 이 repository 위치로 이동합니다. 비밀번호는 터미널에 직접 입력하고, 문서나 notebook에 남기지 않습니다. VM 접속이 되지 않으면 3장 Argo CD/KServe live 확인과 4장 Grafana Cloud 전송 실습은 진행하지 않고, 준비된 artifact 확인으로 범위를 제한합니다.
+
+Windows PC 브라우저에서 VM 안의 MLflow, FastAPI, Grafana를 열려면 별도 PowerShell 또는 Windows Terminal에서 Bastion tunnel을 유지합니다. 이 터미널은 실습 중 닫지 않습니다.
+
+```bash
+ssh -N \
+  -L 5000:127.0.0.1:5000 \
+  -L 8000:127.0.0.1:8000 \
+  -L 3000:127.0.0.1:3000 \
+  -J mrml-bastion@146.56.41.109 \
+  tta@10.99.0.20
+```
+
+터널을 연 뒤 Windows PC 브라우저에서 아래 주소를 엽니다. Argo CD는 Bastion tunnel이 아니라 교육장 ingress 주소를 사용합니다.
+
+| 도구 | Windows PC 브라우저 주소 | VM 또는 cluster에서 먼저 실행할 것 |
+| --- | --- | --- |
+| MLflow | `http://localhost:5000` | `docker compose up -d mlflow` |
+| FastAPI | `http://localhost:8000/docs` | `docker compose --profile serving up --build serving-api` |
+| Grafana | `http://localhost:3000` | `docker compose up -d loki grafana` |
+| Argo CD | `https://gitops.lab.mrml.dev` | Argo CD `Application` 등록 또는 조회 |
 
 Python 3.11을 기준으로 실습합니다. 이 repository에는 `.python-version`을 3.11로 두어 `uv`가 같은 Python 계열을 우선 사용하도록 합니다. `uv`는 Astral에서 제공하는 Python package/project manager입니다. 설치 파일과 자세한 안내는 [공식 설치 문서](https://docs.astral.sh/uv/getting-started/installation/)에서 확인합니다.
 

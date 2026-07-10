@@ -8,7 +8,7 @@ metadata:
     ai-quality/course-chapter: "03"
   annotations:
     argocd.argoproj.io/sync-wave: "3"
-    ai-quality/student-edit: "Set spec.rules[0].host in overlays/student/ingress-host-patch.yaml before live sync."
+    ai-quality/tta-edit: "Set spec.rules[0].host in overlays/tta/ingress-host-patch.yaml before live sync."
 spec:
   rules:
     - host: mlflow.example.invalid

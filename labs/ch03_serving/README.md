@@ -20,9 +20,11 @@
 | Notebook 8 | `labs/ch03_serving/08_argocd_gitops_live_check.ipynb` | live sync, KServe Ready, endpoint 확인 항목 정리 |
 | GitOps 확인 script | `demos/ch03_docker_kubernetes/scripts/02_check_argocd_manifests.sh` | MLflow/KServe manifest render와 dry-run 확인 |
 | Argo CD 연결 script | `demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh` | GitHub Deploy key 생성, Argo CD repo 연결, Application 등록, sync 실행 |
-| Argo CD resource | `demos/ch03_docker_kubernetes/gitops/` | Argo CD가 바라볼 Kustomize base와 수강생 overlay |
+| Argo CD resource | `gitops/` | Argo CD가 바라볼 Kustomize base와 수강생 overlay |
 
 ## 직접 실행 순서
+
+직접 실행은 VM의 `tta-aiqa` repository에서 수행합니다. 실행 중 MLflow, FastAPI docs, Grafana UI를 브라우저로 확인해야 할 때는 Windows PC에서 Bastion tunnel을 열고 `localhost` 주소로 접근합니다.
 
 ```bash
 bash demos/ch02_mlflow/01_run_with_docker_mlflow.sh
@@ -49,13 +51,13 @@ Argo CD 실습은 `kubectl apply`를 직접 반복하는 실습이 아니라, Gi
 Argo CD가 바라볼 path는 다음입니다.
 
 ```text
-demos/ch03_docker_kubernetes/gitops/overlays/student
+gitops/overlays/tta
 ```
 
-이 path는 Kustomize overlay입니다. `base`에는 공통 MLflow/KServe resource가 있고, `overlays/student`에는 수강생별로 바뀌는 값이 들어갑니다. 특히 MLflow UI ingress 주소는 각자 실습 환경마다 다르므로 아래 파일을 먼저 수정합니다.
+이 path는 Kustomize overlay입니다. `base`에는 공통 MLflow/KServe resource가 있고, `overlays/tta`에는 TTA 실습 환경별로 바뀌는 값이 들어갑니다. MLflow ingress host는 cluster 라우팅 선언을 검토하기 위한 값이며, 수강생 브라우저 UI 확인 주소는 Bastion tunnel의 `http://localhost:5000`입니다. 강사가 별도 ingress host를 배정한 경우에만 아래 파일을 수정합니다.
 
 ```text
-demos/ch03_docker_kubernetes/gitops/overlays/student/ingress-host-patch.yaml
+gitops/overlays/tta/ingress-host-patch.yaml
 ```
 
 예시는 다음과 같습니다.
@@ -84,6 +86,26 @@ bash demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh sync
 `connect`는 Argo CD에 repository credential을 등록하고, `demos/ch03_docker_kubernetes/argocd/application.yaml`의 Application을 cluster에 등록합니다. 이 Application의 `source.path`가 위 Kustomize overlay를 가리켜야 합니다. `sync`는 Git의 desired state와 cluster live state를 비교한 뒤 Argo CD를 통해 적용합니다.
 
 live cluster나 Argo CD CLI가 없는 환경에서는 sync 성공이라고 쓰지 않습니다. 이 경우에는 manifest inspection과 Kustomize render 확인까지만 기록합니다.
+
+## UI 접속 예시
+
+UI 접속 증거는 Bastion tunnel을 유지한 상태에서 Windows PC 브라우저로 확인합니다. VM에서 service를 실행한 터미널과 Windows PC에서 tunnel을 유지하는 터미널은 서로 다를 수 있습니다.
+
+```bash
+ssh -N \
+  -L 5000:127.0.0.1:5000 \
+  -L 8000:127.0.0.1:8000 \
+  -L 3000:127.0.0.1:3000 \
+  -J mrml-bastion@146.56.41.109 \
+  tta@10.99.0.20
+```
+
+| UI | Windows PC 브라우저 주소 | 먼저 VM에서 실행할 것 | 확인할 증거 |
+| --- | --- | --- | --- |
+| MLflow | `http://localhost:5000` | `docker compose up -d mlflow` 또는 `demos/ch02_mlflow/01_run_with_docker_mlflow.sh` | run, metric, artifact |
+| FastAPI docs | `http://localhost:8000/docs` | `docker compose --profile serving up --build serving-api` | `/health`, `/predict`, schema |
+| Grafana | `http://localhost:3000` | `docker compose up -d loki grafana` | dashboard, query |
+| Argo CD | `https://gitops.lab.mrml.dev` | Argo CD `Application` 등록 또는 조회 | sync, health |
 
 
 ## 3-3. FastAPI 기반 예측 API 확인

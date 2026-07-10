@@ -4,8 +4,8 @@ resources:
   - ../../base
 labels:
   - pairs:
-      app.kubernetes.io/instance: ai-quality-risk-classifier-student
-      ai-quality/environment: student
+      app.kubernetes.io/instance: ai-quality-risk-classifier-tta
+      ai-quality/environment: tta
 patches:
   - target:
       kind: InferenceService
