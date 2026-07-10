@@ -429,4 +429,8 @@ chmod +x argocd
 sudo mv argocd /usr/local/bin/argocd
 
 argocd version --client
+
+argocd login gitops.lab.mrml.dev
+Username: tta
+Password: 12345!
 ```
