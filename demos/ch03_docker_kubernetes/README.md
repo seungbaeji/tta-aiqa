@@ -71,6 +71,14 @@ bash demos/ch03_docker_kubernetes/scripts/00_setup_argocd_gitops.sh key
 
 `key` 명령은 public key를 출력합니다. 이 public key를 GitHub repository의 `Settings -> Deploy keys -> Add deploy key`에 붙여 넣습니다. `Allow write access`는 체크하지 않습니다. Argo CD는 이 repository를 읽기만 하면 됩니다.
 
+아래 명령어로 키 생성
+```
+ssh-keygen -t ed25519 -C "argocd-tta-aiqa" -f ./tta-aiqa-argocd-deploy-key -N ""
+```
+
+github에는 public key 등록
+
+
 그 다음 Argo CD에 repository credential과 Application을 등록합니다.
 
 ```bash
