@@ -31,10 +31,14 @@ docker compose logs -f trainer-loop traffic-loop api
 
 | UI | 주소 |
 | --- | --- |
-| MLflow | `http://localhost:5000` |
+| MLflow | `http://localhost:5002` |
 | FastAPI docs | `http://localhost:8000/docs` |
 | API health | `http://localhost:8000/health` |
 | Prediction events | `http://localhost:8000/events` |
+
+MLflow 컨테이너 내부 포트는 계속 `5000`입니다. 그래서 trainer는 Docker network 안에서
+`http://mlflow:5000`을 사용하고, 브라우저에서 볼 때만 호스트 포트 `5002`로 접속합니다.
+루트 compose의 MLflow가 `localhost:5000`을 쓰는 경우와 충돌하지 않도록 이렇게 분리했습니다.
 
 ## 한 번만 실행
 
