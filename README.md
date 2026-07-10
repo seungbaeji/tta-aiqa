@@ -430,7 +430,27 @@ sudo mv argocd /usr/local/bin/argocd
 
 argocd version --client
 
-argocd login gitops.lab.mrml.dev
+argocd login gitops.lab.mrml.dev --insecure
 Username: tta
 Password: 12345!
+
+# k3s kubeconfig 복사
+mkdir -p ~/.kube
+sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/k3s.yaml
+sudo chown $USER:$USER ~/.kube/k3s.yaml
+chmod 600 ~/.kube/k3s.yaml
+
+# kubeconfig의 127.0.0.1을 k3s 서버 IP로 변경
+K3S_NODE_IP=$(hostname -I | awk '{print $1}')
+sed -i "s#https://127.0.0.1:6443#https://${K3S_NODE_IP}:6443#g" ~/.kube/k3s.yaml
+
+# 접속 확인
+kubectl --kubeconfig ~/.kube/k3s.yaml get nodes
+
+# 클러스터 등록
+argocd cluster add default --kubeconfig ~/.kube/k3s.yaml
+
+# 등록 확인
+argocd cluster list
+
 ```
