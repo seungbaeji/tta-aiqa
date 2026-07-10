@@ -16,8 +16,6 @@ from typing import Any
 pd: Any | None = None
 aiq_lite: Any | None = None
 
-LITE_WHEEL_NAME = "ttamlops_ai_quality_lite-0.1.0-py3-none-any.whl"
-
 DATA_PATH = "data/vital_signs_evaluation_baseline.csv"
 MIN_CLASS_SUPPORT = 30
 
@@ -47,43 +45,25 @@ def add_course_paths() -> None:
 
 
 async def ensure_pandas() -> Any:
-    """Import pandas, installing it in JupyterLite when needed."""
+    """Import pandas from the local lab environment."""
     try:
         return importlib.import_module("pandas")
-    except ModuleNotFoundError:
-        import piplite
-
-        await piplite.install("pandas")
-        return importlib.import_module("pandas")
+    except ModuleNotFoundError as error:
+        raise ModuleNotFoundError(
+            "pandas가 없습니다. 로컬 실습 환경에서는 notebook 안에서 패키지를 설치하지 말고 "
+            "`uv sync --group lab` 또는 강의 환경 준비 명령을 실행하세요."
+        ) from error
 
 
 async def ensure_ai_quality_lite() -> Any:
-    """Import ai_quality.lite, installing the Lite wheel without js.window."""
+    """Import ai_quality.lite from the local package path."""
     try:
         return importlib.import_module("ai_quality.lite")
-    except ModuleNotFoundError:
-        pass
-
-    import micropip
-
-    wheel_candidates = [
-        f"../files/wheels/{LITE_WHEEL_NAME}",
-        f"./files/wheels/{LITE_WHEEL_NAME}",
-        f"files/wheels/{LITE_WHEEL_NAME}",
-        f"/jupyterlite/files/wheels/{LITE_WHEEL_NAME}",
-    ]
-    install_errors: list[str] = []
-    for wheel_url in wheel_candidates:
-        try:
-            await micropip.install(wheel_url, deps=False)
-            return importlib.import_module("ai_quality.lite")
-        except Exception as exc:
-            install_errors.append(f"{wheel_url}: {type(exc).__name__}: {exc}")
-
-    raise RuntimeError(
-        "ttamlops-ai-quality Lite wheel 설치에 실패했습니다. "
-        "확인한 경로: " + " | ".join(install_errors)
-    )
+    except ModuleNotFoundError as error:
+        raise ModuleNotFoundError(
+            "ai_quality.lite를 찾지 못했습니다. repo root에서 notebook을 실행하거나 "
+            "`uv sync --group lab`로 로컬 package 경로를 준비하세요."
+        ) from error
 
 
 async def prepare_notebook() -> PreparedNotebook:

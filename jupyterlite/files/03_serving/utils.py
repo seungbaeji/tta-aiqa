@@ -120,6 +120,17 @@ async def ensure_pandas() -> Any:
         return importlib.import_module("pandas")
 
 
+async def ensure_yaml() -> Any:
+    """Import PyYAML, installing it only inside JupyterLite when needed."""
+    try:
+        return importlib.import_module("yaml")
+    except ModuleNotFoundError:
+        import piplite
+
+        await piplite.install("pyyaml")
+        return importlib.import_module("yaml")
+
+
 async def ensure_ai_quality_lite() -> Any:
     """Import ai_quality.lite, installing the Lite wheel without js.window."""
     try:
