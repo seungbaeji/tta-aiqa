@@ -14,8 +14,8 @@ uv run python scripts/course.py prepare-data
 
 ```bash
 cd demos/simple_mlops
-docker compose --profile continuous build
-docker compose --profile continuous up -d
+sudo docker compose --profile continuous build
+sudo docker compose --profile continuous up -d
 ```
 
 상태와 로그를 확인합니다.
