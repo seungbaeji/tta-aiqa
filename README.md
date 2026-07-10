@@ -447,8 +447,10 @@ sed -i "s#https://127.0.0.1:6443#https://${K3S_NODE_IP}:6443#g" ~/.kube/k3s.yaml
 # 접속 확인
 kubectl --kubeconfig ~/.kube/k3s.yaml get nodes
 
-# 클러스터 등록
-argocd cluster add default --kubeconfig ~/.kube/k3s.yaml
+# 클러스터 등록 (default 변경)
+argocd cluster add default \
+  --kubeconfig ~/.kube/k3s.yaml \
+  --grpc-web
 
 # 등록 확인
 argocd cluster list
