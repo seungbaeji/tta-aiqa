@@ -9,12 +9,12 @@ dependencies = [
     "pandas>=2.2",
     "pydantic>=2.7",
     "pyyaml>=6.0",
+    "scikit-learn>=1.4",
 ]
 
 [project.optional-dependencies]
 model = [
     "matplotlib>=3.8",
-    "scikit-learn>=1.4",
 ]
 serving = [
     "fastapi>=0.110",
