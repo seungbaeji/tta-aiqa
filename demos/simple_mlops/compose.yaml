@@ -28,7 +28,10 @@ services:
       retries: 30
 
   trainer:
-    build: .
+    build:
+      context: .
+      args:
+        UV_SYNC_GROUPS: "--group train"
     profiles:
       - train
     command: ["python", "train.py", "--repeat", "1"]
@@ -45,12 +48,15 @@ services:
         condition: service_healthy
 
   trainer-loop:
-    build: .
+    build:
+      context: .
+      args:
+        UV_SYNC_GROUPS: "--group train"
     profiles:
       - train-loop
       - continuous
     restart: unless-stopped
-    command: ["python", "train.py", "--repeat", "0", "--interval", "60"]
+    command: ["python", "train.py", "--repeat", "0", "--interval", "300"]
     environment:
       GIT_PYTHON_REFRESH: quiet
       MLFLOW_TRACKING_URI: http://mlflow:5000
@@ -66,13 +72,15 @@ services:
   api:
     build: .
     restart: unless-stopped
+    env_file:
+      - path: ../../.env
+        required: false
     environment:
-      MODEL_PATH: /app/models/latest_model.joblib
-      METADATA_PATH: /app/models/latest_metadata.json
-      EVENTS_PATH: /app/events/predictions.jsonl
+      APP_CONFIG_PATH: /app/config/app.local.json
     ports:
       - "${API_HOST_PORT:-8000}:8000"
     volumes:
+      - ../../data:/app/data:ro
       - ./models:/app/models
       - ./events:/app/events
     healthcheck:
@@ -122,6 +130,30 @@ services:
     volumes:
       - ../../data:/app/data:ro
       - ./events:/app/events
+    depends_on:
+      api:
+        condition: service_healthy
+
+  alloy:
+    image: grafana/alloy:latest
+    profiles:
+      - observability
+    restart: unless-stopped
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - /etc/alloy/config.alloy
+    env_file:
+      - path: ../../.env
+        required: false
+    ports:
+      - "${ALLOY_HOST_PORT:-12345}:12345"
+      - "${OTLP_HTTP_HOST_PORT:-4318}:4318"
+      - "${OTLP_GRPC_HOST_PORT:-4317}:4317"
+    volumes:
+      - ./alloy.cloud.example.alloy:/etc/alloy/config.alloy:ro
+      - ./events:/var/lib/simple-mlops/events:ro
     depends_on:
       api:
         condition: service_healthy

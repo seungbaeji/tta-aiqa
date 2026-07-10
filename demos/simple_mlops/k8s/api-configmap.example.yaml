@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: simple-mlops-api-config
+data:
+  app.local.json: |
+    {
+      "model_path": "/app/models/latest_model.joblib",
+      "metadata_path": "/app/models/latest_metadata.json",
+      "events_path": "/app/events/predictions.jsonl",
+      "baseline_data_path": "/app/data/serving_requests.csv",
+      "service_name": "ai-quality-serving",
+      "deployment_environment": "training",
+      "client_id": "simple-traffic-generator",
+      "source_system": "simple-mlops-demo",
+      "trace_id_prefix": "simple-trace",
+      "input_distribution_features": [
+        "heart_rate",
+        "oxygen_saturation"
+      ],
+      "score_buckets": [
+        0.0,
+        0.2,
+        0.4,
+        0.6,
+        0.8,
+        1.0
+      ]
+    }

@@ -6,17 +6,20 @@ requires-python = ">=3.11,<3.12"
 dependencies = [
     "fastapi>=0.110",
     "joblib>=1.4",
-    "mlflow>=2.12",
     "numpy>=1.26,<2.3",
     "pandas>=2.2",
     "pydantic>=2.7",
+    "pydantic-settings>=2.4",
     "requests>=2.32",
     "scikit-learn>=1.4",
-    "setuptools>=69,<81",
     "uvicorn[standard]>=0.29",
 ]
 
 [dependency-groups]
+train = [
+    "mlflow>=2.12",
+    "setuptools>=69,<81",
+]
 notebook = [
     "ipykernel>=7.3",
     "jupyter>=1.1",

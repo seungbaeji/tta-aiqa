@@ -61,6 +61,21 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--experiment", default="simple-aiqa-risk-classifier")
     parser.add_argument("--repeat", type=int, default=1, help="0 means forever")
     parser.add_argument("--interval", type=float, default=60.0)
+    parser.add_argument(
+        "--train-sample-size",
+        type=int,
+        default=int(os.getenv("TRAIN_SAMPLE_SIZE", "50000")),
+    )
+    parser.add_argument(
+        "--test-sample-size",
+        type=int,
+        default=int(os.getenv("TEST_SAMPLE_SIZE", "10000")),
+    )
+    parser.add_argument(
+        "--n-estimators",
+        type=int,
+        default=int(os.getenv("N_ESTIMATORS", "40")),
+    )
     return parser.parse_args()
 
 
@@ -103,17 +118,44 @@ def load_xy(path: str) -> tuple[pd.DataFrame, pd.Series]:
     return dataframe.loc[:, FEATURES], (dataframe[LABEL] == POSITIVE_LABEL).astype(int)
 
 
+def sample_xy(
+    features: pd.DataFrame,
+    labels: pd.Series,
+    sample_size: int,
+    random_state: int,
+) -> tuple[pd.DataFrame, pd.Series]:
+    """Keep demo training bounded on small classroom VMs."""
+
+    if sample_size <= 0 or len(features) <= sample_size:
+        return features, labels
+
+    sampled_index = features.sample(n=sample_size, random_state=random_state).index
+    return features.loc[sampled_index], labels.loc[sampled_index]
+
+
 def train_once(args: argparse.Namespace, run_index: int) -> dict[str, object]:
     """Train one model, log it to MLflow, and save it for the API."""
 
     # loop 학습 때마다 seed/max_depth를 조금 바꿔
     # MLflow run 차이를 눈으로 볼 수 있게 합니다.
     seed = int(time.time()) % 1_000_000 + run_index
-    max_depth = 4 + (seed % 5)
-    n_estimators = 80
+    max_depth = 4 + (seed % 3)
+    n_estimators = args.n_estimators
 
     train_x, train_y = load_xy(args.train_path)
     test_x, test_y = load_xy(args.test_path)
+    train_x, train_y = sample_xy(
+        train_x,
+        train_y,
+        args.train_sample_size,
+        random_state=seed,
+    )
+    test_x, test_y = sample_xy(
+        test_x,
+        test_y,
+        args.test_sample_size,
+        random_state=seed + 1,
+    )
 
     # Pipeline으로 preprocessing과 model을 묶으면
     # serving에서도 같은 변환이 자동 적용됩니다.
@@ -127,7 +169,7 @@ def train_once(args: argparse.Namespace, run_index: int) -> dict[str, object]:
                     max_depth=max_depth,
                     min_samples_leaf=5,
                     random_state=seed,
-                    n_jobs=-1,
+                    n_jobs=1,
                     class_weight="balanced",
                 ),
             ),
@@ -154,6 +196,8 @@ def train_once(args: argparse.Namespace, run_index: int) -> dict[str, object]:
         "n_estimators": n_estimators,
         "max_depth": max_depth,
         "seed": seed,
+        "train_rows": len(train_x),
+        "test_rows": len(test_x),
     }
 
     now = datetime.now(UTC).isoformat()

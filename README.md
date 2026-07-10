@@ -49,12 +49,53 @@ ssh -o PreferredAuthentications=password \
 Windows PC 브라우저에서 VM 안의 MLflow, FastAPI, Grafana를 열려면 별도 PowerShell 또는 Windows Terminal에서 Bastion tunnel을 유지합니다. 이 터미널은 실습 중 닫지 않습니다.
 
 ```bash
-ssh -N \
+ssh -N -o ExitOnForwardFailure=yes \
   -L 5000:127.0.0.1:5000 \
   -L 8000:127.0.0.1:8000 \
   -L 3000:127.0.0.1:3000 \
   -J mrml-bastion@146.56.41.109 \
   tta@10.99.0.20
+```
+
+이 명령은 Windows PC의 터미널에서 실행합니다. VS Code Remote-SSH로 접속한 VM 터미널 안에서 실행하면 Windows PC 브라우저로 포트가 열리지 않습니다. 연결이 되면 터미널이 출력 없이 멈춘 것처럼 보이는 것이 정상입니다. 바로 종료되거나 `bind` 오류가 보이면 Windows PC에서 같은 local port를 이미 쓰는 중입니다.
+
+포트 충돌이 의심되면 local port만 바꿔서 확인합니다.
+
+```bash
+ssh -N -o ExitOnForwardFailure=yes \
+  -L 15000:127.0.0.1:5000 \
+  -L 18000:127.0.0.1:8000 \
+  -L 13000:127.0.0.1:3000 \
+  -J mrml-bastion@146.56.41.109 \
+  tta@10.99.0.20
+```
+
+이 경우 Windows PC 브라우저에서는 `http://127.0.0.1:15000`, `http://127.0.0.1:18000/docs`, `http://127.0.0.1:13000`을 엽니다.
+
+`demos/simple_mlops`를 실행한 경우 MLflow는 기본적으로 VM의 `5002`에 열립니다. 이 demo를 Windows PC에서 보려면 아래처럼 `5002`를 포워딩합니다.
+
+```bash
+ssh -N -o ExitOnForwardFailure=yes \
+  -L 5002:127.0.0.1:5002 \
+  -L 8000:127.0.0.1:8000 \
+  -J mrml-bastion@146.56.41.109 \
+  tta@10.99.0.214
+```
+
+이 경우 Windows PC 브라우저에서는 `http://127.0.0.1:5002`, `http://127.0.0.1:8000/docs`를 엽니다. Windows PC에서 꼭 `localhost:5000`으로 보고 싶다면 local port만 `5000`으로 바꿔 VM의 `5002`에 연결합니다.
+
+```bash
+ssh -N -o ExitOnForwardFailure=yes \
+  -L 5000:127.0.0.1:5002 \
+  -L 8000:127.0.0.1:8000 \
+  -J mrml-bastion@146.56.41.109 \
+  tta@10.99.0.214
+```
+
+PowerShell에서는 `\` 줄바꿈 대신 한 줄로 실행합니다.
+
+```powershell
+ssh -N -o ExitOnForwardFailure=yes -L 5000:127.0.0.1:5002 -L 8000:127.0.0.1:8000 -J mrml-bastion@146.56.41.109 tta@10.99.0.214
 ```
 
 터널을 연 뒤 Windows PC 브라우저에서 아래 주소를 엽니다. Argo CD는 Bastion tunnel이 아니라 교육장 ingress 주소를 사용합니다.
@@ -65,6 +106,8 @@ ssh -N \
 | FastAPI | `http://localhost:8000/docs` | `docker compose --profile serving up --build serving-api` |
 | Grafana | `http://localhost:3000` | `docker compose up -d loki grafana` |
 | Argo CD | `https://gitops.lab.mrml.dev` | Argo CD `Application` 등록 또는 조회 |
+
+`demos/simple_mlops`는 루트 MLflow와 포트 충돌을 피하려고 MLflow host port를 기본 `5002`로 사용합니다. simple MLOps demo를 확인할 때는 `demos/simple_mlops/README.md`의 `5002`, `8000` 터널 예시를 사용합니다.
 
 Python 3.11을 기준으로 실습합니다. 이 repository에는 `.python-version`을 3.11로 두어 `uv`가 같은 Python 계열을 우선 사용하도록 합니다. `uv`는 Astral에서 제공하는 Python package/project manager입니다. 설치 파일과 자세한 안내는 [공식 설치 문서](https://docs.astral.sh/uv/getting-started/installation/)에서 확인합니다.
 
@@ -103,6 +146,43 @@ uv sync --group lab --group demo --group dev
 ```
 
 Docker, Kubernetes, MLflow, Grafana는 모든 수강생이 직접 운영하지 않아도 됩니다. 서버나 외부 런타임이 필요한 내용은 준비된 artifact를 먼저 확인하고, 가능한 환경에서만 로컬 재생성을 진행합니다.
+
+### 2-3. Grafana Cloud 환경 변수
+
+Grafana Cloud로 Logs, Metrics, Traces를 실제 전송하거나 dashboard를 import하려면 repository 루트의 `.env`를 사용합니다. Grafana Cloud 전용 예시는 [.env.grafanacloud.example](/Users/seungbaeji/Workspace/tta-0709/tta-aiqa/.env.grafanacloud.example)에 있고, 실제 `.env`는 Git에 커밋하지 않습니다. [.env.example](/Users/seungbaeji/Workspace/tta-0709/tta-aiqa/.env.example)은 로컬 application 기본값만 담습니다.
+
+```bash
+cp .env.example .env
+cat .env.grafanacloud.example >> .env
+```
+
+현재 repository에는 실제 실행에 필요한 값들을 루트 `.env`에 모아 두었습니다. 새 환경에서 다시 만들 때는 위처럼 로컬 기본값과 Grafana Cloud 예시를 합친 뒤, `<...>`로 표시된 값을 Grafana Cloud Portal에서 본인의 stack 값으로 바꿉니다.
+
+| 변수 | 값의 출처 | 용도 |
+| --- | --- | --- |
+| `GRAFANA_CLOUD_URL` | Grafana Cloud stack의 Grafana URL | dashboard import API |
+| `GRAFANA_DASHBOARD_TOKEN` | Grafana instance의 Service Account token | dashboard 생성/갱신 |
+| `GRAFANA_TELEMETRY_TOKEN` | Cloud Access Policy token | Loki, Prometheus, Tempo 전송 공통 password |
+| `GRAFANA_LOKI_PUSH_URL`, `GRAFANA_LOKI_USER` | Logs/Loki details 또는 Alloy 예시 | structured log 전송 |
+| `GRAFANA_PROM_REMOTE_WRITE_URL`, `GRAFANA_PROM_USER` | Metrics/Prometheus details | metric remote write |
+| `GRAFANA_TEMPO_OTLP_GRPC_ENDPOINT`, `GRAFANA_TEMPO_USER` | Tempo/Traces details 또는 Alloy 예시 | trace 전송 |
+| `GRAFANA_LABEL_SERVICE`, `GRAFANA_LABEL_ENVIRONMENT` | 수업 기본값 또는 팀별 label | dashboard query label |
+
+`GRAFANA_TELEMETRY_TOKEN`은 `logs:write`, `metrics:write`, `traces:write` scope를 가진 access policy token을 사용합니다. `GRAFANA_DASHBOARD_TOKEN`은 dashboard import용 service account token이므로 두 token을 섞지 않습니다.
+
+Token과 endpoint는 Grafana Cloud의 서로 다른 화면에서 가져옵니다.
+
+| 필요한 값 | Grafana Cloud에서 가져오는 위치 | 복사할 값 |
+| --- | --- | --- |
+| `GRAFANA_TELEMETRY_TOKEN` | Cloud Portal → Access Policies → 새 policy 생성 또는 기존 policy 선택 → token 생성 | `logs:write`, `metrics:write`, `traces:write` scope가 있는 `glc_...` token |
+| `GRAFANA_DASHBOARD_TOKEN` | 대상 stack **Launch** → Grafana → Administration → Users and access → Service accounts → Add service account token | dashboard 생성/갱신 권한이 있는 `glsa_...` token |
+| `GRAFANA_CLOUD_URL` | Cloud Portal → 대상 stack → Instance details | `https://<stack>.grafana.net` 형식의 Grafana URL |
+| `GRAFANA_LOKI_PUSH_URL`, `GRAFANA_LOKI_USER` | Cloud Portal → 대상 stack → Logs/Loki details 또는 Alloy 설정 예시 | `/loki/api/v1/push`까지 포함된 URL과 Basic Auth username |
+| `GRAFANA_PROM_REMOTE_WRITE_URL`, `GRAFANA_PROM_USER` | Cloud Portal → 대상 stack → Metrics/Prometheus details 또는 remote_write 예시 | `/api/prom/push`까지 포함된 URL과 Basic Auth username |
+| `GRAFANA_TEMPO_OTLP_GRPC_ENDPOINT`, `GRAFANA_TEMPO_USER` | Cloud Portal → 대상 stack → Traces/Tempo details 또는 Alloy OTLP exporter 예시 | `tempo-prod-...grafana.net:443` endpoint와 Basic Auth username |
+| `GRAFANA_OTLP_TRACES_ENDPOINT`, `GRAFANA_OTLP_USER` | Cloud Portal → 대상 stack → OpenTelemetry/OTLP gateway details | 직접 OTLP/HTTP 테스트가 필요할 때 쓰는 gateway URL과 username |
+
+Access Policy token은 Grafana Cloud로 telemetry를 쓰는 권한이고, Service Account token은 Grafana HTTP API로 dashboard를 만드는 권한입니다. 이름이 둘 다 token이라 헷갈리기 쉽지만 발급 위치와 용도가 다릅니다.
 
 ## 3. 첫 확인
 
@@ -472,3 +552,7 @@ kubectl --kubeconfig ~/.kube/k3s.yaml get nodes
 ## 외부 노출 Domain
 
 domain.csv 참고
+
+
+## Grafana Demo Site
+https://play.grafana.org/dashboards/

@@ -33,6 +33,8 @@ artifacts/mlflow/
 # Environment
 .env
 .env.*
+!.env.example
+!.env.grafanacloud.example
 .argocd/
 *.pem
 *_deploy_key

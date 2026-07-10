@@ -11,8 +11,10 @@ WORKDIR /app
 COPY --from=ghcr.io/astral-sh/uv:0.7.21 /uv /uvx /bin/
 
 COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --no-dev
+ARG UV_SYNC_GROUPS=""
+RUN uv sync --frozen --no-dev ${UV_SYNC_GROUPS}
 
-COPY app.py train.py send_fake_traffic.py ./
+COPY app.py config.py train.py send_fake_traffic.py ./
+COPY config ./config
 
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
