@@ -51,6 +51,7 @@ def build_lite_wheel(wheel_directory: str) -> str:
                 f"Version: {VERSION}",
                 "Summary: Browser-safe helpers for TTA AI QA JupyterLite labs.",
                 "Requires-Python: >=3.11",
+                "Requires-Dist: numpy>=1.26,<2.3",
                 "Requires-Dist: pandas>=2.2",
                 "",
             ]
@@ -150,6 +151,7 @@ def prepare_metadata_for_build_wheel(
                     f"Version: {VERSION}",
                     "Summary: Browser-safe helpers for TTA AI QA JupyterLite labs.",
                     "Requires-Python: >=3.11",
+                    "Requires-Dist: numpy>=1.26,<2.3",
                     "Requires-Dist: pandas>=2.2",
                     "",
                 ]

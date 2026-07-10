@@ -14,7 +14,7 @@ uv run python scripts/course.py prepare-data
 
 ```bash
 cd demos/simple_mlops
-docker compose build
+docker compose --profile continuous build
 docker compose --profile continuous up -d
 ```
 
@@ -39,6 +39,12 @@ docker compose logs -f trainer-loop traffic-loop api
 MLflow 컨테이너 내부 포트는 계속 `5000`입니다. 그래서 trainer는 Docker network 안에서
 `http://mlflow:5000`을 사용하고, 브라우저에서 볼 때만 호스트 포트 `5002`로 접속합니다.
 루트 compose의 MLflow가 `localhost:5000`을 쓰는 경우와 충돌하지 않도록 이렇게 분리했습니다.
+
+이미 `5002` 또는 `8000`도 사용 중이면 host port만 바꿔 실행합니다. 컨테이너 내부 통신은 그대로라서 학습/서빙 코드는 바꿀 필요가 없습니다.
+
+```bash
+MLFLOW_HOST_PORT=5003 API_HOST_PORT=8001 docker compose --profile continuous up -d
+```
 
 ## 한 번만 실행
 
@@ -87,6 +93,22 @@ MLflow DB와 생성 파일까지 지우려면:
 ```bash
 docker compose down -v
 rm -rf models events
+```
+
+## Port 충돌 복구
+
+`Bind for 0.0.0.0:5000 failed: port is already allocated`가 보이면 예전 compose 설정이나 다른 MLflow가 `5000`을 이미 쓰는 상태입니다. 현재 simple demo는 기본 host port가 `5002`이므로, 기존 simple demo 컨테이너를 재생성합니다.
+
+```bash
+cd demos/simple_mlops
+docker compose down --remove-orphans
+docker compose --profile continuous up -d --force-recreate
+```
+
+어떤 컨테이너가 포트를 쓰는지 보려면:
+
+```bash
+docker ps --format 'table {{.Names}}\t{{.Ports}}\t{{.Status}}'
 ```
 
 ## Notebook

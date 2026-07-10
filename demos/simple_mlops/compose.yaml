@@ -14,7 +14,7 @@ services:
       - --default-artifact-root
       - /mlflow/artifacts
     ports:
-      - "5002:5000"
+      - "${MLFLOW_HOST_PORT:-5002}:5000"
     volumes:
       - mlflow-data:/mlflow
     healthcheck:
@@ -33,6 +33,7 @@ services:
       - train
     command: ["python", "train.py", "--repeat", "1"]
     environment:
+      GIT_PYTHON_REFRESH: quiet
       MLFLOW_TRACKING_URI: http://mlflow:5000
       MODEL_PATH: /app/models/latest_model.joblib
       METADATA_PATH: /app/models/latest_metadata.json
@@ -51,6 +52,7 @@ services:
     restart: unless-stopped
     command: ["python", "train.py", "--repeat", "0", "--interval", "60"]
     environment:
+      GIT_PYTHON_REFRESH: quiet
       MLFLOW_TRACKING_URI: http://mlflow:5000
       MODEL_PATH: /app/models/latest_model.joblib
       METADATA_PATH: /app/models/latest_metadata.json
@@ -69,7 +71,7 @@ services:
       METADATA_PATH: /app/models/latest_metadata.json
       EVENTS_PATH: /app/events/predictions.jsonl
     ports:
-      - "8000:8000"
+      - "${API_HOST_PORT:-8000}:8000"
     volumes:
       - ./models:/app/models
       - ./events:/app/events

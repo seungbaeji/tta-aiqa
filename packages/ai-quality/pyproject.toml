@@ -5,6 +5,7 @@ description = "AI quality assurance and operations observability training packag
 readme = "../../README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "numpy>=1.26,<2.3",
     "pandas>=2.2",
     "pydantic>=2.7",
     "pyyaml>=6.0",
@@ -24,6 +25,7 @@ demo = [
     "great-expectations>=1.0",
     "mlflow>=2.12",
     "prometheus-client>=0.20",
+    "setuptools>=69,<81",
 ]
 
 [build-system]
