@@ -468,3 +468,7 @@ sudo systemctl status k3s
 kubectl --kubeconfig ~/.kube/k3s.yaml get nodes
 
 ```
+
+## 외부 노출 Domain
+
+domain.csv 참고
