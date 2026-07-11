@@ -15,16 +15,7 @@ from pathlib import Path
 
 import pandas as pd
 import requests
-
-# API가 받는 feature만 골라서 요청 payload를 만듭니다.
-FEATURES = [
-    "heart_rate",
-    "respiratory_rate",
-    "body_temperature",
-    "oxygen_saturation",
-    "systolic_blood_pressure",
-    "diastolic_blood_pressure",
-]
+from aiqa_core.contracts import FEATURE_COLUMNS
 
 
 def parse_args() -> argparse.Namespace:
@@ -89,7 +80,7 @@ def main() -> None:
     rng = random.Random(args.seed)
 
     # serving_requests.csv에서 API 입력 feature만 사용합니다.
-    dataframe = pd.read_csv(args.data_path).loc[:, FEATURES]
+    dataframe = pd.read_csv(args.data_path).loc[:, list(FEATURE_COLUMNS)]
     sent = 0
 
     while True:

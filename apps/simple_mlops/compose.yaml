@@ -29,7 +29,8 @@ services:
 
   trainer:
     build:
-      context: .
+      context: ../..
+      dockerfile: apps/simple_mlops/Dockerfile
       args:
         UV_SYNC_GROUPS: "--group train"
     profiles:
@@ -49,7 +50,8 @@ services:
 
   trainer-loop:
     build:
-      context: .
+      context: ../..
+      dockerfile: apps/simple_mlops/Dockerfile
       args:
         UV_SYNC_GROUPS: "--group train"
     profiles:
@@ -70,7 +72,9 @@ services:
         condition: service_healthy
 
   api:
-    build: .
+    build:
+      context: ../..
+      dockerfile: apps/simple_mlops/Dockerfile
     restart: unless-stopped
     env_file:
       - path: ../../.env
@@ -94,7 +98,9 @@ services:
       retries: 30
 
   traffic:
-    build: .
+    build:
+      context: ../..
+      dockerfile: apps/simple_mlops/Dockerfile
     profiles:
       - traffic
     command:
@@ -114,7 +120,9 @@ services:
         condition: service_healthy
 
   traffic-loop:
-    build: .
+    build:
+      context: ../..
+      dockerfile: apps/simple_mlops/Dockerfile
     profiles:
       - traffic-loop
       - continuous
