@@ -1,9 +1,12 @@
 [project]
 name = "aiqa-core"
-version = "0.1.0"
-description = "Shared contracts for the AIQA Simple MLOps workspace"
-requires-python = ">=3.11"
-dependencies = []
+version = "0.2.0"
+description = "Shared domain contracts for the AIQA V2 workspace"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+  "pydantic>=2.7",
+  "pyyaml>=6.0",
+]
 
 [build-system]
 requires = ["hatchling"]

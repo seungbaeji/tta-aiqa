@@ -1,0 +1,10 @@
+schema_version: 1
+raw:
+  expected_record_count: 4000
+  minimum_observation_count: 1
+  maximum_minute: 2880
+processed:
+  expected_row_count: 4000
+  expected_positive_count: 554
+  target_values: [0, 1]
+  missing_indicator_values: [0.0, 1.0]

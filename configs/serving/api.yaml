@@ -1,0 +1,9 @@
+schema_version: 1
+title: TTA AIQA Mortality Risk API
+api_version: v1
+request_id_header: X-Request-ID
+scenario_header: X-AIQA-Scenario
+positive_label: high_risk
+negative_label: low_risk
+score_decimal_places: 6
+education_only: true

@@ -1,0 +1,94 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {"type": "prometheus", "uid": "__AIQA_METRICS_UID__"},
+      "fieldConfig": {"defaults": {"unit": "reqps"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 0},
+      "id": 1,
+      "targets": [{"expr": "sum by (status_code) (rate(aiqa_risk_requests_total{environment=~\"$environment\"}[$__rate_interval]))", "refId": "A"}],
+      "title": "Request rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "__AIQA_METRICS_UID__"},
+      "fieldConfig": {"defaults": {"unit": "percentunit"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 0},
+      "id": 2,
+      "targets": [{"expr": "sum(rate(aiqa_risk_requests_total{environment=~\"$environment\",status_code=~\"5..\"}[$__rate_interval])) / clamp_min(sum(rate(aiqa_risk_requests_total{environment=~\"$environment\"}[$__rate_interval])), 1e-9)", "refId": "A"}],
+      "title": "Error rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "__AIQA_METRICS_UID__"},
+      "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 0},
+      "id": 3,
+      "targets": [{"expr": "histogram_quantile(0.95, sum by (le) (rate(aiqa_risk_request_duration_seconds_bucket{environment=~\"$environment\"}[$__rate_interval])))", "refId": "A"}],
+      "title": "P95 latency",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "__AIQA_METRICS_UID__"},
+      "fieldConfig": {"defaults": {"unit": "percentunit"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 8},
+      "id": 4,
+      "targets": [{"expr": "sum by (model_profile, model_version) (rate(aiqa_risk_predictions_total{environment=~\"$environment\",prediction=\"high_risk\"}[$__rate_interval])) / clamp_min(sum by (model_profile, model_version) (rate(aiqa_risk_predictions_total{environment=~\"$environment\"}[$__rate_interval])), 1e-9)", "refId": "A"}],
+      "title": "Positive mortality-risk rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "__AIQA_METRICS_UID__"},
+      "fieldConfig": {"defaults": {"min": 0, "max": 1}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 8},
+      "id": 5,
+      "targets": [{"expr": "histogram_quantile(0.95, sum by (le, model_profile, model_version) (rate(aiqa_risk_score_bucket{environment=~\"$environment\"}[$__rate_interval])))", "refId": "A"}],
+      "title": "Risk score P95",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "__AIQA_METRICS_UID__"},
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 8},
+      "id": 6,
+      "targets": [{"expr": "histogram_quantile(0.95, sum by (le, model_profile, model_version) (rate(aiqa_risk_missing_features_bucket{environment=~\"$environment\"}[$__rate_interval])))", "refId": "A"}],
+      "title": "Missing features P95",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "loki", "uid": "__AIQA_LOGS_UID__"},
+      "gridPos": {"h": 10, "w": 16, "x": 0, "y": 16},
+      "id": 7,
+      "options": {"showLabels": false, "showTime": true, "wrapLogMessage": true},
+      "targets": [{"expr": "{service_name=\"risk-api\", environment=~\"$environment\"} | json", "refId": "A"}],
+      "title": "Recent Risk API logs",
+      "type": "logs"
+    },
+    {
+      "datasource": {"type": "tempo", "uid": "__AIQA_TRACES_UID__"},
+      "gridPos": {"h": 10, "w": 8, "x": 16, "y": 16},
+      "id": 8,
+      "targets": [{"query": "{ resource.service.name = \"risk-api\" }", "queryType": "traceql", "refId": "A"}],
+      "title": "Risk API traces",
+      "type": "traces"
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 41,
+  "tags": ["tta-aiqa", "education"],
+  "templating": {
+    "list": [
+      {"current": {"text": "compose|kubernetes", "value": "compose|kubernetes"}, "hide": 0, "label": "Environment", "name": "environment", "options": [], "query": "compose|kubernetes", "type": "textbox"}
+    ]
+  },
+  "time": {"from": "now-30m", "to": "now"},
+  "timezone": "browser",
+  "title": "TTA AIQA Service Quality",
+  "uid": "tta-aiqa-quality",
+  "version": 1
+}

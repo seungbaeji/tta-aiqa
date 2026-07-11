@@ -1,37 +1,20 @@
-"""Generate derived datasets used by the Simple MLOps demo."""
+"""Cross-platform wrapper for the versioned data pipeline."""
 
 from __future__ import annotations
 
-import argparse
+import subprocess
 from pathlib import Path
 
-from aiqa_data import prepare_datasets
+from aiqa_data.adapters import acquire_source_manifest, verify_source_manifest
+
+ROOT = Path(__file__).resolve().parents[1]
+SOURCE_MANIFEST = ROOT / "data/raw/physionet-2012/source-manifest.yaml"
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Prepare Simple MLOps demo data.")
-    parser.add_argument(
-        "--source",
-        type=Path,
-        default=None,
-        help=(
-            "Optional source CSV path. Defaults to "
-            "data/human_vital_signs_dataset_2024.csv."
-        ),
-    )
-    parser.add_argument(
-        "--output-data-dir",
-        type=Path,
-        default=None,
-        help=(
-            "Optional output data directory. Defaults to the repository data "
-            "directory."
-        ),
-    )
-    args = parser.parse_args()
-
-    for path in prepare_datasets(args.source, args.output_data_dir):
-        print(path)
+    acquire_source_manifest(SOURCE_MANIFEST)
+    verify_source_manifest(SOURCE_MANIFEST)
+    subprocess.run(["dvc", "repro"], check=True, cwd=ROOT)
 
 
 if __name__ == "__main__":

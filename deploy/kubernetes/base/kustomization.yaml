@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - model-pvc.yaml
+  - risk-api.yaml
+  - inference-service.yaml
+configMapGenerator:
+  - name: risk-api-config
+    namespace: tta-aiqa
+    files:
+      - api.yaml=config/api.yaml
+      - model-input.yaml=config/model-input.yaml
+      - telemetry.yaml=config/telemetry.yaml
+  - name: model-contract
+    namespace: tta-aiqa
+    files:
+      - model-input.yaml=config/model-input.yaml
+generatorOptions:
+  disableNameSuffixHash: true

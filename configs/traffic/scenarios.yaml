@@ -1,0 +1,30 @@
+schema_version: 1
+random_seed: 43
+defaults:
+  request_count: 50
+  interval_seconds: 0.1
+  timeout_seconds: 10.0
+scenarios:
+  baseline:
+    mode: valid
+  approved-candidate:
+    mode: valid
+  current-shift:
+    mode: shift
+    transforms:
+      age:
+        add: 8.0
+        maximum: 120.0
+      heart_rate__mean:
+        add: 15.0
+      lactate__last:
+        multiply: 1.5
+      gcs__min:
+        add: -2.0
+        minimum: 3.0
+  invalid:
+    mode: invalid
+    invalid_cases:
+      - missing_feature
+      - extra_feature
+      - wrong_boolean_type

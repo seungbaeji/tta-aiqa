@@ -1,17 +1,6 @@
-"""Shared contracts for AIQA packages and apps."""
+"""Public domain contracts shared by AIQA bounded contexts."""
 
-from aiqa_core.contracts import (
-    DEFAULT_THRESHOLD,
-    FEATURE_COLUMNS,
-    NEGATIVE_LABEL,
-    POSITIVE_LABEL,
-    TARGET_COLUMN,
-)
+from aiqa_core.domain.feature import FeatureDefinition, FeatureSet, FeatureType
+from aiqa_core.domain.model import ModelRole
 
-__all__ = [
-    "DEFAULT_THRESHOLD",
-    "FEATURE_COLUMNS",
-    "NEGATIVE_LABEL",
-    "POSITIVE_LABEL",
-    "TARGET_COLUMN",
-]
+__all__ = ["FeatureDefinition", "FeatureSet", "FeatureType", "ModelRole"]

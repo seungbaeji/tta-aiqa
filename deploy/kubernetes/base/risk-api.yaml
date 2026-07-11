@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: risk-api
+  namespace: tta-aiqa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: risk-api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: risk-api
+        app.kubernetes.io/part-of: tta-aiqa
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: risk-api
+          image: ghcr.io/seungbaeji/tta-aiqa-risk-api:v2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: AIQA_API_ENVIRONMENT
+              value: kubernetes
+            - name: AIQA_API_MODEL_BACKEND
+              value: kserve
+            - name: AIQA_API_API_CONFIG_PATH
+              value: /runtime/configs/api.yaml
+            - name: AIQA_API_FEATURE_CONTRACT_PATH
+              value: /runtime/configs/model-input.yaml
+            - name: AIQA_API_TELEMETRY_CONFIG_PATH
+              value: /runtime/configs/telemetry.yaml
+            - name: AIQA_API_KSERVE_URL
+              value: http://mortality-risk-predictor.tta-aiqa.svc.cluster.local
+            - name: AIQA_API_KSERVE_MODEL_NAME
+              value: mortality-risk
+            - name: AIQA_API_MODEL_METADATA_PATH
+              value: /runtime/model/metadata.json
+            - name: AIQA_API_OTLP_ENDPOINT
+              value: http://alloy.tta-aiqa.svc.cluster.local:4318
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 1
+              memory: 1Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - name: config
+              mountPath: /runtime/configs
+              readOnly: true
+            - name: model
+              mountPath: /runtime/model
+              subPath: physionet-2012/v2/baseline-f2576f12512a
+              readOnly: true
+            - name: runtime-secrets
+              mountPath: /var/run/secrets/aiqa/risk-api
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: config
+          projected:
+            sources:
+              - configMap:
+                  name: risk-api-config
+        - name: model
+          persistentVolumeClaim:
+            claimName: course-models
+        - name: runtime-secrets
+          projected:
+            defaultMode: 256
+            sources:
+              - secret:
+                  name: risk-api-runtime
+                  optional: true
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: risk-api
+  namespace: tta-aiqa
+spec:
+  selector:
+    app.kubernetes.io/name: risk-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

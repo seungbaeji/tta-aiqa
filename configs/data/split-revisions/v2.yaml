@@ -1,0 +1,9 @@
+schema_version: 1
+revision: v2
+parent_revision: v1
+random_seed: 43
+parent_test_train_count: 500
+rationale: >-
+  Approved scenario revision after V1 HOLD/HOLD. Promote evaluated V1 test rows
+  into development, retain 100 rows as target-free traffic, and quarantine the
+  never-model-evaluated V1 operational cohort as the new sealed test.

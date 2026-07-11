@@ -1,11 +1,16 @@
 [project]
 name = "aiqa-observability"
-version = "0.1.0"
-description = "Event, metric, and trace helpers for the AIQA Simple MLOps workspace"
-requires-python = ">=3.11"
+version = "0.2.0"
+description = "Operational telemetry bounded context for AIQA V2"
+requires-python = ">=3.11,<3.12"
 dependencies = [
   "aiqa-core",
-  "pandas>=2.2",
+  "fastapi>=0.110",
+  "opentelemetry-exporter-otlp-proto-http>=1.27",
+  "opentelemetry-instrumentation-fastapi>=0.48b0",
+  "opentelemetry-sdk>=1.27",
+  "prometheus-client>=0.20",
+  "pyyaml>=6.0",
 ]
 
 [build-system]

@@ -1,30 +1,34 @@
 # TTA AIQA Monorepo
 
-Simple MLOps demo를 중심으로 다시 정리한 작업 공간입니다. 이전 course/lab 자료는 삭제하지 않고 `legacy/` 아래로 이동했습니다.
+PhysioNet 2012 기반의 데이터, 모델, serving과 운영 품질 교육을 하나의 실행 흐름으로 구성하는 V2 작업 공간입니다. 이전 course/lab과 Simple MLOps 구현은 `legacy/` 아래에 보존합니다.
 
 ## 1. 구조
 
 ### 1-1. 현재 작업 대상
 
 ```text
-apps/simple_mlops/   MLflow, FastAPI, Docker Compose 기반 MLOps demo
-data/                원본 CSV와 로컬에서 재생성되는 파생 데이터
-docs/                새 모노레포 설계와 작업 계획
-packages/            재사용 가능한 data/model/observability/core package
-scripts/             repo 공통 유틸리티
-legacy/              이전 labs, packages, artifacts, docs, gitops, demos 보관
+apps/       다섯 개 독립 실행 process와 composition root
+packages/   여섯 개 bounded-context package
+data/       PhysioNet 공식 원본과 생성 데이터 경계
+configs/    versioned data/model/serving/QA/telemetry 계약
+docs/       V2 기획과 Architecture Decision Record
+scripts/    강사 준비와 재현 command
+tests/      architecture/configuration/scenario/integration/e2e 검증
+legacy/     AS-IS apps, labs, packages, artifacts와 docs 보관
 ```
 
 ### 1-2. Package 역할
 
 ```text
-packages/aiqa-core/            feature, label, threshold, path helper
-packages/aiqa-data/            원본 CSV 표준화와 파생 데이터 생성
-packages/aiqa-model/           sklearn 학습, 평가, model 저장, MLflow logging
-packages/aiqa-observability/   prediction event, Prometheus metrics, OTLP trace
+packages/aiqa-core/            공유 feature, label과 model identity 계약
+packages/aiqa-data/            PhysioNet 정규화, 집계, split과 lineage
+packages/aiqa-model/           feature preparation, 학습, 평가와 MLflow
+packages/aiqa-serving/         framework 독립 prediction use case와 port
+packages/aiqa-observability/   event, metric과 trace 계약
+packages/aiqa-qa/              release evidence와 decision
 ```
 
-`apps/simple_mlops`는 FastAPI route, CLI argument parsing, Docker/Compose, runtime 설정만 담당합니다.
+각 package는 `domain -> application/ports -> adapters` 의존 방향을 지키고 app이 composition root에서 조립합니다. Architecture test가 package 간 직접 의존과 `legacy` import를 차단합니다.
 
 ## 2. 준비
 
@@ -53,89 +57,209 @@ https://docs.astral.sh/uv/getting-started/installation/
 의존성을 설치합니다.
 
 ```bash
-uv sync
+uv sync --all-packages
 ```
 
-## 3. 데이터 생성
+### 2-3. 실습 환경 준비
 
-### 3-1. 원본 데이터에서 파생 데이터 만들기
+제공 VM에서는 공식 데이터와 GE evidence를 재현하고 baseline model 준비 상태를 함께 확인합니다.
 
-Git에는 원본 CSV인 `data/human_vital_signs_dataset_2024.csv`만 유지합니다. demo가 사용하는 학습/서빙용 파생 데이터는 다음 명령으로 생성합니다.
+```bash
+uv run python scripts/setup_course.py
+```
+
+Baseline model이 사전 배포되지 않은 일반 clone에서 데이터 실습만 준비하려면 `--data-only`를 사용합니다.
+
+```bash
+uv run python scripts/setup_course.py --data-only
+```
+
+## 3. 데이터 준비
+
+### 3-1. 공식 원본
+
+PhysioNet Challenge 2012 Set A의 ODC-By 1.0 고지와 checksum manifest는 `data/raw/physionet-2012/`에서 관리합니다. 준비 명령이 공식 archive와 outcome을 내려받아 checksum을 검증하며, 원본 파일과 생성 데이터는 Git이 아니라 local DVC pipeline이 관리합니다.
+
+### 3-2. DVC 재현
+
+Repository root에서 다음 명령을 실행합니다. Python wrapper이므로 Windows, macOS와 Linux에서 동일합니다.
 
 ```bash
 uv run python scripts/prepare_data.py
 ```
 
-이 wrapper는 내부적으로 `packages/aiqa-data`의 `prepare_datasets()`를 호출합니다.
-
-### 3-2. 생성되는 주요 파일
-
-생성되는 주요 파일은 다음과 같습니다.
+생성 결과:
 
 ```text
-data/vital_signs_train.csv
-data/vital_signs_test.csv
-data/serving_requests.csv
-data/serving_requests_current.csv
-data/operational_current_events.jsonl
+data/interim/physionet-2012/set-a/
+data/processed/physionet-2012/patient-features.csv
+data/splits/physionet-2012/split-manifest.csv
+data/splits/physionet-2012/datasets/{train,valid,test,operational}.csv
 ```
 
-데이터 split과 샘플링은 `random_state=42`로 고정되어 있습니다.
+4,000개 patient record를 133개 available feature로 집계하고 고정 seed로 `train 2,400 / valid 600 / test 600 / operational 400`으로 분할합니다. `operational.csv`에는 정답인 `target` 열을 포함하지 않습니다.
 
-## 4. Simple MLOps 실행
+승인된 V2 split revision은 V1의 sealed test를 재사용하지 않고 역할을 다시 고정합니다.
 
-### 4-1. 전체 demo 실행
+```text
+data/splits/physionet-2012/revisions/v2/datasets/
+  train.csv        2,900건
+  valid.csv          600건
+  test.csv           400건, sealed one-shot 평가 전용
+  operational.csv    100건, target 미포함
+```
+
+## 4. 데이터 품질 실습
+
+### 4-1. 수동 EDA
+
+VS Code에서 `labs/ch01-data-quality/01_physionet_data_quality_eda.ipynb`를 열고 위에서 아래로 실행합니다. Raw measurement coverage, `-1` sentinel, 48시간 범위, outcome join과 processed missingness를 확인합니다.
+
+### 4-2. Great Expectations
+
+EDA에서 확인한 규칙을 자동 검증으로 실행합니다.
 
 ```bash
-cd apps/simple_mlops
-docker compose --profile continuous build
-docker compose --profile continuous up -d
+uv run python scripts/validate_data.py
 ```
 
-### 4-2. 작은 VM에서 한 번씩 실행
+Runtime Validation Result와 Data Docs는 `artifacts/data-quality/great-expectations/`에 생성됩니다. GE 결과는 품질 evidence이며 DVC dataset publish를 차단하는 gate가 아닙니다.
 
-작은 VM에서는 한 번만 실행하는 흐름을 먼저 확인합니다.
+수강생 전체 동선은 [labs/README.md](labs/README.md)에서 시작합니다.
+
+## 5. 모델 품질
+
+### 5-1. 현재 canonical 결과
+
+모델 profile, threshold와 release policy를 train/CV와 valid에서 동결한 뒤 sealed test를 한 번 평가했습니다.
 
 ```bash
-cd apps/simple_mlops
-docker compose up -d mlflow
-docker compose --profile train run --rm trainer
-docker compose up -d api
-docker compose --profile traffic run --rm traffic
+uv run python scripts/run_model.py status --revision v2
 ```
 
-### 4-3. 확인 URL
+V1 evidence는 `HOLD/HOLD`로 보존되어 있습니다. 승인된 V2 revision은 Candidate A `HOLD`, Candidate B `APPROVE`이며 Candidate B 배포가 허용됩니다.
 
-확인 URL:
+V2 sealed test의 핵심 결과는 다음과 같습니다.
 
-```text
-MLflow          http://localhost:5002
-FastAPI docs    http://localhost:8000/docs
-API health      http://localhost:8000/health
-Metrics         http://localhost:8000/metrics
+| Profile | Threshold | PR-AUC | Precision | Recall | FN | Decision |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| Baseline | 0.50 | 0.5244 | 0.5652 | 0.2364 | 42 | Reference |
+| Candidate A | 0.40 | 0.5942 | 0.7727 | 0.3091 | 38 | HOLD |
+| Candidate B | 0.35 | 0.5743 | 0.3793 | 0.8000 | 11 | APPROVE |
+
+### 5-2. One-shot 규칙
+
+`reference/evidence/model/revisions/v2/canonical-benchmark.json`에 `evaluated_once`가 기록되어 있으므로 sealed test 재실행은 차단됩니다. Test 결과에 맞춰 feature, threshold, model profile이나 release policy를 변경하지 않습니다. 변경이 필요하면 기존 evidence를 덮지 않는 새 revision을 만듭니다.
+
+### 5-3. MLflow 확인
+
+강사용 환경 준비에서는 세 model bundle과 MLflow run을 생성하고 baseline만 초기 deployed 경로에 publish합니다. 수강생 VM에는 이 상태가 미리 준비됩니다.
+
+```bash
+uv run python scripts/run_model.py bootstrap --revision v2
 ```
 
-자세한 내용은 `apps/simple_mlops/README.md`를 봅니다.
+이 명령은 `train`과 `valid`만 읽는 강사용 재현 명령입니다. 실행 결과와 run ID는 `reference/evidence/model/revisions/v2/model-bootstrap.json`에서 확인합니다. 승인된 Candidate B를 local deployed 경로로 전환하거나 baseline으로 되돌릴 때는 다음 명령을 사용합니다.
 
-## 5. Legacy
-
-### 5-1. 이전 자료 위치
-
-이전 자료는 `legacy/`에 남겨 두었습니다.
-
-```text
-legacy/README.course.md
-legacy/labs/
-legacy/packages/
-legacy/artifacts/
-legacy/demos/
-legacy/gitops/
+```bash
+uv run python scripts/publish_model.py candidate-b --revision v2
+uv run python scripts/publish_model.py baseline --revision v2
 ```
 
-새 작업에서는 `apps/simple_mlops`를 기준으로 필요한 코드만 다시 끌어올립니다.
+로컬 실행에서 생성된 SQLite tracking store가 있다면 다음 명령으로 UI를 엽니다.
 
-## 6. V2 TO-BE 계획
+```bash
+uv run mlflow server \
+  --backend-store-uri sqlite:///artifacts/mlflow/mlflow.db \
+  --host 127.0.0.1 \
+  --port 5000
+```
 
-### 6-1. 기획 문서
+브라우저에서 `http://127.0.0.1:5000`에 접속합니다. Run에는 evaluation role, 접근한 dataset role, DVC lock과 model/data configuration SHA-256이 기록됩니다.
 
-현재 구현을 네 개 app과 여섯 개 bounded-context package로 재구성하고 DVC, Great Expectations, 실제 baseline/candidate model, GitOps 배포, 운영 관측과 release decision을 연결하는 V2 계획은 [docs/v2-to-be-plan.md](docs/v2-to-be-plan.md)에 정리했습니다.
+## 6. Serving과 Traffic
+
+### 6-1. Compose 실행
+
+Compose에서는 Risk API가 local sklearn adapter를 사용합니다.
+
+```bash
+docker compose -f deploy/compose/simple-mlops/compose.yaml up -d --build
+curl http://127.0.0.1:8000/health/ready
+```
+
+독립 Traffic Generator로 baseline 요청을 보냅니다.
+
+```bash
+docker compose -f deploy/compose/simple-mlops/compose.yaml \
+  --profile traffic run --rm traffic-generator baseline --count 20
+```
+
+### 6-2. Grafana Cloud 연결
+
+`deploy/compose/simple-mlops/secrets/alloy/README.md`에 적힌 일곱 개 개인 설정 파일을 만든 후 Alloy override를 함께 실행합니다. Repository는 Grafana, Loki, Tempo 또는 Prometheus server를 배포하지 않습니다.
+
+```bash
+docker compose \
+  -f deploy/compose/simple-mlops/compose.yaml \
+  -f deploy/compose/simple-mlops/compose.grafana-cloud.yaml \
+  up -d --build
+```
+
+Dashboard Importer용 값은 개인 `.env.grafanacloud` 또는 `/var/run/secrets/aiqa/grafana-dashboard-importer`에 별도로 둡니다. Alloy write token과 dashboard token은 공유하지 않습니다.
+
+```bash
+uv run --package aiqa-grafana-dashboard-importer aiqa-grafana-dashboard
+```
+
+고정 UID `tta-aiqa-quality`가 생성되거나 갱신되며 실행 결과에 개인 dashboard URL이 출력됩니다.
+
+## 7. Kubernetes 배포
+
+### 7-1. Immutable model publish
+
+강사 환경에서 course model PVC가 `/mnt/course-models`에 연결되어 있다고 가정하면 승인된 bundle을 hash 경로에 publish합니다. 같은 hash는 idempotent하며 기존 경로를 덮어쓰지 않습니다.
+
+```bash
+uv run python scripts/publish_model.py candidate-b \
+  --revision v2 \
+  --target-root /mnt/course-models
+```
+
+### 7-2. Manifest 확인
+
+Kubernetes에서는 외부 Risk API가 내부 KServe V2 custom predictor를 호출합니다. Base는 baseline으로 시작하고 Candidate B와 rollback은 별도 overlay입니다. `/mnt/course-models`는 단일 노드 수업 VM의 static model PV에 연결됩니다. Alloy는 개인 Grafana Cloud Secret을 준비한 뒤 observed overlay에서만 추가합니다.
+
+```bash
+kubectl kustomize deploy/kubernetes/overlays/baseline >/tmp/tta-aiqa-baseline.yaml
+kubectl kustomize deploy/kubernetes/overlays/candidate-b >/tmp/tta-aiqa-candidate-b.yaml
+kubectl kustomize deploy/kubernetes/overlays/rollback >/tmp/tta-aiqa-rollback.yaml
+kubectl apply --dry-run=server -f /tmp/tta-aiqa-baseline.yaml
+```
+
+실제 sync는 강사가 제공한 Argo CD 절차를 따릅니다. `alloy-grafana-cloud` Secret에는 각 수강생의 개인 Grafana Cloud write 설정만 저장하며, Secret 준비 전에는 Alloy component를 포함하지 않습니다.
+
+## 8. 구현 검증
+
+### 8-1. 정적 검증과 테스트
+
+```bash
+uv lock --check
+uv run ruff check apps packages scripts tests
+uv run pytest -q
+uv run dvc status
+```
+
+실제로 완료한 local 검증과 target k3s/Grafana Cloud에서 남은 검증은 [V2 구현 검증 상태](docs/v2-implementation-verification.md)에 구분해 기록합니다.
+
+## 9. Legacy
+
+### 9-1. 이전 자료 위치
+
+이전 Simple MLOps app과 package는 `legacy/apps/`와 `legacy/packages/`에 보존합니다. 새 V2 코드는 `legacy`를 import하지 않으며 architecture test가 이를 검증합니다.
+
+## 10. 기획 문서
+
+### 10-1. V2 TO-BE 계획
+
+기존 2일 14교시 구성, repository 경계, 데이터·모델 계보, conditional deployment gate, Grafana Cloud와 수강생 동선은 [docs/v2-to-be-plan.md](docs/v2-to-be-plan.md)에 정리했습니다.

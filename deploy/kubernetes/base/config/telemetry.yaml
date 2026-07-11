@@ -1,0 +1,30 @@
+schema_version: 1
+service_name: risk-api
+service_namespace: tta-aiqa
+environment: classroom
+labels:
+  resource:
+    - service_name
+    - service_namespace
+    - environment
+  request_metrics:
+    - service_name
+    - environment
+    - route
+    - method
+    - status_code
+  prediction_metrics:
+    - service_name
+    - environment
+    - model_profile
+    - model_version
+    - scenario
+    - prediction
+  logs_and_traces:
+    - request_id
+metrics:
+  request_count: aiqa_risk_requests_total
+  request_latency: aiqa_risk_request_duration_seconds
+  prediction_count: aiqa_risk_predictions_total
+  score: aiqa_risk_score
+  missing_features: aiqa_risk_missing_features

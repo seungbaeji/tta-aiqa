@@ -1,0 +1,430 @@
+{
+  "artifacts": {
+    "patient_features_sha256": "2f43ec46d141184608202ed80432ce070f289f4fb4eb29b1fc82287087968571",
+    "split_manifest_sha256": "cf694ed5e52c4225c1f2c52f84f69f6f17ed6f5eb50a3dc2113901517c209d3d"
+  },
+  "configuration": {
+    "resolved": {
+      "aggregation": {
+        "missing_sentinel": -1.0,
+        "series_parameters": {
+          "BUN": {
+            "output_name": "bun",
+            "statistics": [
+              "min",
+              "max",
+              "mean",
+              "last",
+              "count"
+            ]
+          },
+          "Creatinine": {
+            "output_name": "creatinine",
+            "statistics": [
+              "min",
+              "max",
+              "mean",
+              "last",
+              "count"
+            ]
+          },
+          "FiO2": {
+            "output_name": "fio2",
+            "statistics": [
+              "min",
+              "max",
+              "mean",
+              "last",
+              "count"
+            ]
+          },
+          "GCS": {
+            "output_name": "gcs",
+            "statistics": [
+              "min",
+              "max",
+              "mean",
+              "last",
+              "count"
+            ]
+          },
+          "Glucose": {
+            "output_name": "glucose",
+            "statistics": [
+              "min",
+              "max",
+              "mean",
+              "last",
+              "count"
+            ]
+          },
+          "HCT": {
+            "output_name": "hematocrit",
+            "statistics": [
+              "min",
+              "max",
+              "mean",
+              "last",
+              "count"
+            ]
+          },
+          "HR": {
+            "output_name": "heart_rate",
+            "statistics": [
+              "min",
+              "max",
+              "mean",
+              "last",
+              "count"
+            ]
+          },
+          "K": {
+            "output_name": "potassium",
+            "statistics": [
+              "min",
+              "max",
+              "mean",
+              "last",
+              "count"
+            ]
+          },
+          "Lactate": {
+            "output_name": "lactate",
+            "statistics": [
+              "min",
+              "max",
+              "mean",
+              "last",
+              "count"
+            ]
+          },
+          "MechVent": {
+            "output_name": "mechanical_ventilation",
+            "statistics": [
+              "max",
+              "last",
+              "count"
+            ]
+          },
+          "NIDiasABP": {
+            "output_name": "non_invasive_diastolic_bp",
+            "statistics": [
+              "min",
+              "max",
+              "mean",
+              "last",
+              "count"
+            ]
+          },
+          "NIMAP": {
+            "output_name": "non_invasive_map",
+            "statistics": [
+              "min",
+              "max",
+              "mean",
+              "last",
+              "count"
+            ]
+          },
+          "NISysABP": {
+            "output_name": "non_invasive_systolic_bp",
+            "statistics": [
+              "min",
+              "max",
+              "mean",
+              "last",
+              "count"
+            ]
+          },
+          "Na": {
+            "output_name": "sodium",
+            "statistics": [
+              "min",
+              "max",
+              "mean",
+              "last",
+              "count"
+            ]
+          },
+          "PaO2": {
+            "output_name": "pao2",
+            "statistics": [
+              "min",
+              "max",
+              "mean",
+              "last",
+              "count"
+            ]
+          },
+          "Platelets": {
+            "output_name": "platelets",
+            "statistics": [
+              "min",
+              "max",
+              "mean",
+              "last",
+              "count"
+            ]
+          },
+          "Temp": {
+            "output_name": "temperature",
+            "statistics": [
+              "min",
+              "max",
+              "mean",
+              "last",
+              "count"
+            ]
+          },
+          "Urine": {
+            "output_name": "urine",
+            "statistics": [
+              "min",
+              "max",
+              "mean",
+              "last",
+              "count",
+              "sum"
+            ]
+          },
+          "WBC": {
+            "output_name": "wbc",
+            "statistics": [
+              "min",
+              "max",
+              "mean",
+              "last",
+              "count"
+            ]
+          },
+          "Weight": {
+            "output_name": "weight",
+            "statistics": [
+              "min",
+              "max",
+              "mean",
+              "last",
+              "count"
+            ]
+          },
+          "pH": {
+            "output_name": "ph",
+            "statistics": [
+              "min",
+              "max",
+              "mean",
+              "last",
+              "count"
+            ]
+          }
+        },
+        "static_parameters": {
+          "Age": "age",
+          "Gender": "gender",
+          "Height": "height",
+          "ICUType": "icu_type"
+        }
+      },
+      "evaluation": {
+        "baseline_profile": "logistic_unweighted",
+        "bootstrap_iterations": 1000,
+        "candidate_a_minimum_recall": 0.1,
+        "candidate_a_profiles": [
+          "logistic_unweighted",
+          "random_forest_unweighted"
+        ],
+        "candidate_b_profiles": [
+          "logistic_balanced",
+          "random_forest_balanced"
+        ],
+        "cv_repeats": 3,
+        "cv_splits": 5,
+        "minimum_fn_reduction_vs_baseline": 15,
+        "minimum_pr_auc_delta_vs_baseline": 0.0,
+        "minimum_pr_auc_lift_over_dummy": 0.02,
+        "minimum_precision": 0.2,
+        "minimum_recall_bootstrap_lower": 0.45,
+        "models": [
+          {
+            "kind": "dummy",
+            "name": "dummy_prior",
+            "params": {
+              "strategy": "prior"
+            }
+          },
+          {
+            "kind": "logistic_regression",
+            "name": "logistic_unweighted",
+            "params": {
+              "C": 1.0,
+              "class_weight": null,
+              "max_iter": 2000
+            }
+          },
+          {
+            "kind": "logistic_regression",
+            "name": "logistic_balanced",
+            "params": {
+              "C": 1.0,
+              "class_weight": "balanced",
+              "max_iter": 2000
+            }
+          },
+          {
+            "kind": "random_forest",
+            "name": "random_forest_unweighted",
+            "params": {
+              "class_weight": null,
+              "max_features": "sqrt",
+              "min_samples_leaf": 8,
+              "n_estimators": 400,
+              "n_jobs": -1
+            }
+          },
+          {
+            "kind": "random_forest",
+            "name": "random_forest_balanced",
+            "params": {
+              "class_weight": "balanced_subsample",
+              "max_features": "sqrt",
+              "min_samples_leaf": 8,
+              "n_estimators": 400,
+              "n_jobs": -1
+            }
+          }
+        ],
+        "recall_guardrail": 0.55,
+        "recall_safety_margin": 0.05,
+        "threshold_max": 0.95,
+        "threshold_min": 0.05,
+        "threshold_step": 0.01
+      },
+      "outputs": {
+        "artifact_dir": "artifacts/phase0",
+        "evidence_dir": "reference/evidence/phase0"
+      },
+      "schema_version": 1,
+      "source": {
+        "archive_path": "data/raw/physionet-2012/set-a.zip",
+        "archive_sha256": "1433638192fda622e8bb11a4559b8af2dbb1c69f0e1c3b5b606cc12aabd0a4c5",
+        "blocked_outcome_columns": [
+          "SAPS-I",
+          "SOFA",
+          "Length_of_stay",
+          "Survival"
+        ],
+        "expected_death_count": 554,
+        "expected_record_count": 4000,
+        "outcomes_path": "data/raw/physionet-2012/Outcomes-a.txt",
+        "outcomes_sha256": "2613ea60ccda29f87571a7d6b09ad130858a8ccd66325bd073365925026883c2",
+        "records_dir": "data/interim/physionet-2012/set-a",
+        "target_column": "In-hospital_death"
+      },
+      "split": {
+        "random_seed": 42,
+        "release_holdout_ratio": 0.1,
+        "test_ratio": 0.15,
+        "train_ratio": 0.6,
+        "valid_ratio": 0.15
+      }
+    },
+    "sha256": "f6d03f14d67821a510e7fc5935aaaf9d1ad007b4a04f8626a3191b040f65bc6b"
+  },
+  "f0_passed": true,
+  "features": {
+    "blocked_outcome_columns_present": [],
+    "count": 133,
+    "parameter_record_coverage": {
+      "ALP": 0.4225,
+      "ALT": 0.43025,
+      "AST": 0.43125,
+      "Age": 1.0,
+      "Albumin": 0.40375,
+      "BUN": 0.984,
+      "Bilirubin": 0.4295,
+      "Cholesterol": 0.07625,
+      "Creatinine": 0.984,
+      "DiasABP": 0.69975,
+      "FiO2": 0.67925,
+      "GCS": 0.984,
+      "Gender": 1.0,
+      "Glucose": 0.97175,
+      "HCO3": 0.981,
+      "HCT": 0.984,
+      "HR": 0.98425,
+      "Height": 1.0,
+      "ICUType": 1.0,
+      "K": 0.976,
+      "Lactate": 0.54575,
+      "MAP": 0.698,
+      "MechVent": 0.63225,
+      "Mg": 0.97425,
+      "NIDiasABP": 0.87075,
+      "NIMAP": 0.87025,
+      "NISysABP": 0.87325,
+      "Na": 0.98125,
+      "PaCO2": 0.75575,
+      "PaO2": 0.75575,
+      "Platelets": 0.983,
+      "RecordID": 1.0,
+      "RespRate": 0.27525,
+      "SaO2": 0.448,
+      "SysABP": 0.69975,
+      "Temp": 0.984,
+      "TroponinI": 0.05125,
+      "TroponinT": 0.21575,
+      "Urine": 0.97075,
+      "WBC": 0.98175,
+      "Weight": 1.0,
+      "pH": 0.76
+    }
+  },
+  "gates": {
+    "blocked_outcomes_absent": true,
+    "join_complete": true,
+    "outcome_count_matches": true,
+    "record_count_matches": true,
+    "target_support_matches": true
+  },
+  "schema_version": 1,
+  "source": {
+    "archive_sha256": "1433638192fda622e8bb11a4559b8af2dbb1c69f0e1c3b5b606cc12aabd0a4c5",
+    "join_failures": 0,
+    "measurement_rows": 1757980,
+    "missing_sentinel_count_in_selected_parameters": 2223,
+    "outcome_count": 4000,
+    "outcomes_sha256": "2613ea60ccda29f87571a7d6b09ad130858a8ccd66325bd073365925026883c2",
+    "record_count": 4000
+  },
+  "splits": [
+    {
+      "death_rate": 0.1375,
+      "deaths": 55,
+      "role": "release_holdout",
+      "rows": 400
+    },
+    {
+      "death_rate": 0.13833333333333334,
+      "deaths": 83,
+      "role": "test",
+      "rows": 600
+    },
+    {
+      "death_rate": 0.13875,
+      "deaths": 333,
+      "role": "train",
+      "rows": 2400
+    },
+    {
+      "death_rate": 0.13833333333333334,
+      "deaths": 83,
+      "role": "valid",
+      "rows": 600
+    }
+  ],
+  "target": {
+    "death_rate": 0.1385,
+    "deaths": 554,
+    "survivors": 3446
+  }
+}

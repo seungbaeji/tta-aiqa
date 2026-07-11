@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tta-aiqa
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/seungbaeji/tta-aiqa.git
+    targetRevision: main
+    path: deploy/kubernetes/overlays/baseline
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: tta-aiqa
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true

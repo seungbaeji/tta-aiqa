@@ -12,7 +12,9 @@ __pycache__/
 .ipynb_checkpoints/
 
 # Local data and generated outputs
-data/raw/
+data/raw/physionet-2012/*
+!data/raw/physionet-2012/LICENSE.txt
+!data/raw/physionet-2012/source-manifest.yaml
 data/drift_requests.csv
 data/operational_baseline_events.jsonl
 data/operational_current_events.jsonl
@@ -29,6 +31,14 @@ mlruns/
 artifacts/mlflow.db
 artifacts/mlruns/
 artifacts/mlflow/
+artifacts/phase0/
+artifacts/data-quality/great-expectations/
+artifacts/model/
+artifacts/models/
+artifacts/traffic/
+set-a/
+physionet.org/
+data/interim/physionet-2012/
 
 # Environment
 .env

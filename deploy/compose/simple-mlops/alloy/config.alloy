@@ -1,0 +1,118 @@
+local.file "metrics_url" {
+  filename = "/var/run/secrets/aiqa/alloy/metrics-url"
+}
+
+local.file "metrics_username" {
+  filename = "/var/run/secrets/aiqa/alloy/metrics-username"
+}
+
+local.file "logs_url" {
+  filename = "/var/run/secrets/aiqa/alloy/logs-url"
+}
+
+local.file "logs_username" {
+  filename = "/var/run/secrets/aiqa/alloy/logs-username"
+}
+
+local.file "otlp_url" {
+  filename = "/var/run/secrets/aiqa/alloy/otlp-url"
+}
+
+local.file "otlp_username" {
+  filename = "/var/run/secrets/aiqa/alloy/otlp-username"
+}
+
+local.file "api_key" {
+  filename  = "/var/run/secrets/aiqa/alloy/api-key"
+  is_secret = true
+}
+
+prometheus.scrape "risk_api" {
+  targets = [{
+    "__address__" = "risk-api:8000",
+    "service_name" = "risk-api",
+    "environment" = "compose",
+  }]
+  scrape_interval = "15s"
+  forward_to      = [prometheus.remote_write.grafana_cloud.receiver]
+}
+
+prometheus.remote_write "grafana_cloud" {
+  endpoint {
+    url = string.trim_space(local.file.metrics_url.content)
+    basic_auth {
+      username = string.trim_space(local.file.metrics_username.content)
+      password = local.file.api_key.content
+    }
+  }
+}
+
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+}
+
+discovery.relabel "container_logs" {
+  targets = discovery.docker.containers.targets
+
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_project"]
+    regex         = "simple-mlops"
+    action        = "keep"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    target_label  = "service_name"
+  }
+
+  rule {
+    target_label = "environment"
+    replacement  = "compose"
+  }
+}
+
+loki.source.docker "containers" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.relabel.container_logs.output
+  forward_to = [loki.write.grafana_cloud.receiver]
+}
+
+loki.write "grafana_cloud" {
+  endpoint {
+    url = string.trim_space(local.file.logs_url.content)
+    basic_auth {
+      username = string.trim_space(local.file.logs_username.content)
+      password = local.file.api_key.content
+    }
+  }
+}
+
+otelcol.receiver.otlp "risk_api" {
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+
+  output {
+    traces = [otelcol.processor.batch.risk_api.input]
+  }
+}
+
+otelcol.processor.batch "risk_api" {
+  output {
+    traces = [otelcol.exporter.otlphttp.grafana_cloud.input]
+  }
+}
+
+otelcol.auth.basic "grafana_cloud" {
+  client_auth {
+    username = string.trim_space(local.file.otlp_username.content)
+    password = local.file.api_key.content
+  }
+}
+
+otelcol.exporter.otlphttp "grafana_cloud" {
+  client {
+    endpoint = string.trim_space(local.file.otlp_url.content)
+    auth     = otelcol.auth.basic.grafana_cloud.handler
+  }
+}
