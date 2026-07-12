@@ -4,10 +4,10 @@ from dataclasses import dataclass, field
 
 import pytest
 from aiqa_model.application import (
-    ConfirmFrozenModels,
-    DevelopModels,
-    DiagnoseFeatures,
-    FitModelBundles,
+    confirm_frozen_models,
+    develop_models,
+    diagnose_features,
+    fit_model_bundles,
 )
 from aiqa_model.domain import (
     BenchmarkResult,
@@ -76,14 +76,17 @@ class FakeBenchmark:
 def test_lifecycle_use_cases_drive_benchmark_only_through_port() -> None:
     benchmark = FakeBenchmark()
 
-    assert DevelopModels(benchmark).execute().evaluation_role == "valid"
-    diagnostics = DiagnoseFeatures(benchmark).execute(
+    assert develop_models(benchmark=benchmark).evaluation_role == "valid"
+    diagnostics = diagnose_features(
+        benchmark=benchmark,
         baseline_profile="baseline", candidate_profile="candidate-b"
     )
     assert diagnostics.selection is FeatureSelection.RETAIN_ALL_CANONICAL
-    fitted = FitModelBundles(benchmark).execute(("baseline", "candidate-b"))
-    confirmed = ConfirmFrozenModels(benchmark).execute(
-        sealed_test_token="token", fitted_models=fitted
+    fitted = fit_model_bundles(
+        benchmark=benchmark, profiles=("baseline", "candidate-b")
+    )
+    confirmed = confirm_frozen_models(
+        benchmark=benchmark, sealed_test_token="token", fitted_models=fitted
     )
 
     assert confirmed.evaluation_role == "test"

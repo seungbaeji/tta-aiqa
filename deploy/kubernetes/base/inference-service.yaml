@@ -13,9 +13,9 @@ spec:
     minReplicas: 1
     containers:
       - name: kserve-container
-        image: ghcr.io/seungbaeji/tta-aiqa-risk-api:v2
+        image: ghcr.io/seungbaeji/tta-aiqa-kserve-predictor:v2
         imagePullPolicy: IfNotPresent
-        command: ["aiqa-kserve-model"]
+        command: ["aiqa-kserve-predictor"]
         ports:
           - name: http1
             containerPort: 8080
@@ -54,7 +54,7 @@ spec:
             mountPath: /runtime/config
             readOnly: true
           - name: runtime-secrets
-            mountPath: /var/run/secrets/aiqa/kserve-model
+            mountPath: /var/run/secrets/aiqa/kserve-predictor
             readOnly: true
           - name: tmp
             mountPath: /tmp
@@ -70,7 +70,7 @@ spec:
           defaultMode: 256
           sources:
             - secret:
-                name: kserve-model-runtime
+                name: kserve-predictor-runtime
                 optional: true
       - name: tmp
         emptyDir: {}

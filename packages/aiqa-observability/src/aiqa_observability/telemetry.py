@@ -8,13 +8,13 @@ from contextlib import contextmanager
 from typing import TextIO
 from uuid import uuid4
 
-from prometheus_client import Counter, Histogram
-
 from aiqa_observability.adapters.logging import StructuredLogger
 from aiqa_observability.adapters.opentelemetry import TracingRuntime
 from aiqa_observability.adapters.prometheus import PrometheusMeter
 from aiqa_observability.context import bind_context, current_context
 from aiqa_observability.domain import (
+    CounterMetric,
+    HistogramMetric,
     MetricSpec,
     TelemetryAttributes,
     TelemetryContext,
@@ -141,11 +141,11 @@ class Telemetry:
         self.tracing.add_event(event.name, span_attributes)
         self.tracing.set_current_attributes(span_attributes)
 
-    def counter(self, spec: MetricSpec) -> Counter:
+    def counter(self, spec: MetricSpec) -> CounterMetric:
         """Register one bounded counter owned by the calling application."""
         return self._meter.counter(spec)
 
-    def histogram(self, spec: MetricSpec) -> Histogram:
+    def histogram(self, spec: MetricSpec) -> HistogramMetric:
         """Register one bounded histogram owned by the calling application."""
         return self._meter.histogram(spec)
 
@@ -156,6 +156,18 @@ class Telemetry:
     def outbound_trace_headers(self) -> dict[str, str]:
         """Return W3C trace headers for an application-owned outbound HTTP call."""
         return self.tracing.outbound_headers()
+
+    def outbound_request_headers(self, request_id_header: str) -> dict[str, str]:
+        """Return trace and current request-ID headers for one outbound API call."""
+        headers = self.outbound_trace_headers()
+        context = self.current_context()
+        if context is not None and context.request_id is not None:
+            headers[request_id_header] = context.request_id
+        return headers
+
+    def current_context(self) -> TelemetryContext | None:
+        """Return the current process-local context through the platform facade."""
+        return current_context()
 
     def shutdown(self) -> None:
         """Flush trace data and close the log handler at process shutdown."""

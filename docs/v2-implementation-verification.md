@@ -61,4 +61,4 @@
 
 ### 4-4. Container image
 
-Kubernetes manifest의 `ghcr.io/seungbaeji/tta-aiqa-risk-api:v2`는 아직 immutable digest로 고정되지 않았다. Release image publish 후 digest pinning과 target architecture pull을 확인해야 한다.
+Kubernetes manifests의 `ghcr.io/seungbaeji/tta-aiqa-risk-api:v2`와 `ghcr.io/seungbaeji/tta-aiqa-kserve-predictor:v2`는 아직 immutable digest로 고정되지 않았다. Release image publish 후 digest pinning과 target architecture pull을 확인해야 한다.

@@ -4,6 +4,7 @@ version = "0.2.0"
 requires-python = ">=3.11,<3.12"
 dependencies = [
   "aiqa-observability",
+  "pydantic>=2.7",
   "pydantic-settings>=2.4",
   "requests>=2.32",
 ]

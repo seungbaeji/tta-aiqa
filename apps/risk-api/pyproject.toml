@@ -7,13 +7,13 @@ dependencies = [
   "aiqa-observability",
   "aiqa-serving",
   "fastapi>=0.110",
+  "pydantic>=2.7",
   "pydantic-settings>=2.4",
   "uvicorn[standard]>=0.29",
 ]
 
 [project.scripts]
 aiqa-risk-api = "risk_api.main:main"
-aiqa-kserve-model = "risk_api.kserve_model:main"
 
 [build-system]
 requires = ["hatchling"]

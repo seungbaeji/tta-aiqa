@@ -1,9 +1,14 @@
 """Bind one dashboard template and import it idempotently."""
 
+from collections.abc import Mapping
 from copy import deepcopy
 from typing import Any
 
-from grafana_dashboard_importer.domain import DashboardImport, ImportResult
+from grafana_dashboard_importer.domain import (
+    DashboardImport,
+    DashboardTemplate,
+    ImportResult,
+)
 from grafana_dashboard_importer.ports import DashboardGateway
 
 DATASOURCE_PLACEHOLDERS = {
@@ -13,27 +18,24 @@ DATASOURCE_PLACEHOLDERS = {
 }
 
 
-class ImportDashboard:
-    def __init__(self, gateway: DashboardGateway) -> None:
-        self._gateway = gateway
-
-    def execute(
-        self,
-        *,
-        template: dict[str, Any],
-        folder_uid: str,
-        datasource_uids: dict[str, str],
-    ) -> ImportResult:
-        missing = set(DATASOURCE_PLACEHOLDERS.values()) - set(datasource_uids)
-        if missing:
-            raise ValueError(f"missing datasource bindings: {sorted(missing)}")
-        for uid in datasource_uids.values():
-            self._gateway.verify_datasource(uid)
-        dashboard = _bind(deepcopy(template), datasource_uids)
-        return self._gateway.import_dashboard(DashboardImport(dashboard, folder_uid))
+def import_dashboard(
+    *,
+    gateway: DashboardGateway,
+    template: DashboardTemplate,
+    folder_uid: str,
+    datasource_uids: Mapping[str, str],
+) -> ImportResult:
+    """Bind a validated template and import it through the configured gateway."""
+    missing = set(DATASOURCE_PLACEHOLDERS.values()) - set(datasource_uids)
+    if missing:
+        raise ValueError(f"missing datasource bindings: {sorted(missing)}")
+    for uid in datasource_uids.values():
+        gateway.verify_datasource(uid)
+    dashboard = _bind(deepcopy(dict(template.document)), datasource_uids)
+    return gateway.import_dashboard(DashboardImport(dashboard, folder_uid))
 
 
-def _bind(value: Any, datasource_uids: dict[str, str]) -> Any:
+def _bind(value: Any, datasource_uids: Mapping[str, str]) -> Any:
     if isinstance(value, dict):
         return {key: _bind(item, datasource_uids) for key, item in value.items()}
     if isinstance(value, list):

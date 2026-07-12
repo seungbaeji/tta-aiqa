@@ -21,6 +21,7 @@ PLATFORM_PACKAGES = {"aiqa-observability"}
 APP_NAMES = {
     "data_quality_pipeline",
     "grafana_dashboard_importer",
+    "kserve_predictor",
     "model_trainer",
     "risk_api",
     "traffic_generator",
@@ -28,6 +29,7 @@ APP_NAMES = {
 APP_FOLDERS = {
     "data-quality-pipeline": "data_quality_pipeline",
     "grafana-dashboard-importer": "grafana_dashboard_importer",
+    "kserve-predictor": "kserve_predictor",
     "model-trainer": "model_trainer",
     "risk-api": "risk_api",
     "traffic-generator": "traffic_generator",
@@ -84,6 +86,7 @@ def test_workspace_contains_only_v2_members() -> None:
     assert set(document["tool"]["uv"]["workspace"]["members"]) == {
         "apps/data-quality-pipeline",
         "apps/grafana-dashboard-importer",
+        "apps/kserve-predictor",
         "apps/model-trainer",
         "apps/risk-api",
         "apps/traffic-generator",
@@ -137,17 +140,19 @@ def test_all_process_apps_depend_on_platform_observability() -> None:
 @pytest.mark.architecture
 def test_domain_and_application_layers_do_not_import_frameworks_or_adapters() -> None:
     failures: list[str] = []
-    for path in sorted((ROOT / "packages").glob("*/src/*/**/*.py")):
-        if not ({"domain", "application"} & set(path.parts)):
-            continue
-        imports = python_imports(path)
-        forbidden = {
-            name
-            for name in imports
-            if name.split(".", 1)[0] in FRAMEWORK_ROOTS or ".adapters" in name
-        }
-        if forbidden:
-            failures.append(f"{path.relative_to(ROOT)}: {sorted(forbidden)}")
+    source_roots = (ROOT / "packages", ROOT / "apps")
+    for source_root in source_roots:
+        for path in sorted(source_root.glob("*/src/*/**/*.py")):
+            if not ({"domain", "application"} & set(path.parts)):
+                continue
+            imports = python_imports(path)
+            forbidden = {
+                name
+                for name in imports
+                if name.split(".", 1)[0] in FRAMEWORK_ROOTS or ".adapters" in name
+            }
+            if forbidden:
+                failures.append(f"{path.relative_to(ROOT)}: {sorted(forbidden)}")
     assert not failures, "\n".join(failures)
 
 
@@ -171,4 +176,36 @@ def test_active_code_never_imports_legacy_or_another_app() -> None:
             forbidden = ({"legacy"} | forbidden_apps) & roots
             if forbidden:
                 failures.append(f"{path.relative_to(ROOT)}: {sorted(forbidden)}")
+    assert not failures, "\n".join(failures)
+
+
+@pytest.mark.architecture
+def test_shared_kernel_exposes_only_feature_contract_values() -> None:
+    core = ROOT / "packages/aiqa-core/src/aiqa_core"
+
+    assert not (core / "domain/model.py").exists()
+    assert "ModelRole" not in (core / "domain/__init__.py").read_text(
+        encoding="utf-8"
+    )
+
+
+@pytest.mark.architecture
+def test_observability_hides_context_and_prometheus_clients_from_apps() -> None:
+    failures: list[str] = []
+    platform_root = ROOT / "packages/aiqa-observability/src/aiqa_observability"
+    prometheus_adapter = platform_root / "adapters/prometheus.py"
+    for base in (ROOT / "apps", ROOT / "packages"):
+        for path in sorted(base.glob("**/*.py")):
+            imports = python_imports(path)
+            if "prometheus_client" in imports and path != prometheus_adapter:
+                failures.append(
+                    f"{path.relative_to(ROOT)} imports prometheus_client directly"
+                )
+            if (
+                "aiqa_observability.context" in imports
+                and not path.is_relative_to(platform_root)
+            ):
+                failures.append(
+                    f"{path.relative_to(ROOT)} imports platform context directly"
+                )
     assert not failures, "\n".join(failures)

@@ -11,7 +11,6 @@ from aiqa_observability import (
     MetricSpec,
     TelemetryPolicy,
     create_telemetry,
-    current_context,
 )
 
 
@@ -28,14 +27,14 @@ def test_run_scope_binds_context_emits_json_and_restores_previous_context() -> N
     stream = io.StringIO()
     runtime = telemetry(stream)
     try:
-        assert current_context() is None
+        assert runtime.current_context() is None
         with runtime.run_scope(
             "model.train",
             run_id="run-123",
             scenario="baseline",
             attributes={"command": "bootstrap"},
         ):
-            context = current_context()
+            context = runtime.current_context()
             assert context is not None
             assert context.run_id == "run-123"
             runtime.event(
@@ -44,8 +43,8 @@ def test_run_scope_binds_context_emits_json_and_restores_previous_context() -> N
             trace_id, span_id = runtime.tracing.current_ids()
             assert trace_id is not None
             assert span_id is not None
-            assert "traceparent" in runtime.outbound_trace_headers()
-        assert current_context() is None
+            assert "traceparent" in runtime.outbound_request_headers("X-Request-ID")
+        assert runtime.current_context() is None
     finally:
         runtime.shutdown()
 
@@ -106,7 +105,9 @@ def test_metric_registry_exposes_only_declared_bounded_labels() -> None:
                 labels=("service_name", "operation"),
             )
         )
-        requests.labels(service_name="unit-test-app", operation="model.train").inc()
+        requests.increment(
+            labels={"service_name": "unit-test-app", "operation": "model.train"}
+        )
         metrics = runtime.render_metrics().decode()
     finally:
         runtime.shutdown()
@@ -114,6 +115,31 @@ def test_metric_registry_exposes_only_declared_bounded_labels() -> None:
     assert 'operation="model.train"' in metrics
     assert "run-123" not in metrics
     assert "trace_id" not in metrics
+
+
+def test_metric_handle_rejects_missing_or_extra_label_values() -> None:
+    runtime = telemetry(io.StringIO())
+    try:
+        requests = runtime.counter(
+            MetricSpec(
+                name="aiqa_unit_label_contract_total",
+                description="unit label contract",
+                kind=MetricKind.COUNTER,
+                labels=("service_name", "operation"),
+            )
+        )
+        with pytest.raises(ValueError, match="labels do not match"):
+            requests.increment(labels={"service_name": "unit-test-app"})
+        with pytest.raises(ValueError, match="labels do not match"):
+            requests.increment(
+                labels={
+                    "service_name": "unit-test-app",
+                    "operation": "model.train",
+                    "request_id": "forbidden",
+                }
+            )
+    finally:
+        runtime.shutdown()
 
 
 def test_shutdown_is_idempotent() -> None:

@@ -44,7 +44,16 @@ def test_base_starts_with_baseline_model() -> None:
     )
     assert "baseline-f2576f12512a" in serialized
     assert "candidate-a" not in serialized
-    assert container["command"] == ["aiqa-kserve-model"]
+    assert container["image"] == "ghcr.io/seungbaeji/tta-aiqa-kserve-predictor:v2"
+    assert container["command"] == ["aiqa-kserve-predictor"]
+    predictor_secrets = next(
+        item
+        for item in service["spec"]["predictor"]["volumes"]
+        if item["name"] == "runtime-secrets"
+    )
+    assert predictor_secrets["projected"]["sources"][0]["secret"]["name"] == (
+        "kserve-predictor-runtime"
+    )
     assert environment["AIQA_KSERVE_TELEMETRY_CONFIG_PATH"] == (
         "/runtime/config/telemetry.yaml"
     )

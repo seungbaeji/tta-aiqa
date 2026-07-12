@@ -7,10 +7,11 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import StrEnum
 from math import isfinite
-from typing import TypeAlias
+from typing import Protocol, TypeAlias
 
 TelemetryValue: TypeAlias = str | int | float | bool
 TelemetryAttributes: TypeAlias = Mapping[str, TelemetryValue]
+MetricLabels: TypeAlias = Mapping[str, str]
 
 _ATTRIBUTE_NAME = re.compile(r"^[a-z][a-z0-9_.]*$")
 _METRIC_NAME = re.compile(r"^[a-zA-Z_:][a-zA-Z0-9_:]*$")
@@ -222,3 +223,17 @@ class MetricSpec:
                 raise ValueError("histogram buckets must be unique")
         elif self.buckets:
             raise ValueError("only histograms can define buckets")
+
+
+class CounterMetric(Protocol):
+    """Application-facing bounded counter handle."""
+
+    def increment(self, *, labels: MetricLabels, amount: float = 1.0) -> None:
+        """Increase the counter using exactly its declared label set."""
+
+
+class HistogramMetric(Protocol):
+    """Application-facing bounded histogram handle."""
+
+    def observe(self, value: float, *, labels: MetricLabels) -> None:
+        """Observe one finite value using exactly its declared label set."""

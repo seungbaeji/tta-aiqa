@@ -1,5 +1,5 @@
 """Traffic scenario use cases."""
 
-from traffic_generator.application.generate import GenerateTraffic
+from traffic_generator.application.generate import generate_traffic
 
-__all__ = ["GenerateTraffic"]
+__all__ = ["generate_traffic"]

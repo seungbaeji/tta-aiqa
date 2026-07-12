@@ -4,13 +4,11 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 from contextlib import contextmanager
-from pathlib import Path
-from types import SimpleNamespace
 from typing import Any
 
 import pytest
 from data_quality_pipeline import main as cli
-from data_quality_pipeline.bootstrap import DataPreparationResult
+from data_quality_pipeline.workflow import DataPreparationResult, DataQualityStage
 
 
 class TelemetrySpy:
@@ -44,8 +42,8 @@ def test_validation_failure_emits_failed_event_and_exits_nonzero(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     telemetry = TelemetrySpy()
-    args = SimpleNamespace(
-        command="validate",
+    command = cli.DataQualityCliDto(
+        stage=DataQualityStage.VALIDATE,
         source_contract="source.yaml",
         aggregation_config="aggregation.yaml",
         split_config="split.yaml",
@@ -56,20 +54,19 @@ def test_validation_failure_emits_failed_event_and_exits_nonzero(
         quality_rules="quality.yaml",
         validation_artifact_dir="validation",
     )
-    settings = SimpleNamespace(
-        environment="test",
-        telemetry_config_path=Path("configs/observability/telemetry.yaml"),
-        otlp_endpoint=None,
-    )
+    runtime = type(
+        "RuntimeSpy",
+        (),
+        {
+            "telemetry": telemetry,
+            "run": lambda _, __: DataPreparationResult(
+                command="validate", success=False
+            ),
+        },
+    )()
 
-    monkeypatch.setattr(cli, "parse_args", lambda: args)
-    monkeypatch.setattr(cli, "DataQualitySettings", lambda **_: settings)
-    monkeypatch.setattr(cli, "create_telemetry", lambda **_: telemetry)
-    monkeypatch.setitem(
-        cli.COMMANDS,
-        "validate",
-        lambda _: DataPreparationResult(command="validate", success=False),
-    )
+    monkeypatch.setattr(cli, "parse_args", lambda: command)
+    monkeypatch.setattr(cli, "bootstrap", lambda _: runtime)
 
     with pytest.raises(SystemExit, match="1"):
         cli.main()

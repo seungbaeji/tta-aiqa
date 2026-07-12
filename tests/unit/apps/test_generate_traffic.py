@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, field
 
-from traffic_generator.application import GenerateTraffic
+from traffic_generator.application import generate_traffic
 from traffic_generator.domain import (
     FeatureTransform,
     ScenarioMode,
@@ -47,8 +47,11 @@ class Recorder:
         self.responses.append(response)
 
 
-def generator(client: Client, recorder: Recorder) -> GenerateTraffic:
-    return GenerateTraffic(
+def generate(
+    client: Client, recorder: Recorder, plan: TrafficPlan
+) -> tuple[TrafficResponse, ...]:
+    return generate_traffic(
+        plan,
         random_seed=43,
         pool=Pool(
             (
@@ -75,8 +78,8 @@ def test_shift_scenario_is_deterministic_and_applies_bounds() -> None:
     )
     first_client, second_client = Client(), Client()
 
-    generator(first_client, Recorder()).execute(plan)
-    generator(second_client, Recorder()).execute(plan)
+    generate(first_client, Recorder(), plan)
+    generate(second_client, Recorder(), plan)
 
     assert first_client.calls == second_client.calls
     assert all(call[0]["age"] == 120 for call in first_client.calls)
@@ -94,7 +97,7 @@ def test_invalid_scenario_cycles_contract_failures_and_records_responses() -> No
         invalid_cases=("missing_feature", "extra_feature", "wrong_boolean_type"),
     )
 
-    responses = generator(client, recorder).execute(plan)
+    responses = generate(client, recorder, plan)
 
     assert len(client.calls[0][0]) == 2
     assert "unexpected_feature" in client.calls[1][0]

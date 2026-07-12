@@ -116,8 +116,8 @@ class RiskApiTelemetry:
             self.normalize_method(method),
             status_code,
         )
-        self._requests.labels(**labels).inc()
-        self._latency.labels(**labels).observe(duration_seconds)
+        self._requests.increment(labels=labels)
+        self._latency.observe(duration_seconds, labels=labels)
         self._platform.event(
             "http.request.completed",
             attributes={
@@ -132,9 +132,9 @@ class RiskApiTelemetry:
         """Record a serving event through bounded metrics, log, and current span."""
         scenario = self.normalize_scenario(event.scenario)
         labels = self._prediction_labels(event, scenario)
-        self._predictions.labels(**labels).inc()
-        self._scores.labels(**labels).observe(event.score)
-        self._missing.labels(**labels).observe(event.missing_feature_count)
+        self._predictions.increment(labels=labels)
+        self._scores.observe(event.score, labels=labels)
+        self._missing.observe(float(event.missing_feature_count), labels=labels)
         self._platform.event(
             "risk.prediction.completed",
             attributes={

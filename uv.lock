@@ -13,6 +13,7 @@ members = [
     "aiqa-data",
     "aiqa-data-quality-pipeline",
     "aiqa-grafana-dashboard-importer",
+    "aiqa-kserve-predictor",
     "aiqa-model",
     "aiqa-model-trainer",
     "aiqa-observability",
@@ -141,6 +142,7 @@ dependencies = [
     { name = "aiqa-observability" },
     { name = "great-expectations" },
     { name = "pandas" },
+    { name = "pydantic" },
     { name = "pydantic-settings" },
 ]
 
@@ -151,6 +153,7 @@ requires-dist = [
     { name = "aiqa-observability", editable = "packages/aiqa-observability" },
     { name = "great-expectations", specifier = ">=1.5,<2" },
     { name = "pandas", specifier = ">=2.2" },
+    { name = "pydantic", specifier = ">=2.7" },
     { name = "pydantic-settings", specifier = ">=2.4" },
 ]
 
@@ -160,6 +163,7 @@ version = "0.2.0"
 source = { editable = "apps/grafana-dashboard-importer" }
 dependencies = [
     { name = "aiqa-observability" },
+    { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "requests" },
 ]
@@ -167,8 +171,34 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "aiqa-observability", editable = "packages/aiqa-observability" },
+    { name = "pydantic", specifier = ">=2.7" },
     { name = "pydantic-settings", specifier = ">=2.4" },
     { name = "requests", specifier = ">=2.32" },
+]
+
+[[package]]
+name = "aiqa-kserve-predictor"
+version = "0.2.0"
+source = { editable = "apps/kserve-predictor" }
+dependencies = [
+    { name = "aiqa-core" },
+    { name = "aiqa-observability" },
+    { name = "aiqa-serving" },
+    { name = "fastapi" },
+    { name = "pydantic" },
+    { name = "pydantic-settings" },
+    { name = "uvicorn", extra = ["standard"] },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "aiqa-core", editable = "packages/aiqa-core" },
+    { name = "aiqa-observability", editable = "packages/aiqa-observability" },
+    { name = "aiqa-serving", editable = "packages/aiqa-serving" },
+    { name = "fastapi", specifier = ">=0.110" },
+    { name = "pydantic", specifier = ">=2.7" },
+    { name = "pydantic-settings", specifier = ">=2.4" },
+    { name = "uvicorn", extras = ["standard"], specifier = ">=0.29" },
 ]
 
 [[package]]
@@ -208,6 +238,7 @@ dependencies = [
     { name = "aiqa-model" },
     { name = "aiqa-observability" },
     { name = "aiqa-qa" },
+    { name = "pydantic" },
     { name = "pydantic-settings" },
 ]
 
@@ -218,6 +249,7 @@ requires-dist = [
     { name = "aiqa-model", editable = "packages/aiqa-model" },
     { name = "aiqa-observability", editable = "packages/aiqa-observability" },
     { name = "aiqa-qa", editable = "packages/aiqa-qa" },
+    { name = "pydantic", specifier = ">=2.7" },
     { name = "pydantic-settings", specifier = ">=2.4" },
 ]
 
@@ -272,6 +304,7 @@ dependencies = [
     { name = "aiqa-observability" },
     { name = "aiqa-serving" },
     { name = "fastapi" },
+    { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "uvicorn", extra = ["standard"] },
 ]
@@ -282,6 +315,7 @@ requires-dist = [
     { name = "aiqa-observability", editable = "packages/aiqa-observability" },
     { name = "aiqa-serving", editable = "packages/aiqa-serving" },
     { name = "fastapi", specifier = ">=0.110" },
+    { name = "pydantic", specifier = ">=2.7" },
     { name = "pydantic-settings", specifier = ">=2.4" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.29" },
 ]
@@ -315,6 +349,7 @@ dependencies = [
     { name = "aiqa-core" },
     { name = "aiqa-observability" },
     { name = "pandas" },
+    { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "requests" },
 ]
@@ -324,6 +359,7 @@ requires-dist = [
     { name = "aiqa-core", editable = "packages/aiqa-core" },
     { name = "aiqa-observability", editable = "packages/aiqa-observability" },
     { name = "pandas", specifier = ">=2.2" },
+    { name = "pydantic", specifier = ">=2.7" },
     { name = "pydantic-settings", specifier = ">=2.4" },
     { name = "requests", specifier = ">=2.32" },
 ]

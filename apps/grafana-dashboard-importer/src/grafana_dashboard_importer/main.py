@@ -4,53 +4,53 @@ import argparse
 import json
 from dataclasses import asdict
 
-from aiqa_observability import create_telemetry, load_telemetry_policy
+from pydantic import BaseModel, ConfigDict
 
-from grafana_dashboard_importer.adapters import load_dashboard_template
 from grafana_dashboard_importer.bootstrap import bootstrap
-from grafana_dashboard_importer.settings import GrafanaDashboardSettings
+
+
+class DashboardCommandDto(BaseModel):
+    """Validated command-line input for the dashboard delivery adapter."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    check: bool = False
 
 
 def main() -> None:
+    """Validate CLI input, invoke the bound operation, and render its result."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--check",
         action="store_true",
         help="validate settings and dashboard JSON without calling Grafana",
     )
-    args = parser.parse_args()
-    settings = GrafanaDashboardSettings()
-    telemetry = create_telemetry(
-        service_name="grafana-dashboard-importer",
-        environment=settings.environment,
-        policy=load_telemetry_policy(settings.telemetry_config_path),
-        otlp_endpoint=str(settings.otlp_endpoint) if settings.otlp_endpoint else None,
-    )
+    command = DashboardCommandDto.model_validate(vars(parser.parse_args()))
+    runtime = bootstrap()
     try:
-        if args.check:
-            with telemetry.run_scope("dashboard.validate"):
-                template = load_dashboard_template(settings.dashboard_path)
-                telemetry.event(
+        if command.check:
+            with runtime.telemetry.run_scope("dashboard.validate"):
+                runtime.telemetry.event(
                     "dashboard.validation.completed",
-                    attributes={"dashboard_uid": template.uid},
+                    attributes={"dashboard_uid": runtime.template.uid},
                 )
             print(
                 json.dumps(
                     {
                         "status": "valid",
-                        "dashboard_uid": template.uid,
-                        "folder_uid": settings.folder_uid,
+                        "dashboard_uid": runtime.template.uid,
+                        "folder_uid": runtime.folder_uid,
                     },
                     sort_keys=True,
                 )
             )
             return
-        with telemetry.run_scope("dashboard.import"):
-            result = bootstrap()
-            telemetry.event(
+        with runtime.telemetry.run_scope("dashboard.import"):
+            result = runtime.run_import()
+            runtime.telemetry.event(
                 "dashboard.import.completed",
                 attributes={"dashboard_uid": result.uid},
             )
     finally:
-        telemetry.shutdown()
+        runtime.telemetry.shutdown()
     print(json.dumps(asdict(result), sort_keys=True))

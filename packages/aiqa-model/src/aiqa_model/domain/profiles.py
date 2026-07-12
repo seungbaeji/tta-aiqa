@@ -5,14 +5,20 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import StrEnum
 
-from aiqa_core.domain import ModelRole
-
 
 class ModelKind(StrEnum):
     """Supported model families in the classroom benchmark."""
 
     LOGISTIC_REGRESSION = "logistic_regression"
     RANDOM_FOREST = "random_forest"
+
+
+class ModelRole(StrEnum):
+    """Lifecycle role assigned to a configured model profile."""
+
+    BASELINE = "baseline"
+    CANDIDATE = "candidate"
+    DEPLOYED = "deployed"
 
 
 @dataclass(frozen=True)

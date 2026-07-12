@@ -5,8 +5,12 @@ from pathlib import Path
 from pydantic import AnyHttpUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from model_trainer.workflow import ModelTrainerConfiguration
+
 
 class ModelTrainerSettings(BaseSettings):
+    """Validate environment and Secret-backed inputs for model training."""
+
     model_config = SettingsConfigDict(
         env_prefix="AIQA_MODEL_",
         env_file=".env.model-trainer",
@@ -59,3 +63,32 @@ class ModelTrainerSettings(BaseSettings):
     canonical_evidence_path: Path = Path(
         "reference/evidence/model/canonical-benchmark.json"
     )
+
+    def to_configuration(self) -> ModelTrainerConfiguration:
+        """Convert external runtime settings into internal workflow configuration."""
+        return ModelTrainerConfiguration(
+            feature_contract_path=self.feature_contract_path,
+            feature_sets_path=self.feature_sets_path,
+            profiles_path=self.profiles_path,
+            evaluation_path=self.evaluation_path,
+            release_policy_path=self.release_policy_path,
+            split_dataset_dir=self.split_dataset_dir,
+            split_config_path=self.split_config_path,
+            data_manifest_path=self.data_manifest_path,
+            mlflow_tracking_uri=self.mlflow_tracking_uri,
+            mlflow_experiment_name=self.mlflow_experiment_name,
+            dvc_lock_path=self.dvc_lock_path,
+            model_implementation_path=self.model_implementation_path,
+            release_implementation_path=self.release_implementation_path,
+            trainer_implementation_path=self.trainer_implementation_path,
+            tracking_implementation_path=self.tracking_implementation_path,
+            artifact_dir=self.artifact_dir,
+            development_evidence_path=self.development_evidence_path,
+            feature_diagnostics_path=self.feature_diagnostics_path,
+            model_bundle_dir=self.model_bundle_dir,
+            deployed_model_dir=self.deployed_model_dir,
+            bootstrap_manifest_path=self.bootstrap_manifest_path,
+            bootstrap_evidence_path=self.bootstrap_evidence_path,
+            freeze_manifest_path=self.freeze_manifest_path,
+            canonical_evidence_path=self.canonical_evidence_path,
+        )

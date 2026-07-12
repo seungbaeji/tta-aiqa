@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 
 import pytest
 from aiqa_core.domain import FeatureDefinition, FeatureSet, FeatureType
-from aiqa_serving.application import PredictRisk
+from aiqa_serving.application import predict_risk, score_risk
 from aiqa_serving.domain import (
     FeatureValue,
     ModelIdentity,
@@ -50,15 +50,15 @@ def contract() -> FeatureSet:
 def test_prediction_orders_features_and_records_model_aware_event() -> None:
     scorer = StubScorer()
     sink = RecordingSink()
-    use_case = PredictRisk(
-        contract(), scorer, sink, PredictionLabels("high_risk", "low_risk")
-    )
-
-    result = use_case.execute(
+    result = predict_risk(
         PredictionRequest(
             request_id="request-1",
             features=(("heart_rate", None), ("age", 67.0)),
-        )
+        ),
+        feature_set=contract(),
+        scorer=scorer,
+        event_recorder=sink,
+        labels=PredictionLabels("high_risk", "low_risk"),
     )
 
     assert scorer.received == (("age", 67.0), ("heart_rate", None))
@@ -68,42 +68,58 @@ def test_prediction_orders_features_and_records_model_aware_event() -> None:
 
 
 def test_prediction_rejects_missing_extra_and_forbidden_null_features() -> None:
-    use_case = PredictRisk(
-        contract(),
-        StubScorer(),
-        RecordingSink(),
-        PredictionLabels("high_risk", "low_risk"),
-    )
-
     with pytest.raises(ValueError, match="contract mismatch"):
-        use_case.execute(
+        predict_risk(
             PredictionRequest(
                 request_id="request-1",
                 features=(("age", 67.0), ("unexpected", 1.0)),
-            )
+            ),
+            feature_set=contract(),
+            scorer=StubScorer(),
+            event_recorder=RecordingSink(),
+            labels=PredictionLabels("high_risk", "low_risk"),
         )
     with pytest.raises(ValueError, match="non-nullable"):
-        use_case.execute(
+        predict_risk(
             PredictionRequest(
                 request_id="request-2",
                 features=(("age", None), ("heart_rate", 80.0)),
-            )
+            ),
+            feature_set=contract(),
+            scorer=StubScorer(),
+            event_recorder=RecordingSink(),
+            labels=PredictionLabels("high_risk", "low_risk"),
         )
 
 
 def test_prediction_uses_configured_outcome_labels() -> None:
-    use_case = PredictRisk(
-        contract(),
-        StubScorer(),
-        RecordingSink(),
-        PredictionLabels("positive-risk", "negative-risk"),
-    )
-
-    result = use_case.execute(
+    result = predict_risk(
         PredictionRequest(
             request_id="request-3",
             features=(("age", 67.0), ("heart_rate", None)),
-        )
+        ),
+        feature_set=contract(),
+        scorer=StubScorer(),
+        event_recorder=RecordingSink(),
+        labels=PredictionLabels("positive-risk", "negative-risk"),
     )
 
     assert result.label == "positive-risk"
+
+
+def test_score_risk_is_reusable_without_api_labels_or_event_recording() -> None:
+    scorer = StubScorer()
+
+    result = score_risk(
+        PredictionRequest(
+            request_id="kserve-request-1",
+            features=(("heart_rate", None), ("age", 67.0)),
+            scenario="kserve",
+        ),
+        feature_set=contract(),
+        scorer=scorer,
+    )
+
+    assert result.request_id == "kserve-request-1"
+    assert result.model == scorer.identity
+    assert result.missing_feature_count == 1

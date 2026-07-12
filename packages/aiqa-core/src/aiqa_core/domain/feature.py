@@ -7,6 +7,8 @@ from enum import StrEnum
 
 
 class FeatureType(StrEnum):
+    """Primitive types allowed by the canonical model-input contract."""
+
     FLOAT = "float"
     INTEGER = "integer"
     BOOLEAN = "boolean"
@@ -15,6 +17,8 @@ class FeatureType(StrEnum):
 
 @dataclass(frozen=True)
 class FeatureDefinition:
+    """One immutable feature declaration in the canonical input contract."""
+
     name: str
     dtype: FeatureType
     nullable: bool
@@ -26,6 +30,8 @@ class FeatureDefinition:
 
 @dataclass(frozen=True)
 class FeatureSet:
+    """Versioned canonical model-input contract shared across contexts."""
+
     schema_version: int
     name: str
     target: str
@@ -46,4 +52,5 @@ class FeatureSet:
 
     @property
     def feature_names(self) -> tuple[str, ...]:
+        """Return feature names in canonical model-input order."""
         return tuple(feature.name for feature in self.features)

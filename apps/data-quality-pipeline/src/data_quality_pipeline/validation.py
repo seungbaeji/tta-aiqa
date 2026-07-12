@@ -17,18 +17,18 @@ from data_quality_pipeline.adapters.expectations import (
 )
 from data_quality_pipeline.adapters.great_expectations import run_checkpoint
 from data_quality_pipeline.adapters.quality import load_quality_rules
-from data_quality_pipeline.bootstrap import DataPreparationResult
-from data_quality_pipeline.settings import DataQualitySettings
+from data_quality_pipeline.workflow import DataPreparationResult, DataQualityPaths
 
 
-def validate(settings: DataQualitySettings) -> DataPreparationResult:
-    if settings.quality_rules_path is None or settings.validation_artifact_dir is None:
+def validate(paths: DataQualityPaths) -> DataPreparationResult:
+    """Run GE checks and write evidence for the resolved workflow paths."""
+    if paths.quality_rules_path is None or paths.validation_artifact_dir is None:
         raise ValueError(
             "validate requires quality rules and validation artifact paths"
         )
-    source = load_source_contract(settings.source_contract_path)
-    plan = load_aggregation_plan(settings.aggregation_config_path)
-    rules = load_quality_rules(settings.quality_rules_path)
+    source = load_source_contract(paths.source_contract_path)
+    plan = load_aggregation_plan(paths.aggregation_config_path)
+    rules = load_quality_rules(paths.quality_rules_path)
     records = PhysioNetRecordRepository(
         source.records_dir,
         source.expected_record_count,
@@ -37,18 +37,18 @@ def validate(settings: DataQualitySettings) -> DataPreparationResult:
     raw_frame = pd.DataFrame(
         asdict(item) for item in profile_raw_records(records, plan.missing_sentinel)
     )
-    processed_frame = pd.read_csv(settings.patient_features_path)
+    processed_frame = pd.read_csv(paths.patient_features_path)
     raw_result = run_checkpoint(
         raw_frame,
         name="raw-ingestion",
         expectations=raw_expectations(rules),
-        project_root=settings.validation_artifact_dir / "raw",
+        project_root=paths.validation_artifact_dir / "raw",
     )
     processed_result = run_checkpoint(
         processed_frame,
         name="processed-readiness",
         expectations=processed_expectations(rules, plan.feature_names),
-        project_root=settings.validation_artifact_dir / "processed",
+        project_root=paths.validation_artifact_dir / "processed",
     )
     success = bool(raw_result["success"] and processed_result["success"])
     missing_columns = [
@@ -85,6 +85,6 @@ def validate(settings: DataQualitySettings) -> DataPreparationResult:
             },
             "publish_blocking_gate": False,
         },
-        settings.validation_artifact_dir / "validation-summary.json",
+        paths.validation_artifact_dir / "validation-summary.json",
     )
     return DataPreparationResult(command="validate", success=success)

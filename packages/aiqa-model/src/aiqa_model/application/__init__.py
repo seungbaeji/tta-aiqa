@@ -1,15 +1,15 @@
 """Training and evaluation use cases."""
 
 from aiqa_model.application.lifecycle import (
-    ConfirmFrozenModels,
-    DevelopModels,
-    DiagnoseFeatures,
-    FitModelBundles,
+    confirm_frozen_models,
+    develop_models,
+    diagnose_features,
+    fit_model_bundles,
 )
 
 __all__ = [
-    "ConfirmFrozenModels",
-    "DevelopModels",
-    "DiagnoseFeatures",
-    "FitModelBundles",
+    "confirm_frozen_models",
+    "develop_models",
+    "diagnose_features",
+    "fit_model_bundles",
 ]

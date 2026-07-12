@@ -183,6 +183,7 @@ tta-aiqa/
 │   ├── data-quality-pipeline/
 │   ├── model-trainer/
 │   ├── risk-api/
+│   ├── kserve-predictor/
 │   ├── traffic-generator/
 │   └── grafana-dashboard-importer/
 ├── packages/
@@ -466,7 +467,25 @@ GET  /docs
 
 `POST /reload`와 `GET /events`가 필요한 경우 local diagnostics로만 제공하고 학생에게 공개하는 API 계약에는 포함하지 않는다. k3s의 model 변경은 Argo CD와 KServe rollout으로 수행한다.
 
-### 5-4. Traffic Generator
+### 5-4. KServe Predictor
+
+`apps/kserve-predictor`는 approved local sklearn bundle을 KServe V2 inference
+protocol로 노출하는 별도 process다. Pydantic V2 request/response DTO, HTTP
+lifecycle와 predictor runtime settings만 소유하며 canonical feature validation과
+scoring은 `aiqa-serving` function을 재사용한다.
+
+```text
+apps/kserve-predictor/src/kserve_predictor/
+├── main.py
+├── settings.py
+├── bootstrap.py
+└── http.py
+```
+
+Risk API는 public course REST surface를, KServe Predictor는 internal model-serving
+surface를 각각 소유한다. 두 app은 서로 import하지 않는다.
+
+### 5-5. Traffic Generator
 
 `apps/traffic-generator`는 API와 독립된 운영 traffic simulator다.
 
@@ -480,7 +499,7 @@ approved-candidate      Candidate B 배포 후 smoke와 운영 요청
 Traffic은 고정 seed로 재현하고 client response와 server prediction event를 서로 다른 artifact로 관리한다.
 Candidate A의 guardrail은 offline model evaluation에서 확인하므로 배포 traffic 대상에 포함하지 않는다. Traffic Generator는 scenario 규칙을 소유하므로 app 내부에 필요한 범위의 `domain`, `application`, `ports`, `adapters`를 둔다.
 
-### 5-5. Grafana Dashboard Importer
+### 5-6. Grafana Dashboard Importer
 
 `apps/grafana-dashboard-importer`는 dashboard template을 개인 stack 설정으로 변환하고 Grafana Cloud API에 idempotent하게 생성 또는 갱신하는 CLI app이다.
 
@@ -506,12 +525,12 @@ Application layer는 dashboard UID/title, folder와 datasource binding을 계산
 
 ### 6-1. AIQA Core
 
-- feature, label과 threshold 계약
-- cross-context identifier와 model role
-- package 간 공유하는 순수 상수
+- canonical feature name, dtype, nullability와 target 계약
+- package 간 실제로 공유되는 순수 feature value
 
 `aiqa-core`는 다른 AIQA package를 의존하지 않는다.
-Model metadata, prediction result와 prediction event는 각각의 bounded context가 소유하며 core로 이동하지 않는다.
+Model role, metadata, prediction result와 prediction event는 각각의 bounded context가
+소유하며 core로 이동하지 않는다.
 
 ### 6-2. AIQA Data
 
@@ -590,6 +609,7 @@ FastAPI route와 Pydantic HTTP schema는 app이 소유한다.
 | Data Quality Pipeline | Data Quality + Observability platform SDK |
 | Model Trainer | Data Quality, Model Lifecycle + Observability platform SDK |
 | Risk API | Model Lifecycle, Serving + Observability platform SDK |
+| KServe Predictor | Serving + Observability platform SDK |
 | Traffic Generator | Shared Kernel, HTTP client adapter + Observability platform SDK |
 | Grafana Dashboard Importer | App-local import use case, Grafana Cloud HTTP adapter + Observability platform SDK |
 | Release Decision Lab | Data Quality, Model Lifecycle, Release Assurance + Observability platform SDK |

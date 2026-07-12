@@ -7,7 +7,8 @@ from pathlib import Path
 import joblib
 import pandas as pd
 from fastapi.testclient import TestClient
-from risk_api.kserve_model import KServeModelSettings, build_kserve_model_app
+from kserve_predictor.bootstrap import build_application
+from kserve_predictor.settings import KServePredictorSettings
 from sklearn.linear_model import LogisticRegression
 
 
@@ -53,8 +54,8 @@ def test_custom_predictor_implements_kserve_v2_probability_contract(
     tmp_path: Path,
 ) -> None:
     contract, bundle = _write_fixture(tmp_path)
-    app = build_kserve_model_app(
-        KServeModelSettings(
+    app = build_application(
+        KServePredictorSettings(
             _secrets_dir=tmp_path,
             model_name="mortality-risk",
             model_bundle_path=bundle,
@@ -87,8 +88,8 @@ def test_custom_predictor_implements_kserve_v2_probability_contract(
 def test_custom_predictor_rejects_wrong_tensor_shape(tmp_path: Path) -> None:
     contract, bundle = _write_fixture(tmp_path)
     client = TestClient(
-        build_kserve_model_app(
-            KServeModelSettings(
+        build_application(
+            KServePredictorSettings(
                 _secrets_dir=tmp_path,
                 model_bundle_path=bundle,
                 feature_contract_path=contract,
@@ -112,8 +113,8 @@ def test_custom_predictor_rejects_wrong_tensor_shape(tmp_path: Path) -> None:
 def test_custom_predictor_uses_shared_input_validation(tmp_path: Path) -> None:
     contract, bundle = _write_fixture(tmp_path)
     client = TestClient(
-        build_kserve_model_app(
-            KServeModelSettings(
+        build_application(
+            KServePredictorSettings(
                 _secrets_dir=tmp_path,
                 model_bundle_path=bundle,
                 feature_contract_path=contract,
@@ -156,8 +157,8 @@ def test_custom_predictor_uses_shared_input_validation(tmp_path: Path) -> None:
 def test_custom_predictor_readiness_reflects_loaded_backend(tmp_path: Path) -> None:
     contract, bundle = _write_fixture(tmp_path)
     client = TestClient(
-        build_kserve_model_app(
-            KServeModelSettings(
+        build_application(
+            KServePredictorSettings(
                 _secrets_dir=tmp_path,
                 model_bundle_path=bundle,
                 feature_contract_path=contract,
@@ -173,8 +174,8 @@ def test_custom_predictor_preserves_inbound_trace_and_request_id(
     tmp_path: Path, capsys
 ) -> None:
     contract, bundle = _write_fixture(tmp_path)
-    app = build_kserve_model_app(
-        KServeModelSettings(
+    app = build_application(
+        KServePredictorSettings(
             _secrets_dir=tmp_path,
             model_bundle_path=bundle,
             feature_contract_path=contract,

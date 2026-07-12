@@ -5,13 +5,13 @@ from aiqa_qa.adapters import load_release_policy
 from aiqa_qa.application import EvaluateCandidateReleases
 from aiqa_qa.domain import Decision, ModelEvidence, ReleaseDecision
 
-from model_trainer.settings import ModelTrainerSettings
+from model_trainer.workflow import ModelTrainerConfiguration
 
 
 def evaluate_release(
-    settings: ModelTrainerSettings, result: BenchmarkResult
+    configuration: ModelTrainerConfiguration, result: BenchmarkResult
 ) -> tuple[ReleaseDecision, ReleaseDecision]:
-    document, policy = load_release_policy(settings.release_policy_path)
+    document, policy = load_release_policy(configuration.release_policy_path)
     profiles = {item.profile: item for item in result.profiles}
     required = {
         document.baseline_profile,

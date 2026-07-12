@@ -11,6 +11,7 @@ from aiqa_model.domain.profiles import (
     MetricDistribution,
     ModelKind,
     ModelProfile,
+    ModelRole,
     PermutationImportance,
     ProfileEvaluation,
 )
@@ -26,6 +27,7 @@ __all__ = [
     "MetricDistribution",
     "ModelKind",
     "ModelProfile",
+    "ModelRole",
     "PermutationImportance",
     "ProfileEvaluation",
 ]

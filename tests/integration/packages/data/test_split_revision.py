@@ -6,7 +6,7 @@ from aiqa_data.adapters import SklearnRevisionPartitioner, load_split_revision
 from aiqa_data.application import (
     PreparedPatientFeatures,
     PreparedSplitManifest,
-    ReviseBenchmarkSplit,
+    revise_benchmark_split,
 )
 from aiqa_data.domain import DatasetRole, PatientFeatureRow, SplitAssignment
 
@@ -40,10 +40,11 @@ def test_revision_promotes_parent_test_and_seals_parent_operational() -> None:
         parent_test_train_count=6,
     )
 
-    revised = ReviseBenchmarkSplit(SklearnRevisionPartitioner()).execute(
+    revised = revise_benchmark_split(
         features=PreparedPatientFeatures(feature_names=("value",), rows=rows),
         parent=parent,
         revision=revision,
+        partitioner=SklearnRevisionPartitioner(),
     )
 
     roles = {item.record_id: item.role for item in revised.splits}

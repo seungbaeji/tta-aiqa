@@ -4,9 +4,9 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
-from aiqa_core.domain import FeatureDefinition, FeatureSet, FeatureType, ModelRole
+from aiqa_core.domain import FeatureDefinition, FeatureSet, FeatureType
 from aiqa_model.adapters import SklearnBenchmark
-from aiqa_model.domain import EvaluationPlan, ModelKind, ModelProfile
+from aiqa_model.domain import EvaluationPlan, ModelKind, ModelProfile, ModelRole
 from aiqa_model.ports import FittedModels
 
 

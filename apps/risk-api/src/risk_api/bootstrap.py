@@ -11,7 +11,6 @@ from aiqa_core.adapters.config import load_feature_contract
 from aiqa_observability import (
     Telemetry,
     create_telemetry,
-    current_context,
     load_telemetry_policy,
 )
 from aiqa_observability.adapters import instrument_fastapi
@@ -19,8 +18,14 @@ from aiqa_serving.adapters import (
     KServeRiskScorer,
     LocalSklearnRiskScorer,
 )
-from aiqa_serving.application import PredictRisk
-from aiqa_serving.domain import ModelIdentity, PredictionLabels
+from aiqa_serving.application import predict_risk
+from aiqa_serving.domain import (
+    ModelIdentity,
+    PredictionLabels,
+    PredictionRequest,
+    RiskPrediction,
+)
+from aiqa_serving.ports import RiskScorer
 from fastapi import FastAPI
 
 from risk_api.config import load_api_config
@@ -30,6 +35,7 @@ from risk_api.telemetry import PredictionTelemetryRecorder, RiskApiTelemetry
 
 
 def build_application(settings: RiskApiSettings) -> FastAPI:
+    """Assemble the Risk API delivery adapter and its serving operation."""
     api_config = load_api_config(settings.api_config_path)
     feature_set = load_feature_contract(settings.feature_contract_path)
     contract_hash = _sha256(settings.feature_contract_path)
@@ -45,9 +51,12 @@ def build_application(settings: RiskApiSettings) -> FastAPI:
         ),
         api_config.observability,
     )
+    scorer: RiskScorer
+    reload_operation: Callable[[], ModelIdentity] | None = None
     if settings.model_backend == "local":
         assert settings.model_bundle_path is not None
         scorer = LocalSklearnRiskScorer(settings.model_bundle_path, contract_hash)
+        reload_operation = scorer.reload
     else:
         assert settings.kserve_url is not None
         assert settings.kserve_model_name is not None
@@ -68,21 +77,28 @@ def build_application(settings: RiskApiSettings) -> FastAPI:
                 telemetry.platform, api_config.request_id_header
             ),
         )
-    predict_risk = PredictRisk(
-        feature_set,
-        scorer,
-        PredictionTelemetryRecorder(telemetry),
-        PredictionLabels(
-            positive=api_config.positive_label,
-            negative=api_config.negative_label,
-        ),
+    recorder = PredictionTelemetryRecorder(telemetry)
+    labels = PredictionLabels(
+        positive=api_config.positive_label,
+        negative=api_config.negative_label,
     )
+
+    def predict(request: PredictionRequest) -> RiskPrediction:
+        return predict_risk(
+            request,
+            feature_set=feature_set,
+            scorer=scorer,
+            event_recorder=recorder,
+            labels=labels,
+        )
+
     app = build_http_app(
         config=api_config,
-        feature_set=feature_set,
-        predict_risk=predict_risk,
+        feature_count=len(feature_set.features),
+        predict_operation=predict,
         scorer=scorer,
         backend=settings.model_backend,
+        reload_operation=reload_operation,
         telemetry=telemetry,
     )
     instrument_fastapi(app, telemetry.platform.tracing)
@@ -90,6 +106,7 @@ def build_application(settings: RiskApiSettings) -> FastAPI:
 
 
 def bootstrap(**overrides: object) -> FastAPI:
+    """Build the Risk API from Pydantic runtime settings."""
     return build_application(RiskApiSettings(**overrides))
 
 
@@ -107,10 +124,6 @@ def _kserve_request_headers(
     """Build outbound KServe headers from the current API request context."""
 
     def headers() -> dict[str, str]:
-        values = telemetry.outbound_trace_headers()
-        context = current_context()
-        if context is not None and context.request_id is not None:
-            values[request_id_header] = context.request_id
-        return values
+        return telemetry.outbound_request_headers(request_id_header)
 
     return headers

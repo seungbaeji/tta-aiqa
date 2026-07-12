@@ -5,37 +5,63 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-from collections.abc import Callable
 from dataclasses import asdict
+from pathlib import Path
 
-from aiqa_observability import create_telemetry, load_telemetry_policy
+from pydantic import BaseModel, ConfigDict
 
-from data_quality_pipeline.bootstrap import (
-    DataPreparationResult,
-    aggregate,
-    extract_source,
-    split,
-    verify_source,
-)
+from data_quality_pipeline.bootstrap import bootstrap
 from data_quality_pipeline.settings import DataQualitySettings
-from data_quality_pipeline.validation import validate
+from data_quality_pipeline.workflow import DataPreparationResult, DataQualityStage
 
-COMMANDS: dict[str, Callable[[DataQualitySettings], DataPreparationResult]] = {
-    "verify-source": verify_source,
-    "extract": extract_source,
-    "aggregate": aggregate,
-    "split": split,
-    "validate": validate,
-}
+CLI_STAGES = (
+    DataQualityStage.VERIFY_SOURCE,
+    DataQualityStage.EXTRACT,
+    DataQualityStage.AGGREGATE,
+    DataQualityStage.SPLIT,
+    DataQualityStage.VALIDATE,
+)
+
+
+class DataQualityCliDto(BaseModel):
+    """Validated external CLI input for one data-quality workflow stage."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    stage: DataQualityStage
+    source_contract: Path
+    aggregation_config: Path
+    split_config: Path
+    patient_features: Path
+    split_manifest: Path
+    split_dataset_dir: Path
+    source_evidence: Path
+    quality_rules: Path | None = None
+    validation_artifact_dir: Path | None = None
+
+    def to_settings(self) -> DataQualitySettings:
+        """Convert CLI DTO values into runtime settings for the composition root."""
+        return DataQualitySettings(
+            source_contract_path=self.source_contract,
+            aggregation_config_path=self.aggregation_config,
+            split_config_path=self.split_config,
+            patient_features_path=self.patient_features,
+            split_manifest_path=self.split_manifest,
+            split_dataset_dir=self.split_dataset_dir,
+            source_evidence_path=self.source_evidence,
+            quality_rules_path=self.quality_rules,
+            validation_artifact_dir=self.validation_artifact_dir,
+        )
 
 
 class DataQualityValidationFailed(RuntimeError):
     """Signal a completed validation command whose quality checks did not pass."""
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args() -> DataQualityCliDto:
+    """Parse and validate one external data-quality CLI command."""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=tuple(COMMANDS))
+    parser.add_argument("stage", choices=tuple(stage.value for stage in CLI_STAGES))
     parser.add_argument("--source-contract", required=True)
     parser.add_argument("--aggregation-config", required=True)
     parser.add_argument("--split-config", required=True)
@@ -45,42 +71,28 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--source-evidence", required=True)
     parser.add_argument("--quality-rules")
     parser.add_argument("--validation-artifact-dir")
-    return parser.parse_args()
+    return DataQualityCliDto.model_validate(vars(parser.parse_args()))
 
 
 def main() -> None:
-    args = parse_args()
-    settings = DataQualitySettings(
-        source_contract_path=args.source_contract,
-        aggregation_config_path=args.aggregation_config,
-        split_config_path=args.split_config,
-        patient_features_path=args.patient_features,
-        split_manifest_path=args.split_manifest,
-        split_dataset_dir=args.split_dataset_dir,
-        source_evidence_path=args.source_evidence,
-        quality_rules_path=args.quality_rules,
-        validation_artifact_dir=args.validation_artifact_dir,
-    )
-    telemetry = create_telemetry(
-        service_name="data-quality-pipeline",
-        environment=settings.environment,
-        policy=load_telemetry_policy(settings.telemetry_config_path),
-        otlp_endpoint=str(settings.otlp_endpoint) if settings.otlp_endpoint else None,
-    )
+    """Invoke the bound stage operation and render its JSON outcome."""
+    command = parse_args()
+    runtime = bootstrap(command.to_settings())
     failed = False
     result: DataPreparationResult
     try:
-        with telemetry.run_scope(
-            f"data_quality.{args.command}", attributes={"command": args.command}
+        with runtime.telemetry.run_scope(
+            f"data_quality.{command.stage}",
+            attributes={"command": command.stage},
         ):
-            result = COMMANDS[args.command](settings)
+            result = runtime.run(command.stage)
             result_attributes = {
                 name: value
                 for name, value in asdict(result).items()
                 if value is not None
             }
             if result.success is False:
-                telemetry.event(
+                runtime.telemetry.event(
                     "data_quality.command.failed",
                     level=logging.ERROR,
                     attributes=result_attributes,
@@ -88,13 +100,13 @@ def main() -> None:
                 raise DataQualityValidationFailed(
                     "data quality validation did not pass"
                 )
-            telemetry.event(
+            runtime.telemetry.event(
                 "data_quality.command.completed", attributes=result_attributes
             )
     except DataQualityValidationFailed:
         failed = True
     finally:
-        telemetry.shutdown()
+        runtime.telemetry.shutdown()
     print(json.dumps(asdict(result), indent=2, sort_keys=True))
     if failed:
         raise SystemExit(1)

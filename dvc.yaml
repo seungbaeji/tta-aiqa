@@ -4,6 +4,7 @@ stages:
     deps:
       - apps/data-quality-pipeline/src/data_quality_pipeline/bootstrap.py
       - apps/data-quality-pipeline/src/data_quality_pipeline/settings.py
+      - apps/data-quality-pipeline/src/data_quality_pipeline/workflow.py
       - configs/contracts/physionet-record.yaml
       - data/raw/physionet-2012/LICENSE.txt
       - data/raw/physionet-2012/Outcomes-a.txt
@@ -19,6 +20,7 @@ stages:
     deps:
       - apps/data-quality-pipeline/src/data_quality_pipeline/bootstrap.py
       - apps/data-quality-pipeline/src/data_quality_pipeline/settings.py
+      - apps/data-quality-pipeline/src/data_quality_pipeline/workflow.py
       - artifacts/data-quality/source-integrity.json
       - configs/contracts/physionet-record.yaml
       - data/raw/physionet-2012/set-a.zip
@@ -31,6 +33,7 @@ stages:
     deps:
       - apps/data-quality-pipeline/src/data_quality_pipeline/bootstrap.py
       - apps/data-quality-pipeline/src/data_quality_pipeline/settings.py
+      - apps/data-quality-pipeline/src/data_quality_pipeline/workflow.py
       - artifacts/data-quality/source-integrity.json
       - configs/contracts/physionet-record.yaml
       - configs/data/aggregation.yaml
@@ -46,6 +49,7 @@ stages:
     deps:
       - apps/data-quality-pipeline/src/data_quality_pipeline/bootstrap.py
       - apps/data-quality-pipeline/src/data_quality_pipeline/settings.py
+      - apps/data-quality-pipeline/src/data_quality_pipeline/workflow.py
       - data/processed/physionet-2012/patient-features.csv
       - packages/aiqa-data/src/aiqa_data
       - params.yaml
@@ -65,6 +69,7 @@ stages:
     deps:
       - apps/data-quality-pipeline/src/data_quality_pipeline/bootstrap.py
       - apps/data-quality-pipeline/src/data_quality_pipeline/settings.py
+      - apps/data-quality-pipeline/src/data_quality_pipeline/workflow.py
       - configs/data/split-revisions/v2.yaml
       - data/processed/physionet-2012/patient-features.csv
       - data/splits/physionet-2012/split-manifest.csv

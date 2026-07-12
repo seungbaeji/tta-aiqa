@@ -23,6 +23,8 @@ class PredictionLabels:
 
 @dataclass(frozen=True)
 class ModelIdentity:
+    """Stable identity and decision threshold for one loaded scoring model."""
+
     profile: str
     version: str
     threshold: float
@@ -36,6 +38,8 @@ class ModelIdentity:
 
 @dataclass(frozen=True)
 class PredictionRequest:
+    """Canonical internal request passed to a scoring capability."""
+
     request_id: str
     features: tuple[tuple[str, FeatureValue], ...]
     scenario: str = "unspecified"
@@ -51,7 +55,25 @@ class PredictionRequest:
 
 
 @dataclass(frozen=True)
+class ScoredRisk:
+    """Validated score and model identity before delivery-specific labeling."""
+
+    request_id: str
+    model: ModelIdentity
+    score: float
+    missing_feature_count: int
+
+    def __post_init__(self) -> None:
+        if not 0 <= self.score <= 1:
+            raise ValueError("risk score must be between zero and one")
+        if self.missing_feature_count < 0:
+            raise ValueError("missing feature count must be non-negative")
+
+
+@dataclass(frozen=True)
 class RiskPrediction:
+    """Labeled risk result returned by the public Risk API capability."""
+
     request_id: str
     model: ModelIdentity
     score: float
@@ -69,6 +91,8 @@ class RiskPrediction:
 
 @dataclass(frozen=True)
 class PredictionEvent:
+    """Domain event emitted after a labeled risk prediction."""
+
     request_id: str
     model_profile: str
     model_version: str

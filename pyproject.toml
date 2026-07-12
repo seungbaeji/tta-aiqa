@@ -44,6 +44,7 @@ aiqa-serving = { workspace = true }
 members = [
   "apps/data-quality-pipeline",
   "apps/grafana-dashboard-importer",
+  "apps/kserve-predictor",
   "apps/model-trainer",
   "apps/risk-api",
   "apps/traffic-generator",

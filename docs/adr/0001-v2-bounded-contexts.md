@@ -22,7 +22,7 @@ V2 uses five bounded-context packages: `aiqa-core`, `aiqa-data`, `aiqa-model`, `
 
 ### 3-2. Apps
 
-V2 uses five process applications: Data Quality Pipeline, Model Trainer, Risk API, Traffic Generator and Grafana Dashboard Importer. Apps are composition roots and may assemble multiple bounded contexts. Apps do not import other apps.
+V2 uses six process applications: Data Quality Pipeline, Model Trainer, Risk API, KServe Predictor, Traffic Generator and Grafana Dashboard Importer. Risk API owns the public course REST surface; KServe Predictor owns the separate KServe V2 delivery surface. Apps are composition roots and may assemble multiple bounded contexts. Apps do not import other apps.
 
 ### 3-3. Dependency Direction
 

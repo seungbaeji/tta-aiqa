@@ -1,7 +1,10 @@
 """Framework-neutral observability values."""
 
 from aiqa_observability.domain.telemetry import (
+    CounterMetric,
+    HistogramMetric,
     MetricKind,
+    MetricLabels,
     MetricSpec,
     TelemetryAttributes,
     TelemetryContext,
@@ -12,7 +15,10 @@ from aiqa_observability.domain.telemetry import (
 )
 
 __all__ = [
+    "CounterMetric",
+    "HistogramMetric",
     "MetricKind",
+    "MetricLabels",
     "MetricSpec",
     "TelemetryAttributes",
     "TelemetryContext",

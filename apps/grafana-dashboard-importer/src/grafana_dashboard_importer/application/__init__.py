@@ -1,3 +1,3 @@
-from grafana_dashboard_importer.application.import_dashboard import ImportDashboard
+from grafana_dashboard_importer.application.import_dashboard import import_dashboard
 
-__all__ = ["ImportDashboard"]
+__all__ = ["import_dashboard"]

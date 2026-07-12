@@ -4,10 +4,9 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from aiqa_core.domain import ModelRole
 from pydantic import BaseModel, ConfigDict, Field
 
-from aiqa_model.domain import EvaluationPlan, ModelKind, ModelProfile
+from aiqa_model.domain import EvaluationPlan, ModelKind, ModelProfile, ModelRole
 
 
 class ProfileDocument(BaseModel):

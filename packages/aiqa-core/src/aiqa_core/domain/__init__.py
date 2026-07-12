@@ -1,6 +1,5 @@
 """Framework-independent shared domain values."""
 
 from aiqa_core.domain.feature import FeatureDefinition, FeatureSet, FeatureType
-from aiqa_core.domain.model import ModelRole
 
-__all__ = ["FeatureDefinition", "FeatureSet", "FeatureType", "ModelRole"]
+__all__ = ["FeatureDefinition", "FeatureSet", "FeatureType"]

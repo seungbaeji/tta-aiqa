@@ -3,13 +3,11 @@
 from __future__ import annotations
 
 import uuid
+from collections.abc import Callable
 from typing import Any
 
-from aiqa_core.domain import FeatureSet
 from aiqa_observability.adapters import telemetry_lifespan
-from aiqa_serving.adapters import LocalSklearnRiskScorer
-from aiqa_serving.application import PredictRisk, validate_feature_values
-from aiqa_serving.domain import PredictionRequest
+from aiqa_serving.domain import ModelIdentity, PredictionRequest, RiskPrediction
 from aiqa_serving.ports import RiskScorer
 from fastapi import FastAPI, HTTPException, Request, Response, status
 from fastapi.responses import PlainTextResponse
@@ -20,12 +18,16 @@ from risk_api.telemetry import RiskApiTelemetry
 
 
 class PredictionBody(BaseModel):
+    """External REST request body for a mortality-risk prediction."""
+
     model_config = ConfigDict(extra="forbid")
 
     features: dict[str, Any] = Field(min_length=1)
 
 
 class PredictionResponse(BaseModel):
+    """External REST response body for a mortality-risk prediction."""
+
     request_id: str
     model_profile: str
     model_version: str
@@ -37,12 +39,14 @@ class PredictionResponse(BaseModel):
 def build_http_app(
     *,
     config: ApiConfig,
-    feature_set: FeatureSet,
-    predict_risk: PredictRisk,
+    feature_count: int,
+    predict_operation: Callable[[PredictionRequest], RiskPrediction],
     scorer: RiskScorer,
     backend: str,
+    reload_operation: Callable[[], ModelIdentity] | None,
     telemetry: RiskApiTelemetry,
 ) -> FastAPI:
+    """Build the REST delivery adapter around bound serving operations."""
     app = FastAPI(
         title=config.title,
         version=config.api_version,
@@ -101,7 +105,7 @@ def build_http_app(
             "profile": scorer.identity.profile,
             "version": scorer.identity.version,
             "threshold": scorer.identity.threshold,
-            "feature_count": len(feature_set.features),
+            "feature_count": feature_count,
             "education_only": config.education_only,
         }
 
@@ -115,11 +119,10 @@ def build_http_app(
         response.headers[config.request_id_header] = resolved_request_id
         try:
             with telemetry.prediction_scope():
-                values = validate_feature_values(body.features, feature_set)
-                result = predict_risk.execute(
+                result = predict_operation(
                     PredictionRequest(
                         request_id=resolved_request_id,
-                        features=values,
+                        features=tuple(body.features.items()),
                         scenario=request.state.scenario,
                     )
                 )
@@ -139,12 +142,12 @@ def build_http_app(
 
     @app.post("/v1/model/reload")
     def reload_model() -> dict[str, object]:
-        if not isinstance(scorer, LocalSklearnRiskScorer):
+        if reload_operation is None:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={"code": "RELOAD_UNSUPPORTED", "backend": backend},
             )
-        identity = scorer.reload()
+        identity = reload_operation()
         return {"reloaded": True, "model_version": identity.version}
 
     return app

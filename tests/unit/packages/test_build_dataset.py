@@ -3,7 +3,7 @@
 from collections.abc import Iterable, Mapping
 
 import pytest
-from aiqa_data.application import BuildPatientDataset
+from aiqa_data.application import build_patient_dataset
 from aiqa_data.domain import (
     AggregationPlan,
     DatasetRole,
@@ -45,13 +45,12 @@ PLAN = AggregationPlan(
 
 
 def test_use_case_joins_outcome_and_assigns_every_patient() -> None:
-    use_case = BuildPatientDataset(
-        Records((PatientRecord(7, (Observation(0, "Age", 44),)),)),
-        Outcomes({7: 1}),
-        Splits(),
+    result = build_patient_dataset(
+        PLAN,
+        records=Records((PatientRecord(7, (Observation(0, "Age", 44),)),)),
+        outcomes=Outcomes({7: 1}),
+        splitter=Splits(),
     )
-
-    result = use_case.execute(PLAN)
 
     assert result.feature_names == ("age", "age__missing")
     assert result.rows[0].as_mapping() == {
@@ -64,9 +63,10 @@ def test_use_case_joins_outcome_and_assigns_every_patient() -> None:
 
 
 def test_use_case_rejects_incomplete_outcome_join() -> None:
-    use_case = BuildPatientDataset(
-        Records((PatientRecord(7, ()),)), Outcomes({8: 0}), Splits()
-    )
-
     with pytest.raises(ValueError, match="outcome missing"):
-        use_case.execute(PLAN)
+        build_patient_dataset(
+            PLAN,
+            records=Records((PatientRecord(7, ()),)),
+            outcomes=Outcomes({8: 0}),
+            splitter=Splits(),
+        )

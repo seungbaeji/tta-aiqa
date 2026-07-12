@@ -1,6 +1,7 @@
 """Validate canonical model input and produce one risk prediction."""
 
 import math
+from collections.abc import Mapping
 from typing import Any
 
 from aiqa_core.domain import FeatureSet, FeatureType
@@ -11,12 +12,13 @@ from aiqa_serving.domain import (
     PredictionLabels,
     PredictionRequest,
     RiskPrediction,
+    ScoredRisk,
 )
 from aiqa_serving.ports import PredictionEventRecorder, RiskScorer
 
 
 def validate_feature_values(
-    payload: dict[str, Any], feature_set: FeatureSet
+    payload: Mapping[str, Any], feature_set: FeatureSet
 ) -> tuple[tuple[str, FeatureValue], ...]:
     """Validate and order one payload according to the canonical feature contract."""
     expected = set(feature_set.feature_names)
@@ -48,40 +50,52 @@ def validate_feature_values(
     return tuple(values)
 
 
-class PredictRisk:
-    def __init__(
-        self,
-        feature_set: FeatureSet,
-        scorer: RiskScorer,
-        event_recorder: PredictionEventRecorder,
-        labels: PredictionLabels,
-    ) -> None:
-        self._feature_set = feature_set
-        self._scorer = scorer
-        self._event_recorder = event_recorder
-        self._labels = labels
+def score_risk(
+    request: PredictionRequest,
+    *,
+    feature_set: FeatureSet,
+    scorer: RiskScorer,
+) -> ScoredRisk:
+    """Validate and score one canonical request without delivery-specific effects."""
+    ordered = validate_feature_values(dict(request.features), feature_set)
+    return ScoredRisk(
+        request_id=request.request_id,
+        model=scorer.identity,
+        score=scorer.score(ordered),
+        missing_feature_count=sum(value is None for _, value in ordered),
+    )
 
-    def execute(self, request: PredictionRequest) -> RiskPrediction:
-        ordered = validate_feature_values(dict(request.features), self._feature_set)
-        score = self._scorer.score(ordered)
-        prediction = RiskPrediction(
-            request_id=request.request_id,
-            model=self._scorer.identity,
-            score=score,
-            label=self._labels.positive
-            if score >= self._scorer.identity.threshold
-            else self._labels.negative,
+
+def predict_risk(
+    request: PredictionRequest,
+    *,
+    feature_set: FeatureSet,
+    scorer: RiskScorer,
+    event_recorder: PredictionEventRecorder,
+    labels: PredictionLabels,
+) -> RiskPrediction:
+    """Score a request, attach the configured label, and emit its domain event."""
+    scored = score_risk(request, feature_set=feature_set, scorer=scorer)
+    prediction = RiskPrediction(
+        request_id=scored.request_id,
+        model=scored.model,
+        score=scored.score,
+        label=(
+            labels.positive
+            if scored.score >= scored.model.threshold
+            else labels.negative
+        ),
+    )
+    event_recorder.record(
+        PredictionEvent(
+            request_id=prediction.request_id,
+            model_profile=prediction.model.profile,
+            model_version=prediction.model.version,
+            score=prediction.score,
+            threshold=prediction.model.threshold,
+            prediction=prediction.label,
+            missing_feature_count=scored.missing_feature_count,
+            scenario=request.scenario,
         )
-        self._event_recorder.record(
-            PredictionEvent(
-                request_id=prediction.request_id,
-                model_profile=prediction.model.profile,
-                model_version=prediction.model.version,
-                score=prediction.score,
-                threshold=prediction.model.threshold,
-                prediction=prediction.label,
-                missing_feature_count=sum(value is None for _, value in ordered),
-                scenario=request.scenario,
-            )
-        )
-        return prediction
+    )
+    return prediction

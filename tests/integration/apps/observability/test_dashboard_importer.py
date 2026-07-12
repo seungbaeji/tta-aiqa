@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from grafana_dashboard_importer.adapters import load_dashboard_template
-from grafana_dashboard_importer.application import ImportDashboard
+from grafana_dashboard_importer.application import import_dashboard
 from grafana_dashboard_importer.domain import DashboardImport, ImportResult
 
 
@@ -26,12 +26,14 @@ def test_importer_binds_datasources_and_keeps_stable_dashboard_uid() -> None:
     )
     gateway = FakeGateway()
 
-    first = ImportDashboard(gateway).execute(
+    first = import_dashboard(
+        gateway=gateway,
         template=template,
         folder_uid="course",
         datasource_uids={"metrics": "prom", "logs": "loki", "traces": "tempo"},
     )
-    second = ImportDashboard(gateway).execute(
+    second = import_dashboard(
+        gateway=gateway,
         template=template,
         folder_uid="course",
         datasource_uids={"metrics": "prom", "logs": "loki", "traces": "tempo"},

@@ -6,7 +6,7 @@ from pathlib import Path
 import joblib
 import pandas as pd
 import pytest
-from aiqa_core.domain import FeatureDefinition, FeatureSet, FeatureType, ModelRole
+from aiqa_core.domain import FeatureDefinition, FeatureSet, FeatureType
 from aiqa_model.adapters import (
     MlflowModelTracker,
     load_model_bundle,
@@ -16,6 +16,7 @@ from aiqa_model.domain import (
     BinaryMetrics,
     ModelKind,
     ModelProfile,
+    ModelRole,
     ProfileEvaluation,
 )
 from mlflow import MlflowClient

@@ -4,8 +4,9 @@ import json
 from pathlib import Path
 
 import pytest
-from model_trainer.bootstrap import run_development, run_final
+from model_trainer.bootstrap import bootstrap
 from model_trainer.settings import ModelTrainerSettings
+from model_trainer.workflow import TrainerCommand, TrainerStage
 
 
 def finalized_settings(tmp_path: Path) -> ModelTrainerSettings:
@@ -34,8 +35,17 @@ def test_finalized_canonical_evidence_blocks_development_and_final(
     tmp_path: Path,
 ) -> None:
     settings = finalized_settings(tmp_path)
+    runtime = bootstrap(settings)
 
-    with pytest.raises(RuntimeError, match="already evaluated"):
-        run_development(settings)
-    with pytest.raises(RuntimeError, match="already evaluated"):
-        run_final(settings, "CONFIRM-FROZEN-CANONICAL-TEST")
+    try:
+        with pytest.raises(RuntimeError, match="already evaluated"):
+            runtime.run(TrainerCommand(TrainerStage.DEVELOPMENT))
+        with pytest.raises(RuntimeError, match="already evaluated"):
+            runtime.run(
+                TrainerCommand(
+                    TrainerStage.FINAL,
+                    sealed_test_token="CONFIRM-FROZEN-CANONICAL-TEST",
+                )
+            )
+    finally:
+        runtime.telemetry.shutdown()

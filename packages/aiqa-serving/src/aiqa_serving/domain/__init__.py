@@ -7,6 +7,7 @@ from aiqa_serving.domain.prediction import (
     PredictionLabels,
     PredictionRequest,
     RiskPrediction,
+    ScoredRisk,
 )
 
 __all__ = [
@@ -16,4 +17,5 @@ __all__ = [
     "PredictionEvent",
     "PredictionRequest",
     "RiskPrediction",
+    "ScoredRisk",
 ]
