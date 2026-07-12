@@ -6,6 +6,7 @@ from pathlib import Path
 
 import joblib
 import pandas as pd
+import pytest
 from fastapi.testclient import TestClient
 from kserve_predictor.bootstrap import build_application
 from kserve_predictor.settings import KServePredictorSettings
@@ -51,6 +52,11 @@ features:
     return contract, bundle
 
 
+def expected_bundle_sha256(bundle: Path) -> str:
+    """Return the digest the predictor must compare with its mounted bundle."""
+    return hashlib.sha256(bundle.read_bytes()).hexdigest()
+
+
 def test_custom_predictor_implements_kserve_v2_probability_contract(
     tmp_path: Path,
 ) -> None:
@@ -61,6 +67,7 @@ def test_custom_predictor_implements_kserve_v2_probability_contract(
             model_name="mortality-risk",
             model_bundle_path=bundle,
             feature_contract_path=contract,
+            expected_model_sha256=expected_bundle_sha256(bundle),
         )
     )
 
@@ -94,6 +101,7 @@ def test_custom_predictor_rejects_wrong_tensor_shape(tmp_path: Path) -> None:
                 _secrets_dir=tmp_path,
                 model_bundle_path=bundle,
                 feature_contract_path=contract,
+                expected_model_sha256=expected_bundle_sha256(bundle),
             )
         )
     )
@@ -119,6 +127,7 @@ def test_custom_predictor_uses_shared_input_validation(tmp_path: Path) -> None:
                 _secrets_dir=tmp_path,
                 model_bundle_path=bundle,
                 feature_contract_path=contract,
+                expected_model_sha256=expected_bundle_sha256(bundle),
             )
         )
     )
@@ -163,6 +172,7 @@ def test_custom_predictor_readiness_reflects_loaded_backend(tmp_path: Path) -> N
                 _secrets_dir=tmp_path,
                 model_bundle_path=bundle,
                 feature_contract_path=contract,
+                expected_model_sha256=expected_bundle_sha256(bundle),
             )
         )
     )
@@ -180,6 +190,7 @@ def test_custom_predictor_preserves_inbound_trace_and_request_id(
             _secrets_dir=tmp_path,
             model_bundle_path=bundle,
             feature_contract_path=contract,
+            expected_model_sha256=expected_bundle_sha256(bundle),
         )
     )
     trace_id = "4bf92f3577b34da6a3ce929d0e0e4736"
@@ -199,3 +210,20 @@ def test_custom_predictor_preserves_inbound_trace_and_request_id(
     assert response.headers["X-Request-ID"] == "risk-api-request-123"
     assert events[-1]["trace_id"] == trace_id
     assert events[-1]["request_id"] == "risk-api-request-123"
+
+
+def test_custom_predictor_rejects_a_mounted_bundle_with_the_wrong_digest(
+    tmp_path: Path,
+) -> None:
+    """Predictor construction fails before a mismatched PVC bundle can become ready."""
+    contract, bundle = write_fixture(tmp_path)
+
+    with pytest.raises(ValueError, match="model bundle digest mismatch"):
+        build_application(
+            KServePredictorSettings(
+                _secrets_dir=tmp_path,
+                model_bundle_path=bundle,
+                feature_contract_path=contract,
+                expected_model_sha256="0" * 64,
+            )
+        )

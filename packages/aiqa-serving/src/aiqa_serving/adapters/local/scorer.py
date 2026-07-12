@@ -12,8 +12,19 @@ from aiqa_serving.domain import FeatureValue, ModelIdentity
 class LocalSklearnRiskScorer:
     """Score requests with one verified bundle loaded during process construction."""
 
-    def __init__(self, bundle_path: Path, expected_contract_sha256: str) -> None:
-        self._loaded = load_local_model(bundle_path, expected_contract_sha256)
+    def __init__(
+        self,
+        bundle_path: Path,
+        expected_contract_sha256: str,
+        *,
+        expected_model_sha256: str | None = None,
+    ) -> None:
+        """Load one local bundle and optionally bind it to a deployment digest."""
+        self._loaded = load_local_model(
+            bundle_path,
+            expected_contract_sha256,
+            expected_model_sha256=expected_model_sha256,
+        )
 
     @property
     def identity(self) -> ModelIdentity:

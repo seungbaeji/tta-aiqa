@@ -127,6 +127,19 @@ class ApprovedModelDocument(BaseModel):
     final_mlflow_run_id: str
 
 
+class HistoricalReconciliationDocument(BaseModel):
+    """Scope an evidence migration that cannot recreate every original input blob."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal[1]
+    reason: Literal["serialized_bundle_and_metadata_integrity_contract"]
+    original_release_freeze_sha256: str
+    frozen_dvc_lock_sha256: str
+    frozen_dvc_lock_snapshot_available: bool
+    verified_test_dataset_sha256: str
+
+
 class ReleaseManifestDocument(BaseModel):
     """Post-test release decision that links immutable freeze and model artifacts."""
 
@@ -142,6 +155,7 @@ class ReleaseManifestDocument(BaseModel):
     decisions: tuple[ReleaseDecisionDocument, ...]
     model_bundles: dict[str, str]
     approved_model: ApprovedModelDocument | None = None
+    historical_reconciliation: HistoricalReconciliationDocument | None = None
 
 
 class BootstrapBundleDocument(BaseModel):

@@ -31,9 +31,15 @@ class LoadedLocalModel:
 
 
 def load_local_model(
-    bundle_path: Path, expected_contract_sha256: str
+    bundle_path: Path,
+    expected_contract_sha256: str,
+    *,
+    expected_model_sha256: str | None = None,
 ) -> LoadedLocalModel:
-    """Load one joblib bundle only when its feature-contract identity matches."""
+    """Load one bundle only when its configured contract and optional digest match."""
+    model_sha256 = sha256_file(bundle_path)
+    if expected_model_sha256 is not None and model_sha256 != expected_model_sha256:
+        raise ValueError("model bundle digest mismatch")
     bundle = joblib.load(bundle_path)
     if not isinstance(bundle, dict) or set(bundle) != {"model", "metadata"}:
         raise ValueError("local model bundle must contain model and metadata")
@@ -55,7 +61,7 @@ def load_local_model(
         feature_names=feature_names,
         identity=ModelIdentity(
             profile=metadata.profile,
-            version=f"{metadata.profile}-{sha256_file(bundle_path)[:12]}",
+            version=f"{metadata.profile}-{model_sha256[:12]}",
             threshold=metadata.threshold,
         ),
     )

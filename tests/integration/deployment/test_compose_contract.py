@@ -45,7 +45,9 @@ def test_grafana_cloud_override_adds_only_alloy_collector() -> None:
     )
 
     assert set(override["services"]) == {"risk-api", "traffic-generator", "alloy"}
-    assert override["services"]["alloy"]["image"] == "grafana/alloy:v1.16.1"
+    assert override["services"]["alloy"]["image"] == (
+        "grafana/alloy@sha256:51aeb9d829239345070619dad3edd6873186f913c84f45b365b74574fcb38ec0"
+    )
     assert override["services"]["traffic-generator"]["environment"][
         "AIQA_TRAFFIC_OTLP_ENDPOINT"
     ] == "http://alloy:4318"

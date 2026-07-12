@@ -24,3 +24,4 @@ class KServePredictorSettings(BaseSettings):
     otlp_endpoint: AnyHttpUrl | None = None
     model_bundle_path: Path
     feature_contract_path: Path
+    expected_model_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")

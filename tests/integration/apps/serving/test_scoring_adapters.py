@@ -52,6 +52,19 @@ def test_local_sklearn_adapter_rejects_contract_mismatch(tmp_path: Path) -> None
         LocalSklearnRiskScorer(path, "different-hash")
 
 
+def test_local_sklearn_adapter_rejects_unapproved_model_digest(tmp_path: Path) -> None:
+    """A deployment can refuse a mounted bundle that differs from its release digest."""
+    path = tmp_path / "model.joblib"
+    write_bundle(path)
+
+    with pytest.raises(ValueError, match="model bundle digest mismatch"):
+        LocalSklearnRiskScorer(
+            path,
+            "contract-hash",
+            expected_model_sha256="0" * 64,
+        )
+
+
 def test_kserve_adapter_uses_v2_protocol_and_positive_probability() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         assert request.headers["traceparent"] == "00-trace-span-01"

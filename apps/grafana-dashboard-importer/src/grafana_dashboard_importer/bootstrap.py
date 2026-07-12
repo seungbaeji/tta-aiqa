@@ -16,7 +16,10 @@ from grafana_dashboard_importer.domain import (
     DashboardTemplate,
     ImportResult,
 )
-from grafana_dashboard_importer.settings import GrafanaDashboardSettings
+from grafana_dashboard_importer.settings import (
+    GRAFANA_DASHBOARD_SECRETS_DIR,
+    GrafanaDashboardSettings,
+)
 
 
 @dataclass(frozen=True)
@@ -31,7 +34,14 @@ class DashboardRuntime:
 
 def bootstrap(**overrides: object) -> DashboardRuntime:
     """Assemble concrete Grafana Cloud adapters for one process."""
-    settings = GrafanaDashboardSettings(**overrides)
+    settings = GrafanaDashboardSettings(
+        _secrets_dir=(
+            GRAFANA_DASHBOARD_SECRETS_DIR
+            if GRAFANA_DASHBOARD_SECRETS_DIR.is_dir()
+            else None
+        ),
+        **overrides,
+    )
     gateway = GrafanaHttpGateway(
         base_url=str(settings.url),
         token=settings.dashboard_token.get_secret_value(),

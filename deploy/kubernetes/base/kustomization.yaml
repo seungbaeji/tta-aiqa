@@ -17,5 +17,9 @@ configMapGenerator:
     files:
       - model-input.yaml=config/model-input.yaml
       - telemetry.yaml=config/telemetry.yaml
+  - name: model-identity
+    namespace: tta-aiqa
+    envs:
+      - config/model-identity.env
 generatorOptions:
   disableNameSuffixHash: true

@@ -32,7 +32,21 @@ packages/aiqa-qa/              release evidence와 decision
 
 ## 2. 준비
 
-### 2-1. uv 설치
+### 2-1. 실행 위치
+
+모든 실습 명령은 강사가 제공한 Linux VM의 VS Code Remote SSH terminal에서
+실행합니다. 수강생의 Windows, macOS 또는 Linux PC는 VS Code와 browser를 위한
+host일 뿐이며, repository, Docker, kubectl과 data는 VM에서만 사용합니다.
+
+수업에서 수강생이 확인하는 user-facing URL은 두 개입니다.
+
+- 강사가 제공하는 Risk API URL
+- 4장에서 각자 생성하는 Grafana Cloud dashboard URL
+
+MLflow UI는 VM의 Compose service를 VS Code port forwarding으로 열거나 강사가
+제공한 URL을 사용합니다.
+
+### 2-2. uv 설치
 
 `uv`가 없다면 먼저 설치합니다.
 
@@ -52,17 +66,19 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 https://docs.astral.sh/uv/getting-started/installation/
 ```
 
-### 2-2. 의존성 설치
+### 2-3. 의존성 설치
 
 의존성을 설치합니다.
 
 ```bash
-uv sync --all-packages
+uv sync --all-packages --group notebook
 ```
 
-### 2-3. 실습 환경 준비
+### 2-4. 실습 환경 준비
 
-제공 VM에서는 공식 데이터와 GE evidence를 재현하고 baseline model 준비 상태를 함께 확인합니다.
+제공 VM에서는 공식 데이터를 재현하고 GE validation을 실행한 뒤 baseline
+model 준비 상태를 확인합니다. 이 명령은 local data와 ignored runtime artifact만
+생성하며 `reference/evidence/`의 historical V2 기록을 수정하지 않습니다.
 
 ```bash
 uv run python scripts/setup_course.py
@@ -108,6 +124,11 @@ data/splits/physionet-2012/revisions/v2/datasets/
   test.csv           400건, sealed one-shot 평가 전용
   operational.csv    100건, target 미포함
 ```
+
+현재 `dvc.lock`은 active data-pipeline 구현의 재현 기준입니다. sealed V2
+release가 참고한 historical data lineage는
+`reference/evidence/data-lineage/revisions/v2/`에 read-only로 보존합니다.
+수강생은 V2 evidence를 읽되, 이를 현재 data 재현 결과로 덮어쓰지 않습니다.
 
 ## 4. 데이터 품질 실습
 
@@ -166,16 +187,21 @@ uv run python scripts/publish_model.py candidate-b --revision v2
 uv run python scripts/publish_model.py baseline --revision v2
 ```
 
-로컬 실행에서 생성된 SQLite tracking store가 있다면 다음 명령으로 UI를 엽니다.
+Compose의 MLflow service만 시작합니다. 3장에서 같은 Compose stack을 확장하므로
+별도 `mlflow server` process를 띄우지 않아 port `5000`이 충돌하지 않습니다.
 
 ```bash
-uv run mlflow server \
-  --backend-store-uri sqlite:///artifacts/mlflow/mlflow.db \
-  --host 127.0.0.1 \
-  --port 5000
+docker compose -f deploy/compose/simple-mlops/compose.yaml up -d mlflow
+curl http://127.0.0.1:5000/health
 ```
 
-브라우저에서 `http://127.0.0.1:5000`에 접속합니다. Run에는 evaluation role, 접근한 dataset role, DVC lock과 model/data configuration SHA-256이 기록됩니다.
+VS Code port forwarding 또는 강사가 제공한 MLflow URL로 UI를 엽니다. Run에는
+evaluation role, 접근한 dataset role, DVC lock과 model/data configuration
+SHA-256이 기록됩니다.
+
+Candidate B publish는 `release-manifest.json`의 post-test approval과 model/metadata
+digest를 모두 검증합니다. V2의 historical reconciliation scope는
+`reference/evidence/model/revisions/v2/README.md`에서 확인합니다.
 
 ## 6. Serving과 Traffic
 
@@ -230,7 +256,7 @@ uv run python scripts/publish_model.py candidate-b \
 
 ### 7-2. Manifest 확인
 
-Kubernetes에서는 외부 Risk API가 내부 KServe V2 custom predictor를 호출합니다. Base는 baseline으로 시작하고 Candidate B와 rollback은 별도 overlay입니다. `/mnt/course-models`는 단일 노드 수업 VM의 static model PV에 연결됩니다. Alloy는 개인 Grafana Cloud Secret을 준비한 뒤 observed overlay에서만 추가합니다.
+Kubernetes에서는 외부 Risk API가 내부 KServe V2 custom predictor를 호출합니다. Base는 baseline으로 시작하고 Candidate B와 rollback은 별도 overlay입니다. `/mnt/course-models`는 단일 노드 수업 VM의 static model PV에 연결됩니다. 각 overlay는 PVC subPath와 non-secret `model-identity` ConfigMap의 expected model SHA-256을 함께 선택하며 predictor는 mount된 bundle이 다르면 시작을 거부합니다. Alloy는 개인 Grafana Cloud Secret을 준비한 뒤 observed overlay에서만 추가합니다.
 
 ```bash
 kubectl kustomize deploy/kubernetes/overlays/baseline >/tmp/tta-aiqa-baseline.yaml

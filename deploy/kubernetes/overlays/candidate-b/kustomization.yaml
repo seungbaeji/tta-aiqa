@@ -4,6 +4,12 @@ resources:
   - ../../base
 components:
   - ../../components/alloy
+configMapGenerator:
+  - name: model-identity
+    namespace: tta-aiqa
+    behavior: merge
+    literals:
+      - AIQA_KSERVE_EXPECTED_MODEL_SHA256=c712a8e52344c09a493629f8e6a0283c6c3139fb46cc53e293a44ee490a07c95
 patches:
   - target:
       group: serving.kserve.io

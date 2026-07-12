@@ -6,12 +6,17 @@ import argparse
 import json
 import subprocess
 import sys
+from collections.abc import Callable
+from importlib.util import find_spec
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+COURSE_SETUP_SCRIPTS = ("prepare_data.py", "validate_data.py")
+NOTEBOOK_RUNTIME_MODULES = ("ipykernel", "nbclient", "nbformat")
 
 
 def run_script(name: str) -> None:
+    """Run one course preparation script from the repository root."""
     subprocess.run(
         [sys.executable, str(ROOT / "scripts" / name)],
         cwd=ROOT,
@@ -19,7 +24,28 @@ def run_script(name: str) -> None:
     )
 
 
+def missing_notebook_runtime_modules(
+    finder: Callable[[str], object | None] = find_spec,
+) -> tuple[str, ...]:
+    """Return notebook modules that must be installed before guided labs begin."""
+    return tuple(
+        module for module in NOTEBOOK_RUNTIME_MODULES if finder(module) is None
+    )
+
+
+def assert_notebook_runtime() -> None:
+    """Stop setup early when the documented notebook environment is incomplete."""
+    missing = missing_notebook_runtime_modules()
+    if missing:
+        modules = ", ".join(missing)
+        raise RuntimeError(
+            f"notebook runtime is missing: {modules}. "
+            "Run `uv sync --all-packages --group notebook` and retry."
+        )
+
+
 def verify_course_state(*, require_model: bool) -> dict[str, object]:
+    """Verify the prepared data, evidence, and optionally provisioned baseline model."""
     canonical_path = (
         ROOT / "reference/evidence/model/revisions/v2/canonical-benchmark.json"
     )
@@ -49,12 +75,14 @@ def verify_course_state(*, require_model: bool) -> dict[str, object]:
         "schema_version": 1,
         "data_pipeline": "ready",
         "great_expectations": "ready",
+        "notebook_runtime": "ready",
         "canonical_decisions": decisions,
         "deployed_model": model_status,
     }
 
 
 def main() -> None:
+    """Prepare student-local data without rewriting historical course evidence."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--data-only",
@@ -62,11 +90,9 @@ def main() -> None:
         help="prepare data and GE without requiring the provisioned baseline model",
     )
     args = parser.parse_args()
-    run_script("prepare_data.py")
-    run_script("build_data_evidence.py")
-    run_script("build_split_revision_evidence.py")
-    run_script("validate_data.py")
-    run_script("build_quality_evidence.py")
+    assert_notebook_runtime()
+    for script in COURSE_SETUP_SCRIPTS:
+        run_script(script)
     print(
         json.dumps(
             verify_course_state(require_model=not args.data_only),

@@ -40,6 +40,12 @@ def write_documents(tmp_path: Path, approved: bool = True) -> tuple[Path, Path, 
     release.write_text(
         json.dumps(
             {
+                "release_status": "release_approved" if approved else "scenario_review",
+                "deployment_allowed": approved,
+                "approved_profile": "candidate-b" if approved else None,
+                "approved_model": (
+                    {"profile": "candidate-b"} if approved else None
+                ),
                 "model_bundles": {
                     f"{profile}/{name}": digest((source / profile / name).read_bytes())
                     for profile in ("baseline", "candidate-b")
@@ -133,6 +139,24 @@ def test_publish_rejects_metadata_not_frozen_by_release_manifest(
     )
 
     with pytest.raises(ValueError, match="metadata hash"):
+        publish(
+            profile="candidate-b",
+            source_dir=source,
+            target_dir=tmp_path / "deployed",
+            canonical_path=canonical,
+            release_manifest_path=release,
+        )
+
+
+def test_candidate_b_requires_a_post_test_release_authorization(tmp_path: Path) -> None:
+    """A bundle hash alone cannot replace the explicit post-test approval record."""
+    source, canonical, release = write_documents(tmp_path)
+    release.write_text(
+        json.dumps({"model_bundles": json.loads(release.read_text())["model_bundles"]}),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(PermissionError, match="release manifest"):
         publish(
             profile="candidate-b",
             source_dir=source,

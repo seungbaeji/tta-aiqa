@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 from pathlib import Path
@@ -10,10 +11,16 @@ from typing import Any
 from aiqa_qa.adapters import load_release_policy
 from aiqa_qa.domain import ModelEvidence, decide_release
 
+if __package__:
+    from .historical_evidence import add_output_arguments, resolve_output_path
+else:
+    from historical_evidence import add_output_arguments, resolve_output_path
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def sha256(path: Path) -> str:
+    """Return the SHA-256 digest for a binary file."""
     digest = hashlib.sha256()
     with path.open("rb") as file:
         for chunk in iter(lambda: file.read(1024 * 1024), b""):
@@ -22,6 +29,7 @@ def sha256(path: Path) -> str:
 
 
 def model_evidence(profile: dict[str, Any]) -> ModelEvidence:
+    """Convert serialized benchmark metrics to the release-policy domain value."""
     metrics = profile["metrics"]
     return ModelEvidence(
         profile=profile["profile"],
@@ -33,11 +41,33 @@ def model_evidence(profile: dict[str, Any]) -> ModelEvidence:
     )
 
 
-def main() -> None:
-    development_path = ROOT / "artifacts/model/development-benchmark.json"
-    prepared_development_path = (
-        ROOT / "reference/evidence/model/development-benchmark.json"
+def parse_args() -> argparse.Namespace:
+    """Parse a maintenance-only model evidence output request."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    add_output_arguments(
+        parser,
+        root=ROOT,
+        default_relative_path="model/canonical-benchmark.json",
     )
+    args = parser.parse_args()
+    try:
+        args.output = resolve_output_path(
+            root=ROOT,
+            output=args.output,
+            write_historical_evidence=args.write_historical_evidence,
+        )
+    except ValueError as error:
+        parser.error(str(error))
+    return args
+
+
+def main() -> None:
+    """Build V1 model-evidence drafts without rewriting tracked evidence by default."""
+    args = parse_args()
+    development_path = ROOT / "artifacts/model/development-benchmark.json"
+    output = args.output
+    output.parent.mkdir(parents=True, exist_ok=True)
+    prepared_development_path = output.parent / "development-benchmark.json"
     final_path = ROOT / "artifacts/model/final-benchmark.json"
     policy_path = ROOT / "configs/qa/release-policy.yaml"
     freeze_path = ROOT / "reference/evidence/model/release-freeze.json"
@@ -116,8 +146,6 @@ def main() -> None:
             "model profiles against the sealed test. Review the teaching scenario."
         ),
     }
-    output = ROOT / "reference/evidence/model/canonical-benchmark.json"
-    output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(
         json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )

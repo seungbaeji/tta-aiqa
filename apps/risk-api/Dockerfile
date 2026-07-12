@@ -1,5 +1,9 @@
 FROM python:3.11-slim
 
+ARG VCS_REF=unknown
+LABEL org.opencontainers.image.source="https://github.com/seungbaeji/tta-aiqa" \
+      org.opencontainers.image.revision="${VCS_REF}"
+
 RUN pip install --no-cache-dir uv==0.11.12
 WORKDIR /workspace
 

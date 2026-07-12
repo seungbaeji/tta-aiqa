@@ -27,6 +27,11 @@ spec:
             value: mortality-risk
           - name: AIQA_KSERVE_MODEL_BUNDLE_PATH
             value: /runtime/model/model.joblib
+          - name: AIQA_KSERVE_EXPECTED_MODEL_SHA256
+            valueFrom:
+              configMapKeyRef:
+                name: model-identity
+                key: AIQA_KSERVE_EXPECTED_MODEL_SHA256
           - name: AIQA_KSERVE_FEATURE_CONTRACT_PATH
             value: /runtime/config/model-input.yaml
           - name: AIQA_KSERVE_TELEMETRY_CONFIG_PATH

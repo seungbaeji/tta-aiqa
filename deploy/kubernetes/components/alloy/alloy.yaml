@@ -21,7 +21,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: alloy
-          image: grafana/alloy:v1.16.1
+          image: grafana/alloy@sha256:51aeb9d829239345070619dad3edd6873186f913c84f45b365b74574fcb38ec0
           args:
             - run
             - --server.http.listen-addr=0.0.0.0:12345

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 from collections import Counter
@@ -9,10 +10,16 @@ from pathlib import Path
 
 import pandas as pd
 
+if __package__:
+    from .historical_evidence import add_output_arguments, resolve_output_path
+else:
+    from historical_evidence import add_output_arguments, resolve_output_path
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def sha256(path: Path) -> str:
+    """Return the SHA-256 digest for a binary file."""
     digest = hashlib.sha256()
     with path.open("rb") as file:
         for chunk in iter(lambda: file.read(1024 * 1024), b""):
@@ -20,7 +27,29 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def parse_args() -> argparse.Namespace:
+    """Parse a maintenance-only split-revision evidence output request."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    add_output_arguments(
+        parser,
+        root=ROOT,
+        default_relative_path="data-lineage/split-revision-v2.json",
+    )
+    args = parser.parse_args()
+    try:
+        args.output = resolve_output_path(
+            root=ROOT,
+            output=args.output,
+            write_historical_evidence=args.write_historical_evidence,
+        )
+    except ValueError as error:
+        parser.error(str(error))
+    return args
+
+
 def main() -> None:
+    """Build a V2 lineage draft without rewriting tracked evidence by default."""
+    args = parse_args()
     parent_path = ROOT / "data/splits/physionet-2012/split-manifest.csv"
     revision_root = ROOT / "data/splits/physionet-2012/revisions/v2"
     revision_path = revision_root / "split-manifest.csv"
@@ -98,7 +127,8 @@ def main() -> None:
             "roles_are_disjoint_and_exhaustive": True,
         },
     }
-    output = ROOT / "reference/evidence/data-lineage/split-revision-v2.json"
+    output = args.output
+    output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(
         json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )

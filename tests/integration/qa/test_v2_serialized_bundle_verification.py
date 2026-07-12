@@ -4,6 +4,8 @@ import hashlib
 import json
 from pathlib import Path
 
+from model_trainer.adapters.documents import ReleaseManifestDocument
+
 ROOT = Path(__file__).resolve().parents[3]
 EVIDENCE = ROOT / "reference/evidence/model/revisions/v2"
 
@@ -57,3 +59,29 @@ def test_local_v2_bundles_match_reviewable_verification_when_available() -> None
             sha256(bundle_root / profile / "metadata.json")
             == expected["metadata_sha256"]
         )
+
+
+def test_v2_release_manifest_authorizes_only_the_frozen_candidate_b_bundle() -> None:
+    """V2 post-test evidence binds approval, final metrics, and bundle identities."""
+    manifest_path = EVIDENCE / "release-manifest.json"
+    freeze_path = EVIDENCE / "release-freeze.json"
+    canonical_path = EVIDENCE / "canonical-benchmark.json"
+    final_path = EVIDENCE / "final-benchmark.json"
+    manifest = ReleaseManifestDocument.model_validate_json(
+        manifest_path.read_text(encoding="utf-8")
+    )
+    freeze = json.loads(freeze_path.read_text(encoding="utf-8"))
+
+    assert manifest.release_status == "release_approved"
+    assert manifest.deployment_allowed is True
+    assert manifest.approved_profile == "candidate-b"
+    assert manifest.approved_model is not None
+    assert manifest.approved_model.profile == "candidate-b"
+    assert manifest.freeze_manifest.sha256 == sha256(freeze_path)
+    assert manifest.canonical_evidence.sha256 == sha256(canonical_path)
+    assert manifest.final_evidence.sha256 == sha256(final_path)
+    assert manifest.model_bundles == freeze["model_bundles"]
+    assert manifest.historical_reconciliation is not None
+    assert (
+        manifest.historical_reconciliation.frozen_dvc_lock_snapshot_available is False
+    )

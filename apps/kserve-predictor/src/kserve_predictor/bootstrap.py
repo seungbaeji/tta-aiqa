@@ -19,6 +19,7 @@ def build_application(settings: KServePredictorSettings) -> FastAPI:
     scorer = LocalSklearnRiskScorer(
         settings.model_bundle_path,
         sha256_file(settings.feature_contract_path),
+        expected_model_sha256=settings.expected_model_sha256,
     )
     telemetry = create_telemetry(
         service_name="kserve-risk-predictor",

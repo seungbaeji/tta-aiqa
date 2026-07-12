@@ -6,6 +6,9 @@ import yaml
 
 ROOT = Path("deploy/kubernetes/base")
 ALLOY = Path("deploy/kubernetes/components/alloy")
+BASELINE_MODEL_SHA256 = (
+    "f2576f12512a490c9814e5238c3f0d2a421a21637a4b03c882df6ff25a637edc"
+)
 
 
 def documents(path: str, root: Path = ROOT) -> list[dict[str, object]]:
@@ -19,10 +22,10 @@ def documents(path: str, root: Path = ROOT) -> list[dict[str, object]]:
 def test_risk_api_uses_internal_kserve_and_read_only_secret_volume() -> None:
     deployment = documents("risk-api.yaml")[0]
     container = deployment["spec"]["template"]["spec"]["containers"][0]
-    environment = {item["name"]: item["value"] for item in container["env"]}
+    environment = {item["name"]: item for item in container["env"]}
 
-    assert environment["AIQA_API_MODEL_BACKEND"] == "kserve"
-    assert "mortality-risk-predictor" in environment["AIQA_API_KSERVE_URL"]
+    assert environment["AIQA_API_MODEL_BACKEND"]["value"] == "kserve"
+    assert "mortality-risk-predictor" in environment["AIQA_API_KSERVE_URL"]["value"]
     secret_mount = next(
         item
         for item in container["volumeMounts"]
@@ -36,7 +39,7 @@ def test_base_starts_with_baseline_model() -> None:
     service = documents("inference-service.yaml")[0]
     serialized = yaml.safe_dump(service)
     container = service["spec"]["predictor"]["containers"][0]
-    environment = {item["name"]: item["value"] for item in container["env"]}
+    environment = {item["name"]: item for item in container["env"]}
 
     assert service["kind"] == "InferenceService"
     assert service["metadata"]["annotations"]["serving.kserve.io/deploymentMode"] == (
@@ -54,12 +57,18 @@ def test_base_starts_with_baseline_model() -> None:
     assert predictor_secrets["projected"]["sources"][0]["secret"]["name"] == (
         "kserve-predictor-runtime"
     )
-    assert environment["AIQA_KSERVE_TELEMETRY_CONFIG_PATH"] == (
+    assert environment["AIQA_KSERVE_TELEMETRY_CONFIG_PATH"]["value"] == (
         "/runtime/config/telemetry.yaml"
     )
-    assert environment["AIQA_KSERVE_OTLP_ENDPOINT"] == (
+    assert environment["AIQA_KSERVE_OTLP_ENDPOINT"]["value"] == (
         "http://alloy.tta-aiqa.svc.cluster.local:4318"
     )
+    assert environment["AIQA_KSERVE_EXPECTED_MODEL_SHA256"]["valueFrom"] == {
+        "configMapKeyRef": {
+            "name": "model-identity",
+            "key": "AIQA_KSERVE_EXPECTED_MODEL_SHA256",
+        }
+    }
     assert service["spec"]["predictor"]["labels"]["app.kubernetes.io/part-of"] == (
         "tta-aiqa"
     )
@@ -72,7 +81,10 @@ def test_kubernetes_deploys_alloy_but_no_monitoring_backend() -> None:
     alloy = documents("alloy.yaml", ALLOY)[0]
     container = alloy["spec"]["template"]["spec"]["containers"][0]
 
-    assert "grafana/alloy:v1.16.1" in manifests
+    assert (
+        "grafana/alloy@sha256:51aeb9d829239345070619dad3edd6873186f913c84f45b365b74574fcb38ec0"
+        in manifests
+    )
     assert all(
         f"name: {name}\n" not in manifests
         for name in ("grafana", "loki", "tempo", "prometheus")
@@ -123,3 +135,13 @@ def test_deployment_config_copies_match_canonical_config() -> None:
         if item["name"] == "model-contract"
     )
     assert "telemetry.yaml=config/telemetry.yaml" in model_contract["files"]
+    model_identity = next(
+        item
+        for item in kustomization["configMapGenerator"]
+        if item["name"] == "model-identity"
+    )
+    assert model_identity["envs"] == ["config/model-identity.env"]
+    assert (
+        (ROOT / "config/model-identity.env").read_text(encoding="utf-8").strip()
+        == f"AIQA_KSERVE_EXPECTED_MODEL_SHA256={BASELINE_MODEL_SHA256}"
+    )

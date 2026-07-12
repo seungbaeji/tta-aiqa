@@ -8,6 +8,10 @@
 inference protocol. It owns the protocol DTOs, HTTP lifecycle, and predictor runtime
 settings. Canonical feature validation and scoring stay in `aiqa-serving`.
 
+The predictor receives a non-secret expected model SHA-256 through its runtime
+settings. It verifies the read-only PVC bundle before loading it, so a mismatched
+mounted file fails startup instead of reporting ready.
+
 ## 2. Runtime Contract
 
 ### 2-1. Endpoints

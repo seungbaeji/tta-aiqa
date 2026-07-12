@@ -5,6 +5,10 @@ from pathlib import Path
 from pydantic import AnyHttpUrl, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+GRAFANA_DASHBOARD_SECRETS_DIR = Path(
+    "/var/run/secrets/aiqa/grafana-dashboard-importer"
+)
+
 
 class GrafanaDashboardSettings(BaseSettings):
     """Validate per-student Grafana Cloud credentials and dashboard locations."""
@@ -13,7 +17,6 @@ class GrafanaDashboardSettings(BaseSettings):
         env_prefix="AIQA_GRAFANA_",
         env_file=".env.grafanacloud",
         env_file_encoding="utf-8",
-        secrets_dir="/var/run/secrets/aiqa/grafana-dashboard-importer",
         extra="forbid",
     )
 

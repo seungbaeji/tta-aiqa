@@ -13,6 +13,9 @@ from grafana_dashboard_importer.domain import (
     ImportResult,
     bind_dashboard_template,
 )
+from grafana_dashboard_importer.main import render_settings_error
+from grafana_dashboard_importer.settings import GrafanaDashboardSettings
+from pydantic import ValidationError
 
 
 def template() -> DashboardTemplate:
@@ -108,3 +111,16 @@ def test_bindings_reject_empty_or_untrimmed_datasource_uids() -> None:
             logs_uid=" ",
             traces_uid="tempo-uid",
         )
+
+
+def test_settings_error_names_only_missing_fields() -> None:
+    """Dashboard onboarding errors identify the configuration a student must supply."""
+    try:
+        GrafanaDashboardSettings(_env_file=None)
+    except ValidationError as error:
+        message = render_settings_error(error)
+    else:
+        raise AssertionError("expected a missing dashboard setting validation error")
+
+    assert "url" in message
+    assert ".env.grafanacloud.example" in message
