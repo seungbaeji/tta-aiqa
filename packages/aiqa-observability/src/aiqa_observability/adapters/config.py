@@ -1,31 +1,34 @@
-"""YAML adapter for the shared telemetry contract."""
+"""Strict YAML loader for the shared platform telemetry policy."""
 
 from pathlib import Path
-from typing import Any
+from typing import Literal
 
 import yaml
+from pydantic import BaseModel, ConfigDict
 
-from aiqa_observability.domain import MetricNames, TelemetryContract, TelemetryLabels
+from aiqa_observability.domain import TelemetryPolicy
 
 
-def load_telemetry_contract(path: Path) -> TelemetryContract:
-    document: Any = yaml.safe_load(path.read_text(encoding="utf-8"))
-    if not isinstance(document, dict):
-        raise ValueError("telemetry config root must be a mapping")
-    labels = document.get("labels")
-    metrics = document.get("metrics")
-    if not isinstance(labels, dict) or not isinstance(metrics, dict):
-        raise ValueError("telemetry labels and metrics must be mappings")
-    return TelemetryContract(
-        schema_version=int(document["schema_version"]),
-        service_name=str(document["service_name"]),
-        service_namespace=str(document["service_namespace"]),
-        environment=str(document["environment"]),
-        labels=TelemetryLabels(
-            resource=tuple(labels["resource"]),
-            request_metrics=tuple(labels["request_metrics"]),
-            prediction_metrics=tuple(labels["prediction_metrics"]),
-            logs_and_traces=tuple(labels["logs_and_traces"]),
-        ),
-        metrics=MetricNames(**metrics),
+class _LoggingDocument(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    level: Literal["DEBUG", "INFO", "WARNING", "ERROR"]
+
+
+class _TelemetryDocument(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: int
+    service_namespace: str
+    logging: _LoggingDocument
+
+
+def load_telemetry_policy(path: Path) -> TelemetryPolicy:
+    """Load the versioned policy shared by all Python application processes."""
+    document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    parsed = _TelemetryDocument.model_validate(document)
+    return TelemetryPolicy(
+        schema_version=parsed.schema_version,
+        service_namespace=parsed.service_namespace,
+        log_level=parsed.logging.level,
     )

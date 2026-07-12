@@ -29,14 +29,22 @@ from aiqa_model.domain import (
     BenchmarkResult,
     BinaryMetrics,
     EvaluationPlan,
+    FeatureCoefficient,
+    FeatureDiagnostics,
+    FeatureSelection,
+    FeatureSummary,
     MetricDistribution,
     ModelKind,
     ModelProfile,
+    PermutationImportance,
     ProfileEvaluation,
 )
+from aiqa_model.ports import FittedModels
 
 
 class SklearnBenchmark:
+    """Evaluate configured sklearn profiles while enforcing dataset-role access."""
+
     def __init__(
         self,
         dataset_dir: Path,
@@ -52,6 +60,7 @@ class SklearnBenchmark:
         self._random_seed = random_seed
 
     def development(self) -> BenchmarkResult:
+        """Fit and evaluate every profile using train and valid roles."""
         train = self._read_role("train")
         valid = self._read_role("valid")
         evaluations = tuple(
@@ -68,8 +77,9 @@ class SklearnBenchmark:
         self,
         *,
         sealed_test_token: str | None,
-        fitted_pipelines: dict[str, Pipeline] | None = None,
+        fitted_pipelines: FittedModels | None = None,
     ) -> BenchmarkResult:
+        """Evaluate frozen pipelines against test after explicit confirmation."""
         if sealed_test_token != "CONFIRM-FROZEN-CANONICAL-TEST":
             raise PermissionError("sealed test requires an explicit confirmation token")
         test = self._read_role("test", allow_sealed=True)
@@ -83,14 +93,14 @@ class SklearnBenchmark:
                 for profile in self._profiles
             )
         else:
-            expected = {profile.name for profile in self._profiles}
-            if set(fitted_pipelines) != expected:
+            expected = tuple(sorted(profile.name for profile in self._profiles))
+            if fitted_pipelines.names != expected:
                 raise ValueError(
                     "fitted pipeline profiles do not match benchmark profiles"
                 )
             evaluations = tuple(
                 self._evaluate_fitted_profile(
-                    profile, fitted_pipelines[profile.name], test
+                    profile, fitted_pipelines.get(profile.name), test
                 )
                 for profile in self._profiles
             )
@@ -100,7 +110,8 @@ class SklearnBenchmark:
             profiles=evaluations,
         )
 
-    def fit_bundles(self, profiles: tuple[str, ...]) -> dict[str, Pipeline]:
+    def fit_bundles(self, profiles: tuple[str, ...]) -> FittedModels:
+        """Fit requested profiles on train and valid and return named bundles."""
         fit = pd.concat(
             [self._read_role("train"), self._read_role("valid")],
             ignore_index=True,
@@ -117,11 +128,12 @@ class SklearnBenchmark:
         missing = set(profiles) - set(bundles)
         if missing:
             raise ValueError(f"unknown model profiles requested: {sorted(missing)}")
-        return bundles
+        return FittedModels.from_mapping(bundles)
 
     def feature_diagnostics(
         self, *, baseline_profile: str, candidate_profile: str
-    ) -> dict[str, object]:
+    ) -> FeatureDiagnostics:
+        """Compare feature behavior for two profiles using train and valid only."""
         train = self._read_role("train")
         valid = self._read_role("valid")
         names = list(self._feature_set.feature_names)
@@ -144,7 +156,7 @@ class SklearnBenchmark:
             n_jobs=1,
         )
 
-        diagnostics: list[dict[str, object]] = []
+        diagnostics: list[FeatureSummary] = []
         target = train["target"].astype(float)
         for feature in self._feature_set.features:
             series = train[feature.name]
@@ -154,37 +166,30 @@ class SklearnBenchmark:
             if numeric.notna().sum() > 1 and numeric.nunique(dropna=True) > 1:
                 correlation = float(numeric.corr(target))
             diagnostics.append(
-                {
-                    "feature": feature.name,
-                    "dtype": feature.dtype.value,
-                    "missing_rate": float(series.isna().mean()),
-                    "distinct_values": int(series.nunique(dropna=True)),
-                    "variance": variance,
-                    "target_correlation": correlation,
-                }
+                FeatureSummary(
+                    feature=feature.name,
+                    dtype=feature.dtype.value,
+                    missing_rate=float(series.isna().mean()),
+                    distinct_values=int(series.nunique(dropna=True)),
+                    variance=variance,
+                    target_correlation=correlation,
+                )
             )
-        return {
-            "schema_version": 1,
-            "accessed_roles": ["train", "valid"],
-            "test_accessed": False,
-            "feature_count": len(names),
-            "selection": "retain_all_canonical_features",
-            "features": diagnostics,
-            "top_baseline_coefficients": [
-                {"feature": str(name), "coefficient": float(value)}
-                for name, value in sorted(
+        coefficients_by_feature = tuple(
+            FeatureCoefficient(feature=str(name), coefficient=float(value))
+            for name, value in sorted(
                     zip(transformed_names, coefficients, strict=True),
                     key=lambda item: abs(item[1]),
                     reverse=True,
                 )[:25]
-            ],
-            "candidate_permutation_importance": [
-                {
-                    "feature": name,
-                    "mean": float(mean),
-                    "standard_deviation": float(std),
-                }
-                for name, mean, std in sorted(
+        )
+        permutation_by_feature = tuple(
+            PermutationImportance(
+                feature=name,
+                mean=float(mean),
+                standard_deviation=float(std),
+            )
+            for name, mean, std in sorted(
                     zip(
                         names,
                         permutation.importances_mean,
@@ -194,8 +199,17 @@ class SklearnBenchmark:
                     key=lambda item: item[1],
                     reverse=True,
                 )
-            ],
-        }
+        )
+        return FeatureDiagnostics(
+            schema_version=1,
+            accessed_roles=("train", "valid"),
+            test_accessed=False,
+            feature_count=len(names),
+            selection=FeatureSelection.RETAIN_ALL_CANONICAL,
+            features=tuple(diagnostics),
+            top_baseline_coefficients=coefficients_by_feature,
+            candidate_permutation_importance=permutation_by_feature,
+        )
 
     def _read_role(self, role: str, *, allow_sealed: bool = False) -> pd.DataFrame:
         if role in {"test", "operational"} and not allow_sealed:
@@ -363,6 +377,7 @@ def binary_metrics(
     probabilities: np.ndarray[Any, Any],
     threshold: float,
 ) -> BinaryMetrics:
+    """Calculate thresholded classification and ranking metrics."""
     predictions = (probabilities >= threshold).astype(int)
     true_negative, false_positive, false_negative, true_positive = confusion_matrix(
         target, predictions, labels=[0, 1]
@@ -389,6 +404,7 @@ def bootstrap_recall_lower(
     confidence_level: float,
     random_seed: int,
 ) -> float:
+    """Estimate the lower recall confidence bound with deterministic resampling."""
     rng = np.random.default_rng(random_seed)
     indices = np.arange(len(target))
     recalls: list[float] = []

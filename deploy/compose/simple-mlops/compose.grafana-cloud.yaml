@@ -6,6 +6,13 @@ services:
       alloy:
         condition: service_started
 
+  traffic-generator:
+    environment:
+      AIQA_TRAFFIC_OTLP_ENDPOINT: http://alloy:4318
+    depends_on:
+      alloy:
+        condition: service_started
+
   alloy:
     image: grafana/alloy:v1.16.1
     command:

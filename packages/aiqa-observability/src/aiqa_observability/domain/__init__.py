@@ -1,14 +1,23 @@
-"""Telemetry event domain values and invariants."""
+"""Framework-neutral observability values."""
+
 from aiqa_observability.domain.telemetry import (
-    MetricNames,
-    PredictionObservation,
-    TelemetryContract,
-    TelemetryLabels,
+    MetricKind,
+    MetricSpec,
+    TelemetryAttributes,
+    TelemetryContext,
+    TelemetryEvent,
+    TelemetryPolicy,
+    TelemetryResource,
+    TelemetryValue,
 )
 
 __all__ = [
-    "MetricNames",
-    "PredictionObservation",
-    "TelemetryContract",
-    "TelemetryLabels",
+    "MetricKind",
+    "MetricSpec",
+    "TelemetryAttributes",
+    "TelemetryContext",
+    "TelemetryEvent",
+    "TelemetryPolicy",
+    "TelemetryResource",
+    "TelemetryValue",
 ]

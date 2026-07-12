@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+from pydantic import AnyHttpUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -14,6 +15,8 @@ class ModelTrainerSettings(BaseSettings):
     )
 
     environment: str = "local"
+    telemetry_config_path: Path = Path("configs/observability/telemetry.yaml")
+    otlp_endpoint: AnyHttpUrl | None = None
     feature_contract_path: Path
     feature_sets_path: Path
     profiles_path: Path

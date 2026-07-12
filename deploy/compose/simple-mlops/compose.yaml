@@ -59,6 +59,7 @@ services:
     environment:
       AIQA_TRAFFIC_ENVIRONMENT: compose
       AIQA_TRAFFIC_API_URL: http://risk-api:8000
+      AIQA_TRAFFIC_TELEMETRY_CONFIG_PATH: /runtime/configs/observability/telemetry.yaml
       AIQA_TRAFFIC_SCENARIOS_PATH: /runtime/configs/traffic/scenarios.yaml
       AIQA_TRAFFIC_FEATURE_CONTRACT_PATH: /runtime/configs/contracts/model-input.yaml
       AIQA_TRAFFIC_PATIENT_POOL_PATH: /runtime/data/operational.csv

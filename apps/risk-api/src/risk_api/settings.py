@@ -21,7 +21,6 @@ class RiskApiSettings(BaseSettings):
     api_config_path: Path
     feature_contract_path: Path
     telemetry_config_path: Path
-    telemetry_enabled: bool = True
     otlp_endpoint: AnyHttpUrl | None = None
     model_bundle_path: Path | None = None
     kserve_url: AnyHttpUrl | None = None

@@ -68,6 +68,7 @@ pythonpath = ["."]
 testpaths = ["tests"]
 norecursedirs = ["legacy"]
 markers = [
+  "unit: tests for domain and application behavior without technical boundaries",
   "architecture: static dependency and repository structure checks",
   "integration: tests that cross a technical adapter boundary",
   "scenario: end-user quality decision scenarios",

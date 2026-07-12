@@ -6,6 +6,7 @@ dependencies = [
   "aiqa-core",
   "aiqa-data",
   "aiqa-model",
+  "aiqa-observability",
   "aiqa-qa",
   "pydantic-settings>=2.4",
 ]

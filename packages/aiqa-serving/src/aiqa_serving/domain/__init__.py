@@ -4,6 +4,7 @@ from aiqa_serving.domain.prediction import (
     FeatureValue,
     ModelIdentity,
     PredictionEvent,
+    PredictionLabels,
     PredictionRequest,
     RiskPrediction,
 )
@@ -11,6 +12,7 @@ from aiqa_serving.domain.prediction import (
 __all__ = [
     "FeatureValue",
     "ModelIdentity",
+    "PredictionLabels",
     "PredictionEvent",
     "PredictionRequest",
     "RiskPrediction",

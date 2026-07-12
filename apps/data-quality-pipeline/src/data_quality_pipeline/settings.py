@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+from pydantic import AnyHttpUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -14,6 +15,8 @@ class DataQualitySettings(BaseSettings):
     )
 
     environment: str = "local"
+    telemetry_config_path: Path = Path("configs/observability/telemetry.yaml")
+    otlp_endpoint: AnyHttpUrl | None = None
     source_contract_path: Path
     aggregation_config_path: Path
     split_config_path: Path

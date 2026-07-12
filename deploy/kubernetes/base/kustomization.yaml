@@ -16,5 +16,6 @@ configMapGenerator:
     namespace: tta-aiqa
     files:
       - model-input.yaml=config/model-input.yaml
+      - telemetry.yaml=config/telemetry.yaml
 generatorOptions:
   disableNameSuffixHash: true

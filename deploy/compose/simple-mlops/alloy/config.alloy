@@ -62,6 +62,12 @@ discovery.relabel "container_logs" {
 
   rule {
     source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    regex         = "alloy"
+    action        = "drop"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
     target_label  = "service_name"
   }
 
@@ -87,17 +93,17 @@ loki.write "grafana_cloud" {
   }
 }
 
-otelcol.receiver.otlp "risk_api" {
+otelcol.receiver.otlp "aiqa" {
   http {
     endpoint = "0.0.0.0:4318"
   }
 
   output {
-    traces = [otelcol.processor.batch.risk_api.input]
+    traces = [otelcol.processor.batch.aiqa.input]
   }
 }
 
-otelcol.processor.batch "risk_api" {
+otelcol.processor.batch "aiqa" {
   output {
     traces = [otelcol.exporter.otlphttp.grafana_cloud.input]
   }

@@ -2,23 +2,21 @@
 
 from __future__ import annotations
 
-import math
 import uuid
 from typing import Any
 
-from aiqa_core.domain import FeatureSet, FeatureType
-from aiqa_observability.adapters import TelemetryRuntime
+from aiqa_core.domain import FeatureSet
+from aiqa_observability.adapters import telemetry_lifespan
 from aiqa_serving.adapters import LocalSklearnRiskScorer
-from aiqa_serving.application import PredictRisk
-from aiqa_serving.domain import FeatureValue, PredictionRequest
+from aiqa_serving.application import PredictRisk, validate_feature_values
+from aiqa_serving.domain import PredictionRequest
 from aiqa_serving.ports import RiskScorer
-from fastapi import FastAPI, Header, HTTPException, Request, Response, status
+from fastapi import FastAPI, HTTPException, Request, Response, status
 from fastapi.responses import PlainTextResponse
-from opentelemetry import trace
 from pydantic import BaseModel, ConfigDict, Field
 
 from risk_api.config import ApiConfig
-from risk_api.telemetry import current_trace_id
+from risk_api.telemetry import RiskApiTelemetry
 
 
 class PredictionBody(BaseModel):
@@ -43,36 +41,38 @@ def build_http_app(
     predict_risk: PredictRisk,
     scorer: RiskScorer,
     backend: str,
-    telemetry: TelemetryRuntime,
+    telemetry: RiskApiTelemetry,
 ) -> FastAPI:
-    app = FastAPI(title=config.title, version=config.api_version)
+    app = FastAPI(
+        title=config.title,
+        version=config.api_version,
+        lifespan=telemetry_lifespan(telemetry.shutdown),
+    )
 
     @app.middleware("http")
     async def observe_http(request: Request, call_next):
         request_id = request.headers.get(config.request_id_header) or str(uuid.uuid4())
         scenario = request.headers.get(config.scenario_header, "unspecified")
-        request.state.request_id = request_id
-        span = trace.get_current_span()
-        span.set_attribute("aiqa.request_id", request_id)
-        span.set_attribute("aiqa.scenario", scenario)
-        started = telemetry.clock()
-        status_code = 500
-        try:
-            response = await call_next(request)
-            status_code = response.status_code
-            response.headers[config.request_id_header] = request_id
-            return response
-        finally:
-            route = getattr(request.scope.get("route"), "path", request.url.path)
-            telemetry.observe_request(
-                request_id=request_id,
-                route=route,
-                method=request.method,
-                status_code=status_code,
-                duration_seconds=telemetry.clock() - started,
-                scenario=scenario,
-                trace_id=current_trace_id(),
-            )
+        with telemetry.request_scope(
+            request_id=request_id, scenario=scenario
+        ) as normalized:
+            request.state.request_id = request_id
+            request.state.scenario = normalized
+            started = telemetry.clock()
+            status_code = 500
+            try:
+                response = await call_next(request)
+                status_code = response.status_code
+                response.headers[config.request_id_header] = request_id
+                return response
+            finally:
+                matched_route = getattr(request.scope.get("route"), "path", None)
+                telemetry.observe_request(
+                    route=telemetry.normalize_route(matched_route),
+                    method=request.method,
+                    status_code=status_code,
+                    duration_seconds=telemetry.clock() - started,
+                )
 
     @app.get("/health/live")
     def live() -> dict[str, str]:
@@ -110,20 +110,19 @@ def build_http_app(
         body: PredictionBody,
         response: Response,
         request: Request,
-        request_id: str | None = Header(default=None, alias=config.request_id_header),
-        scenario: str = Header(default="unspecified", alias=config.scenario_header),
     ) -> PredictionResponse:
-        resolved_request_id = request_id or request.state.request_id
+        resolved_request_id = request.state.request_id
         response.headers[config.request_id_header] = resolved_request_id
         try:
-            values = validate_feature_values(body.features, feature_set)
-            result = predict_risk.execute(
-                PredictionRequest(
-                    request_id=resolved_request_id,
-                    features=values,
-                    scenario=scenario,
+            with telemetry.prediction_scope():
+                values = validate_feature_values(body.features, feature_set)
+                result = predict_risk.execute(
+                    PredictionRequest(
+                        request_id=resolved_request_id,
+                        features=values,
+                        scenario=request.state.scenario,
+                    )
                 )
-            )
         except ValueError as error:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
@@ -135,9 +134,7 @@ def build_http_app(
             model_version=result.model.version,
             score=round(result.score, config.score_decimal_places),
             threshold=result.model.threshold,
-            prediction=(
-                config.positive_label if result.positive else config.negative_label
-            ),
+            prediction=result.label,
         )
 
     @app.post("/v1/model/reload")
@@ -151,35 +148,3 @@ def build_http_app(
         return {"reloaded": True, "model_version": identity.version}
 
     return app
-
-
-def validate_feature_values(
-    payload: dict[str, Any], feature_set: FeatureSet
-) -> tuple[tuple[str, FeatureValue], ...]:
-    expected = set(feature_set.feature_names)
-    actual = set(payload)
-    if actual != expected:
-        raise ValueError(
-            f"model input contract mismatch: missing={sorted(expected - actual)}, "
-            f"extra={sorted(actual - expected)}"
-        )
-    values: list[tuple[str, FeatureValue]] = []
-    for feature in feature_set.features:
-        value = payload[feature.name]
-        if value is None:
-            if not feature.nullable:
-                raise ValueError(f"non-nullable feature is null: {feature.name}")
-        elif feature.dtype is FeatureType.BOOLEAN:
-            if not isinstance(value, bool):
-                raise ValueError(f"boolean feature has invalid type: {feature.name}")
-        elif feature.dtype in {FeatureType.FLOAT, FeatureType.INTEGER}:
-            if isinstance(value, bool) or not isinstance(value, int | float):
-                raise ValueError(f"numeric feature has invalid type: {feature.name}")
-            if not math.isfinite(float(value)):
-                raise ValueError(f"numeric feature is not finite: {feature.name}")
-        elif feature.dtype is FeatureType.CATEGORY and not isinstance(
-            value, str | int | float
-        ):
-            raise ValueError(f"category feature has invalid type: {feature.name}")
-        values.append((feature.name, value))
-    return tuple(values)

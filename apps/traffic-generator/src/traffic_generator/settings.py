@@ -16,6 +16,8 @@ class TrafficSettings(BaseSettings):
     )
 
     environment: str = "local"
+    telemetry_config_path: Path = Path("configs/observability/telemetry.yaml")
+    otlp_endpoint: AnyHttpUrl | None = None
     api_url: AnyHttpUrl
     scenarios_path: Path
     feature_contract_path: Path

@@ -15,6 +15,9 @@ class GrafanaDashboardSettings(BaseSettings):
         extra="forbid",
     )
 
+    environment: str = "local"
+    telemetry_config_path: Path = Path("configs/observability/telemetry.yaml")
+    otlp_endpoint: AnyHttpUrl | None = None
     url: AnyHttpUrl
     dashboard_path: Path
     dashboard_token: SecretStr

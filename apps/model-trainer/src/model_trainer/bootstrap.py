@@ -13,6 +13,7 @@ from aiqa_model.adapters import (
     SklearnBenchmark,
     benchmark_from_dict,
     benchmark_to_dict,
+    feature_diagnostics_to_dict,
     load_evaluation_plan,
     load_model_bundle,
     load_profiles,
@@ -25,6 +26,7 @@ from aiqa_model.application import (
     FitModelBundles,
 )
 from aiqa_model.domain import BenchmarkResult
+from aiqa_model.ports import FittedModels
 from aiqa_qa.adapters import load_release_policy
 from aiqa_qa.domain import ReleaseDecision
 
@@ -82,10 +84,11 @@ def run_development(settings: ModelTrainerSettings) -> Path:
 def run_feature_diagnostics(settings: ModelTrainerSettings) -> Path:
     manifest = verify_freeze_manifest(settings)
     policy_document, _ = load_release_policy(settings.release_policy_path)
-    document = DiagnoseFeatures(build_benchmark(settings)).execute(
+    diagnostics = DiagnoseFeatures(build_benchmark(settings)).execute(
         baseline_profile=policy_document.baseline_profile,
         candidate_profile=policy_document.candidate_b_profile,
     )
+    document = feature_diagnostics_to_dict(diagnostics)
     document["feature_contract_sha256"] = sha256(settings.feature_contract_path)
     document["profiles_sha256"] = sha256(settings.profiles_path)
     output = write_json(document, settings.feature_diagnostics_path)
@@ -125,7 +128,7 @@ def bootstrap_models(settings: ModelTrainerSettings) -> Path:
     bundles: dict[str, dict[str, object]] = {}
     for profile in profiles:
         model_path, metadata_path = persist_model_bundle(
-            pipeline=pipelines[profile.name],
+            pipeline=pipelines.get(profile.name),
             profile=profile,
             evaluation=evaluations[profile.name],
             feature_set=feature_set,
@@ -136,7 +139,7 @@ def bootstrap_models(settings: ModelTrainerSettings) -> Path:
         run_id = tracker.record(
             profile=profile,
             evaluation=evaluations[profile.name],
-            pipeline=pipelines[profile.name],
+            pipeline=pipelines.get(profile.name),
             bundle_dir=model_path.parent,
             train_path=settings.split_dataset_dir / "train.csv",
             valid_path=settings.split_dataset_dir / "valid.csv",
@@ -185,12 +188,14 @@ def run_final(settings: ModelTrainerSettings, sealed_test_token: str) -> Path:
     verify_freeze_manifest(settings)
     benchmark = build_benchmark(settings)
     bootstrap = json.loads(settings.bootstrap_manifest_path.read_text(encoding="utf-8"))
-    pipelines = {
-        profile: load_model_bundle(
-            Path(item["model_path"]), Path(item["metadata_path"])
-        )
-        for profile, item in bootstrap["bundles"].items()
-    }
+    pipelines = FittedModels.from_mapping(
+        {
+            profile: load_model_bundle(
+                Path(item["model_path"]), Path(item["metadata_path"])
+            )
+            for profile, item in bootstrap["bundles"].items()
+        }
+    )
     result = ConfirmFrozenModels(benchmark).execute(
         sealed_test_token=sealed_test_token, fitted_models=pipelines
     )

@@ -8,6 +8,20 @@ FeatureValue = float | int | bool | None
 
 
 @dataclass(frozen=True)
+class PredictionLabels:
+    """Configured labels for positive and negative model outcomes."""
+
+    positive: str
+    negative: str
+
+    def __post_init__(self) -> None:
+        if not self.positive or not self.negative:
+            raise ValueError("prediction labels are required")
+        if self.positive == self.negative:
+            raise ValueError("prediction labels must be distinct")
+
+
+@dataclass(frozen=True)
 class ModelIdentity:
     profile: str
     version: str
@@ -41,19 +55,17 @@ class RiskPrediction:
     request_id: str
     model: ModelIdentity
     score: float
+    label: str
 
     def __post_init__(self) -> None:
         if not 0 <= self.score <= 1:
             raise ValueError("risk score must be between zero and one")
+        if not self.label:
+            raise ValueError("prediction label is required")
 
     @property
     def positive(self) -> bool:
         return self.score >= self.model.threshold
-
-    @property
-    def label(self) -> str:
-        return "high_risk" if self.positive else "low_risk"
-
 
 @dataclass(frozen=True)
 class PredictionEvent:

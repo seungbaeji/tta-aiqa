@@ -7,3 +7,41 @@ positive_label: high_risk
 negative_label: low_risk
 score_decimal_places: 6
 education_only: true
+observability:
+  allowed_scenarios:
+    - baseline
+    - approved-candidate
+    - current-shift
+    - invalid
+    - unspecified
+    - other
+  fallback_scenario: other
+  unmatched_route: unmatched
+  allowed_methods:
+    - GET
+    - POST
+    - other
+  fallback_method: other
+  request_metric_labels:
+    - service_name
+    - environment
+    - route
+    - method
+    - status_code
+  prediction_metric_labels:
+    - service_name
+    - environment
+    - model_profile
+    - model_version
+    - scenario
+    - prediction
+  metrics:
+    request_count: aiqa_risk_requests_total
+    request_latency: aiqa_risk_request_duration_seconds
+    prediction_count: aiqa_risk_predictions_total
+    score: aiqa_risk_score
+    missing_features: aiqa_risk_missing_features
+  buckets:
+    request_latency: [0.01, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0]
+    score: [0.05, 0.1, 0.2, 0.35, 0.5, 0.7, 0.9, 1.0]
+    missing_features: [0, 1, 2, 5, 10, 20, 50, 100, 150]

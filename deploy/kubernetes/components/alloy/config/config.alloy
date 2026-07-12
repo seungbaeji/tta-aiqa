@@ -48,13 +48,18 @@ discovery.kubernetes "pods" {
   }
 }
 
-discovery.relabel "risk_api_logs" {
+discovery.relabel "aiqa_logs" {
   targets = discovery.kubernetes.pods.targets
 
   rule {
-    source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
-    regex         = "risk-api"
+    source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_part_of"]
+    regex         = "tta-aiqa"
     action        = "keep"
+  }
+  rule {
+    source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+    regex         = "alloy"
+    action        = "drop"
   }
   rule {
     source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
@@ -74,8 +79,8 @@ discovery.relabel "risk_api_logs" {
   }
 }
 
-loki.source.kubernetes "risk_api" {
-  targets    = discovery.relabel.risk_api_logs.output
+loki.source.kubernetes "aiqa" {
+  targets    = discovery.relabel.aiqa_logs.output
   forward_to = [loki.write.grafana_cloud.receiver]
 }
 
@@ -89,16 +94,16 @@ loki.write "grafana_cloud" {
   }
 }
 
-otelcol.receiver.otlp "risk_api" {
+otelcol.receiver.otlp "aiqa" {
   http {
     endpoint = "0.0.0.0:4318"
   }
   output {
-    traces = [otelcol.processor.batch.risk_api.input]
+    traces = [otelcol.processor.batch.aiqa.input]
   }
 }
 
-otelcol.processor.batch "risk_api" {
+otelcol.processor.batch "aiqa" {
   output {
     traces = [otelcol.exporter.otlphttp.grafana_cloud.input]
   }

@@ -1,11 +1,17 @@
-"""JSONL, Prometheus, and OpenTelemetry adapters."""
-from aiqa_observability.adapters.config import load_telemetry_contract
-from aiqa_observability.adapters.runtime import JsonTelemetryFormatter, TelemetryRuntime
-from aiqa_observability.adapters.tracing import instrument_fastapi
+"""Technology integrations used internally by the observability platform."""
+
+from aiqa_observability.adapters.config import load_telemetry_policy
+from aiqa_observability.adapters.fastapi import instrument_fastapi, telemetry_lifespan
+from aiqa_observability.adapters.logging import JsonTelemetryFormatter, StructuredLogger
+from aiqa_observability.adapters.opentelemetry import TracingRuntime
+from aiqa_observability.adapters.prometheus import PrometheusMeter
 
 __all__ = [
     "JsonTelemetryFormatter",
-    "TelemetryRuntime",
+    "PrometheusMeter",
+    "StructuredLogger",
+    "TracingRuntime",
     "instrument_fastapi",
-    "load_telemetry_contract",
+    "load_telemetry_policy",
+    "telemetry_lifespan",
 ]

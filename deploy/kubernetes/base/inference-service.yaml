@@ -7,6 +7,9 @@ metadata:
     serving.kserve.io/deploymentMode: RawDeployment
 spec:
   predictor:
+    labels:
+      app.kubernetes.io/name: kserve-risk-predictor
+      app.kubernetes.io/part-of: tta-aiqa
     minReplicas: 1
     containers:
       - name: kserve-container
@@ -18,12 +21,18 @@ spec:
             containerPort: 8080
             protocol: TCP
         env:
+          - name: AIQA_KSERVE_ENVIRONMENT
+            value: kubernetes
           - name: AIQA_KSERVE_MODEL_NAME
             value: mortality-risk
           - name: AIQA_KSERVE_MODEL_BUNDLE_PATH
             value: /runtime/model/model.joblib
           - name: AIQA_KSERVE_FEATURE_CONTRACT_PATH
             value: /runtime/config/model-input.yaml
+          - name: AIQA_KSERVE_TELEMETRY_CONFIG_PATH
+            value: /runtime/config/telemetry.yaml
+          - name: AIQA_KSERVE_OTLP_ENDPOINT
+            value: http://alloy.tta-aiqa.svc.cluster.local:4318
         resources:
           requests:
             cpu: 250m

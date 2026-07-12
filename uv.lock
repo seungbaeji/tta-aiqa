@@ -138,6 +138,7 @@ source = { editable = "apps/data-quality-pipeline" }
 dependencies = [
     { name = "aiqa-core" },
     { name = "aiqa-data" },
+    { name = "aiqa-observability" },
     { name = "great-expectations" },
     { name = "pandas" },
     { name = "pydantic-settings" },
@@ -147,6 +148,7 @@ dependencies = [
 requires-dist = [
     { name = "aiqa-core", editable = "packages/aiqa-core" },
     { name = "aiqa-data", editable = "packages/aiqa-data" },
+    { name = "aiqa-observability", editable = "packages/aiqa-observability" },
     { name = "great-expectations", specifier = ">=1.5,<2" },
     { name = "pandas", specifier = ">=2.2" },
     { name = "pydantic-settings", specifier = ">=2.4" },
@@ -157,12 +159,14 @@ name = "aiqa-grafana-dashboard-importer"
 version = "0.2.0"
 source = { editable = "apps/grafana-dashboard-importer" }
 dependencies = [
+    { name = "aiqa-observability" },
     { name = "pydantic-settings" },
     { name = "requests" },
 ]
 
 [package.metadata]
 requires-dist = [
+    { name = "aiqa-observability", editable = "packages/aiqa-observability" },
     { name = "pydantic-settings", specifier = ">=2.4" },
     { name = "requests", specifier = ">=2.32" },
 ]
@@ -202,6 +206,7 @@ dependencies = [
     { name = "aiqa-core" },
     { name = "aiqa-data" },
     { name = "aiqa-model" },
+    { name = "aiqa-observability" },
     { name = "aiqa-qa" },
     { name = "pydantic-settings" },
 ]
@@ -211,32 +216,33 @@ requires-dist = [
     { name = "aiqa-core", editable = "packages/aiqa-core" },
     { name = "aiqa-data", editable = "packages/aiqa-data" },
     { name = "aiqa-model", editable = "packages/aiqa-model" },
+    { name = "aiqa-observability", editable = "packages/aiqa-observability" },
     { name = "aiqa-qa", editable = "packages/aiqa-qa" },
     { name = "pydantic-settings", specifier = ">=2.4" },
 ]
 
 [[package]]
 name = "aiqa-observability"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "packages/aiqa-observability" }
 dependencies = [
-    { name = "aiqa-core" },
     { name = "fastapi" },
     { name = "opentelemetry-exporter-otlp-proto-http" },
     { name = "opentelemetry-instrumentation-fastapi" },
     { name = "opentelemetry-sdk" },
     { name = "prometheus-client" },
+    { name = "pydantic" },
     { name = "pyyaml" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "aiqa-core", editable = "packages/aiqa-core" },
     { name = "fastapi", specifier = ">=0.110" },
     { name = "opentelemetry-exporter-otlp-proto-http", specifier = ">=1.27" },
     { name = "opentelemetry-instrumentation-fastapi", specifier = ">=0.48b0" },
     { name = "opentelemetry-sdk", specifier = ">=1.27" },
     { name = "prometheus-client", specifier = ">=0.20" },
+    { name = "pydantic", specifier = ">=2.7" },
     { name = "pyyaml", specifier = ">=6.0" },
 ]
 
@@ -307,6 +313,7 @@ version = "0.2.0"
 source = { editable = "apps/traffic-generator" }
 dependencies = [
     { name = "aiqa-core" },
+    { name = "aiqa-observability" },
     { name = "pandas" },
     { name = "pydantic-settings" },
     { name = "requests" },
@@ -315,6 +322,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "aiqa-core", editable = "packages/aiqa-core" },
+    { name = "aiqa-observability", editable = "packages/aiqa-observability" },
     { name = "pandas", specifier = ">=2.2" },
     { name = "pydantic-settings", specifier = ">=2.4" },
     { name = "requests", specifier = ">=2.32" },
