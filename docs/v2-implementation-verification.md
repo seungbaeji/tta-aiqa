@@ -10,12 +10,15 @@
 
 - `uv lock --check`
 - `ruff check apps packages scripts tests`
-- `pytest`: 176 passed
-- `dvc status`: active data-pipeline/package code dependency 변경을 감지했다. Historical V2 evidence를 보존하기 위해 이 working tree에서 `dvc repro`는 실행하지 않았다.
+- `pytest`: 187 passed
+- `dvc repro` 후 `dvc status`: `Data and pipelines are up to date.`
 - 학생용 ch01~ch05 Notebook top-to-bottom 실행
 - baseline, baseline-observed, Candidate B와 rollback Kustomize render
 - Compose base와 Grafana Cloud override render
-- Compose/Kubernetes Alloy config를 `grafana/alloy:v1.16.1 validate`로 검사
+- Compose/Kubernetes Alloy config를 pinned Alloy digest로 검사
+- 빈 clone에서 `uv sync --all-packages --group notebook`,
+  `uv run python scripts/setup_course.py --data-only`, notebook suite와 clean
+  `git status`를 확인
 
 ### 2-2. Curriculum
 
@@ -28,8 +31,9 @@
 
 ### 3-1. Compose
 
-- Baseline Risk API readiness와 `/v1/model`
+- 현재 Compose build 후 baseline Risk API readiness와 `/v1/model`
 - 독립 Traffic Generator baseline 요청 5건, HTTP 200
+- invalid traffic 3건, HTTP 422
 - `/metrics`의 baseline profile/version/scenario label
 
 ### 3-2. KServe adapter
@@ -38,36 +42,38 @@
 - KServe readiness와 model identity 검증
 - KServe backend를 통한 baseline traffic 3건, HTTP 200
 - Local OrbStack 8080 충돌을 확인하고 configurable predictor port로 우회
+- Predictor startup이 ConfigMap의 expected model SHA-256과 mounted bundle이 다르면
+  실패하는 integration test
 
 ### 3-3. Artifact
 
 - Existing serialized baseline/Candidate A/Candidate B bundle이 frozen canonical metric과 완전히 일치
 - Model과 external metadata hash를 release manifest와 publish gate에서 검증
 - Candidate B immutable publish 경로 생성과 metadata 검증
+- Risk API와 KServe predictor를 source commit `366eb34` label로 GHCR에
+  `linux/amd64`/`linux/arm64` OCI index로 publish하고 digest를 GitOps manifest에 pin
 
 ### 3-4. Provenance Scope and Remaining Work
 
-현재 V2 evidence와 publish gate는 serialized model과 external metadata의 hash를
-검증한다. 그러나 pre-test freeze에서 exact `test.csv`와 모든 bundle digest를 먼저
-동결하고, KServe startup에서 expected model digest를 검증하며, Kubernetes image를
-OCI digest로 pin하는 target contract는 아직 구현 완료가 아니다. 이 구분과 도구별
-책임은 [ADR 0006](adr/0006-layered-artifact-identity-and-release-provenance.md)에
+새 revision의 release freeze는 exact sealed `test.csv`와 model/metadata digest를
+test 전에 동결한다. V2 historical revision은 migration 전 원본 frozen DVC lock blob을
+repo에서 복원할 수 없으므로, `release-manifest.json`의 `historical_reconciliation`에
+검증 범위를 명시한다. KServe startup digest gate와 OCI digest pinning은 구현됐으며
+도구별 책임은 [ADR 0006](adr/0006-layered-artifact-identity-and-release-provenance.md)에
 정의한다.
 
 ## 4. 외부 환경 Pending
 
 ### 4-1. Target k3s와 Argo CD
 
-현재 kubectl context는 수업 VM이 아닌 `oracle/k3s`이므로 resource를 적용하지 않았다. Target VM에서 static `/mnt/course-models` PV, baseline sync, Candidate B sync와 rollback health를 확인해야 한다.
+현재 kubectl context는 수업 VM이 아닌 `oracle/k3s`이므로 resource를 적용하지 않았다. Target VM에서 static `/mnt/course-models` PV, `ghcr-pull` registry Secret, baseline sync, Candidate B sync와 rollback health를 확인해야 한다.
 
 ### 4-2. Grafana Cloud
 
 개인 `.env.grafanacloud`와 Alloy Secret이 없어 live ingestion과 dashboard import를 실행하지 않았다. 개인 stack에서 baseline telemetry, Candidate B telemetry 누적과 dashboard idempotency를 확인해야 한다.
 
-### 4-3. Clean clone
+### 4-3. Target image pull
 
-현재 active 구조 refactor와 검증 변경은 아직 working tree에 있다. 해당 변경을 commit한 뒤 빈 clone에서 `uv sync --all-packages --group notebook`과 `uv run python scripts/setup_course.py --data-only`를 실행해야 한다.
-
-### 4-4. Container image
-
-Kubernetes manifests의 `ghcr.io/seungbaeji/tta-aiqa-risk-api:v2`와 `ghcr.io/seungbaeji/tta-aiqa-kserve-predictor:v2`는 아직 immutable digest로 고정되지 않았다. Release image publish 후 digest pinning과 target architecture pull을 확인해야 한다.
+GHCR OCI index에는 `linux/amd64`와 `linux/arm64` manifest가 모두 존재한다. 다만
+실제 course VM node가 private package를 `ghcr-pull` Secret으로 pull하는지와 Argo CD
+rollout에서 digest가 유지되는지는 target k3s에서 확인해야 한다.

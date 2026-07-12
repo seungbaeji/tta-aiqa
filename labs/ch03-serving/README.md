@@ -51,7 +51,9 @@ kubectl apply --dry-run=server -f /tmp/tta-aiqa-baseline.yaml
 실제 Argo CD sync 절차와 개인 URL은 강사가 안내합니다. 수강생은 direct apply로
 release를 바꾸지 않습니다. Rendered `model-identity` ConfigMap의
 `AIQA_KSERVE_EXPECTED_MODEL_SHA256`과 baseline PVC subPath의 bundle digest가 같은지도
-확인합니다. 두 값이 다르면 predictor는 시작 단계에서 실패합니다.
+확인합니다. 두 값이 다르면 predictor는 시작 단계에서 실패합니다. `ghcr-pull`은
+강사가 namespace에 미리 준비하는 registry Secret이며 수강생의 Grafana Cloud Secret과
+별개입니다.
 
 ## 4. 완료 기준
 

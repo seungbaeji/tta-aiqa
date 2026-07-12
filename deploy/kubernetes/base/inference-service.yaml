@@ -10,10 +10,12 @@ spec:
     labels:
       app.kubernetes.io/name: kserve-risk-predictor
       app.kubernetes.io/part-of: tta-aiqa
+    imagePullSecrets:
+      - name: ghcr-pull
     minReplicas: 1
     containers:
       - name: kserve-container
-        image: ghcr.io/seungbaeji/tta-aiqa-kserve-predictor:v2
+        image: ghcr.io/seungbaeji/tta-aiqa-kserve-predictor@sha256:d7ccc20bc89dca3d37c6768de8986416daf87c626ad828cdbd7889da07811e24
         imagePullPolicy: IfNotPresent
         command: ["aiqa-kserve-predictor"]
         ports:

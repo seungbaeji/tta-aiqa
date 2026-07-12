@@ -9,6 +9,18 @@ ALLOY = Path("deploy/kubernetes/components/alloy")
 BASELINE_MODEL_SHA256 = (
     "f2576f12512a490c9814e5238c3f0d2a421a21637a4b03c882df6ff25a637edc"
 )
+RISK_API_IMAGE = (
+    "ghcr.io/seungbaeji/tta-aiqa-risk-api@sha256:"
+    "922a0a4fa4640fee8ff0e9299ad4b814739f7ade230cc0305cf335fc2f282f65"
+)
+KSERVE_PREDICTOR_IMAGE = (
+    "ghcr.io/seungbaeji/tta-aiqa-kserve-predictor@sha256:"
+    "d7ccc20bc89dca3d37c6768de8986416daf87c626ad828cdbd7889da07811e24"
+)
+ALLOY_IMAGE = (
+    "grafana/alloy@sha256:"
+    "51aeb9d829239345070619dad3edd6873186f913c84f45b365b74574fcb38ec0"
+)
 
 
 def documents(path: str, root: Path = ROOT) -> list[dict[str, object]]:
@@ -26,6 +38,10 @@ def test_risk_api_uses_internal_kserve_and_read_only_secret_volume() -> None:
 
     assert environment["AIQA_API_MODEL_BACKEND"]["value"] == "kserve"
     assert "mortality-risk-predictor" in environment["AIQA_API_KSERVE_URL"]["value"]
+    assert container["image"] == RISK_API_IMAGE
+    assert deployment["spec"]["template"]["spec"]["imagePullSecrets"] == [
+        {"name": "ghcr-pull"}
+    ]
     secret_mount = next(
         item
         for item in container["volumeMounts"]
@@ -47,7 +63,8 @@ def test_base_starts_with_baseline_model() -> None:
     )
     assert "baseline-f2576f12512a" in serialized
     assert "candidate-a" not in serialized
-    assert container["image"] == "ghcr.io/seungbaeji/tta-aiqa-kserve-predictor:v2"
+    assert container["image"] == KSERVE_PREDICTOR_IMAGE
+    assert service["spec"]["predictor"]["imagePullSecrets"] == [{"name": "ghcr-pull"}]
     assert container["command"] == ["aiqa-kserve-predictor"]
     predictor_secrets = next(
         item
@@ -81,10 +98,7 @@ def test_kubernetes_deploys_alloy_but_no_monitoring_backend() -> None:
     alloy = documents("alloy.yaml", ALLOY)[0]
     container = alloy["spec"]["template"]["spec"]["containers"][0]
 
-    assert (
-        "grafana/alloy@sha256:51aeb9d829239345070619dad3edd6873186f913c84f45b365b74574fcb38ec0"
-        in manifests
-    )
+    assert ALLOY_IMAGE in manifests
     assert all(
         f"name: {name}\n" not in manifests
         for name in ("grafana", "loki", "tempo", "prometheus")

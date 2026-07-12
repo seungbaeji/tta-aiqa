@@ -15,13 +15,15 @@ spec:
         app.kubernetes.io/part-of: tta-aiqa
     spec:
       automountServiceAccountToken: false
+      imagePullSecrets:
+        - name: ghcr-pull
       securityContext:
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
       containers:
         - name: risk-api
-          image: ghcr.io/seungbaeji/tta-aiqa-risk-api:v2
+          image: ghcr.io/seungbaeji/tta-aiqa-risk-api@sha256:922a0a4fa4640fee8ff0e9299ad4b814739f7ade230cc0305cf335fc2f282f65
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

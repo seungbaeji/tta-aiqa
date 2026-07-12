@@ -256,7 +256,7 @@ uv run python scripts/publish_model.py candidate-b \
 
 ### 7-2. Manifest 확인
 
-Kubernetes에서는 외부 Risk API가 내부 KServe V2 custom predictor를 호출합니다. Base는 baseline으로 시작하고 Candidate B와 rollback은 별도 overlay입니다. `/mnt/course-models`는 단일 노드 수업 VM의 static model PV에 연결됩니다. 각 overlay는 PVC subPath와 non-secret `model-identity` ConfigMap의 expected model SHA-256을 함께 선택하며 predictor는 mount된 bundle이 다르면 시작을 거부합니다. Alloy는 개인 Grafana Cloud Secret을 준비한 뒤 observed overlay에서만 추가합니다.
+Kubernetes에서는 외부 Risk API가 내부 KServe V2 custom predictor를 호출합니다. Base는 baseline으로 시작하고 Candidate B와 rollback은 별도 overlay입니다. `/mnt/course-models`는 단일 노드 수업 VM의 static model PV에 연결됩니다. 각 overlay는 PVC subPath와 non-secret `model-identity` ConfigMap의 expected model SHA-256을 함께 선택하며 predictor는 mount된 bundle이 다르면 시작을 거부합니다. Private GHCR image pull용 `ghcr-pull` Secret은 강사가 사전에 provision하며 Grafana Cloud Secret과 별개입니다. Alloy는 개인 Grafana Cloud Secret을 준비한 뒤 observed overlay에서만 추가합니다.
 
 ```bash
 kubectl kustomize deploy/kubernetes/overlays/baseline >/tmp/tta-aiqa-baseline.yaml
@@ -266,6 +266,9 @@ kubectl apply --dry-run=server -f /tmp/tta-aiqa-baseline.yaml
 ```
 
 실제 sync는 강사가 제공한 Argo CD 절차를 따릅니다. `alloy-grafana-cloud` Secret에는 각 수강생의 개인 Grafana Cloud write 설정만 저장하며, Secret 준비 전에는 Alloy component를 포함하지 않습니다.
+
+Private GHCR image와 `ghcr-pull` Secret의 준비 방식은
+[`deploy/kubernetes/README.md`](deploy/kubernetes/README.md)에 분리해 두었습니다.
 
 ## 8. 구현 검증
 

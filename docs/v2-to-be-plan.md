@@ -347,6 +347,7 @@ Model training, evaluation과 release evidence에는 사용한 config file의 SH
 | Feature, data rule, model profile, release policy | Git에서 관리하는 YAML/TOML | Adapter가 읽고 Pydantic `BaseModel` schema로 검증 |
 | Environment, endpoint, config path, 실행 mode | Environment variable | App별 Pydantic `BaseSettings` |
 | Token, password와 credential | Local private `.env` 또는 Kubernetes Secret volume | App별 `BaseSettings`와 `SecretStr` |
+| OCI registry pull credential | 강사가 사전 생성한 Kubernetes `imagePullSecret` | kubelet과 Pod/KServe Predictor spec만 사용 |
 | Grafana dashboard definition | Git에서 관리하는 native JSON | Dashboard Importer adapter와 contract test |
 
 Python app의 `settings.py`는 `pydantic-settings`를 사용한다. `BaseSettings`는 process를 실행하기 위한 runtime 값과 configuration file 경로만 소유한다. Feature 목록, threshold, model parameter와 품질 기준을 environment variable로 평탄화하거나 Python default로 중복 정의하지 않는다. 구조화된 YAML/TOML은 adapter가 별도 `BaseModel`로 검증하고 typed domain value로 변환한다.
@@ -379,6 +380,12 @@ Pydantic의 기본 source 우선순위는 CLI parsing을 활성화한 경우 CLI
 - Secret 변경 반영 방식은 명시적으로 결정한다. 시작 시 한 번 읽는 Python app은 credential 변경 후 rollout/restart하고, 동적 file rotation을 암묵적으로 기대하지 않는다.
 
 Grafana Dashboard Importer처럼 VM에서 실행하는 Python app은 private `.env`를 사용할 수 있다. k3s에 배포하는 Python app은 같은 field contract를 Kubernetes Secret volume과 `secrets_dir`로 충족한다. Alloy credential은 Python settings를 통과시키지 않고 Alloy process에만 최소 권한으로 주입한다.
+
+OCI registry credential은 application configuration이 아니다. kubelet이 image를 pull할 때만
+사용하므로 Pydantic settings나 process Secret volume에 넣지 않는다. V2 base manifest는
+강사가 `tta-aiqa` namespace에 사전 생성한 `ghcr-pull` `imagePullSecret`을 Risk API와
+KServe Predictor에만 참조한다. 실제 registry token과 Secret manifest는 GitOps repository에
+commit하지 않는다.
 
 ## 5. Apps
 
@@ -1720,6 +1727,7 @@ V1 실행 상태는 `SCENARIO_REVIEW_REQUIRED`로 보존한다. 승인된 split 
 - Feature contract, model profile, traffic scenario와 release policy가 versioned config에서 로드되고 config hash로 추적된다.
 - Python app의 runtime 값은 app별 `BaseSettings`에서 검증되고 structured policy는 adapter의 `BaseModel`에서 별도로 검증된다.
 - 배포 app은 필요한 Kubernetes Secret만 read-only volume으로 받아 `secrets_dir`에서 읽으며 실제 값은 Git과 image에 포함되지 않는다.
+- Private OCI image는 kubelet 전용 `imagePullSecret`으로 pull하며 application process에는 해당 credential을 mount하지 않는다.
 - 최종 판단에 risk, owner, next action과 재평가 조건이 포함된다.
 
 ### 18-2. 구조 완료 기준
