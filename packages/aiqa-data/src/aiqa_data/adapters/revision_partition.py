@@ -4,6 +4,8 @@ from sklearn.model_selection import train_test_split
 
 
 class SklearnRevisionPartitioner:
+    """Use sklearn stratification to partition a parent sealed-test cohort."""
+
     def partition(
         self,
         *,
@@ -12,6 +14,7 @@ class SklearnRevisionPartitioner:
         train_count: int,
         random_seed: int,
     ) -> tuple[tuple[int, ...], tuple[int, ...]]:
+        """Return deterministic promoted-train and retained-operational IDs."""
         promoted, operational = train_test_split(
             record_ids,
             train_size=train_count,

@@ -12,6 +12,8 @@ from aiqa_core.domain.feature import FeatureDefinition, FeatureSet, FeatureType
 
 
 class FeatureDocument(BaseModel):
+    """Validate one external feature declaration from the YAML contract."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     name: str = Field(min_length=1)
@@ -20,6 +22,8 @@ class FeatureDocument(BaseModel):
 
 
 class FeatureContractDocument(BaseModel):
+    """Validate the external YAML document before converting it to domain values."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: int = Field(ge=1)
@@ -28,6 +32,7 @@ class FeatureContractDocument(BaseModel):
     features: tuple[FeatureDocument, ...] = Field(min_length=1)
 
     def to_domain(self) -> FeatureSet:
+        """Convert validated external values to the canonical internal contract."""
         return FeatureSet(
             schema_version=self.schema_version,
             name=self.name,
@@ -44,6 +49,7 @@ class FeatureContractDocument(BaseModel):
 
 
 def load_feature_contract(path: Path) -> FeatureSet:
+    """Load one YAML feature contract and return its validated domain value."""
     payload: Any
     with path.open(encoding="utf-8") as file:
         payload = yaml.safe_load(file)

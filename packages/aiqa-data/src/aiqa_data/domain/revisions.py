@@ -5,6 +5,8 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class BenchmarkSplitRevision:
+    """Immutable rules for creating a benchmark split revision."""
+
     revision: str
     parent_revision: str
     random_seed: int

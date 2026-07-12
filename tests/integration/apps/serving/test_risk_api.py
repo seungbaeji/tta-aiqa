@@ -102,7 +102,9 @@ def test_local_api_predicts_and_exposes_model_identity(tmp_path: Path) -> None:
     assert model["education_only"] is True
 
 
-def test_local_api_rejects_contract_errors_and_reloads(tmp_path: Path) -> None:
+def test_local_api_rejects_contract_errors_without_a_reload_endpoint(
+    tmp_path: Path,
+) -> None:
     api = client(tmp_path)
 
     missing = api.post("/v1/predict", json={"features": {"age": 68.0}})
@@ -110,14 +112,13 @@ def test_local_api_rejects_contract_errors_and_reloads(tmp_path: Path) -> None:
         "/v1/predict",
         json={"features": {"age": 68.0, "age__missing": 0.0}},
     )
-    reloaded = api.post("/v1/model/reload")
+    reload_attempt = api.post("/v1/model/reload")
 
     assert missing.status_code == 422
     assert missing.json()["detail"]["code"] == "MODEL_INPUT_INVALID"
     assert wrong_type.status_code == 422
     assert "boolean feature" in wrong_type.json()["detail"]["message"]
-    assert reloaded.status_code == 200
-    assert reloaded.json()["reloaded"] is True
+    assert reload_attempt.status_code == 404
 
 
 def test_api_exposes_prediction_metrics_without_request_id_label(

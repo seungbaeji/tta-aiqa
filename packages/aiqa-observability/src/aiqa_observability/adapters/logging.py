@@ -19,6 +19,7 @@ class JsonTelemetryFormatter(logging.Formatter):
     """Render platform events as one JSON document per output line."""
 
     def format(self, record: logging.LogRecord) -> str:
+        """Render one stdlib log record as a compact, stable JSON document."""
         document: dict[str, Any] = {
             "timestamp": datetime.fromtimestamp(record.created, UTC)
             .isoformat(timespec="milliseconds")
@@ -42,6 +43,7 @@ class StructuredLogger:
         level: str,
         stream: TextIO | None = None,
     ) -> None:
+        """Create an isolated stdlib logger for one telemetry process resource."""
         self._resource = resource
         self._logger = logging.getLogger(f"aiqa.{resource.service_name}.{id(self)}")
         self._logger.setLevel(getattr(logging, level))

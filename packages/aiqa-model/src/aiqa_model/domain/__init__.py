@@ -1,5 +1,19 @@
 """Model lifecycle domain values and invariants."""
 
+from aiqa_model.domain.features import (
+    FeatureSelectionStrategy,
+    FeatureSetCatalog,
+    SelectedFeatureSet,
+)
+from aiqa_model.domain.lifecycle import (
+    DEVELOPMENT_DATASET_ROLES,
+    FINALIZATION_DATASET_ROLES,
+    SEALED_TEST_CONFIRMATION_TOKEN,
+    FeatureDiagnosticsRequest,
+    ModelDatasetRole,
+    ModelProfileSelection,
+    SealedTestConfirmation,
+)
 from aiqa_model.domain.profiles import (
     BenchmarkResult,
     BinaryMetrics,
@@ -9,8 +23,10 @@ from aiqa_model.domain.profiles import (
     FeatureSelection,
     FeatureSummary,
     MetricDistribution,
+    MetricName,
     ModelKind,
     ModelProfile,
+    ModelProfileCatalog,
     ModelRole,
     PermutationImportance,
     ProfileEvaluation,
@@ -19,15 +35,27 @@ from aiqa_model.domain.profiles import (
 __all__ = [
     "BinaryMetrics",
     "BenchmarkResult",
+    "DEVELOPMENT_DATASET_ROLES",
     "EvaluationPlan",
     "FeatureCoefficient",
     "FeatureDiagnostics",
+    "FeatureDiagnosticsRequest",
     "FeatureSelection",
+    "FeatureSelectionStrategy",
+    "FeatureSetCatalog",
     "FeatureSummary",
+    "FINALIZATION_DATASET_ROLES",
     "MetricDistribution",
+    "MetricName",
     "ModelKind",
+    "ModelDatasetRole",
     "ModelProfile",
+    "ModelProfileCatalog",
+    "ModelProfileSelection",
     "ModelRole",
     "PermutationImportance",
     "ProfileEvaluation",
+    "SEALED_TEST_CONFIRMATION_TOKEN",
+    "SealedTestConfirmation",
+    "SelectedFeatureSet",
 ]

@@ -6,6 +6,12 @@ from grafana_dashboard_importer.domain import DashboardImport, ImportResult
 
 
 class DashboardGateway(Protocol):
-    def verify_datasource(self, uid: str) -> None: ...
+    """Verify datasource access and import one bound dashboard document."""
 
-    def import_dashboard(self, request: DashboardImport) -> ImportResult: ...
+    def verify_datasource(self, uid: str) -> None:
+        """Fail unless the configured Grafana credential can read this datasource."""
+        ...
+
+    def import_dashboard(self, request: DashboardImport) -> ImportResult:
+        """Create or replace a dashboard using its stable dashboard UID."""
+        ...

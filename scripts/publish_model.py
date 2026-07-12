@@ -127,8 +127,12 @@ def main() -> None:
         ROOT / f"reference/evidence/model/revisions/{revision}/canonical-benchmark.json"
     )
     release_manifest_path = (
-        ROOT / f"reference/evidence/model/revisions/{revision}/release-freeze.json"
+        ROOT / f"reference/evidence/model/revisions/{revision}/release-manifest.json"
     )
+    if not release_manifest_path.exists():
+        release_manifest_path = (
+            ROOT / f"reference/evidence/model/revisions/{revision}/release-freeze.json"
+        )
     if args.target_root:
         path = publish_immutable(
             profile=args.profile,

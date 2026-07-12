@@ -1,11 +1,16 @@
 """Official source acquisition and checksum contract tests."""
 
 import hashlib
+import json
 from pathlib import Path
 
 import pytest
 import yaml
-from aiqa_data.adapters import acquire_source_manifest, verify_source_manifest
+from aiqa_data.adapters import (
+    acquire_source_manifest,
+    verify_source_manifest,
+    write_source_integrity_report,
+)
 
 
 def write_manifest(root: Path, payload: bytes) -> Path:
@@ -59,7 +64,7 @@ def test_acquisition_downloads_verifies_and_reuses_official_file(
 
     assert first == second == (tmp_path / "source.bin",)
     assert calls == ["https://example.test/source.bin"]
-    assert verify_source_manifest(manifest)["verified"] is True
+    assert verify_source_manifest(manifest).files[0].path == "source.bin"
 
 
 def test_acquisition_rejects_payload_before_replacing_destination(
@@ -71,3 +76,26 @@ def test_acquisition_rejects_payload_before_replacing_destination(
         acquire_source_manifest(manifest, fetch=lambda _: b"bad")
 
     assert not (tmp_path / "source.bin").exists()
+
+
+def test_typed_source_integrity_report_serializes_to_course_evidence(
+    tmp_path: Path,
+) -> None:
+    payload = b"official-source"
+    manifest = write_manifest(tmp_path, payload)
+    acquire_source_manifest(manifest, fetch=lambda _: payload)
+    report = verify_source_manifest(manifest)
+    evidence_path = tmp_path / "source-integrity.json"
+
+    write_source_integrity_report(report, evidence_path)
+
+    document = json.loads(evidence_path.read_text(encoding="utf-8"))
+    assert document["verified"] is True
+    assert document["dataset"]["name"] == "fixture"
+    assert document["files"] == [
+        {
+            "path": "source.bin",
+            "sha256": hashlib.sha256(payload).hexdigest(),
+            "size_bytes": len(payload),
+        }
+    ]

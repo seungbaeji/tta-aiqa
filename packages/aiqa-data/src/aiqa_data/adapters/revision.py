@@ -10,6 +10,8 @@ from aiqa_data.domain import BenchmarkSplitRevision
 
 
 class BenchmarkSplitRevisionDocument(BaseModel):
+    """Validate one external benchmark split-revision document."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: int = Field(ge=1)
@@ -20,6 +22,7 @@ class BenchmarkSplitRevisionDocument(BaseModel):
     rationale: str = Field(min_length=1)
 
     def to_domain(self) -> BenchmarkSplitRevision:
+        """Convert validated revision settings to an immutable domain value."""
         return BenchmarkSplitRevision(
             revision=self.revision,
             parent_revision=self.parent_revision,
@@ -29,6 +32,7 @@ class BenchmarkSplitRevisionDocument(BaseModel):
 
 
 def load_split_revision(path: Path) -> BenchmarkSplitRevision:
+    """Load one versioned benchmark split revision from YAML."""
     with path.open(encoding="utf-8") as file:
         payload: Any = yaml.safe_load(file)
     if not isinstance(payload, dict):

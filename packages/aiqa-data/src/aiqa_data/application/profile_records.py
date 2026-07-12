@@ -7,6 +7,8 @@ from aiqa_data.ports import PatientRecordRepository
 
 @dataclass(frozen=True)
 class RawRecordProfile:
+    """Quality summary for one raw patient record without dataframe coupling."""
+
     record_id: int
     observation_count: int
     parameter_count: int
@@ -18,6 +20,7 @@ class RawRecordProfile:
 def profile_raw_records(
     records: PatientRecordRepository, missing_sentinel: float
 ) -> tuple[RawRecordProfile, ...]:
+    """Profile raw record coverage and missing-sentinel use in deterministic order."""
     profiles: list[RawRecordProfile] = []
     for record in records.records():
         minutes = [item.minute for item in record.observations]

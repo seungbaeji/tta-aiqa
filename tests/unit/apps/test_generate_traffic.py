@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from traffic_generator.application import generate_traffic
 from traffic_generator.domain import (
     FeatureTransform,
+    InvalidTrafficCase,
     ScenarioMode,
     TrafficPlan,
     TrafficResponse,
@@ -61,6 +62,7 @@ def generate(
         ),
         client=client,
         recorder=recorder,
+        sleep=lambda _: None,
     )
 
 
@@ -94,7 +96,11 @@ def test_invalid_scenario_cycles_contract_failures_and_records_responses() -> No
         request_count=3,
         interval_seconds=0,
         timeout_seconds=1,
-        invalid_cases=("missing_feature", "extra_feature", "wrong_boolean_type"),
+        invalid_cases=(
+            InvalidTrafficCase.MISSING_FEATURE,
+            InvalidTrafficCase.EXTRA_FEATURE,
+            InvalidTrafficCase.WRONG_BOOLEAN_TYPE,
+        ),
     )
 
     responses = generate(client, recorder, plan)
@@ -103,3 +109,42 @@ def test_invalid_scenario_cycles_contract_failures_and_records_responses() -> No
     assert "unexpected_feature" in client.calls[1][0]
     assert client.calls[2][0]["age__missing"] == "not-a-boolean"
     assert tuple(recorder.responses) == responses
+
+
+def test_use_case_controls_sleep_and_zero_count_override() -> None:
+    """Timing is a collaborator and an explicit zero override is never hidden."""
+    plan = TrafficPlan(
+        name="baseline",
+        mode=ScenarioMode.VALID,
+        request_count=1,
+        interval_seconds=0.25,
+        timeout_seconds=1,
+    )
+    client, recorder = Client(), Recorder()
+    delays: list[float] = []
+
+    responses = generate_traffic(
+        plan,
+        random_seed=43,
+        pool=Pool(({"age": 50.0, "age__missing": False},)),
+        client=client,
+        recorder=recorder,
+        sleep=delays.append,
+    )
+
+    assert len(responses) == 1
+    assert delays == [0.25]
+    try:
+        generate_traffic(
+            plan,
+            0,
+            random_seed=43,
+            pool=Pool(({"age": 50.0, "age__missing": False},)),
+            client=client,
+            recorder=recorder,
+            sleep=delays.append,
+        )
+    except ValueError as error:
+        assert str(error) == "traffic request count must be positive"
+    else:
+        raise AssertionError("explicit zero traffic override must be rejected")

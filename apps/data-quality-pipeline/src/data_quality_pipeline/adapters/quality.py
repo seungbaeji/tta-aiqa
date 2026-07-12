@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class RawQualityRules(BaseModel):
+    """Validated raw-record quality limits from versioned YAML."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     expected_record_count: int = Field(gt=0)
@@ -16,6 +17,7 @@ class RawQualityRules(BaseModel):
 
 
 class ProcessedQualityRules(BaseModel):
+    """Validated processed-feature quality limits from versioned YAML."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     expected_row_count: int = Field(gt=0)
@@ -25,6 +27,7 @@ class ProcessedQualityRules(BaseModel):
 
 
 class QualityRules(BaseModel):
+    """Complete validated quality policy for raw and processed evidence."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: int = Field(ge=1)
@@ -33,6 +36,7 @@ class QualityRules(BaseModel):
 
 
 def load_quality_rules(path: Path) -> QualityRules:
+    """Load one versioned quality-policy YAML document."""
     with path.open(encoding="utf-8") as file:
         payload: Any = yaml.safe_load(file)
     if not isinstance(payload, dict):

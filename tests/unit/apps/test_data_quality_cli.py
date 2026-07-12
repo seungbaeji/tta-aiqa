@@ -8,7 +8,7 @@ from typing import Any
 
 import pytest
 from data_quality_pipeline import main as cli
-from data_quality_pipeline.workflow import DataPreparationResult, DataQualityStage
+from data_quality_pipeline.domain import DataPreparationResult, DataQualityStage
 
 
 class TelemetrySpy:
@@ -60,7 +60,7 @@ def test_validation_failure_emits_failed_event_and_exits_nonzero(
         {
             "telemetry": telemetry,
             "run": lambda _, __: DataPreparationResult(
-                command="validate", success=False
+                command=DataQualityStage.VALIDATE, success=False
             ),
         },
     )()

@@ -37,6 +37,15 @@ class Splits:
         )
 
 
+class DuplicateSplits:
+    def assign(self, targets: Mapping[int, int]) -> tuple[SplitAssignment, ...]:
+        record_id = next(iter(targets))
+        return (
+            SplitAssignment(record_id, DatasetRole.TRAIN),
+            SplitAssignment(record_id, DatasetRole.VALID),
+        )
+
+
 PLAN = AggregationPlan(
     missing_sentinel=-1.0,
     static_features=(StaticFeatureRule("Age", "age"),),
@@ -69,4 +78,14 @@ def test_use_case_rejects_incomplete_outcome_join() -> None:
             records=Records((PatientRecord(7, ()),)),
             outcomes=Outcomes({8: 0}),
             splitter=Splits(),
+        )
+
+
+def test_use_case_rejects_duplicate_patient_split_assignments() -> None:
+    with pytest.raises(ValueError, match="exactly one role"):
+        build_patient_dataset(
+            PLAN,
+            records=Records((PatientRecord(7, (Observation(0, "Age", 44),)),)),
+            outcomes=Outcomes({7: 1}),
+            splitter=DuplicateSplits(),
         )

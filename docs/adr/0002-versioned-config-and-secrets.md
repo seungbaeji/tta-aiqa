@@ -16,7 +16,7 @@ Feature definitions, model profiles, release policy and telemetry labels must be
 
 ### 3-1. Structured Configuration
 
-Versioned YAML or native JSON owns feature, data, model, traffic, release and dashboard documents. Pydantic `BaseModel` adapters reject unknown keys and convert valid documents into framework-independent domain values. Evidence records config hashes and resolved snapshots.
+Versioned YAML or native JSON owns feature, data, model, traffic, release and dashboard documents. Pydantic `BaseModel` adapters reject unknown keys and convert valid documents into framework-independent domain values. Evidence records config hashes and resolved snapshots. ADR 0006 defines how those configuration references join data, model, release, and deployment identities without becoming a source-file hash list.
 
 ### 3-2. Runtime Settings
 

@@ -6,7 +6,14 @@ import pandas as pd
 import pytest
 from aiqa_core.domain import FeatureDefinition, FeatureSet, FeatureType
 from aiqa_model.adapters import SklearnBenchmark
-from aiqa_model.domain import EvaluationPlan, ModelKind, ModelProfile, ModelRole
+from aiqa_model.domain import (
+    EvaluationPlan,
+    MetricName,
+    ModelKind,
+    ModelProfile,
+    ModelProfileSelection,
+    ModelRole,
+)
 from aiqa_model.ports import FittedModels
 
 
@@ -34,18 +41,16 @@ def benchmark(dataset_dir: Path) -> SklearnBenchmark:
             random_seed=42,
             bootstrap_iterations=10,
             confidence_level=0.95,
+            ranking_metrics=(MetricName.PR_AUC, MetricName.ROC_AUC),
+            operating_metrics=(
+                MetricName.PRECISION,
+                MetricName.RECALL,
+                MetricName.F1,
+                MetricName.CONFUSION_MATRIX,
+            ),
         ),
         random_seed=42,
     )
-
-
-def test_final_confirmation_rejects_missing_or_invalid_token(tmp_path: Path) -> None:
-    adapter = benchmark(tmp_path)
-
-    with pytest.raises(PermissionError, match="explicit confirmation token"):
-        adapter.final_confirmation(sealed_test_token=None)
-    with pytest.raises(PermissionError, match="explicit confirmation token"):
-        adapter.final_confirmation(sealed_test_token="invalid")
 
 
 class FittedPipeline:
@@ -56,7 +61,7 @@ class FittedPipeline:
         )
 
 
-def test_final_confirmation_scores_supplied_serialized_pipeline(
+def test_final_evaluation_scores_supplied_serialized_pipeline(
     tmp_path: Path,
 ) -> None:
     pd.DataFrame(
@@ -67,10 +72,18 @@ def test_final_confirmation_scores_supplied_serialized_pipeline(
         }
     ).to_csv(tmp_path / "test.csv", index=False)
 
-    result = benchmark(tmp_path).final_confirmation(
-        sealed_test_token="CONFIRM-FROZEN-CANONICAL-TEST",
-        fitted_pipelines=FittedModels((("baseline", FittedPipeline()),)),
+    result = benchmark(tmp_path).evaluate_frozen_models(
+        ModelProfileSelection.from_names(("baseline",)),
+        FittedModels((("baseline", FittedPipeline()),)),
     )
 
     assert result.profiles[0].metrics.recall == pytest.approx(1.0)
     assert result.profiles[0].metrics.precision == pytest.approx(1.0)
+
+
+def test_final_evaluation_rejects_an_unmatched_frozen_model_set(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="benchmark profiles"):
+        benchmark(tmp_path).evaluate_frozen_models(
+            ModelProfileSelection.from_names(("baseline",)),
+            FittedModels.from_mapping({"candidate-b": FittedPipeline()}),
+        )

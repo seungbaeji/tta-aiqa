@@ -12,7 +12,8 @@ from kserve_predictor.settings import KServePredictorSettings
 from sklearn.linear_model import LogisticRegression
 
 
-def _write_fixture(tmp_path: Path) -> tuple[Path, Path]:
+def write_fixture(tmp_path: Path) -> tuple[Path, Path]:
+    """Write a minimal feature contract and compatible local predictor bundle."""
     contract = tmp_path / "contract.yaml"
     contract.write_text(
         """schema_version: 1
@@ -53,7 +54,7 @@ features:
 def test_custom_predictor_implements_kserve_v2_probability_contract(
     tmp_path: Path,
 ) -> None:
-    contract, bundle = _write_fixture(tmp_path)
+    contract, bundle = write_fixture(tmp_path)
     app = build_application(
         KServePredictorSettings(
             _secrets_dir=tmp_path,
@@ -86,7 +87,7 @@ def test_custom_predictor_implements_kserve_v2_probability_contract(
 
 
 def test_custom_predictor_rejects_wrong_tensor_shape(tmp_path: Path) -> None:
-    contract, bundle = _write_fixture(tmp_path)
+    contract, bundle = write_fixture(tmp_path)
     client = TestClient(
         build_application(
             KServePredictorSettings(
@@ -111,7 +112,7 @@ def test_custom_predictor_rejects_wrong_tensor_shape(tmp_path: Path) -> None:
 
 
 def test_custom_predictor_uses_shared_input_validation(tmp_path: Path) -> None:
-    contract, bundle = _write_fixture(tmp_path)
+    contract, bundle = write_fixture(tmp_path)
     client = TestClient(
         build_application(
             KServePredictorSettings(
@@ -155,7 +156,7 @@ def test_custom_predictor_uses_shared_input_validation(tmp_path: Path) -> None:
 
 
 def test_custom_predictor_readiness_reflects_loaded_backend(tmp_path: Path) -> None:
-    contract, bundle = _write_fixture(tmp_path)
+    contract, bundle = write_fixture(tmp_path)
     client = TestClient(
         build_application(
             KServePredictorSettings(
@@ -173,7 +174,7 @@ def test_custom_predictor_readiness_reflects_loaded_backend(tmp_path: Path) -> N
 def test_custom_predictor_preserves_inbound_trace_and_request_id(
     tmp_path: Path, capsys
 ) -> None:
-    contract, bundle = _write_fixture(tmp_path)
+    contract, bundle = write_fixture(tmp_path)
     app = build_application(
         KServePredictorSettings(
             _secrets_dir=tmp_path,

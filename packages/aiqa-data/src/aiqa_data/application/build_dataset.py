@@ -35,6 +35,13 @@ class PreparedSplitManifest:
 
     splits: tuple[SplitAssignment, ...]
 
+    def __post_init__(self) -> None:
+        if not isinstance(self.splits, tuple) or not self.splits:
+            raise ValueError("split manifest requires immutable assignments")
+        record_ids = tuple(item.record_id for item in self.splits)
+        if len(record_ids) != len(set(record_ids)):
+            raise ValueError("split manifest must assign exactly one role per patient")
+
 
 @dataclass(frozen=True)
 class PreparedPatientDataset:

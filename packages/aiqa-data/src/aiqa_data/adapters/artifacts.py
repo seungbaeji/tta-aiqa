@@ -5,10 +5,16 @@ import json
 from pathlib import Path
 
 from aiqa_data.application import PreparedPatientFeatures, PreparedSplitManifest
-from aiqa_data.domain import DatasetRole, PatientFeatureRow, SplitAssignment
+from aiqa_data.domain import (
+    DatasetRole,
+    PatientFeatureRow,
+    SourceIntegrityReport,
+    SplitAssignment,
+)
 
 
 def write_dataset_csv(dataset: PreparedPatientFeatures, path: Path) -> None:
+    """Persist one supervised patient-feature dataset in canonical CSV order."""
     path.parent.mkdir(parents=True, exist_ok=True)
     columns = ["record_id", *dataset.feature_names, "target"]
     with path.open("w", newline="", encoding="utf-8") as file:
@@ -18,6 +24,7 @@ def write_dataset_csv(dataset: PreparedPatientFeatures, path: Path) -> None:
 
 
 def write_split_csv(dataset: PreparedSplitManifest, path: Path) -> None:
+    """Persist one patient-to-role manifest as a deterministic CSV document."""
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as file:
         writer = csv.DictWriter(file, fieldnames=["record_id", "role"])
@@ -29,6 +36,7 @@ def write_split_csv(dataset: PreparedSplitManifest, path: Path) -> None:
 
 
 def read_dataset_csv(path: Path) -> PreparedPatientFeatures:
+    """Load a canonical supervised patient-feature dataset from CSV."""
     with path.open(newline="", encoding="utf-8") as file:
         reader = csv.DictReader(file)
         fieldnames = reader.fieldnames or []
@@ -52,6 +60,7 @@ def read_dataset_csv(path: Path) -> PreparedPatientFeatures:
 
 
 def read_split_csv(path: Path) -> PreparedSplitManifest:
+    """Load and validate one patient-to-role manifest from CSV."""
     with path.open(newline="", encoding="utf-8") as file:
         reader = csv.DictReader(file)
         if reader.fieldnames != ["record_id", "role"]:
@@ -66,10 +75,37 @@ def read_split_csv(path: Path) -> PreparedSplitManifest:
     return PreparedSplitManifest(splits=splits)
 
 
-def write_json(document: dict[str, object], path: Path) -> None:
+def write_source_integrity_report(report: SourceIntegrityReport, path: Path) -> None:
+    """Persist typed source-integrity evidence as the course JSON artifact."""
+    document = {
+        "schema_version": report.schema_version,
+        "dataset": {
+            "name": report.dataset.name,
+            "challenge": report.dataset.challenge,
+            "version": report.dataset.version,
+            "subset": report.dataset.subset,
+            "homepage": report.dataset.homepage,
+            "retrieved_on": report.dataset.retrieved_on.isoformat(),
+        },
+        "license": {
+            "name": report.license.name,
+            "identifier": report.license.identifier,
+            "url": report.license.url,
+        },
+        "files": [
+            {
+                "path": item.path,
+                "size_bytes": item.size_bytes,
+                "sha256": item.sha256,
+            }
+            for item in report.files
+        ],
+        "verified": True,
+    }
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
-        json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        json.dumps(document, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
     )
 
 
@@ -78,6 +114,7 @@ def write_role_datasets(
     manifest: PreparedSplitManifest,
     output_dir: Path,
 ) -> None:
+    """Write role-specific datasets and omit operational targets."""
     output_dir.mkdir(parents=True, exist_ok=True)
     rows = {row.record_id: row for row in features.rows}
     assignments: dict[str, list[int]] = {}

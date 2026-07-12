@@ -1,8 +1,6 @@
 """Validate canonical model input and produce one risk prediction."""
 
 import math
-from collections.abc import Mapping
-from typing import Any
 
 from aiqa_core.domain import FeatureSet, FeatureType
 
@@ -18,9 +16,10 @@ from aiqa_serving.ports import PredictionEventRecorder, RiskScorer
 
 
 def validate_feature_values(
-    payload: Mapping[str, Any], feature_set: FeatureSet
+    features: tuple[tuple[str, FeatureValue], ...], feature_set: FeatureSet
 ) -> tuple[tuple[str, FeatureValue], ...]:
-    """Validate and order one payload according to the canonical feature contract."""
+    """Validate and order one internal feature tuple by the canonical contract."""
+    payload = dict(features)
     expected = set(feature_set.feature_names)
     actual = set(payload)
     if actual != expected:
@@ -42,10 +41,9 @@ def validate_feature_values(
                 raise ValueError(f"numeric feature has invalid type: {feature.name}")
             if not math.isfinite(float(value)):
                 raise ValueError(f"numeric feature is not finite: {feature.name}")
-        elif feature.dtype is FeatureType.CATEGORY and not isinstance(
-            value, str | int | float
-        ):
-            raise ValueError(f"category feature has invalid type: {feature.name}")
+        elif feature.dtype is FeatureType.CATEGORY:
+            if isinstance(value, bool) or not isinstance(value, str | int | float):
+                raise ValueError(f"category feature has invalid type: {feature.name}")
         values.append((feature.name, value))
     return tuple(values)
 
@@ -57,7 +55,7 @@ def score_risk(
     scorer: RiskScorer,
 ) -> ScoredRisk:
     """Validate and score one canonical request without delivery-specific effects."""
-    ordered = validate_feature_values(dict(request.features), feature_set)
+    ordered = validate_feature_values(request.features, feature_set)
     return ScoredRisk(
         request_id=request.request_id,
         model=scorer.identity,

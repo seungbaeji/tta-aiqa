@@ -56,6 +56,7 @@ def environment(revision: str) -> dict[str, str]:
     mlflow_dir = ROOT / "artifacts/mlflow"
     mlflow_dir.mkdir(parents=True, exist_ok=True)
     values = {
+        "REPOSITORY_ROOT": ROOT,
         "FEATURE_CONTRACT_PATH": ROOT / "configs/contracts/model-input.yaml",
         "FEATURE_SETS_PATH": paths.feature_sets,
         "PROFILES_PATH": paths.profiles,
@@ -65,14 +66,6 @@ def environment(revision: str) -> dict[str, str]:
         "SPLIT_CONFIG_PATH": ROOT / "params.yaml",
         "DATA_MANIFEST_PATH": paths.data_manifest,
         "DVC_LOCK_PATH": ROOT / "dvc.lock",
-        "MODEL_IMPLEMENTATION_PATH": ROOT
-        / "packages/aiqa-model/src/aiqa_model/adapters/sklearn_benchmark.py",
-        "RELEASE_IMPLEMENTATION_PATH": ROOT
-        / "packages/aiqa-qa/src/aiqa_qa/domain/release.py",
-        "TRAINER_IMPLEMENTATION_PATH": ROOT
-        / "apps/model-trainer/src/model_trainer/bootstrap.py",
-        "TRACKING_IMPLEMENTATION_PATH": ROOT
-        / "packages/aiqa-model/src/aiqa_model/adapters/mlflow_tracker.py",
         "ARTIFACT_DIR": paths.artifact_root,
         "DEVELOPMENT_EVIDENCE_PATH": paths.evidence_root / "development-benchmark.json",
         "FEATURE_DIAGNOSTICS_PATH": paths.evidence_root / "feature-diagnostics.json",
@@ -81,6 +74,7 @@ def environment(revision: str) -> dict[str, str]:
         "BOOTSTRAP_MANIFEST_PATH": paths.artifact_root / "model-bootstrap.json",
         "BOOTSTRAP_EVIDENCE_PATH": paths.evidence_root / "model-bootstrap.json",
         "FREEZE_MANIFEST_PATH": paths.evidence_root / "release-freeze.json",
+        "RELEASE_MANIFEST_PATH": paths.evidence_root / "release-manifest.json",
         "CANONICAL_EVIDENCE_PATH": paths.evidence_root / "canonical-benchmark.json",
     }
     result = os.environ.copy()
@@ -128,6 +122,7 @@ def main() -> None:
             "bootstrap",
             "reconcile-bootstrap",
             "final",
+            "reconcile-final",
         ),
     )
     parser.add_argument("--revision", choices=("v1", "v2"), default="v2")

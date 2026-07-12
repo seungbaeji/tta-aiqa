@@ -21,6 +21,7 @@ from aiqa_observability.domain import (
     TelemetryEvent,
     TelemetryPolicy,
     TelemetryResource,
+    derive_telemetry_context,
 )
 
 
@@ -38,7 +39,7 @@ class Telemetry:
         self.resource = resource
         self._logger = StructuredLogger(
             resource,
-            level=policy.log_level,
+            level=policy.log_level.value,
             stream=log_stream,
         )
         self.tracing = TracingRuntime(
@@ -58,7 +59,8 @@ class Telemetry:
         attributes: TelemetryAttributes | None = None,
     ) -> Iterator[TelemetryContext]:
         """Bind HTTP-specific correlation fields without creating a duplicate span."""
-        context = self._context(
+        context = derive_telemetry_context(
+            current_context(),
             operation=operation,
             request_id=request_id,
             scenario=scenario,
@@ -78,7 +80,8 @@ class Telemetry:
         attributes: TelemetryAttributes | None = None,
     ) -> Iterator[TelemetryContext]:
         """Create a root operation for a CLI or batch process run."""
-        context = self._context(
+        context = derive_telemetry_context(
+            current_context(),
             operation=operation,
             run_id=run_id or str(uuid4()),
             scenario=scenario,
@@ -111,7 +114,11 @@ class Telemetry:
         attributes: TelemetryAttributes | None = None,
     ) -> Iterator[TelemetryContext]:
         """Create a child operation under the current request or process run."""
-        context = self._context(operation=operation, attributes=attributes)
+        context = derive_telemetry_context(
+            current_context(),
+            operation=operation,
+            attributes=attributes,
+        )
         with bind_context(context), self.tracing.span(
             operation, context.as_log_fields()
         ):
@@ -175,36 +182,6 @@ class Telemetry:
             self.tracing.shutdown()
             self._logger.close()
             self._closed = True
-
-    def _context(
-        self,
-        *,
-        operation: str,
-        request_id: str | None = None,
-        run_id: str | None = None,
-        scenario: str | None = None,
-        attributes: TelemetryAttributes | None = None,
-    ) -> TelemetryContext:
-        existing = current_context()
-        inherited = dict(existing.attributes) if existing is not None else {}
-        if attributes is not None:
-            inherited.update(attributes)
-        return TelemetryContext.create(
-            operation=operation,
-            request_id=request_id
-            if request_id is not None
-            else (existing.request_id if existing is not None else None),
-            run_id=(
-                run_id
-                if run_id is not None
-                else (existing.run_id if existing is not None else None)
-            ),
-            scenario=scenario
-            if scenario is not None
-            else (existing.scenario if existing is not None else None),
-            attributes=inherited,
-        )
-
 
 def create_telemetry(
     *,

@@ -9,16 +9,20 @@ import pytest
 from aiqa_observability import (
     MetricKind,
     MetricSpec,
+    TelemetryContext,
+    TelemetryLogLevel,
     TelemetryPolicy,
     create_telemetry,
+    derive_telemetry_context,
 )
+from aiqa_observability.adapters.opentelemetry import normalize_traces_endpoint
 
 
 def telemetry(stream: io.StringIO):
     return create_telemetry(
         service_name="unit-test-app",
         environment="test",
-        policy=TelemetryPolicy(2, "tta-aiqa", "INFO"),
+        policy=TelemetryPolicy(2, "tta-aiqa", TelemetryLogLevel.INFO),
         log_stream=stream,
     )
 
@@ -147,3 +151,38 @@ def test_shutdown_is_idempotent() -> None:
 
     runtime.shutdown()
     runtime.shutdown()
+
+
+def test_derived_context_inherits_correlation_values_and_merges_attributes() -> None:
+    parent = TelemetryContext.create(
+        operation="http.request",
+        request_id="request-1",
+        scenario="baseline",
+        attributes={"route": "/v1/predict", "status_code": 200},
+    )
+
+    child = derive_telemetry_context(
+        parent,
+        operation="model.score",
+        attributes={"status_code": 422, "model_profile": "candidate-b"},
+    )
+
+    assert child.request_id == "request-1"
+    assert child.scenario == "baseline"
+    assert child.as_log_fields() == {
+        "operation": "model.score",
+        "request_id": "request-1",
+        "scenario": "baseline",
+        "route": "/v1/predict",
+        "status_code": 422,
+        "model_profile": "candidate-b",
+    }
+
+
+def test_otlp_traces_endpoint_is_normalized_once() -> None:
+    assert normalize_traces_endpoint("https://otlp.example") == (
+        "https://otlp.example/v1/traces"
+    )
+    assert normalize_traces_endpoint("https://otlp.example/v1/traces/") == (
+        "https://otlp.example/v1/traces"
+    )

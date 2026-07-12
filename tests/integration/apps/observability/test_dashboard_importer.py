@@ -4,7 +4,11 @@ from pathlib import Path
 
 from grafana_dashboard_importer.adapters import load_dashboard_template
 from grafana_dashboard_importer.application import import_dashboard
-from grafana_dashboard_importer.domain import DashboardImport, ImportResult
+from grafana_dashboard_importer.domain import (
+    DashboardDatasourceBindings,
+    DashboardImport,
+    ImportResult,
+)
 
 
 class FakeGateway:
@@ -30,13 +34,21 @@ def test_importer_binds_datasources_and_keeps_stable_dashboard_uid() -> None:
         gateway=gateway,
         template=template,
         folder_uid="course",
-        datasource_uids={"metrics": "prom", "logs": "loki", "traces": "tempo"},
+        datasource_bindings=DashboardDatasourceBindings(
+            metrics_uid="prom",
+            logs_uid="loki",
+            traces_uid="tempo",
+        ),
     )
     second = import_dashboard(
         gateway=gateway,
         template=template,
         folder_uid="course",
-        datasource_uids={"metrics": "prom", "logs": "loki", "traces": "tempo"},
+        datasource_bindings=DashboardDatasourceBindings(
+            metrics_uid="prom",
+            logs_uid="loki",
+            traces_uid="tempo",
+        ),
     )
 
     assert first.uid == second.uid == "tta-aiqa-quality"

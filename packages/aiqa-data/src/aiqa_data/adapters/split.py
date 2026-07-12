@@ -9,6 +9,8 @@ from aiqa_data.domain import DatasetRole, SplitAssignment
 
 @dataclass(frozen=True)
 class StratifiedSplitConfig:
+    """Validated ratios and seed for the sklearn split adapter."""
+
     random_seed: int
     train_ratio: float
     valid_ratio: float
@@ -33,10 +35,13 @@ class StratifiedSplitConfig:
 
 
 class SklearnStratifiedSplitStrategy:
+    """Assign every patient to one deterministic stratified dataset role."""
+
     def __init__(self, config: StratifiedSplitConfig) -> None:
         self._config = config
 
     def assign(self, targets: dict[int, int]) -> tuple[SplitAssignment, ...]:
+        """Return deterministic train, valid, test, and operational assignments."""
         ids = sorted(targets)
         labels = [targets[record_id] for record_id in ids]
         development_ids, operational_ids = train_test_split(

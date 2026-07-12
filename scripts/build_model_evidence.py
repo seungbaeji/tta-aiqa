@@ -66,14 +66,14 @@ def main() -> None:
     ]:
         raise ValueError("final benchmark does not prove the canonical role boundary")
 
-    policy_document, policy = load_release_policy(policy_path)
+    policy = load_release_policy(policy_path)
     profiles = {item["profile"]: item for item in final["profiles"]}
-    baseline = model_evidence(profiles[policy_document.baseline_profile])
+    baseline = model_evidence(profiles[policy.baseline_profile])
     decisions = [
         decide_release(policy, baseline, model_evidence(profiles[name]))
         for name in (
-            policy_document.candidate_a_profile,
-            policy_document.candidate_b_profile,
+            policy.candidate_a_profile,
+            policy.candidate_b_profile,
         )
     ]
     deployment_allowed = all(

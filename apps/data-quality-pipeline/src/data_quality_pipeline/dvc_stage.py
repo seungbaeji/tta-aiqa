@@ -10,8 +10,8 @@ from pathlib import Path
 from pydantic import BaseModel, ConfigDict
 
 from data_quality_pipeline.bootstrap import bootstrap
+from data_quality_pipeline.domain import DataQualityStage
 from data_quality_pipeline.settings import DataQualitySettings
-from data_quality_pipeline.workflow import DataQualityStage
 
 ROOT = Path(__file__).resolve().parents[4]
 DVC_STAGES = (

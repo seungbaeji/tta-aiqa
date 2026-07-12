@@ -7,6 +7,7 @@ from aiqa_data.domain import (
     SeriesFeatureRule,
     StaticFeatureRule,
     Statistic,
+    aggregate_observations,
     aggregate_record,
 )
 
@@ -57,3 +58,18 @@ def test_missing_series_produces_null_statistics_and_indicator() -> None:
     values = dict(aggregate_record(PatientRecord(1, ()), plan))
 
     assert values == {"lactate__mean": None, "lactate__missing": 1.0}
+
+
+def test_public_statistic_aggregation_orders_observations_by_time_and_value() -> None:
+    observations = (
+        Observation(10, "HR", 80.0),
+        Observation(5, "HR", 70.0),
+        Observation(10, "HR", 90.0),
+    )
+
+    assert aggregate_observations(observations, Statistic.MIN) == 70.0
+    assert aggregate_observations(observations, Statistic.MAX) == 90.0
+    assert aggregate_observations(observations, Statistic.MEAN) == 80.0
+    assert aggregate_observations(observations, Statistic.COUNT) == 3.0
+    assert aggregate_observations(observations, Statistic.SUM) == 240.0
+    assert aggregate_observations(observations, Statistic.LAST) == 90.0

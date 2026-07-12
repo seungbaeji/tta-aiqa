@@ -7,6 +7,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class TrafficSettings(BaseSettings):
+    """Validate app-specific API, data, artifact, and telemetry runtime settings."""
+
     model_config = SettingsConfigDict(
         env_prefix="AIQA_TRAFFIC_",
         env_file=".env.traffic-generator",

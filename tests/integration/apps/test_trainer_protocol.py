@@ -5,8 +5,10 @@ from pathlib import Path
 
 import pytest
 from model_trainer.bootstrap import bootstrap
+from model_trainer.domain import TrainerCommand, TrainerStage
 from model_trainer.settings import ModelTrainerSettings
-from model_trainer.workflow import TrainerCommand, TrainerStage
+
+ROOT = Path(__file__).resolve().parents[3]
 
 
 def finalized_settings(tmp_path: Path) -> ModelTrainerSettings:
@@ -17,16 +19,18 @@ def finalized_settings(tmp_path: Path) -> ModelTrainerSettings:
     )
     return ModelTrainerSettings(
         _env_file=None,
-        feature_contract_path=tmp_path / "feature.yaml",
-        feature_sets_path=tmp_path / "feature-sets.yaml",
-        profiles_path=tmp_path / "profiles.yaml",
-        evaluation_path=tmp_path / "evaluation.yaml",
-        release_policy_path=tmp_path / "release.yaml",
+        repository_root=ROOT,
+        feature_contract_path=ROOT / "configs/contracts/model-input.yaml",
+        feature_sets_path=ROOT / "configs/model/revisions/v2/feature-sets.yaml",
+        profiles_path=ROOT / "configs/model/revisions/v2/profiles.yaml",
+        evaluation_path=ROOT / "configs/model/revisions/v2/evaluation.yaml",
+        release_policy_path=ROOT / "configs/qa/revisions/v2.yaml",
         split_dataset_dir=tmp_path / "datasets",
         mlflow_tracking_uri=f"sqlite:///{tmp_path / 'mlflow.db'}",
         artifact_dir=tmp_path / "artifacts",
         model_bundle_dir=tmp_path / "models",
         freeze_manifest_path=tmp_path / "freeze.json",
+        release_manifest_path=tmp_path / "release.json",
         canonical_evidence_path=canonical,
     )
 

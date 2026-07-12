@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from aiqa_observability import load_telemetry_policy
 from pydantic import ValidationError
-from risk_api.config import RiskApiObservabilityConfig, load_api_config
+from risk_api.adapters.config import RiskApiObservabilityConfig, load_api_config
 
 
 def test_shared_policy_contains_only_platform_concerns() -> None:

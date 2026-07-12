@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+import sys
 import tomllib
 from pathlib import Path
 
@@ -33,6 +34,49 @@ APP_FOLDERS = {
     "model-trainer": "model_trainer",
     "risk-api": "risk_api",
     "traffic-generator": "traffic_generator",
+}
+CLEAN_ARCHITECTURE_APPS = {
+    "data-quality-pipeline": {
+        "module": "data_quality_pipeline",
+        "root_files": {
+            "__init__.py",
+            "bootstrap.py",
+            "dvc_stage.py",
+            "main.py",
+            "settings.py",
+        },
+    },
+    "grafana-dashboard-importer": {
+        "module": "grafana_dashboard_importer",
+        "root_files": {"__init__.py", "bootstrap.py", "main.py", "settings.py"},
+    },
+    "model-trainer": {
+        "module": "model_trainer",
+        "root_files": {"__init__.py", "bootstrap.py", "main.py", "settings.py"},
+    },
+    "traffic-generator": {
+        "module": "traffic_generator",
+        "root_files": {"__init__.py", "bootstrap.py", "main.py", "settings.py"},
+    },
+}
+DELIVERY_ONLY_APPS = {
+    "kserve-predictor": {
+        "module": "kserve_predictor",
+        "root_files": {"__init__.py", "bootstrap.py", "main.py", "settings.py"},
+        "adapter_files": {"__init__.py", "http.py", "kserve_v2.py"},
+    },
+    "risk-api": {
+        "module": "risk_api",
+        "root_files": {"__init__.py", "bootstrap.py", "main.py", "settings.py"},
+        "adapter_files": {
+            "__init__.py",
+            "config.py",
+            "http.py",
+            "metadata.py",
+            "metric_labels.py",
+            "telemetry.py",
+        },
+    },
 }
 PACKAGE_LAYERS = {
     "aiqa_core": {"domain", "adapters"},
@@ -193,11 +237,13 @@ def test_shared_kernel_exposes_only_feature_contract_values() -> None:
 def test_observability_hides_context_and_prometheus_clients_from_apps() -> None:
     failures: list[str] = []
     platform_root = ROOT / "packages/aiqa-observability/src/aiqa_observability"
-    prometheus_adapter = platform_root / "adapters/prometheus.py"
+    prometheus_adapter = platform_root / "adapters/prometheus"
     for base in (ROOT / "apps", ROOT / "packages"):
         for path in sorted(base.glob("**/*.py")):
             imports = python_imports(path)
-            if "prometheus_client" in imports and path != prometheus_adapter:
+            if "prometheus_client" in imports and not path.is_relative_to(
+                prometheus_adapter
+            ):
                 failures.append(
                     f"{path.relative_to(ROOT)} imports prometheus_client directly"
                 )
@@ -209,3 +255,67 @@ def test_observability_hides_context_and_prometheus_clients_from_apps() -> None:
                     f"{path.relative_to(ROOT)} imports platform context directly"
                 )
     assert not failures, "\n".join(failures)
+
+
+@pytest.mark.architecture
+@pytest.mark.parametrize(
+    ("folder", "contract"),
+    sorted(CLEAN_ARCHITECTURE_APPS.items()),
+)
+def test_clean_architecture_apps_keep_explicit_layers(
+    folder: str,
+    contract: dict[str, object],
+) -> None:
+    """Keep application orchestration independent from concrete app adapters."""
+    module = str(contract["module"])
+    root_files = set(contract["root_files"])
+    source = ROOT / "apps" / folder / "src" / module
+    assert {
+        path.name for path in source.iterdir() if path.is_dir()
+    } >= {"adapters", "application", "domain", "ports"}
+    assert {
+        path.name for path in source.glob("*.py")
+    } == root_files
+
+    domain_failures: list[str] = []
+    for path in sorted((source / "domain").glob("*.py")):
+        for imported in python_imports(path):
+            root = imported.split(".", 1)[0]
+            if root not in sys.stdlib_module_names | {"__future__", module}:
+                domain_failures.append(f"{path.relative_to(ROOT)}: {imported}")
+    assert not domain_failures, "\n".join(domain_failures)
+
+    application_failures: list[str] = []
+    for path in sorted((source / "application").glob("*.py")):
+        forbidden = {
+            imported
+            for imported in python_imports(path)
+            if ".adapters" in imported or imported.endswith(".adapters")
+        }
+        if forbidden:
+            application_failures.append(
+                f"{path.relative_to(ROOT)}: {sorted(forbidden)}"
+            )
+    assert not application_failures, "\n".join(application_failures)
+
+
+@pytest.mark.architecture
+@pytest.mark.parametrize(
+    ("folder", "contract"),
+    sorted(DELIVERY_ONLY_APPS.items()),
+)
+def test_delivery_only_apps_keep_protocol_logic_under_adapters(
+    folder: str,
+    contract: dict[str, object],
+) -> None:
+    """Do not create empty layers when an app only translates a delivery protocol."""
+    module = str(contract["module"])
+    root_files = set(contract["root_files"])
+    adapter_files = set(contract["adapter_files"])
+    source = ROOT / "apps" / folder / "src" / module
+
+    assert {path.name for path in source.glob("*.py")} == root_files
+    assert {path.name for path in (source / "adapters").glob("*.py")} == adapter_files
+    assert not (source / "application").exists()
+    assert not (source / "domain").exists()
+    assert not (source / "ports").exists()

@@ -6,13 +6,21 @@ from traffic_generator.domain import TrafficResponse
 
 
 class PatientPool(Protocol):
-    @property
-    def size(self) -> int: ...
+    """Select a target-free operational patient payload by deterministic index."""
 
-    def patient(self, index: int) -> dict[str, object]: ...
+    @property
+    def size(self) -> int:
+        """Return the number of available patient payloads."""
+        ...
+
+    def patient(self, index: int) -> dict[str, object]:
+        """Return a defensive payload copy for the requested pool index."""
+        ...
 
 
 class PredictionClient(Protocol):
+    """Send one generated payload to the public prediction API."""
+
     def predict(
         self,
         *,
@@ -20,8 +28,14 @@ class PredictionClient(Protocol):
         request_id: str,
         scenario: str,
         timeout_seconds: float,
-    ) -> TrafficResponse: ...
+    ) -> TrafficResponse:
+        """Return response evidence for one submitted traffic request."""
+        ...
 
 
 class TrafficRecorder(Protocol):
-    def record(self, response: TrafficResponse) -> None: ...
+    """Persist one completed traffic response as append-only evidence."""
+
+    def record(self, response: TrafficResponse) -> None:
+        """Record the supplied traffic response evidence."""
+        ...

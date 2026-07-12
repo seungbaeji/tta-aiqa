@@ -16,6 +16,7 @@ RAW_PROFILE_COLUMNS = [
 
 
 def raw_expectations(rules: QualityRules) -> list[Expectation]:
+    """Build raw-record ingestion expectations from the versioned quality policy."""
     return [
         gxe.ExpectTableColumnsToMatchOrderedList(column_list=RAW_PROFILE_COLUMNS),
         gxe.ExpectTableRowCountToEqual(value=rules.raw.expected_record_count),
@@ -36,6 +37,7 @@ def raw_expectations(rules: QualityRules) -> list[Expectation]:
 def processed_expectations(
     rules: QualityRules, feature_names: tuple[str, ...]
 ) -> list[Expectation]:
+    """Build processed-feature expectations from quality and aggregation contracts."""
     expectations: list[Expectation] = [
         gxe.ExpectTableColumnsToMatchOrderedList(
             column_list=["record_id", *feature_names, "target"]

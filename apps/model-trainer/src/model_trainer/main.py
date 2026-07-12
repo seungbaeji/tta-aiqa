@@ -7,8 +7,8 @@ import argparse
 from pydantic import BaseModel, ConfigDict
 
 from model_trainer.bootstrap import bootstrap
+from model_trainer.domain import TrainerCommand, TrainerStage
 from model_trainer.settings import ModelTrainerSettings
-from model_trainer.workflow import TrainerCommand, TrainerStage
 
 
 class TrainerCliDto(BaseModel):

@@ -12,8 +12,7 @@ def test_official_source_files_match_versioned_manifest() -> None:
 
     evidence = verify_source_manifest(source.source_manifest_path)
 
-    assert evidence["verified"] is True
-    assert [item["path"] for item in evidence["files"]] == [
+    assert [item.path for item in evidence.files] == [
         "set-a.zip",
         "Outcomes-a.txt",
     ]

@@ -123,3 +123,24 @@ def test_score_risk_is_reusable_without_api_labels_or_event_recording() -> None:
     assert result.request_id == "kserve-request-1"
     assert result.model == scorer.identity
     assert result.missing_feature_count == 1
+
+
+def test_score_risk_preserves_a_categorical_feature_value() -> None:
+    feature_set = FeatureSet(
+        schema_version=1,
+        name="category-test",
+        target="target",
+        features=(FeatureDefinition("gender", FeatureType.CATEGORY, False),),
+    )
+    scorer = StubScorer()
+
+    score_risk(
+        PredictionRequest(
+            request_id="category-request",
+            features=(("gender", "female"),),
+        ),
+        feature_set=feature_set,
+        scorer=scorer,
+    )
+
+    assert scorer.received == (("gender", "female"),)

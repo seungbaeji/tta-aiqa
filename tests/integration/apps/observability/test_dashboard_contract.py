@@ -3,7 +3,7 @@
 import json
 from pathlib import Path
 
-from risk_api.config import load_api_config
+from risk_api.adapters.config import load_api_config
 
 
 def test_dashboard_uses_declared_metrics_and_all_three_datasources() -> None:

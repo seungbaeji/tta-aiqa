@@ -9,13 +9,16 @@ from aiqa_observability.domain import (
     MetricSpec,
     TelemetryContext,
     TelemetryEvent,
+    TelemetryLogLevel,
     TelemetryPolicy,
     TelemetryResource,
+    derive_telemetry_context,
 )
 from aiqa_observability.telemetry import Telemetry, create_telemetry
 
 __all__ = [
     "CounterMetric",
+    "derive_telemetry_context",
     "HistogramMetric",
     "MetricKind",
     "MetricLabels",
@@ -23,6 +26,7 @@ __all__ = [
     "Telemetry",
     "TelemetryContext",
     "TelemetryEvent",
+    "TelemetryLogLevel",
     "TelemetryPolicy",
     "TelemetryResource",
     "create_telemetry",

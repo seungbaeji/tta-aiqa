@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from aiqa_core.adapters.config import load_feature_contract
-from aiqa_model.adapters import load_evaluation_plan, load_profiles
+from aiqa_model.adapters import load_evaluation_plan, load_model_profiles
 
 
 def test_canonical_contract_uses_all_133_available_features() -> None:
@@ -20,10 +20,12 @@ def test_canonical_contract_uses_all_133_available_features() -> None:
 
 
 def test_three_profiles_are_frozen_to_phase0_operating_points() -> None:
-    seed, profiles = load_profiles(Path("configs/model/profiles.yaml"))
+    catalog = load_model_profiles(Path("configs/model/profiles.yaml"))
 
-    assert seed == 42
-    assert [(item.name, item.kind.value, item.threshold) for item in profiles] == [
+    assert catalog.random_seed == 42
+    assert [
+        (item.name, item.kind.value, item.threshold) for item in catalog.profiles
+    ] == [
         ("baseline", "logistic_regression", 0.50),
         ("candidate-a", "random_forest", 0.40),
         ("candidate-b", "random_forest", 0.35),
@@ -35,3 +37,10 @@ def test_evaluation_plan_preserves_repeated_cv_and_bootstrap() -> None:
 
     assert (plan.cv_splits, plan.cv_repeats) == (5, 3)
     assert plan.bootstrap_iterations == 1000
+    assert plan.cross_validation_metric_names == (
+        "precision",
+        "recall",
+        "f1",
+        "roc_auc",
+        "pr_auc",
+    )

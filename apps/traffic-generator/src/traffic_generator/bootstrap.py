@@ -2,6 +2,8 @@
 
 from collections.abc import Callable
 from dataclasses import dataclass
+from functools import partial
+from time import sleep
 
 from aiqa_core.adapters.config import load_feature_contract
 from aiqa_observability import Telemetry, create_telemetry, load_telemetry_policy
@@ -35,21 +37,16 @@ def bootstrap(**overrides: object) -> TrafficRuntime:
     client = RequestsPredictionClient(str(settings.api_url))
     recorder = JsonlTrafficRecorder(settings.response_artifact_path)
 
-    def run(
-        plan: TrafficPlan, request_count: int | None
-    ) -> tuple[TrafficResponse, ...]:
-        return generate_traffic(
-            plan,
+    return TrafficRuntime(
+        plans=config.plans(),
+        run=partial(
+            generate_traffic,
             random_seed=config.random_seed,
             pool=pool,
             client=client,
             recorder=recorder,
-            request_count=request_count,
-        )
-
-    return TrafficRuntime(
-        plans=config.plans(),
-        run=run,
+            sleep=sleep,
+        ),
         telemetry=create_telemetry(
             service_name="traffic-generator",
             environment=settings.environment,

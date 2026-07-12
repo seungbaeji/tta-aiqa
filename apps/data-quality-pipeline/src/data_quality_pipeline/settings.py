@@ -5,7 +5,7 @@ from pathlib import Path
 from pydantic import AnyHttpUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from data_quality_pipeline.workflow import DataQualityPaths
+from data_quality_pipeline.domain import DataQualityPaths
 
 
 class DataQualitySettings(BaseSettings):

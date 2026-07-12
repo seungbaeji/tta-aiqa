@@ -21,6 +21,7 @@ def run_checkpoint(
     expectations: list[Expectation],
     project_root: Path | None = None,
 ) -> dict[str, Any]:
+    """Run one named dataframe checkpoint and return JSON-safe GE evidence."""
     if project_root is None:
         context = gx.get_context(mode="ephemeral")
     else:

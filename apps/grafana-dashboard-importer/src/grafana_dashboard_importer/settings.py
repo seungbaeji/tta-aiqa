@@ -7,6 +7,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class GrafanaDashboardSettings(BaseSettings):
+    """Validate per-student Grafana Cloud credentials and dashboard locations."""
+
     model_config = SettingsConfigDict(
         env_prefix="AIQA_GRAFANA_",
         env_file=".env.grafanacloud",

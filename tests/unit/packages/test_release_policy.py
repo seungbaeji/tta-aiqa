@@ -2,8 +2,9 @@
 
 from pathlib import Path
 
+import pytest
 from aiqa_qa.adapters import load_release_policy
-from aiqa_qa.domain import Decision, ModelEvidence, decide_release
+from aiqa_qa.domain import Decision, ModelEvidence, ReleaseCheck, decide_release
 
 
 def evidence(
@@ -26,7 +27,7 @@ def evidence(
 
 
 def test_phase0_candidate_a_is_held_and_candidate_b_is_approved() -> None:
-    _, policy = load_release_policy(Path("configs/qa/release-policy.yaml"))
+    policy = load_release_policy(Path("configs/qa/release-policy.yaml"))
     baseline = evidence(
         "baseline",
         precision=0.381,
@@ -57,7 +58,7 @@ def test_phase0_candidate_a_is_held_and_candidate_b_is_approved() -> None:
 
 
 def test_candidate_is_held_when_any_required_guardrail_fails() -> None:
-    _, policy = load_release_policy(Path("configs/qa/release-policy.yaml"))
+    policy = load_release_policy(Path("configs/qa/release-policy.yaml"))
     baseline = evidence(
         "baseline",
         precision=0.4,
@@ -78,4 +79,16 @@ def test_candidate_is_held_when_any_required_guardrail_fails() -> None:
     decision = decide_release(policy, baseline, candidate)
 
     assert decision.decision is Decision.HOLD
-    assert dict(decision.checks)["precision_floor"] is False
+    assert dict(decision.checks)[ReleaseCheck.PRECISION_FLOOR] is False
+
+
+def test_model_evidence_rejects_a_confidence_bound_above_observed_recall() -> None:
+    with pytest.raises(ValueError, match="cannot exceed recall"):
+        evidence(
+            "candidate",
+            precision=0.4,
+            recall=0.5,
+            pr_auc=0.4,
+            false_negative=3,
+            bootstrap_recall_lower=0.6,
+        )

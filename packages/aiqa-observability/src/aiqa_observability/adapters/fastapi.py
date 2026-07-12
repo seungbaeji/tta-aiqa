@@ -19,6 +19,7 @@ def telemetry_lifespan(shutdown: Callable[[], None]):
 
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+        """Yield the application lifetime and flush platform telemetry on shutdown."""
         try:
             yield
         finally:

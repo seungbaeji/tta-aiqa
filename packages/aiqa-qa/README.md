@@ -4,4 +4,8 @@
 
 ### 1-1. Release policy
 
-Baseline 대비 candidate의 Recall, uncertainty, Precision, PR-AUC와 FN guardrail을 domain rule로 평가합니다. Application use case는 후보들을 독립적으로 평가하며 YAML과 evidence 변환만 adapter가 담당합니다.
+Release policy는 baseline, Candidate A, Candidate B의 profile identity와 Recall, uncertainty, Precision, PR-AUC, false-negative guardrail을 함께 소유합니다. 각 check 이름은 domain enum으로 고정되며, 승인 여부는 모든 guardrail 결과와 일치해야 합니다.
+
+### 1-2. Application and adapters
+
+`evaluate_candidate_releases`는 policy가 지정한 baseline과 candidate 순서를 검증한 뒤 두 후보를 독립적으로 평가하는 함수형 use case다. YAML과 JSON evidence는 Pydantic DTO adapter에서 검증하고, application과 caller에는 immutable domain policy와 result만 전달한다.

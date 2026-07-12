@@ -3,6 +3,7 @@
 from pathlib import Path
 
 from grafana_dashboard_importer.settings import GrafanaDashboardSettings
+from kserve_predictor.settings import KServePredictorSettings
 from pydantic import ValidationError
 from risk_api.settings import RiskApiSettings
 
@@ -48,3 +49,18 @@ def test_kserve_backend_requires_endpoint(tmp_path: Path) -> None:
         assert "kserve model backend requires kserve_url" in str(error)
     else:
         raise AssertionError("missing KServe endpoint must be rejected")
+
+
+def test_kserve_predictor_rejects_invalid_service_port(tmp_path: Path) -> None:
+    """The predictor runtime setting rejects ports outside the TCP range."""
+    try:
+        KServePredictorSettings(
+            _secrets_dir=tmp_path,
+            model_bundle_path="model.joblib",
+            feature_contract_path="contract.yaml",
+            port=0,
+        )
+    except ValidationError as error:
+        assert "greater than or equal to 1" in str(error)
+    else:
+        raise AssertionError("invalid KServe predictor port must be rejected")

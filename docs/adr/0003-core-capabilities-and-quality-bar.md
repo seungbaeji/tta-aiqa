@@ -34,7 +34,8 @@ trainer process.
 Release policy evaluates every candidate against the same baseline and records each
 guardrail result. `APPROVE` and `HOLD` are domain decisions, not strings assembled by a
 composition script. Publishing and rollback consume an approved, hash-matched bundle;
-they do not recalculate model quality.
+they do not recalculate model quality. ADR 0006 defines the layered provenance and
+artifact identity required for that hash match.
 
 ### 2-4. Serving
 

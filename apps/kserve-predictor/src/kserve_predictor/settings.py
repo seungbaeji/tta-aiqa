@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from pydantic import AnyHttpUrl
+from pydantic import AnyHttpUrl, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -17,8 +17,8 @@ class KServePredictorSettings(BaseSettings):
         extra="forbid",
     )
 
-    model_name: str = "mortality-risk"
-    port: int = 8080
+    model_name: str = Field(default="mortality-risk", min_length=1)
+    port: int = Field(default=8080, ge=1, le=65535)
     environment: str = "local"
     telemetry_config_path: Path = Path("configs/observability/telemetry.yaml")
     otlp_endpoint: AnyHttpUrl | None = None

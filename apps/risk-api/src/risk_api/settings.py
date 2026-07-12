@@ -3,11 +3,13 @@
 from pathlib import Path
 from typing import Literal
 
-from pydantic import AnyHttpUrl, model_validator
+from pydantic import AnyHttpUrl, Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class RiskApiSettings(BaseSettings):
+    """Validate app-specific runtime settings and model backend requirements."""
+
     model_config = SettingsConfigDict(
         env_prefix="AIQA_API_",
         env_file=".env.risk-api",
@@ -17,6 +19,7 @@ class RiskApiSettings(BaseSettings):
     )
 
     environment: str = "local"
+    port: int = Field(default=8000, ge=1, le=65535)
     model_backend: Literal["local", "kserve"]
     api_config_path: Path
     feature_contract_path: Path
@@ -29,6 +32,7 @@ class RiskApiSettings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_backend_location(self) -> "RiskApiSettings":
+        """Require exactly the backend-specific locations needed at process startup."""
         if self.model_backend == "local" and self.model_bundle_path is None:
             raise ValueError("local model backend requires model_bundle_path")
         if self.model_backend == "kserve" and self.kserve_url is None:

@@ -10,8 +10,8 @@
 
 - `uv lock --check`
 - `ruff check apps packages scripts tests`
-- `pytest`: 98 passed
-- `dvc status`: up to date
+- `pytest`: 176 passed
+- `dvc status`: active data-pipeline/package code dependency 변경을 감지했다. Historical V2 evidence를 보존하기 위해 이 working tree에서 `dvc repro`는 실행하지 않았다.
 - 학생용 ch01~ch05 Notebook top-to-bottom 실행
 - baseline, baseline-observed, Candidate B와 rollback Kustomize render
 - Compose base와 Grafana Cloud override render
@@ -45,6 +45,15 @@
 - Model과 external metadata hash를 release manifest와 publish gate에서 검증
 - Candidate B immutable publish 경로 생성과 metadata 검증
 
+### 3-4. Provenance Scope and Remaining Work
+
+현재 V2 evidence와 publish gate는 serialized model과 external metadata의 hash를
+검증한다. 그러나 pre-test freeze에서 exact `test.csv`와 모든 bundle digest를 먼저
+동결하고, KServe startup에서 expected model digest를 검증하며, Kubernetes image를
+OCI digest로 pin하는 target contract는 아직 구현 완료가 아니다. 이 구분과 도구별
+책임은 [ADR 0006](adr/0006-layered-artifact-identity-and-release-provenance.md)에
+정의한다.
+
 ## 4. 외부 환경 Pending
 
 ### 4-1. Target k3s와 Argo CD
@@ -57,7 +66,7 @@
 
 ### 4-3. Clean clone
 
-현재 V2 변경이 아직 commit되지 않아 commit 기준 clean-clone 검증은 수행할 수 없다. Commit 후 빈 clone에서 `uv sync --all-packages --group notebook`과 `uv run python scripts/setup_course.py --data-only`를 실행해야 한다.
+현재 active 구조 refactor와 검증 변경은 아직 working tree에 있다. 해당 변경을 commit한 뒤 빈 clone에서 `uv sync --all-packages --group notebook`과 `uv run python scripts/setup_course.py --data-only`를 실행해야 한다.
 
 ### 4-4. Container image
 

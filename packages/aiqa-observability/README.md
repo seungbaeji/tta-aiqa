@@ -10,6 +10,10 @@
 
 모델 예측 event 이름, metric 이름·label·bucket, traffic scenario, dashboard query는 각 app의 책임입니다. 예를 들어 Risk API의 metric 정책은 `configs/serving/api.yaml`에 있고, dashboard import는 `apps/grafana-dashboard-importer`가 담당합니다. Grafana, Loki, Tempo와 Prometheus server의 배포도 이 package의 책임이 아닙니다.
 
+### 1-3. Module boundaries
+
+`domain`은 telemetry attributes, execution context inheritance, events, metric declarations, policy와 resource identity만 소유한다. `adapters.logging`, `adapters.prometheus`, `adapters.opentelemetry`, `adapters.fastapi`, `adapters.config`은 각각 structured log, bounded metric, tracing/OTLP, framework bridge, YAML/Pydantic boundary를 소유한다. Public `Telemetry` facade는 이 기술들을 조립해 app이 context variable이나 Prometheus client를 직접 다루지 않도록 한다.
+
 ## 2. 사용 방식
 
 ### 2-1. Process composition

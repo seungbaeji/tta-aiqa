@@ -7,12 +7,24 @@ from aiqa_data.domain import PatientRecord, SplitAssignment
 
 
 class PatientRecordRepository(Protocol):
-    def records(self) -> Iterable[PatientRecord]: ...
+    """Load raw patient records for a data-preparation use case."""
+
+    def records(self) -> Iterable[PatientRecord]:
+        """Yield all patient records available to the use case."""
+        ...
 
 
 class OutcomeRepository(Protocol):
-    def outcomes(self) -> Mapping[int, int]: ...
+    """Load binary patient outcomes for a data-preparation use case."""
+
+    def outcomes(self) -> Mapping[int, int]:
+        """Return source outcomes keyed by patient record ID."""
+        ...
 
 
 class SplitStrategy(Protocol):
-    def assign(self, targets: Mapping[int, int]) -> tuple[SplitAssignment, ...]: ...
+    """Assign patient IDs to deterministic dataset roles."""
+
+    def assign(self, targets: Mapping[int, int]) -> tuple[SplitAssignment, ...]:
+        """Return one role assignment for every supplied patient ID."""
+        ...

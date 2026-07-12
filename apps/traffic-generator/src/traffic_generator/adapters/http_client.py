@@ -9,7 +9,10 @@ from traffic_generator.domain import TrafficResponse
 
 
 class RequestsPredictionClient:
+    """Send one traffic payload to the public Risk API REST endpoint."""
+
     def __init__(self, api_url: str, session: requests.Session | None = None) -> None:
+        """Configure the fixed prediction URL and reusable HTTP session."""
         self._url = f"{api_url.rstrip('/')}/v1/predict"
         self._session = session or requests.Session()
 
@@ -21,6 +24,7 @@ class RequestsPredictionClient:
         scenario: str,
         timeout_seconds: float,
     ) -> TrafficResponse:
+        """Send one request and preserve any JSON or text response as evidence."""
         started = time.perf_counter()
         response = self._session.post(
             self._url,

@@ -4,8 +4,8 @@ from aiqa_data.adapters.artifacts import (
     read_dataset_csv,
     read_split_csv,
     write_dataset_csv,
-    write_json,
     write_role_datasets,
+    write_source_integrity_report,
     write_split_csv,
 )
 from aiqa_data.adapters.config import load_aggregation_plan
@@ -20,13 +20,13 @@ from aiqa_data.adapters.source import (
     acquire_source_manifest,
     extract_archive,
     load_source_contract,
-    load_split_config,
     verify_source_manifest,
 )
 from aiqa_data.adapters.split import (
     SklearnStratifiedSplitStrategy,
     StratifiedSplitConfig,
 )
+from aiqa_data.adapters.split_config import load_split_config
 
 __all__ = [
     "PhysioNetOutcomeRepository",
@@ -45,7 +45,7 @@ __all__ = [
     "read_split_csv",
     "verify_source_manifest",
     "write_dataset_csv",
-    "write_json",
     "write_role_datasets",
+    "write_source_integrity_report",
     "write_split_csv",
 ]

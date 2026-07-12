@@ -3,6 +3,7 @@
 from aiqa_qa.domain.release import (
     Decision,
     ModelEvidence,
+    ReleaseCheck,
     ReleaseDecision,
     ReleasePolicy,
     decide_release,
@@ -11,6 +12,7 @@ from aiqa_qa.domain.release import (
 __all__ = [
     "Decision",
     "ModelEvidence",
+    "ReleaseCheck",
     "ReleaseDecision",
     "ReleasePolicy",
     "decide_release",

@@ -2,6 +2,7 @@
 
 from collections.abc import Callable
 from dataclasses import dataclass
+from functools import partial
 
 from aiqa_observability import Telemetry, create_telemetry, load_telemetry_policy
 
@@ -10,7 +11,11 @@ from grafana_dashboard_importer.adapters import (
     load_dashboard_template,
 )
 from grafana_dashboard_importer.application import import_dashboard
-from grafana_dashboard_importer.domain import DashboardTemplate, ImportResult
+from grafana_dashboard_importer.domain import (
+    DashboardDatasourceBindings,
+    DashboardTemplate,
+    ImportResult,
+)
 from grafana_dashboard_importer.settings import GrafanaDashboardSettings
 
 
@@ -32,24 +37,22 @@ def bootstrap(**overrides: object) -> DashboardRuntime:
         token=settings.dashboard_token.get_secret_value(),
     )
     template = load_dashboard_template(settings.dashboard_path)
-    datasource_uids = {
-        "metrics": settings.metrics_datasource_uid,
-        "logs": settings.logs_datasource_uid,
-        "traces": settings.traces_datasource_uid,
-    }
-
-    def run_import() -> ImportResult:
-        return import_dashboard(
-            gateway=gateway,
-            template=template,
-            folder_uid=settings.folder_uid,
-            datasource_uids=datasource_uids,
-        )
+    datasource_bindings = DashboardDatasourceBindings(
+        metrics_uid=settings.metrics_datasource_uid,
+        logs_uid=settings.logs_datasource_uid,
+        traces_uid=settings.traces_datasource_uid,
+    )
 
     return DashboardRuntime(
         template=template,
         folder_uid=settings.folder_uid,
-        run_import=run_import,
+        run_import=partial(
+            import_dashboard,
+            gateway=gateway,
+            template=template,
+            folder_uid=settings.folder_uid,
+            datasource_bindings=datasource_bindings,
+        ),
         telemetry=create_telemetry(
             service_name="grafana-dashboard-importer",
             environment=settings.environment,

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 from aiqa_core.adapters.config import FeatureContractDocument, load_feature_contract
-from aiqa_core.domain import FeatureType
+from aiqa_core.domain import FeatureDefinition, FeatureSet, FeatureType
 from pydantic import ValidationError
 
 
@@ -53,3 +53,38 @@ def test_yaml_root_must_be_a_mapping(tmp_path: Path) -> None:
 
     with pytest.raises(ValueError, match="root must be a mapping"):
         load_feature_contract(path)
+
+
+@pytest.mark.parametrize("value", ["float", 1])
+def test_domain_feature_definition_rejects_non_enum_dtype(value: object) -> None:
+    with pytest.raises(ValueError, match="feature dtype"):
+        FeatureDefinition("age", value, False)  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize("value", [0, "false"])
+def test_domain_feature_definition_rejects_non_boolean_nullable(
+    value: object,
+) -> None:
+    with pytest.raises(ValueError, match="feature nullable"):
+        FeatureDefinition("age", FeatureType.FLOAT, value)  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize(
+    ("name", "target"),
+    [
+        (" feature-contract", "in_hospital_death"),
+        ("feature-contract ", "in_hospital_death"),
+        ("feature-contract", " in_hospital_death"),
+        ("feature-contract", "in_hospital_death "),
+    ],
+)
+def test_domain_feature_set_rejects_untrimmed_identifiers(
+    name: str, target: str
+) -> None:
+    with pytest.raises(ValueError, match="must be non-empty and trimmed"):
+        FeatureSet(
+            schema_version=1,
+            name=name,
+            target=target,
+            features=(FeatureDefinition("age", FeatureType.FLOAT, False),),
+        )

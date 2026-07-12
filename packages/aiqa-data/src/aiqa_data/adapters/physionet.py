@@ -13,6 +13,8 @@ RECORD_ID_PARAMETER = "RecordID"
 
 
 class PhysioNetRecordRepository:
+    """Read versioned PhysioNet patient files through the record repository port."""
+
     def __init__(
         self, records_dir: Path, expected_count: int, observation_window_hours: int
     ) -> None:
@@ -21,6 +23,7 @@ class PhysioNetRecordRepository:
         self._max_minute = observation_window_hours * 60
 
     def records(self) -> Iterable[PatientRecord]:
+        """Yield every validated patient record from the configured directory."""
         paths = sorted(self._records_dir.glob("*.txt"))
         if len(paths) != self._expected_count:
             raise ValueError(
@@ -31,6 +34,8 @@ class PhysioNetRecordRepository:
 
 
 class PhysioNetOutcomeRepository:
+    """Read PhysioNet outcome labels through the outcome repository port."""
+
     def __init__(
         self,
         path: Path,
@@ -43,6 +48,7 @@ class PhysioNetOutcomeRepository:
         self._blocked_columns = blocked_columns
 
     def outcomes(self) -> Mapping[int, int]:
+        """Return one validated binary outcome for every source patient."""
         with self._path.open(newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file)
             columns = set(reader.fieldnames or [])
@@ -68,6 +74,7 @@ class PhysioNetOutcomeRepository:
 
 
 def parse_record(path: Path, *, max_minute: int | None = None) -> PatientRecord:
+    """Parse one raw PhysioNet patient file into a domain record."""
     record_id: int | None = None
     observations: list[Observation] = []
     with path.open(newline="", encoding="utf-8") as file:
@@ -94,6 +101,7 @@ def parse_record(path: Path, *, max_minute: int | None = None) -> PatientRecord:
 
 
 def parse_time(value: str) -> int:
+    """Convert a PhysioNet HH:MM measurement timestamp to minutes."""
     hours, minutes = (int(part) for part in value.split(":"))
     if hours < 0 or not 0 <= minutes < 60:
         raise ValueError(f"invalid PhysioNet time: {value}")

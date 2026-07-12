@@ -153,13 +153,13 @@ V2 sealed test의 핵심 결과는 다음과 같습니다.
 
 ### 5-3. MLflow 확인
 
-강사용 환경 준비에서는 세 model bundle과 MLflow run을 생성하고 baseline만 초기 deployed 경로에 publish합니다. 수강생 VM에는 이 상태가 미리 준비됩니다.
+강사용 환경 준비에서는 세 model bundle과 MLflow run을 생성하고 baseline만 초기 deployed 경로에 publish합니다. 수강생 VM에는 이 상태가 미리 준비됩니다. V2는 이미 sealed test가 확정된 historical revision이므로 Model Trainer lifecycle을 다시 실행하지 않습니다.
 
 ```bash
-uv run python scripts/run_model.py bootstrap --revision v2
+uv run python scripts/run_model.py status --revision v2
 ```
 
-이 명령은 `train`과 `valid`만 읽는 강사용 재현 명령입니다. 실행 결과와 run ID는 `reference/evidence/model/revisions/v2/model-bootstrap.json`에서 확인합니다. 승인된 Candidate B를 local deployed 경로로 전환하거나 baseline으로 되돌릴 때는 다음 명령을 사용합니다.
+V2의 기존 bootstrap 결과와 run ID는 `reference/evidence/model/revisions/v2/model-bootstrap.json`에서 확인합니다. 새 revision에서는 development, diagnostics, bootstrap으로 train/valid 결과를 만들고 `release-freeze.json`을 commit한 뒤에만 final을 열 수 있습니다. 승인된 Candidate B를 local deployed 경로로 전환하거나 baseline으로 되돌릴 때는 다음 명령을 사용합니다.
 
 ```bash
 uv run python scripts/publish_model.py candidate-b --revision v2
@@ -280,3 +280,7 @@ uv run pytest -q
 ### 10-1. V2 TO-BE 계획
 
 기존 2일 14교시 구성, repository 경계, 데이터·모델 계보, conditional deployment gate, Grafana Cloud와 수강생 동선은 [docs/v2-to-be-plan.md](docs/v2-to-be-plan.md)에 정리했습니다.
+
+### 10-2. Artifact Identity ADR
+
+Git, DVC, MLflow, immutable model/image artifact와 release manifest의 역할 분리는 [ADR 0006](docs/adr/0006-layered-artifact-identity-and-release-provenance.md)에 기록합니다. 이 문서는 어떤 hash를 왜 쓰는지와 SLSA, KServe, Grafana Alloy, Great Expectations, k6를 교육 범위에서 어떻게 참조하는지 설명합니다.
