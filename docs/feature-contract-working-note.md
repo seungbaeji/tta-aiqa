@@ -7,7 +7,9 @@
 ### 1-1. 교육 범위
 
 - 수강생은 준비된 patient-level feature와 세 model의 평가 결과를 사용해 데이터, 모델, 배포와 운영 품질의 연결을 확인한다.
-- Feature 탐색, model family 탐색과 반복적인 tuning 과정은 강의에서 다루지 않는다.
+- 본 과정의 end-to-end 시나리오는 준비된 feature와 model evidence를 사용한다.
+- Appendix에서는 합성 data로 EDA와 Feature Engineering의 기초 개념을 다루되,
+  canonical PhysioNet feature 선택이나 반복 tuning 과정으로 연결하지 않는다.
 - DVC와 MLflow에서는 확정된 data revision, config와 model run의 계보만 확인한다.
 
 ### 1-2. 내부 구현 범위
@@ -70,11 +72,15 @@ EDA와 데이터 품질 확인
 
 ### 4-2. 강의에서 제외할 내용
 
-- Feature importance를 이용한 반복 선택
-- Correlation 기반 feature 제거 실험
+- 실제 PhysioNet data에서 feature importance를 이용한 canonical feature 반복 선택
+- 실제 benchmark 결과를 보며 correlation 기반 feature 제거를 반복하는 과정
 - Model family와 hyperparameter 탐색 과정
 - Candidate 관계를 만들기 위한 내부 profile 탐색
 - Test 결과에 따른 feature 또는 policy 재조정
+
+Appendix의 합성 예제는 correlation, mutual information, 단변량 regression,
+coefficient, tree importance와 permutation importance의 의미와 한계를 비교한다. 이
+예제의 ranking은 production feature set을 변경하는 evidence로 사용하지 않는다.
 
 ## 5. 후속 처리
 
