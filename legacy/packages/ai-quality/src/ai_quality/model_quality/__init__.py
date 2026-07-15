@@ -1,1 +1,0 @@
-"""Model quality bounded context."""

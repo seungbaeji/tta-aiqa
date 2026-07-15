@@ -47,7 +47,7 @@ def assert_notebook_runtime() -> None:
 def verify_course_state(*, require_model: bool) -> dict[str, object]:
     """Verify the prepared data, evidence, and optionally provisioned baseline model."""
     canonical_path = (
-        ROOT / "reference/evidence/model/revisions/v2/canonical-benchmark.json"
+        ROOT / "docs/reference/evidence/model/revisions/v2/canonical-benchmark.json"
     )
     canonical = json.loads(canonical_path.read_text(encoding="utf-8"))
     decisions = {

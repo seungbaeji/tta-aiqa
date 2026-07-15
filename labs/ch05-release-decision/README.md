@@ -1,33 +1,40 @@
 # 5장 Release Decision
 
-## 1. 목표
+## 1. 목표와 두 판단 gate
 
-### 1-1. 조건부 배포
+이 Lab은 Candidate B를 무조건 target에 배포하는 실습이 아닙니다. Candidate A=`HOLD`,
+Candidate B=`APPROVE`라는 frozen model evidence와 실제 runtime/telemetry observation을
+한 release record에 함께 적습니다. target cluster 또는 Grafana Cloud를 보지 못한 경우
+Candidate B model approval을 바꾸지 않고 `operational_deployment_scope=target_pending`으로
+남깁니다.
 
-Candidate A는 보류하고 Candidate B만 배포한 뒤 같은 Risk API URL과 dashboard에서
-변경을 확인합니다. 마지막에는 baseline rollback을 검증합니다.
+| field | 이 Lab의 현재 public evidence | target을 직접 관측해야 추가할 evidence |
+| --- | --- | --- |
+| model approval | A=`HOLD`, B=`APPROVE`, `deployment_allowed=true` | 새로운 frozen revision이 없으면 변경하지 않음 |
+| operational scope | manifest/overlay static check, local Notebook fallback | GitOps sync, target API identity, traffic/telemetry time window |
+| current recommendation | `target evidence collection` | observed scope에 맞는 controlled rollout 또는 rollback review |
 
-## 2. 판단 확인
-
-### 2-1. Evidence
+## 2. Frozen release chain과 Notebook
 
 ```bash
 uv run python scripts/run_model.py status --revision v2
+uv run pytest -q \
+  tests/integration/qa/test_v2_serialized_bundle_verification.py \
+  tests/integration/deployment/test_kubernetes_contract.py
 ```
 
-`reference/evidence/model/revisions/v2/release-manifest.json`은 canonical decision,
-sealed-test final benchmark, bundle digest와 approved Candidate B MLflow run을 연결합니다.
+`docs/reference/evidence/model/revisions/v2/release-manifest.json`은 canonical decision,
+sealed-test final benchmark, pre-test freeze, bundle digest와 approved Candidate B MLflow run을
+연결합니다. frozen evidence를 다시 만들거나 sealed test를 tuning에 사용하지 않습니다.
 
-### 2-2. Notebook
+`01_review_release_decision.ipynb`는 canonical decision, release manifest, baseline,
+Candidate B와 rollback overlay를 대조합니다. URL이 없다면 `URL_NOT_CONFIGURED`와
+`target_pending`이 expected fallback입니다. Candidate A는 어떤 overlay에도 포함되지 않아야
+합니다.
 
-`01_review_release_decision.ipynb`에서 canonical decision, release manifest와
-Kubernetes overlay를 연결합니다. Candidate A는 어떤 overlay에도 포함되지 않아야 합니다.
+## 3. Candidate B immutable publish와 GitOps target gate
 
-## 3. Candidate B 배포
-
-### 3-1. Immutable publish
-
-강사 환경에서 model host path가 준비된 상태로 실행합니다.
+강사 환경에서 model mount path가 준비된 경우에만 immutable publish를 실행합니다.
 
 ```bash
 uv run python scripts/publish_model.py candidate-b \
@@ -35,7 +42,11 @@ uv run python scripts/publish_model.py candidate-b \
   --target-root /mnt/course-models
 ```
 
-### 3-2. GitOps manifest
+output path의 `candidate-b-c712a8e52344`와 `deployment.json` profile/model SHA-256을
+capture합니다. 이 결과는 selected bundle의 prepared evidence이며, target PVC mount,
+KServe startup이나 Risk API availability를 뜻하지 않습니다.
+
+강사 제공 target context에서는 manifest shape만 먼저 검사합니다.
 
 ```bash
 kubectl config current-context
@@ -43,33 +54,34 @@ kubectl kustomize deploy/kubernetes/overlays/candidate-b >/tmp/tta-aiqa-candidat
 kubectl apply --dry-run=server -f /tmp/tta-aiqa-candidate-b.yaml
 ```
 
-강사가 안내한 branch와 Argo CD 절차로 Candidate B overlay를 sync합니다. `/v1/model`에서
-Candidate B version을 확인하고 `approved-candidate` traffic을 보냅니다. Overlay는 PVC
-subPath와 `model-identity` ConfigMap의 expected model digest를 함께 Candidate B bundle로
-전환해야 합니다.
+actual Candidate B sync는 강사가 안내한 GitOps/Argo CD workflow에서만 수행합니다.
+`AIQA_EXPECTED_PROFILE=candidate-b`를 명시한 뒤 target `/v1/model`, valid contract
+response, scenario, dashboard URL과 telemetry time window를 capture합니다. API profile 하나나
+HTTP 200 하나만으로 `target_verified`라고 쓰지 않습니다.
 
-## 4. 운영 증거와 Rollback
+## 4. Rollback review와 failure path
 
-### 4-1. 누적 확인
-
-같은 Grafana dashboard에서 baseline과 Candidate B `model_version`이 시간 순서로 모두
-조회되는지 확인합니다. current-shift와 invalid traffic은 input/API 품질 신호이며
-Candidate B 자체 결함으로 단정하지 않습니다.
-
-### 4-2. Baseline 복구
+rollback overlay는 baseline immutable path를 선언하는 desired state입니다.
 
 ```bash
 kubectl kustomize deploy/kubernetes/overlays/rollback >/tmp/tta-aiqa-rollback.yaml
 kubectl apply --dry-run=server -f /tmp/tta-aiqa-rollback.yaml
 ```
 
-rollback sync 후 `/health/ready`와 `/v1/model`이 baseline version으로 복구되어야 합니다.
+expected Candidate B identity mismatch, valid payload contract failure, 또는 owner가 검증한
+live operational condition은 `rollback_required` review를 열 수 있습니다. intentional
+invalid traffic 422는 input validation route이며 5xx Error rate, model defect 또는 automatic
+rollback trigger로 바꾸지 않습니다.
 
-## 5. 완료 기준
+actual rollback sync 후 baseline API identity, traffic과 telemetry를 새 time window에서
+관측해야 recovery를 report할 수 있습니다. target context가 없으면 static overlay와 required
+owner evidence만 남깁니다.
 
-### 5-1. Release 기록
+## 5. 제출물
 
-- Candidate A `HOLD`, Candidate B `APPROVE` 근거와 release-manifest의 artifact hash를 설명합니다.
-- Rendered KServe predictor의 expected model digest가 선택된 PVC bundle과 일치함을 확인합니다.
-- Candidate B 배포 전후 API와 telemetry evidence를 남깁니다.
-- rollback 후 baseline 복구를 확인하고, 확인하지 못한 external scope를 release 기록에 남깁니다.
+> Candidate A는 frozen V2 policy에서 `HOLD`, Candidate B는 `APPROVE`다. release manifest와
+> Candidate B overlay의 immutable identity는 [static/observed scope]로 확인했지만,
+> [target GitOps/API identity/telemetry]는 [observed 또는 pending]이다. 따라서 operational
+> deployment scope는 [prepared/local_verified/target_verified/target_pending/rollback_required],
+> current recommendation은 [target evidence collection/controlled rollout/rollback review]이며
+> [owner]가 [next evidence]를 수집한 뒤 재평가한다.

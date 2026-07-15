@@ -37,4 +37,4 @@ uv run python scripts/prepare_data.py
 
 ### 2-1. 제거 예정 파일
 
-과거 Kaggle 원본, `vital_signs*.csv`, request CSV와 JSONL 파일은 `legacy/`에만 보존합니다. V2 app은 이 파일들을 import하거나 입력으로 사용하지 않습니다.
+과거 Kaggle 원본, `vital_signs*.csv`, request CSV와 JSONL 파일은 `tmp/legacy/`에만 보존합니다. V2 app은 이 파일들을 import하거나 입력으로 사용하지 않습니다.

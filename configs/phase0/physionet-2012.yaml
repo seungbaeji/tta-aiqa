@@ -152,4 +152,4 @@ evaluation:
 
 outputs:
   artifact_dir: artifacts/phase0
-  evidence_dir: reference/evidence/phase0
+  evidence_dir: docs/reference/evidence/phase0

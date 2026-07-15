@@ -41,6 +41,6 @@ V2는 이미 sealed test가 `evaluated_once`인 historical evidence입니다. V2
 ### 3-1. 경계
 
 - Generated bundle와 MLflow: `artifacts/`
-- Reviewable evidence: `reference/evidence/model/revisions/<revision>`
+- Reviewable evidence: `docs/reference/evidence/model/revisions/<revision>`
 - Pre-test freeze: `release-freeze.json`
 - Post-test release decision: `release-manifest.json`

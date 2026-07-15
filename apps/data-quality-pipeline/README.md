@@ -26,4 +26,4 @@ uv run python scripts/validate_data.py
 
 - DVC output: `data/interim`, `data/processed`, `data/splits`
 - Runtime evidence: `artifacts/data-quality`
-- Canonical lineage: `reference/evidence/data-lineage`
+- Canonical lineage: `docs/reference/evidence/data-lineage`

@@ -29,7 +29,7 @@
 
 ## HAVE NOT TO
 
-- `legacy/`를 active runtime dependency로 사용하거나 business bounded context끼리 직접 의존하지 않는다.
+- `tmp/legacy/`를 active runtime dependency로 사용하거나 business bounded context끼리 직접 의존하지 않는다.
 - `domain`/application에 FastAPI, pandas, sklearn, MLflow, HTTP, filesystem, YAML parser 같은 외부 기술을 넣지 않는다.
 - 의미 없는 base class, service locator, generic use-case/command/result/dependency framework, forwarding-only class를 만들지 않는다.
 - feature, threshold, model parameter, release policy를 Python default나 environment variable에 중복 정의하거나 metric/decision을 하드코딩하지 않는다.

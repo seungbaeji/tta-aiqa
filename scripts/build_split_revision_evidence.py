@@ -95,7 +95,7 @@ def main() -> None:
         }
 
     parent_evidence = json.loads(
-        (ROOT / "reference/evidence/data-lineage/data-manifest.json").read_text(
+        (ROOT / "docs/reference/evidence/data-lineage/data-manifest.json").read_text(
             encoding="utf-8"
         )
     )

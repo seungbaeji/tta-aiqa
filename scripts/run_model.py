@@ -33,8 +33,10 @@ def revision_paths(revision: str) -> RevisionPaths:
             feature_sets=ROOT / "configs/model/feature-sets.yaml",
             release_policy=ROOT / "configs/qa/release-policy.yaml",
             split_dataset_dir=ROOT / "data/splits/physionet-2012/datasets",
-            data_manifest=ROOT / "reference/evidence/data-lineage/data-manifest.json",
-            evidence_root=ROOT / "reference/evidence/model",
+            data_manifest=(
+                ROOT / "docs/reference/evidence/data-lineage/data-manifest.json"
+            ),
+            evidence_root=ROOT / "docs/reference/evidence/model",
             artifact_root=ROOT / "artifacts/model",
             model_root=ROOT / "artifacts/models",
         )
@@ -44,8 +46,10 @@ def revision_paths(revision: str) -> RevisionPaths:
         feature_sets=ROOT / "configs/model/revisions/v2/feature-sets.yaml",
         release_policy=ROOT / "configs/qa/revisions/v2.yaml",
         split_dataset_dir=ROOT / "data/splits/physionet-2012/revisions/v2/datasets",
-        data_manifest=ROOT / "reference/evidence/data-lineage/split-revision-v2.json",
-        evidence_root=ROOT / "reference/evidence/model/revisions/v2",
+        data_manifest=(
+            ROOT / "docs/reference/evidence/data-lineage/split-revision-v2.json"
+        ),
+        evidence_root=ROOT / "docs/reference/evidence/model/revisions/v2",
         artifact_root=ROOT / "artifacts/model/revisions/v2",
         model_root=ROOT / "artifacts/models/revisions/v2",
     )
@@ -136,7 +140,12 @@ def main() -> None:
         if args.sealed_test_token is None:
             parser.error("final requires --sealed-test-token")
         command.extend(("--sealed-test-token", args.sealed_test_token))
-    subprocess.run(command, cwd=ROOT, env=environment(args.revision), check=True)
+    subprocess.run(
+        command,
+        cwd=ROOT / "artifacts",
+        env=environment(args.revision),
+        check=True,
+    )
 
 
 if __name__ == "__main__":

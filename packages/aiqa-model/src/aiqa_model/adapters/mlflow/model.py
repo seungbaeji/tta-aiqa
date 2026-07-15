@@ -28,10 +28,16 @@ from aiqa_model.domain import ModelProfile, ProfileEvaluation
 class MlflowModelTracker:
     """Record a fitted sklearn pipeline, datasets, and bundle artifacts in MLflow."""
 
-    def __init__(self, tracking_uri: str, experiment_name: str) -> None:
+    def __init__(
+        self,
+        tracking_uri: str,
+        experiment_name: str,
+        artifact_root: Path,
+    ) -> None:
         """Bind the tracker to one MLflow server and experiment name."""
         self._tracking_uri = tracking_uri
         self._experiment_name = experiment_name
+        self._artifact_root = artifact_root
 
     def record(
         self,
@@ -45,7 +51,11 @@ class MlflowModelTracker:
         provenance: dict[str, str],
     ) -> str:
         """Log one model, its train/valid inputs, metrics, and external bundle files."""
-        configure_tracking(self._tracking_uri, self._experiment_name)
+        configure_tracking(
+            self._tracking_uri,
+            self._experiment_name,
+            self._artifact_root,
+        )
         train = pd.read_csv(train_path)
         valid = pd.read_csv(valid_path)
         feature_columns = [

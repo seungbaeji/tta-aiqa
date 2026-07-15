@@ -218,6 +218,35 @@ def test_data_quality_notebook_is_executed_and_scoped_to_eda() -> None:
     assert all(cell["execution_count"] is not None for cell in code_cells)
     assert "All EDA contract checks passed." in source
     assert "Feature 선택이나 모델 튜닝은 이 실습의 범위가 아닙니다." in source
+    assert (
+        "data/splits/physionet-2012/revisions/v2/split-manifest.csv" in source
+    )
+
+
+def test_observability_notebook_reads_panel_level_datasources() -> None:
+    """Keep dashboard inspection aligned with the Grafana JSON document shape."""
+    path = Path("labs/ch04-observability/01_inspect_dashboard_contract.ipynb")
+    source = "\n".join(
+        "".join(cell["source"])
+        for cell in json.loads(path.read_text(encoding="utf-8"))["cells"]
+    )
+
+    assert 'panel.get("datasource", {}).get("type", "")' in source
+    assert 'target.get("datasource", {}).get("type", "")' not in source
+
+
+def test_release_decision_notebook_keeps_model_and_operational_gates_separate() -> None:
+    """Keep a missing target observation from silently changing model approval."""
+    path = Path("labs/ch05-release-decision/01_review_release_decision.ipynb")
+    source = "\n".join(
+        "".join(cell["source"])
+        for cell in json.loads(path.read_text(encoding="utf-8"))["cells"]
+    )
+
+    assert '"operational_deployment_scope": "target_pending"' in source
+    assert '"current_recommendation": "target evidence collection"' in source
+    assert "rollback_required" in source
+    assert "Candidate B model approval" in source
 
 
 @pytest.mark.parametrize("relative_path", APPENDIX_NOTEBOOKS)

@@ -13,7 +13,7 @@ uv run python scripts/setup_course.py
 ```
 
 이후 `git status --short`가 비어 있어야 합니다. data 재현 결과는 local DVC
-workspace에, V2 canonical evidence는 `reference/evidence/`에 분리되어 있습니다.
+workspace에, V2 canonical evidence는 `docs/reference/evidence/`에 분리되어 있습니다.
 
 ### 1-2. 공통 완료 증거
 
@@ -48,7 +48,7 @@ workspace에, V2 canonical evidence는 `reference/evidence/`에 분리되어 있
 4. [ch04 Observability](ch04-observability/README.md): Alloy, Grafana Cloud와 dashboard 연결
 5. [ch05 Release Decision](ch05-release-decision/README.md): Candidate A HOLD, Candidate B APPROVE와 rollback
 
-각 장의 README에서 runtime 명령을 먼저 수행하고 Notebook을 위에서 아래로 실행합니다. 모델 개발 탐색은 `reference/evidence/model/revisions/v2/` 아래의 development benchmark와 feature diagnostics에 내부 증거로 보존합니다. 수강생은 feature engineering이나 threshold tuning을 다시 수행하지 않고 준비된 evidence를 읽어 데이터·모델·운영 품질을 연결합니다.
+각 장의 README에서 runtime 명령을 먼저 수행하고 Notebook을 위에서 아래로 실행합니다. 모델 개발 탐색은 `docs/reference/evidence/model/revisions/v2/` 아래의 development benchmark와 feature diagnostics에 내부 증거로 보존합니다. 수강생은 feature engineering이나 threshold tuning을 다시 수행하지 않고 준비된 evidence를 읽어 데이터·모델·운영 품질을 연결합니다.
 
 ## 3. 환경 경계
 
