@@ -1,1 +1,0 @@
-"""QA strategy domain objects."""

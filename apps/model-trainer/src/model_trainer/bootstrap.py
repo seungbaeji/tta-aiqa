@@ -78,13 +78,16 @@ def bootstrap(settings: ModelTrainerSettings) -> ModelTrainerRuntime:
     bundle_store = JoblibModelBundleStore()
     bootstrap_evidence = JsonBootstrapEvidenceStore(documents)
     baseline_publisher = BaselineBundlePublisher(documents)
+    mlflow_artifact_root = configuration.repository_root / "artifacts/mlruns"
     benchmark_tracker = MlflowBenchmarkTracker(
         configuration.mlflow_tracking_uri,
         configuration.mlflow_experiment_name,
+        mlflow_artifact_root,
     )
     model_tracker = MlflowModelTracker(
         configuration.mlflow_tracking_uri,
         configuration.mlflow_experiment_name,
+        mlflow_artifact_root,
     )
     operations = TrainerOperations(
         development=partial(

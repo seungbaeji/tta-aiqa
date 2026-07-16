@@ -58,7 +58,7 @@ members = [
 ]
 
 [tool.ruff]
-exclude = ["legacy"]
+exclude = ["tmp"]
 line-length = 88
 target-version = "py311"
 
@@ -68,7 +68,7 @@ select = ["B", "E", "F", "I", "UP"]
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
-norecursedirs = ["legacy"]
+norecursedirs = ["tmp"]
 markers = [
   "unit: tests for domain and application behavior without technical boundaries",
   "architecture: static dependency and repository structure checks",

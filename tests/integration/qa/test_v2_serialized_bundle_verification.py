@@ -7,7 +7,7 @@ from pathlib import Path
 from model_trainer.adapters.documents import ReleaseManifestDocument
 
 ROOT = Path(__file__).resolve().parents[3]
-EVIDENCE = ROOT / "reference/evidence/model/revisions/v2"
+EVIDENCE = ROOT / "docs/reference/evidence/model/revisions/v2"
 
 
 def sha256(path: Path) -> str:

@@ -13,10 +13,16 @@ from aiqa_model.domain import BenchmarkResult
 class MlflowBenchmarkTracker:
     """Record one validation or sealed-test benchmark result as MLflow runs."""
 
-    def __init__(self, tracking_uri: str, experiment_name: str) -> None:
+    def __init__(
+        self,
+        tracking_uri: str,
+        experiment_name: str,
+        artifact_root: Path,
+    ) -> None:
         """Bind the tracker to one MLflow server and experiment name."""
         self._tracking_uri = tracking_uri
         self._experiment_name = experiment_name
+        self._artifact_root = artifact_root
 
     def record(
         self,
@@ -25,7 +31,11 @@ class MlflowBenchmarkTracker:
         provenance: dict[str, str],
     ) -> tuple[str, ...]:
         """Record profile metrics, role lineage, provenance tags, and JSON evidence."""
-        configure_tracking(self._tracking_uri, self._experiment_name)
+        configure_tracking(
+            self._tracking_uri,
+            self._experiment_name,
+            self._artifact_root,
+        )
         run_ids: list[str] = []
         for evaluation in result.profiles:
             with mlflow.start_run(

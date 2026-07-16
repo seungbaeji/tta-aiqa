@@ -30,30 +30,30 @@ class ModelTrainerSettings(BaseSettings):
     split_dataset_dir: Path
     split_config_path: Path = Path("params.yaml")
     data_manifest_path: Path = Path(
-        "reference/evidence/data-lineage/data-manifest.json"
+        "docs/reference/evidence/data-lineage/data-manifest.json"
     )
     mlflow_tracking_uri: str
     mlflow_experiment_name: str = "tta-aiqa-physionet-2012"
     dvc_lock_path: Path = Path("dvc.lock")
     artifact_dir: Path
     development_evidence_path: Path = Path(
-        "reference/evidence/model/development-benchmark.json"
+        "docs/reference/evidence/model/development-benchmark.json"
     )
     feature_diagnostics_path: Path = Path(
-        "reference/evidence/model/feature-diagnostics.json"
+        "docs/reference/evidence/model/feature-diagnostics.json"
     )
     model_bundle_dir: Path
     deployed_model_dir: Path = Path("artifacts/models/deployed")
     bootstrap_manifest_path: Path = Path("artifacts/model/model-bootstrap.json")
     bootstrap_evidence_path: Path = Path(
-        "reference/evidence/model/model-bootstrap.json"
+        "docs/reference/evidence/model/model-bootstrap.json"
     )
     freeze_manifest_path: Path
     release_manifest_path: Path = Path(
-        "reference/evidence/model/release-manifest.json"
+        "docs/reference/evidence/model/release-manifest.json"
     )
     canonical_evidence_path: Path = Path(
-        "reference/evidence/model/canonical-benchmark.json"
+        "docs/reference/evidence/model/canonical-benchmark.json"
     )
 
     def to_configuration(self) -> ModelTrainerConfiguration:

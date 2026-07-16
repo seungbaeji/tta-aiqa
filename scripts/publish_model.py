@@ -157,10 +157,12 @@ def main() -> None:
     revision = args.revision
     source_dir = ROOT / f"artifacts/models/revisions/{revision}/bundles"
     canonical_path = (
-        ROOT / f"reference/evidence/model/revisions/{revision}/canonical-benchmark.json"
+        ROOT
+        / f"docs/reference/evidence/model/revisions/{revision}/canonical-benchmark.json"
     )
     release_manifest_path = (
-        ROOT / f"reference/evidence/model/revisions/{revision}/release-manifest.json"
+        ROOT
+        / f"docs/reference/evidence/model/revisions/{revision}/release-manifest.json"
     )
     if not release_manifest_path.exists():
         raise FileNotFoundError(

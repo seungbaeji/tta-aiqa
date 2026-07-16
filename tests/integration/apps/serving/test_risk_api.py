@@ -119,6 +119,7 @@ def test_local_api_rejects_contract_errors_without_a_reload_endpoint(
     assert wrong_type.status_code == 422
     assert "boolean feature" in wrong_type.json()["detail"]["message"]
     assert reload_attempt.status_code == 404
+    assert 'status_code="422"' in api.get("/metrics").text
 
 
 def test_api_exposes_prediction_metrics_without_request_id_label(

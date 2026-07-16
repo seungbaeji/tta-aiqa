@@ -81,7 +81,8 @@ def test_mlflow_tracker_records_metrics_roles_and_provenance(tmp_path: Path) -> 
     tracking_uri = f"sqlite:///{(tmp_path / 'mlflow.db').resolve()}"
     evidence_path = tmp_path / "benchmark.json"
     evidence_path.write_text("{}\n", encoding="utf-8")
-    tracker = MlflowBenchmarkTracker(tracking_uri, "adapter-test")
+    artifact_root = tmp_path / "mlruns"
+    tracker = MlflowBenchmarkTracker(tracking_uri, "adapter-test", artifact_root)
 
     run_ids = tracker.record(
         benchmark_result(),
@@ -91,6 +92,7 @@ def test_mlflow_tracker_records_metrics_roles_and_provenance(tmp_path: Path) -> 
 
     mlflow.set_tracking_uri(tracking_uri)
     run = mlflow.get_run(run_ids[0])
+    assert run.info.artifact_uri.startswith(artifact_root.resolve().as_uri())
     assert run.data.metrics["recall"] == pytest.approx(0.3)
     assert run.data.tags["aiqa.accessed_roles"] == "train,valid"
     assert run.data.tags["aiqa.dvc_lock_sha256"] == "abc123"

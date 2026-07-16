@@ -1,4 +1,4 @@
-"""Run V2 raw and processed GE checkpoints with repository defaults."""
+"""Run repository raw and processed GE checkpoints with default workspace paths."""
 
 from __future__ import annotations
 

@@ -136,7 +136,11 @@ def test_mlflow_model_tracker_records_inputs_bundle_and_model(tmp_path: Path) ->
     bundle_dir.mkdir()
     (bundle_dir / "metadata.json").write_text("{}\n", encoding="utf-8")
 
-    run_id = MlflowModelTracker(tracking_uri, experiment_name).record(
+    run_id = MlflowModelTracker(
+        tracking_uri,
+        experiment_name,
+        tmp_path / "mlruns",
+    ).record(
         profile=profile(),
         evaluation=evaluation(),
         pipeline=fitted_pipeline(),
@@ -169,7 +173,7 @@ def test_mlflow_model_tracker_records_inputs_bundle_and_model(tmp_path: Path) ->
 
 def test_prepared_bootstrap_evidence_deploys_only_baseline() -> None:
     evidence = json.loads(
-        Path("reference/evidence/model/model-bootstrap.json").read_text(
+        Path("docs/reference/evidence/model/model-bootstrap.json").read_text(
             encoding="utf-8"
         )
     )

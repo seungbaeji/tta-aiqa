@@ -70,7 +70,7 @@ def main() -> None:
     prepared_development_path = output.parent / "development-benchmark.json"
     final_path = ROOT / "artifacts/model/final-benchmark.json"
     policy_path = ROOT / "configs/qa/release-policy.yaml"
-    freeze_path = ROOT / "reference/evidence/model/release-freeze.json"
+    freeze_path = ROOT / "docs/reference/evidence/model/release-freeze.json"
     freeze = json.loads(freeze_path.read_text(encoding="utf-8"))
     frozen_paths = {
         "feature_contract_path": ROOT / "configs/contracts/model-input.yaml",
@@ -119,7 +119,7 @@ def main() -> None:
             "artifact_sha256": sha256(final_path),
             "accessed_roles": final["accessed_roles"],
             "freeze_manifest_persisted_before_test": True,
-            "freeze_manifest_path": "reference/evidence/model/release-freeze.json",
+            "freeze_manifest_path": "docs/reference/evidence/model/release-freeze.json",
             "freeze_manifest_sha256": sha256(freeze_path),
             "protocol_exception": None,
         },

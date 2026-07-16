@@ -7,7 +7,7 @@ from pathlib import Path
 
 def test_sealed_test_blocks_candidate_b_deployment() -> None:
     evidence = json.loads(
-        Path("reference/evidence/model/canonical-benchmark.json").read_text(
+        Path("docs/reference/evidence/model/canonical-benchmark.json").read_text(
             encoding="utf-8"
         )
     )
@@ -27,11 +27,14 @@ def test_sealed_test_blocks_candidate_b_deployment() -> None:
 
 def test_canonical_evidence_matches_finalized_freeze_manifest() -> None:
     evidence = json.loads(
-        Path("reference/evidence/model/canonical-benchmark.json").read_text(
+        Path("docs/reference/evidence/model/canonical-benchmark.json").read_text(
             encoding="utf-8"
         )
     )
-    freeze_path = Path(evidence["sealed_test"]["freeze_manifest_path"])
+    # Canonical evidence preserves the repository-relative path recorded when it
+    # was generated. Historical evidence now lives below docs/ without rewriting
+    # that provenance payload.
+    freeze_path = Path("docs") / evidence["sealed_test"]["freeze_manifest_path"]
     freeze = json.loads(freeze_path.read_text(encoding="utf-8"))
 
     assert evidence["sealed_test"]["freeze_manifest_persisted_before_test"] is True

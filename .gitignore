@@ -27,7 +27,6 @@ data/serving_requests_invalid.csv
 data/serving_requests_valid.csv
 data/vital_signs*.csv
 outputs/
-mlruns/
 artifacts/mlflow.db
 artifacts/mlruns/
 artifacts/mlflow/
@@ -37,8 +36,10 @@ artifacts/model/
 artifacts/models/
 artifacts/traffic/
 set-a/
-physionet.org/
 data/interim/physionet-2012/
+
+# Local scratch and archived workspace material
+tmp/
 
 # Environment
 .env
