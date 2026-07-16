@@ -1,0 +1,66 @@
+{
+  "development_decisions": [
+    {
+      "checks": {
+        "false_negative_reduction": false,
+        "pr_auc_vs_baseline": true,
+        "precision_floor": true,
+        "recall_guardrail": false,
+        "recall_uncertainty": false
+      },
+      "decision": "HOLD",
+      "profile": "candidate-a"
+    },
+    {
+      "checks": {
+        "false_negative_reduction": true,
+        "pr_auc_vs_baseline": true,
+        "precision_floor": true,
+        "recall_guardrail": true,
+        "recall_uncertainty": true
+      },
+      "decision": "APPROVE",
+      "profile": "candidate-b"
+    }
+  ],
+  "final_decisions": [
+    {
+      "checks": {
+        "false_negative_reduction": false,
+        "pr_auc_vs_baseline": false,
+        "precision_floor": true,
+        "recall_guardrail": false,
+        "recall_uncertainty": false
+      },
+      "decision": "HOLD",
+      "profile": "candidate-a"
+    },
+    {
+      "checks": {
+        "false_negative_reduction": true,
+        "pr_auc_vs_baseline": false,
+        "precision_floor": true,
+        "recall_guardrail": true,
+        "recall_uncertainty": true
+      },
+      "decision": "HOLD",
+      "profile": "candidate-b"
+    }
+  ],
+  "final_evidence_sha256": "5a3c3c00aecc4ba29f1281e3d059435a6f9a77047c8b8410883dc1940aa3f3f1",
+  "model_bundles": {},
+  "release_status": "scenario_review",
+  "schema_version": 1,
+  "sealed_test_sha256": "1c64bdb68b9fc85472dd3116a04a500987e9517aa27be9f97e43198c2fea49fd",
+  "sealed_test_status": "evaluated_once",
+  "sha256": {
+    "development_evidence": "08add9f60bb9d49ebc0e556339ab64fe868bf81048ed9b4ad19cd2a8849d910e",
+    "evaluation_path": "7947582514ab21edcdc8a503e69108de172ba25dfbf2efc0172dda4e75f478a0",
+    "feature_contract_path": "fbd02c6149682807d0f3a6d8f7a1c0b823fee96eccf0c13eb584e88a320aede3",
+    "feature_sets_path": "6cceea8e87bd2be81b158ca365fdfefc8680a41f744ed7e4b61ac181b909b19f",
+    "profiles_path": "7fd51be5524d2ba0d17eb9323ba6952cd32437062fb9e75e5cb59f8b04261220",
+    "release_policy_path": "1610cdcfad39bffe2500b1fbfede672b22c55c99ce16cd6b649dd69e566c3ecd",
+    "train_dataset": "68e281449c900fe110d4a8b83d9124d4c39e1dd4f9425b727a27a8b509f904f5",
+    "valid_dataset": "cdaf5426fa5deeb3d92f53a1340ba2a938ef1217633f42ff1f158a6d96cec8b3"
+  }
+}

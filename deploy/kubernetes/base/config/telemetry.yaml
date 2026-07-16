@@ -1,0 +1,4 @@
+schema_version: 2
+service_namespace: tta-aiqa
+logging:
+  level: INFO

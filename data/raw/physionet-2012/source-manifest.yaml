@@ -1,0 +1,29 @@
+schema_version: 1
+dataset:
+  name: Predicting Mortality of ICU Patients
+  challenge: PhysioNet/Computing in Cardiology Challenge 2012
+  version: 1.0.0
+  subset: Set A
+  homepage: https://physionet.org/content/challenge-2012/1.0.0/
+  retrieved_on: 2026-07-11
+license:
+  name: Open Data Commons Attribution License
+  identifier: ODC-By-1.0
+  url: https://physionet.org/content/challenge-2012/view-license/1.0.0/
+citation:
+  text: >-
+    Goldberger, A., Amaral, L., Glass, L., Hausdorff, J., Ivanov, P. C.,
+    Mark, R., Mietus, J. E., Moody, G. B., Peng, C. K., and Stanley, H. E.
+    (2000). PhysioBank, PhysioToolkit, and PhysioNet: Components of a new
+    research resource for complex physiologic signals. Circulation 101(23),
+    e215-e220. RRID:SCR_007345.
+  doi: https://doi.org/10.1161/01.CIR.101.23.e215
+files:
+  - path: set-a.zip
+    source_url: https://physionet.org/files/challenge-2012/1.0.0/set-a.zip
+    size_bytes: 7938449
+    sha256: 1433638192fda622e8bb11a4559b8af2dbb1c69f0e1c3b5b606cc12aabd0a4c5
+  - path: Outcomes-a.txt
+    source_url: https://physionet.org/files/challenge-2012/1.0.0/Outcomes-a.txt
+    size_bytes: 79219
+    sha256: 2613ea60ccda29f87571a7d6b09ad130858a8ccd66325bd073365925026883c2

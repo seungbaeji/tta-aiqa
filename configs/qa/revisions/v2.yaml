@@ -1,0 +1,13 @@
+schema_version: 1
+name: educational-mortality-risk-v2
+baseline_profile: baseline
+candidate_a_profile: candidate-a
+candidate_b_profile: candidate-b
+rules:
+  minimum_recall: 0.55
+  recall_safety_margin: 0.05
+  minimum_recall_bootstrap_lower: 0.45
+  minimum_precision: 0.20
+  minimum_pr_auc_delta_vs_baseline: 0.0
+  minimum_false_negative_reduction: 15
+disclaimer: education_only_not_clinical_release_criteria

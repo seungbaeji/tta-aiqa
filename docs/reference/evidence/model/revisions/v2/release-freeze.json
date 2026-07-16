@@ -1,0 +1,87 @@
+{
+  "artifact_contract_migration": {
+    "canonical_metrics_unchanged": true,
+    "original_release_freeze_sha256": "e91099b2ec96b901776b8c540ded2a7cb1607f9e8c0840d290ae257064f43336",
+    "post_test_tuning_performed": false,
+    "reason": "serialized_bundle_and_metadata_integrity_contract",
+    "verification_scope": "existing serialized bundles against frozen canonical metrics"
+  },
+  "development_decisions": [
+    {
+      "checks": {
+        "false_negative_reduction": false,
+        "pr_auc_vs_baseline": true,
+        "precision_floor": true,
+        "recall_guardrail": false,
+        "recall_uncertainty": false
+      },
+      "decision": "HOLD",
+      "profile": "candidate-a"
+    },
+    {
+      "checks": {
+        "false_negative_reduction": true,
+        "pr_auc_vs_baseline": true,
+        "precision_floor": true,
+        "recall_guardrail": true,
+        "recall_uncertainty": true
+      },
+      "decision": "APPROVE",
+      "profile": "candidate-b"
+    }
+  ],
+  "final_decisions": [
+    {
+      "checks": {
+        "false_negative_reduction": false,
+        "pr_auc_vs_baseline": true,
+        "precision_floor": true,
+        "recall_guardrail": false,
+        "recall_uncertainty": false
+      },
+      "decision": "HOLD",
+      "profile": "candidate-a"
+    },
+    {
+      "checks": {
+        "false_negative_reduction": true,
+        "pr_auc_vs_baseline": true,
+        "precision_floor": true,
+        "recall_guardrail": true,
+        "recall_uncertainty": true
+      },
+      "decision": "APPROVE",
+      "profile": "candidate-b"
+    }
+  ],
+  "final_evidence_sha256": "4afb8b4f172286c78282da3eaf0e0138501d93169385ce7f2e78aa49b4dfcf3a",
+  "model_bundles": {
+    "baseline/metadata.json": "8bbb9b827cce06cc1458b14b88ec6188e1d57001cc93fe3688633dc97f81a6e9",
+    "baseline/model.joblib": "f2576f12512a490c9814e5238c3f0d2a421a21637a4b03c882df6ff25a637edc",
+    "candidate-a/metadata.json": "f51af8d50fa320ba5ff9746b4f3ac154318599ec2fbc242b76635e471bb1aefb",
+    "candidate-a/model.joblib": "466846c8809ae30060d6a108e0bc6ea902f7a5bd0052a4a8ed3611a818c1f3ff",
+    "candidate-b/metadata.json": "d7466e96967d6ec1c4344e9d7042581abd0a589e9ecbc93a40102325a287146a",
+    "candidate-b/model.joblib": "c712a8e52344c09a493629f8e6a0283c6c3139fb46cc53e293a44ee490a07c95"
+  },
+  "release_status": "release_approved",
+  "schema_version": 2,
+  "sealed_test_sha256": "051491069cd385789047031d87ad92f3ebf86868f7b2da410307b639b906aa77",
+  "sealed_test_status": "evaluated_once",
+  "sha256": {
+    "data_manifest_path": "08496a40e1bd4c809cfa3d71c6203fd69723077d070e7b1a5cd946c3865fe440",
+    "development_evidence": "53fe8b60dd7926dc979c4e481b6593774d7c098ae535889e83dcdac9c27b9068",
+    "dvc_lock_path": "227309cf7a551d0725cbfcdb02b260dce86b2b5a4e98d2d73c7b02dbea11e749",
+    "evaluation_path": "0c6b59571a47e6282d79034d95918e93cbbf12b580a9e4937bbf3bef397d28f1",
+    "feature_contract_path": "fbd02c6149682807d0f3a6d8f7a1c0b823fee96eccf0c13eb584e88a320aede3",
+    "feature_diagnostics": "8ce08c85824509cdb03ad2f13673d556ce2d83708c89fc9cc74a7e1b0044a42a",
+    "feature_sets_path": "724cb6e007d2a0316086ac11ec52e80c7cd852b6d1bf72504e220aeb278dfbc0",
+    "model_implementation_path": "cfd129692c43a18a7572f8ec913ca53282f7f54f6c16595a9ca96d233716ac9d",
+    "profiles_path": "01730dc3b772f51cd6587d4708233a63e6349030c3ac085551c25dcd62de4ca8",
+    "release_implementation_path": "4ea35a97948267878a425a46d0e96554349244cfaed732d2c7504bb0dafe63d6",
+    "release_policy_path": "b7128562b9add8848ebde0c6d5b57c5830792b70681333309d88c63b61db5d8e",
+    "tracking_implementation_path": "8ecf061452ba8c1254c2c70c19e51e7d20351ea4809821d9c3827834565da691",
+    "train_dataset": "503e5cd4281467171854d21746adf0e9023ecdb4aa7cb4c20c796b303d97e000",
+    "trainer_implementation_path": "467dfa94f01ca79d9f57ef3ad9e74c81f35f91863e823ff2f0409e4d8355ccc9",
+    "valid_dataset": "cdaf5426fa5deeb3d92f53a1340ba2a938ef1217633f42ff1f158a6d96cec8b3"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "accessed_roles": [
+    "train",
+    "valid"
+  ],
+  "bundles": {
+    "baseline": {
+      "deployed": true,
+      "metadata_path": "artifacts/models/revisions/v2/bundles/baseline/metadata.json",
+      "metadata_sha256": "8bbb9b827cce06cc1458b14b88ec6188e1d57001cc93fe3688633dc97f81a6e9",
+      "mlflow_run_id": "f4da8c37db114923b5723d220fa61490",
+      "model_path": "artifacts/models/revisions/v2/bundles/baseline/model.joblib",
+      "model_sha256": "f2576f12512a490c9814e5238c3f0d2a421a21637a4b03c882df6ff25a637edc"
+    },
+    "candidate-a": {
+      "deployed": false,
+      "metadata_path": "artifacts/models/revisions/v2/bundles/candidate-a/metadata.json",
+      "metadata_sha256": "f51af8d50fa320ba5ff9746b4f3ac154318599ec2fbc242b76635e471bb1aefb",
+      "mlflow_run_id": "f721f26a252e4e4ba465f652e4ca45be",
+      "model_path": "artifacts/models/revisions/v2/bundles/candidate-a/model.joblib",
+      "model_sha256": "466846c8809ae30060d6a108e0bc6ea902f7a5bd0052a4a8ed3611a818c1f3ff"
+    },
+    "candidate-b": {
+      "deployed": false,
+      "metadata_path": "artifacts/models/revisions/v2/bundles/candidate-b/metadata.json",
+      "metadata_sha256": "d7466e96967d6ec1c4344e9d7042581abd0a589e9ecbc93a40102325a287146a",
+      "mlflow_run_id": "31b50eb011524074960cf0f4e3fd291d",
+      "model_path": "artifacts/models/revisions/v2/bundles/candidate-b/model.joblib",
+      "model_sha256": "c712a8e52344c09a493629f8e6a0283c6c3139fb46cc53e293a44ee490a07c95"
+    }
+  },
+  "candidate_deployment_allowed": false,
+  "candidate_deployment_reason": "awaiting_sealed_test",
+  "evaluation_role": "valid",
+  "initial_deployed_profile": "baseline",
+  "provenance": {
+    "data_revision": "v2",
+    "dvc_lock_revision": "227309cf7a551d0725cbfcdb02b260dce86b2b5a4e98d2d73c7b02dbea11e749",
+    "evaluation_config_hash": "0c6b59571a47e6282d79034d95918e93cbbf12b580a9e4937bbf3bef397d28f1",
+    "git_commit": "4bf4a8a9df9a03195beb941c9d219c481e080690",
+    "git_worktree_dirty": "true",
+    "model_input_config_hash": "fbd02c6149682807d0f3a6d8f7a1c0b823fee96eccf0c13eb584e88a320aede3",
+    "model_profile_config_hash": "01730dc3b772f51cd6587d4708233a63e6349030c3ac085551c25dcd62de4ca8",
+    "raw_data_hash": "1433638192fda622e8bb11a4559b8af2dbb1c69f0e1c3b5b606cc12aabd0a4c5",
+    "release_policy_config_hash": "b7128562b9add8848ebde0c6d5b57c5830792b70681333309d88c63b61db5d8e",
+    "split_seed": "43",
+    "test_data_hash": "051491069cd385789047031d87ad92f3ebf86868f7b2da410307b639b906aa77",
+    "train_data_hash": "503e5cd4281467171854d21746adf0e9023ecdb4aa7cb4c20c796b303d97e000",
+    "valid_data_hash": "cdaf5426fa5deeb3d92f53a1340ba2a938ef1217633f42ff1f158a6d96cec8b3"
+  },
+  "schema_version": 1
+}

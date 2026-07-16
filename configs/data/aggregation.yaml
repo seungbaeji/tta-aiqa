@@ -1,0 +1,71 @@
+schema_version: 1
+missing_sentinel: -1.0
+static_features:
+  - {parameter: Age, output_name: age}
+  - {parameter: Gender, output_name: gender}
+  - {parameter: Height, output_name: height}
+  - {parameter: ICUType, output_name: icu_type}
+series_features:
+  - parameter: Weight
+    output_name: weight
+    statistics: [min, max, mean, last, count]
+  - parameter: HR
+    output_name: heart_rate
+    statistics: [min, max, mean, last, count]
+  - parameter: Temp
+    output_name: temperature
+    statistics: [min, max, mean, last, count]
+  - parameter: GCS
+    output_name: gcs
+    statistics: [min, max, mean, last, count]
+  - parameter: BUN
+    output_name: bun
+    statistics: [min, max, mean, last, count]
+  - parameter: Creatinine
+    output_name: creatinine
+    statistics: [min, max, mean, last, count]
+  - parameter: HCT
+    output_name: hematocrit
+    statistics: [min, max, mean, last, count]
+  - parameter: Platelets
+    output_name: platelets
+    statistics: [min, max, mean, last, count]
+  - parameter: WBC
+    output_name: wbc
+    statistics: [min, max, mean, last, count]
+  - parameter: Na
+    output_name: sodium
+    statistics: [min, max, mean, last, count]
+  - parameter: K
+    output_name: potassium
+    statistics: [min, max, mean, last, count]
+  - parameter: Glucose
+    output_name: glucose
+    statistics: [min, max, mean, last, count]
+  - parameter: Urine
+    output_name: urine
+    statistics: [min, max, mean, last, count, sum]
+  - parameter: NISysABP
+    output_name: non_invasive_systolic_bp
+    statistics: [min, max, mean, last, count]
+  - parameter: NIDiasABP
+    output_name: non_invasive_diastolic_bp
+    statistics: [min, max, mean, last, count]
+  - parameter: NIMAP
+    output_name: non_invasive_map
+    statistics: [min, max, mean, last, count]
+  - parameter: pH
+    output_name: ph
+    statistics: [min, max, mean, last, count]
+  - parameter: PaO2
+    output_name: pao2
+    statistics: [min, max, mean, last, count]
+  - parameter: FiO2
+    output_name: fio2
+    statistics: [min, max, mean, last, count]
+  - parameter: MechVent
+    output_name: mechanical_ventilation
+    statistics: [max, last, count]
+  - parameter: Lactate
+    output_name: lactate
+    statistics: [min, max, mean, last, count]

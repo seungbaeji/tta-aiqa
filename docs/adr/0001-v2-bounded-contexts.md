@@ -1,0 +1,43 @@
+# ADR 0001: V2 Bounded Contexts and Process Boundaries
+
+## 1. Status
+
+### 1-1. Decision
+
+Accepted on 2026-07-11.
+
+## 2. Context
+
+### 2-1. Problem
+
+The AS-IS `simple_mlops` directory combines training, HTTP serving, traffic generation and telemetry helpers around the previous Kaggle dataset. V2 must support the PhysioNet quality scenario without allowing framework or vendor concerns to define domain behavior.
+
+## 3. Decision
+
+### 3-1. Packages
+
+V2 uses five bounded-context packages: `aiqa-core`, `aiqa-data`, `aiqa-model`, `aiqa-serving` and `aiqa-qa`. A package exposes `domain`, `application`, `ports` and `adapters` only when the context has responsibilities in that layer. Empty ceremonial layers are prohibited. A bounded context may depend on `aiqa-core` but not directly on another bounded context.
+
+`aiqa-observability` is deliberately not a bounded context. It is a platform SDK shared by every Python process and owns execution context, structured logging, tracing and bounded metric registration. It has no dependency on an AIQA business package; application-owned configuration defines domain event names and metric semantics.
+
+### 3-2. Apps
+
+V2 uses six process applications: Data Quality Pipeline, Model Trainer, Risk API, KServe Predictor, Traffic Generator and Grafana Dashboard Importer. Risk API owns the public course REST surface; KServe Predictor owns the separate KServe V2 delivery surface. Apps are composition roots and may assemble multiple bounded contexts. Apps do not import other apps.
+
+### 3-3. Dependency Direction
+
+Domain code is standard-library-only. Application code may use its domain and ports but not adapters or external frameworks. Adapters contain filesystem, YAML, sklearn, MLflow, FastAPI, HTTP and vendor integrations. The platform SDK may contain only its framework-neutral values, `ContextVar` facade and technical adapters; it must not acquire Risk API or model semantics. Executable architecture tests enforce these rules and reject active imports from `legacy`.
+
+## 4. Consequences
+
+### 4-1. Positive
+
+- Compose and Kubernetes can replace model adapters without changing use cases, while every process retains the same telemetry API.
+- Unit tests run without network, Docker or vendor services.
+- Legacy code remains available for characterization but cannot become an implicit dependency.
+
+### 4-2. Cost
+
+- Context outputs require explicit mapping at app composition roots.
+- Small adapters and DTOs may appear repetitive, but their ownership remains visible.
+- Apps must declare bounded metric policy rather than hiding business labels in the platform SDK.

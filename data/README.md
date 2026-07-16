@@ -1,20 +1,40 @@
 # Data
 
-실습 데이터 위치입니다.
+## 1. V2 기준 데이터
 
-| 경로 | 용도 | Git 포함 여부 |
-| --- | --- | --- |
-| `human_vital_signs_dataset_2024.csv` | 파생 실습 데이터를 만드는 원본 CSV | 포함 |
-| `vital_signs*.csv`, `serving_requests*.csv`, `drift_requests.csv`, `release_regression_cases.csv`, `operational_*.jsonl` | `uv run python scripts/course.py prepare-data` 또는 `uv run python scripts/course.py labs`가 원본에서 생성하는 파생 데이터 | 제외 |
-| `raw/` | 원본 또는 대용량 데이터 | 제외 |
-| `derived/` | raw에서 다시 만든 학습용 데이터 | 필요 시 포함 또는 재생성 |
+### 1-1. 공식 원본
 
-원본 데이터가 있는 환경에서는 다음 명령으로 파생 데이터를 다시 만듭니다.
+V2는 PhysioNet/Computing in Cardiology Challenge 2012 version 1.0.0의 Set A를 사용합니다.
 
-```bash
-uv run python scripts/course.py prepare-data
+```text
+data/raw/physionet-2012/
+├── set-a.zip
+├── Outcomes-a.txt
+├── LICENSE.txt
+└── source-manifest.yaml
 ```
 
-macOS나 Linux에서 `make`를 사용할 수 있다면 `make prepare-data`도 같은 작업을 수행합니다.
+Archive와 outcome은 공식 배포 파일 그대로 보존합니다. 출처, 라이선스, 인용문, 파일 크기와 SHA-256은 `source-manifest.yaml`이 단일 기준입니다. Git은 manifest와 license notice만 관리하며 archive와 outcome은 준비 명령이 공식 URL에서 내려받습니다.
 
-원본 데이터가 없는 환경에서도 교재에 제공된 prepared artifact와 JupyterLite용 소형 데이터로 판단 흐름을 따라갈 수 있어야 합니다.
+### 1-2. 생성 데이터
+
+압축 해제 결과와 patient-level 파생 데이터는 원본에서 재현하며 Git에 포함하지 않습니다.
+
+```text
+data/interim/physionet-2012/set-a/
+data/processed/
+data/splits/
+data/traffic/
+```
+
+운영체제에 관계없이 다음 명령으로 공식 원본을 내려받아 checksum을 검증하고 DVC pipeline을 재현합니다.
+
+```bash
+uv run python scripts/prepare_data.py
+```
+
+## 2. AS-IS 호환 데이터
+
+### 2-1. 제거 예정 파일
+
+과거 Kaggle 원본, `vital_signs*.csv`, request CSV와 JSONL 파일은 `tmp/legacy/`에만 보존합니다. V2 app은 이 파일들을 import하거나 입력으로 사용하지 않습니다.

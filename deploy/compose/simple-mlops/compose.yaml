@@ -1,0 +1,74 @@
+name: simple-mlops
+
+services:
+  mlflow:
+    build:
+      context: ../../..
+      dockerfile: apps/model-trainer/Dockerfile
+    command:
+      - mlflow
+      - server
+      - --backend-store-uri
+      - sqlite:////runtime/mlflow/mlflow.db
+      - --artifacts-destination
+      - /runtime/mlflow/artifacts
+      - --host
+      - 0.0.0.0
+      - --port
+      - "5000"
+    ports:
+      - "5000:5000"
+    volumes:
+      - ../../../artifacts/mlflow:/runtime/mlflow
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  risk-api:
+    build:
+      context: ../../..
+      dockerfile: apps/risk-api/Dockerfile
+    environment:
+      AIQA_API_ENVIRONMENT: compose
+      AIQA_API_MODEL_BACKEND: local
+      AIQA_API_API_CONFIG_PATH: /runtime/configs/serving/api.yaml
+      AIQA_API_FEATURE_CONTRACT_PATH: /runtime/configs/contracts/model-input.yaml
+      AIQA_API_TELEMETRY_CONFIG_PATH: /runtime/configs/observability/telemetry.yaml
+      AIQA_API_MODEL_BUNDLE_PATH: /runtime/model/model.joblib
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../../../configs:/runtime/configs:ro
+      - ../../../artifacts/models/revisions/v2/deployed:/runtime/model:ro
+      - ./secrets/risk-api:/var/run/secrets/aiqa/risk-api:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready')"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  traffic-generator:
+    profiles: ["traffic"]
+    build:
+      context: ../../..
+      dockerfile: apps/traffic-generator/Dockerfile
+    environment:
+      AIQA_TRAFFIC_ENVIRONMENT: compose
+      AIQA_TRAFFIC_API_URL: http://risk-api:8000
+      AIQA_TRAFFIC_TELEMETRY_CONFIG_PATH: /runtime/configs/observability/telemetry.yaml
+      AIQA_TRAFFIC_SCENARIOS_PATH: /runtime/configs/traffic/scenarios.yaml
+      AIQA_TRAFFIC_FEATURE_CONTRACT_PATH: /runtime/configs/contracts/model-input.yaml
+      AIQA_TRAFFIC_PATIENT_POOL_PATH: /runtime/data/operational.csv
+      AIQA_TRAFFIC_RESPONSE_ARTIFACT_PATH: /runtime/artifacts/traffic/compose.jsonl
+    volumes:
+      - ../../../configs:/runtime/configs:ro
+      - ../../../data/splits/physionet-2012/revisions/v2/datasets/operational.csv:/runtime/data/operational.csv:ro
+      - ../../../artifacts:/runtime/artifacts
+      - ./secrets/traffic-generator:/var/run/secrets/aiqa/traffic-generator:ro
+    depends_on:
+      risk-api:
+        condition: service_healthy

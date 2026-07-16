@@ -1,0 +1,66 @@
+{
+  "approved_model": {
+    "feature_contract_sha256": "fbd02c6149682807d0f3a6d8f7a1c0b823fee96eccf0c13eb584e88a320aede3",
+    "final_mlflow_run_id": "49e09d6fe055418a85fbceeeb9fe1f4f",
+    "metadata_sha256": "d7466e96967d6ec1c4344e9d7042581abd0a589e9ecbc93a40102325a287146a",
+    "model_mlflow_run_id": "31b50eb011524074960cf0f4e3fd291d",
+    "model_sha256": "c712a8e52344c09a493629f8e6a0283c6c3139fb46cc53e293a44ee490a07c95",
+    "profile": "candidate-b"
+  },
+  "approved_profile": "candidate-b",
+  "canonical_evidence": {
+    "path": "reference/evidence/model/revisions/v2/canonical-benchmark.json",
+    "sha256": "fdd21a044cb67c12f7fabd1985d81e5dc159e4e7895d22783015794617e32e1d"
+  },
+  "decisions": [
+    {
+      "checks": {
+        "false_negative_reduction": false,
+        "pr_auc_vs_baseline": true,
+        "precision_floor": true,
+        "recall_guardrail": false,
+        "recall_uncertainty": false
+      },
+      "decision": "HOLD",
+      "profile": "candidate-a"
+    },
+    {
+      "checks": {
+        "false_negative_reduction": true,
+        "pr_auc_vs_baseline": true,
+        "precision_floor": true,
+        "recall_guardrail": true,
+        "recall_uncertainty": true
+      },
+      "decision": "APPROVE",
+      "profile": "candidate-b"
+    }
+  ],
+  "deployment_allowed": true,
+  "final_evidence": {
+    "path": "reference/evidence/model/revisions/v2/final-benchmark.json",
+    "sha256": "4afb8b4f172286c78282da3eaf0e0138501d93169385ce7f2e78aa49b4dfcf3a"
+  },
+  "freeze_manifest": {
+    "path": "reference/evidence/model/revisions/v2/release-freeze.json",
+    "sha256": "7763707dc690a8564acb07386e93d96c18e24667543b36c58f9eb64eff983c2f"
+  },
+  "historical_reconciliation": {
+    "frozen_dvc_lock_sha256": "227309cf7a551d0725cbfcdb02b260dce86b2b5a4e98d2d73c7b02dbea11e749",
+    "frozen_dvc_lock_snapshot_available": false,
+    "original_release_freeze_sha256": "e91099b2ec96b901776b8c540ded2a7cb1607f9e8c0840d290ae257064f43336",
+    "reason": "serialized_bundle_and_metadata_integrity_contract",
+    "schema_version": 1,
+    "verified_test_dataset_sha256": "051491069cd385789047031d87ad92f3ebf86868f7b2da410307b639b906aa77"
+  },
+  "model_bundles": {
+    "baseline/metadata.json": "8bbb9b827cce06cc1458b14b88ec6188e1d57001cc93fe3688633dc97f81a6e9",
+    "baseline/model.joblib": "f2576f12512a490c9814e5238c3f0d2a421a21637a4b03c882df6ff25a637edc",
+    "candidate-a/metadata.json": "f51af8d50fa320ba5ff9746b4f3ac154318599ec2fbc242b76635e471bb1aefb",
+    "candidate-a/model.joblib": "466846c8809ae30060d6a108e0bc6ea902f7a5bd0052a4a8ed3611a818c1f3ff",
+    "candidate-b/metadata.json": "d7466e96967d6ec1c4344e9d7042581abd0a589e9ecbc93a40102325a287146a",
+    "candidate-b/model.joblib": "c712a8e52344c09a493629f8e6a0283c6c3139fb46cc53e293a44ee490a07c95"
+  },
+  "release_status": "release_approved",
+  "schema_version": 1
+}

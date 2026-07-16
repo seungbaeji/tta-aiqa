@@ -1,0 +1,83 @@
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: mortality-risk
+  namespace: tta-aiqa
+  annotations:
+    serving.kserve.io/deploymentMode: RawDeployment
+spec:
+  predictor:
+    labels:
+      app.kubernetes.io/name: kserve-risk-predictor
+      app.kubernetes.io/part-of: tta-aiqa
+    imagePullSecrets:
+      - name: ghcr-pull
+    minReplicas: 1
+    containers:
+      - name: kserve-container
+        image: ghcr.io/seungbaeji/tta-aiqa-kserve-predictor@sha256:d7ccc20bc89dca3d37c6768de8986416daf87c626ad828cdbd7889da07811e24
+        imagePullPolicy: IfNotPresent
+        command: ["aiqa-kserve-predictor"]
+        ports:
+          - name: http1
+            containerPort: 8080
+            protocol: TCP
+        env:
+          - name: AIQA_KSERVE_ENVIRONMENT
+            value: kubernetes
+          - name: AIQA_KSERVE_MODEL_NAME
+            value: mortality-risk
+          - name: AIQA_KSERVE_MODEL_BUNDLE_PATH
+            value: /runtime/model/model.joblib
+          - name: AIQA_KSERVE_EXPECTED_MODEL_SHA256
+            valueFrom:
+              configMapKeyRef:
+                name: model-identity
+                key: AIQA_KSERVE_EXPECTED_MODEL_SHA256
+          - name: AIQA_KSERVE_FEATURE_CONTRACT_PATH
+            value: /runtime/config/model-input.yaml
+          - name: AIQA_KSERVE_TELEMETRY_CONFIG_PATH
+            value: /runtime/config/telemetry.yaml
+          - name: AIQA_KSERVE_OTLP_ENDPOINT
+            value: http://alloy.tta-aiqa.svc.cluster.local:4318
+        resources:
+          requests:
+            cpu: 250m
+            memory: 512Mi
+          limits:
+            cpu: 2
+            memory: 2Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+          readOnlyRootFilesystem: true
+        volumeMounts:
+          - name: model
+            mountPath: /runtime/model
+            subPath: physionet-2012/v2/baseline-f2576f12512a
+            readOnly: true
+          - name: model-contract
+            mountPath: /runtime/config
+            readOnly: true
+          - name: runtime-secrets
+            mountPath: /var/run/secrets/aiqa/kserve-predictor
+            readOnly: true
+          - name: tmp
+            mountPath: /tmp
+    volumes:
+      - name: model
+        persistentVolumeClaim:
+          claimName: course-models
+      - name: model-contract
+        configMap:
+          name: model-contract
+      - name: runtime-secrets
+        projected:
+          defaultMode: 256
+          sources:
+            - secret:
+                name: kserve-predictor-runtime
+                optional: true
+      - name: tmp
+        emptyDir: {}
