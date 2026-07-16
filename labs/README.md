@@ -37,12 +37,18 @@ workspace에, V2 canonical evidence는 `reference/evidence/`에 분리되어 있
 
 ## 2. 진행 순서
 
-### 2-1. 1일차
+### 2-1. 사전 API appendix
+
+ch01 EDA가 낯선 수강생은 먼저 [Appendix: EDA 도구 API 빠른 실습](appendix/README.md)을
+위에서 아래로 실행합니다. Appendix는 합성 데이터만 사용하며 본 교육 시나리오의 data
+revision, feature contract 또는 model 결정을 변경하지 않습니다.
+
+### 2-2. 1일차
 
 1. [ch01 Data Quality](ch01-data-quality/README.md): 수동 EDA 후 GE 자동 검증
 2. [ch02 Model Quality](ch02-model-quality/README.md): 세 모델의 prepared evidence와 MLflow 비교
 
-### 2-2. 2일차
+### 2-3. 2일차
 
 3. [ch03 Serving](ch03-serving/README.md): Compose Risk API와 Kubernetes adapter 확인
 4. [ch04 Observability](ch04-observability/README.md): Alloy, Grafana Cloud와 dashboard 연결

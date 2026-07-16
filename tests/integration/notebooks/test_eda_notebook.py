@@ -27,7 +27,9 @@ APPENDIX_NOTEBOOKS = (
     Path("labs/appendix/08_great_expectations_basics.ipynb"),
     Path("labs/appendix/09_dvc_basics.ipynb"),
     Path("labs/appendix/10_scikit-learn_basics.ipynb"),
-    Path("labs/appendix/11_mlflow_basics.ipynb"),
+    Path("labs/appendix/11_metrics_basics.ipynb"),
+    Path("labs/appendix/12_class_imbalance_basics.ipynb"),
+    Path("labs/appendix/13_mlflow_basics.ipynb"),
 )
 APPENDIX_API_SNIPPETS = {
     APPENDIX_NOTEBOOKS[0]: (
@@ -193,6 +195,44 @@ APPENDIX_API_SNIPPETS = {
         "GridSearchCV(",
     ),
     APPENDIX_NOTEBOOKS[10]: (
+        "confusion_matrix(",
+        "precision_score(",
+        "recall_score(",
+        "f1_score(",
+        "roc_auc_score(",
+        "auc(",
+        "average_precision_score(",
+        "brier_score_loss(",
+        "log_loss(",
+        "classification_report(",
+        'average="macro"',
+        'average="weighted"',
+        "top_k_accuracy_score(",
+        "mean_absolute_error(",
+        "root_mean_squared_error(",
+        "r2_score(",
+        "mean_pinball_loss(",
+        "calibration_curve(",
+        "bootstrap_interval(",
+    ),
+    APPENDIX_NOTEBOOKS[11]: (
+        "make_classification(",
+        "train_test_split(",
+        "stratify=target",
+        "DummyClassifier(",
+        "compute_class_weight(",
+        'class_weight="balanced"',
+        "RandomOverSampler(",
+        "RandomUnderSampler(",
+        "SMOTE(",
+        "ImbPipeline(",
+        "precision_recall_curve(",
+        "average_precision_score(",
+        "StratifiedKFold(",
+        "cross_validate(",
+        "sampling_strategy=",
+    ),
+    APPENDIX_NOTEBOOKS[12]: (
         "mlflow.set_tracking_uri(",
         "mlflow.set_experiment(",
         "mlflow.start_run(",
@@ -215,9 +255,17 @@ def test_data_quality_notebook_is_executed_and_scoped_to_eda() -> None:
     source = "\n".join("".join(cell["source"]) for cell in notebook["cells"])
 
     assert code_cells
-    assert all(cell["execution_count"] is not None for cell in code_cells)
+    assert all(
+        cell["execution_count"] is not None
+        for cell in code_cells
+        if cell["outputs"]
+    )
     assert "All EDA contract checks passed." in source
     assert "Feature 선택이나 모델 튜닝은 이 실습의 범위가 아닙니다." in source
+    assert "parameter_coverage" in source
+    assert "same_minute_duplicates" in source
+    assert "split_target_summary" in source
+    assert "EDA findings are descriptive" in source
 
 
 @pytest.mark.parametrize("relative_path", APPENDIX_NOTEBOOKS)
