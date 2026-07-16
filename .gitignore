@@ -27,6 +27,7 @@ data/serving_requests_invalid.csv
 data/serving_requests_valid.csv
 data/vital_signs*.csv
 outputs/
+mlruns/
 artifacts/mlflow.db
 artifacts/mlruns/
 artifacts/mlflow/
