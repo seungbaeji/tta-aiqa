@@ -1,20 +1,33 @@
-# 5장 Release Decision
+# 5장 배포 판단
 
-## 1. 목표와 두 판단 gate
+## 1. 입력 분포를 먼저 확인하기
 
-이 Lab은 Candidate B를 무조건 target에 배포하는 실습이 아닙니다. Candidate A=`HOLD`,
-Candidate B=`APPROVE`라는 frozen model evidence와 실제 runtime/telemetry observation을
-한 release record에 함께 적습니다. target cluster 또는 Grafana Cloud를 보지 못한 경우
-Candidate B model approval을 바꾸지 않고 `operational_deployment_scope=target_pending`으로
-남깁니다.
+기준 모델의 `high_risk` 예측 비율이 늘었다면 모델부터 탓하지 않고 입력 조건이 달라졌는지 확인합니다. `00_compare_input_distributions.ipynb`는 정답이 없는 운영 요청 표본과 `current-shift` 설정을 읽어 네 특성의 평균과 중앙값을 비교합니다.
 
-| field | 이 Lab의 현재 public evidence | target을 직접 관측해야 추가할 evidence |
+```bash
+uv run jupyter nbconvert --to notebook --execute \
+  labs/ch05-release-decision/00_compare_input_distributions.ipynb \
+  --output /tmp/ch05-input-distribution.ipynb \
+  --ExecutePreprocessor.timeout=120
+```
+
+이 결과는 준비된 표본의 입력 변화 후보를 강화하지만 새 모델 성능이나 실제 대상 환경의 상태를 확정하지 않습니다. 대상 환경의 같은 모델 정보와 시간 범위에서 점수, 예측 분포와 대표 요청을 더 확인해야 합니다.
+
+## 2. 모델 승인과 운영 상태를 나누기
+
+이 실습은 Candidate B를 무조건 대상 환경에 배포하는 과정이 아닙니다. Candidate A=`HOLD`, Candidate B=`APPROVE`라는 공식 모델 평가와 실제 실행 환경, 운영 관측 결과를 한 기록에 모으되 두 판단을 별도로 씁니다.
+
+| 판단 항목 | 현재 자료에서 쓸 수 있는 값 | 대상 환경에서 더 확인할 근거 |
 | --- | --- | --- |
-| model approval | A=`HOLD`, B=`APPROVE`, `deployment_allowed=true` | 새로운 frozen revision이 없으면 변경하지 않음 |
-| operational scope | manifest/overlay static check, local Notebook fallback | GitOps sync, target API identity, traffic/telemetry time window |
-| current recommendation | `target evidence collection` | observed scope에 맞는 controlled rollout 또는 rollback review |
+| 모델 승인 | A=`HOLD`, B=`APPROVE`, `deployment_allowed=true` | 새로운 봉인 평가가 없으면 변경하지 않음 |
+| 운영 배포 상태 | 배포 설정과 오버레이의 정적 검사, 로컬 노트북 결과 | GitOps 동기화, 대상 API 모델 정보, 요청과 운영 기록의 시간 범위 |
+| 현재 권고 | 대상 환경 근거 수집 | 확인한 범위에 맞는 제한적 배포 또는 되돌리기 검토 |
 
-## 2. Frozen release chain과 Notebook
+대상 클러스터나 Grafana Cloud를 보지 못했다면 Candidate B의 모델 승인을 바꾸지 않고 `operational_deployment_scope=target_pending`으로 남깁니다.
+
+## 3. 배포 연결과 판단 노트북 확인하기
+
+현재 모델 평가 상태와 배포 연결 검사를 실행합니다. 파일 경로의 `v2`는 내부 개정본 이름이며 과정 명칭이 아닙니다.
 
 ```bash
 uv run python scripts/run_model.py status --revision v2
@@ -23,18 +36,9 @@ uv run pytest -q \
   tests/integration/deployment/test_kubernetes_contract.py
 ```
 
-`docs/reference/evidence/model/revisions/v2/release-manifest.json`은 canonical decision,
-sealed-test final benchmark, pre-test freeze, bundle digest와 approved Candidate B MLflow run을
-연결합니다. frozen evidence를 다시 만들거나 sealed test를 tuning에 사용하지 않습니다.
+`01_review_release_decision.ipynb`는 공식 평가, 배포 선언, 기준 모델, Candidate B와 되돌리기 오버레이를 대조합니다. URL이 없을 때 `URL_NOT_CONFIGURED`와 `target_pending`이 나오는 것은 예상한 결과입니다. Candidate A는 어떤 배포 오버레이에도 포함되지 않아야 합니다.
 
-`01_review_release_decision.ipynb`는 canonical decision, release manifest, baseline,
-Candidate B와 rollback overlay를 대조합니다. URL이 없다면 `URL_NOT_CONFIGURED`와
-`target_pending`이 expected fallback입니다. Candidate A는 어떤 overlay에도 포함되지 않아야
-합니다.
-
-## 3. Candidate B immutable publish와 GitOps target gate
-
-강사 환경에서 model mount path가 준비된 경우에만 immutable publish를 실행합니다.
+강사 환경에 모델 저장 위치가 준비된 경우에만 Candidate B 모델 묶음을 게시합니다. 출력 경로의 `candidate-b-c712a8e52344`와 `deployment.json`의 프로필, SHA-256을 기록합니다. 이 결과는 모델 묶음을 준비했다는 근거이며 대상 PVC 탑재나 API 응답을 뜻하지 않습니다.
 
 ```bash
 uv run python scripts/publish_model.py candidate-b \
@@ -42,11 +46,9 @@ uv run python scripts/publish_model.py candidate-b \
   --target-root /mnt/course-models
 ```
 
-output path의 `candidate-b-c712a8e52344`와 `deployment.json` profile/model SHA-256을
-capture합니다. 이 결과는 selected bundle의 prepared evidence이며, target PVC mount,
-KServe startup이나 Risk API availability를 뜻하지 않습니다.
+## 4. 대상 환경과 되돌리기 조건 확인하기
 
-강사 제공 target context에서는 manifest shape만 먼저 검사합니다.
+대상 연결 이름을 정확히 제공받은 경우에만 서버 측 검사를 실행합니다. 실제 Candidate B 동기화는 강사가 안내한 GitOps, Argo CD 절차에서만 수행합니다.
 
 ```bash
 kubectl config current-context
@@ -54,34 +56,12 @@ kubectl kustomize deploy/kubernetes/overlays/candidate-b >/tmp/tta-aiqa-candidat
 kubectl apply --dry-run=server -f /tmp/tta-aiqa-candidate-b.yaml
 ```
 
-actual Candidate B sync는 강사가 안내한 GitOps/Argo CD workflow에서만 수행합니다.
-`AIQA_EXPECTED_PROFILE=candidate-b`를 명시한 뒤 target `/v1/model`, valid contract
-response, scenario, dashboard URL과 telemetry time window를 capture합니다. API profile 하나나
-HTTP 200 하나만으로 `target_verified`라고 쓰지 않습니다.
+대상 `/v1/model`의 프로필, 해시값, 임계값, 정상 요청 응답, 요청 시나리오, 대시보드 URL과 조회 시간 범위를 기록합니다. API 프로필 하나나 HTTP 200 한 건만으로 `target_verified`라고 쓰지 않습니다.
 
-## 4. Rollback review와 failure path
-
-rollback overlay는 baseline immutable path를 선언하는 desired state입니다.
-
-```bash
-kubectl kustomize deploy/kubernetes/overlays/rollback >/tmp/tta-aiqa-rollback.yaml
-kubectl apply --dry-run=server -f /tmp/tta-aiqa-rollback.yaml
-```
-
-expected Candidate B identity mismatch, valid payload contract failure, 또는 owner가 검증한
-live operational condition은 `rollback_required` review를 열 수 있습니다. intentional
-invalid traffic 422는 input validation route이며 5xx Error rate, model defect 또는 automatic
-rollback trigger로 바꾸지 않습니다.
-
-actual rollback sync 후 baseline API identity, traffic과 telemetry를 새 time window에서
-관측해야 recovery를 report할 수 있습니다. target context가 없으면 static overlay와 required
-owner evidence만 남깁니다.
+되돌리기 오버레이는 기준 모델로 돌아갈 설정을 선언할 뿐 복구 완료를 증명하지 않습니다. 예상 Candidate B와 다른 모델 정보, 규약에 맞는 요청의 실패, 담당자가 확인한 운영 조건은 되돌리기 검토를 열 수 있습니다. 의도한 무효 요청의 422와 자격 증명 누락은 자동 되돌리기 조건이 아닙니다.
 
 ## 5. 제출물
 
-> Candidate A는 frozen V2 policy에서 `HOLD`, Candidate B는 `APPROVE`다. release manifest와
-> Candidate B overlay의 immutable identity는 [static/observed scope]로 확인했지만,
-> [target GitOps/API identity/telemetry]는 [observed 또는 pending]이다. 따라서 operational
-> deployment scope는 [prepared/local_verified/target_verified/target_pending/rollback_required],
-> current recommendation은 [target evidence collection/controlled rollout/rollback review]이며
-> [owner]가 [next evidence]를 수집한 뒤 재평가한다.
+최종 기록에는 확인한 범위, 근거 목록, 원인 후보, 모델 승인, 운영 배포 상태, 현재 권고, 승인, 보류 위험, 담당자와 재평가 조건이 있어야 합니다.
+
+> Candidate A는 공식 평가에서 `HOLD`, Candidate B는 `APPROVE`입니다. Candidate B 배포 설정의 프로필과 해시값은 [정적/로컬/대상 범위]에서 확인했지만 [대상 GitOps/API 모델 정보/운영 기록]은 [확인 또는 미확인]입니다. 따라서 운영 배포 상태는 [prepared/local_verified/target_verified/target_pending/rollback_required], 현재 권고는 [대상 근거 수집/제한적 배포/보류/되돌리기 검토]입니다. [담당 팀]이 [다음 자료]를 [기한]까지 수집하면 다시 판단합니다.
