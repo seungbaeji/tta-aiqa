@@ -21,6 +21,8 @@ from aiqa_serving.ports import RiskScorer
 from fastapi import FastAPI
 
 from risk_api.adapters import (
+    RISK_API_TRACE_EXCLUDED_URLS,
+    KServeTracingScorer,
     PredictionTelemetryRecorder,
     RiskApiTelemetry,
     build_http_app,
@@ -55,7 +57,7 @@ def build_application(settings: RiskApiSettings) -> FastAPI:
             settings.model_metadata_path,
             expected_feature_contract_sha256=contract_hash,
         )
-        scorer = KServeRiskScorer(
+        remote_scorer = KServeRiskScorer(
             endpoint=str(settings.kserve_url),
             model_name=settings.kserve_model_name,
             feature_names=feature_set.feature_names,
@@ -64,6 +66,11 @@ def build_application(settings: RiskApiSettings) -> FastAPI:
                 platform.outbound_request_headers,
                 api_config.request_id_header,
             ),
+        )
+        scorer = KServeTracingScorer(
+            remote_scorer,
+            telemetry=platform,
+            model_name=settings.kserve_model_name,
         )
     recorder = PredictionTelemetryRecorder(telemetry)
     labels = PredictionLabels(
@@ -85,7 +92,11 @@ def build_application(settings: RiskApiSettings) -> FastAPI:
         backend=settings.model_backend,
         telemetry=telemetry,
     )
-    instrument_fastapi(app, platform.tracing)
+    instrument_fastapi(
+        app,
+        platform.tracing,
+        excluded_urls=RISK_API_TRACE_EXCLUDED_URLS,
+    )
     return app
 
 

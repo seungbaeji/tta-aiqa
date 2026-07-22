@@ -181,7 +181,7 @@ def test_custom_predictor_readiness_reflects_loaded_backend(tmp_path: Path) -> N
     assert client.get("/v2/models/mortality-risk/ready").json() == {"ready": True}
 
 
-def test_custom_predictor_preserves_inbound_trace_and_request_id(
+def test_custom_predictor_preserves_inbound_trace_and_request_id_on_inference(
     tmp_path: Path, capsys
 ) -> None:
     contract, bundle = write_fixture(tmp_path)
@@ -200,13 +200,28 @@ def test_custom_predictor_preserves_inbound_trace_and_request_id(
     }
 
     with TestClient(app) as client:
-        response = client.get("/v2/health/live", headers=headers)
+        response = client.post(
+            "/v2/models/mortality-risk/infer",
+            headers=headers,
+            json={
+                "id": "trace-request-1",
+                "inputs": [
+                    {
+                        "name": "features",
+                        "shape": [1],
+                        "datatype": "BYTES",
+                        "data": ['{"age":68.0,"age__missing":false}'],
+                    }
+                ],
+            },
+        )
 
     events = [
         json.loads(line)
         for line in capsys.readouterr().err.splitlines()
-        if '"event":"kserve.http.completed"' in line
+        if '"event":"kserve.inference.completed"' in line
     ]
+    assert response.status_code == 200
     assert response.headers["X-Request-ID"] == "risk-api-request-123"
     assert events[-1]["trace_id"] == trace_id
     assert events[-1]["request_id"] == "risk-api-request-123"

@@ -34,7 +34,16 @@ def bootstrap(**overrides: object) -> TrafficRuntime:
     config = load_traffic_config(settings.scenarios_path)
     feature_set = load_feature_contract(settings.feature_contract_path)
     pool = CsvPatientPool(settings.patient_pool_path, feature_set)
-    client = RequestsPredictionClient(str(settings.api_url))
+    telemetry = create_telemetry(
+        service_name="traffic-generator",
+        environment=settings.environment,
+        policy=load_telemetry_policy(settings.telemetry_config_path),
+        otlp_endpoint=(str(settings.otlp_endpoint) if settings.otlp_endpoint else None),
+    )
+    client = RequestsPredictionClient(
+        str(settings.api_url),
+        telemetry=telemetry,
+    )
     recorder = JsonlTrafficRecorder(settings.response_artifact_path)
 
     return TrafficRuntime(
@@ -47,12 +56,5 @@ def bootstrap(**overrides: object) -> TrafficRuntime:
             recorder=recorder,
             sleep=sleep,
         ),
-        telemetry=create_telemetry(
-            service_name="traffic-generator",
-            environment=settings.environment,
-            policy=load_telemetry_policy(settings.telemetry_config_path),
-            otlp_endpoint=(
-                str(settings.otlp_endpoint) if settings.otlp_endpoint else None
-            ),
-        ),
+        telemetry=telemetry,
     )

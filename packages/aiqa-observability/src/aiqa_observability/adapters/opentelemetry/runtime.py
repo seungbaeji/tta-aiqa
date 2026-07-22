@@ -10,7 +10,7 @@ from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExport
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.trace import Status, StatusCode
+from opentelemetry.trace import SpanKind, Status, StatusCode
 
 from aiqa_observability.adapters.opentelemetry.endpoint import (
     normalize_traces_endpoint,
@@ -47,10 +47,14 @@ class TracingRuntime:
 
     @contextmanager
     def span(
-        self, name: str, attributes: TelemetryAttributes | None = None
+        self,
+        name: str,
+        attributes: TelemetryAttributes | None = None,
+        *,
+        kind: SpanKind = SpanKind.INTERNAL,
     ) -> Iterator[None]:
         """Create one child span and mark exceptions on it."""
-        with self._tracer.start_as_current_span(name) as span:
+        with self._tracer.start_as_current_span(name, kind=kind) as span:
             self.set_current_attributes(attributes)
             try:
                 yield

@@ -22,6 +22,12 @@ def test_dashboard_uses_declared_metrics_and_all_three_datasources() -> None:
 
     for metric_name in config.observability.metrics.model_dump().values():
         assert metric_name in queries
+    request_queries = [
+        target["expr"]
+        for panel in dashboard["panels"][:3]
+        for target in panel.get("targets", [])
+    ]
+    assert all('route="/v1/predict"' in query for query in request_queries)
     assert datasource_uids == {
         "__AIQA_METRICS_UID__",
         "__AIQA_LOGS_UID__",

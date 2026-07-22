@@ -30,6 +30,11 @@ KSERVE_HTTP_OPERATION = "kserve.http.request"
 KSERVE_HTTP_COMPLETED_EVENT = "kserve.http.completed"
 KSERVE_INFERENCE_OPERATION = "kserve.infer"
 KSERVE_INFERENCE_COMPLETED_EVENT = "kserve.inference.completed"
+KSERVE_INFERENCE_ROUTE = "/v2/models/{requested_model_name}/infer"
+KSERVE_TRACE_EXCLUDED_URLS = (
+    r"/v2/health/(?:live|ready)(?:\?.*)?$,"
+    r"/v2/models/[^/]+/ready(?:\?.*)?$"
+)
 
 
 def build_http_app(
@@ -47,7 +52,7 @@ def build_http_app(
 
     @app.middleware("http")
     async def observe_http(request: Request, call_next):
-        """Bind request context and emit one completion event for every response."""
+        """Bind request context and emit a completion event for inference only."""
         request_id = request.headers.get(REQUEST_ID_HEADER) or str(uuid.uuid4())
         request.state.request_id = request_id
         started = time.perf_counter()
@@ -63,14 +68,19 @@ def build_http_app(
                 response.headers[REQUEST_ID_HEADER] = request_id
                 return response
             finally:
-                telemetry.event(
-                    KSERVE_HTTP_COMPLETED_EVENT,
-                    attributes={
-                        "duration_seconds": round(time.perf_counter() - started, 6),
-                        "method": request.method,
-                        "status_code": status_code,
-                    },
-                )
+                matched_route = getattr(request.scope.get("route"), "path", None)
+                if matched_route == KSERVE_INFERENCE_ROUTE:
+                    telemetry.event(
+                        KSERVE_HTTP_COMPLETED_EVENT,
+                        attributes={
+                            "duration_seconds": round(
+                                time.perf_counter() - started,
+                                6,
+                            ),
+                            "method": request.method,
+                            "status_code": status_code,
+                        },
+                    )
 
     @app.get("/v2/health/live", response_model=LivenessResponseDto)
     def live() -> LivenessResponseDto:
@@ -93,10 +103,7 @@ def build_http_app(
         ensure_scorer_ready(scorer)
         return ReadinessResponseDto(ready=True)
 
-    @app.post(
-        "/v2/models/{requested_model_name}/infer",
-        response_model=InferResponseDto,
-    )
+    @app.post(KSERVE_INFERENCE_ROUTE, response_model=InferResponseDto)
     def infer(
         requested_model_name: str,
         body: InferRequestDto,

@@ -20,6 +20,10 @@ from risk_api.adapters.telemetry import RiskApiTelemetry
 MODEL_BACKEND_NOT_READY_CODE = "MODEL_BACKEND_NOT_READY"
 MODEL_INPUT_INVALID_CODE = "MODEL_INPUT_INVALID"
 UNSPECIFIED_SCENARIO = "unspecified"
+PREDICTION_ROUTE = "/v1/predict"
+RISK_API_TRACE_EXCLUDED_URLS = (
+    r"/health/(?:live|ready)(?:\?.*)?$," r"/metrics(?:\?.*)?$"
+)
 
 
 class PredictionBody(BaseModel):
@@ -59,7 +63,7 @@ def build_http_app(
 
     @app.middleware("http")
     async def observe_http(request: Request, call_next):
-        """Bind context and record bounded metrics for every HTTP response."""
+        """Bind context and record business signals for prediction responses."""
         request_id = request.headers.get(config.request_id_header) or str(uuid.uuid4())
         scenario = request.headers.get(config.scenario_header, UNSPECIFIED_SCENARIO)
         with telemetry.request_scope(
@@ -77,12 +81,14 @@ def build_http_app(
                 return response
             finally:
                 matched_route = getattr(request.scope.get("route"), "path", None)
-                telemetry.observe_request(
-                    route=telemetry.normalize_route(matched_route),
-                    method=request.method,
-                    status_code=status_code,
-                    duration_seconds=time.perf_counter() - started,
-                )
+                route = telemetry.normalize_route(matched_route)
+                if route == PREDICTION_ROUTE:
+                    telemetry.observe_request(
+                        route=route,
+                        method=request.method,
+                        status_code=status_code,
+                        duration_seconds=time.perf_counter() - started,
+                    )
 
     @app.get("/health/live")
     def live() -> dict[str, str]:
@@ -119,7 +125,7 @@ def build_http_app(
             "education_only": config.education_only,
         }
 
-    @app.post("/v1/predict", response_model=PredictionResponse)
+    @app.post(PREDICTION_ROUTE, response_model=PredictionResponse)
     def predict(
         body: PredictionBody,
         response: Response,

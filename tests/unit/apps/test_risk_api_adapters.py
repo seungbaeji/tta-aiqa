@@ -2,12 +2,22 @@
 
 from __future__ import annotations
 
+import io
 import json
 from pathlib import Path
 
 import pytest
-from aiqa_observability import TelemetryResource
-from aiqa_serving.domain import PredictionEvent
+from aiqa_observability import (
+    TelemetryLogLevel,
+    TelemetryPolicy,
+    TelemetryResource,
+    create_telemetry,
+)
+from aiqa_serving.domain import FeatureValue, ModelIdentity, PredictionEvent
+from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
+from opentelemetry.trace import SpanKind
+from risk_api.adapters.kserve_tracing import KServeTracingScorer
 from risk_api.adapters.metadata import load_kserve_model_identity
 from risk_api.adapters.metric_labels import (
     prediction_metric_labels,
@@ -51,6 +61,25 @@ def prediction_event() -> PredictionEvent:
         missing_feature_count=2,
         scenario="baseline",
     )
+
+
+class CapturingKServeScorer:
+    """Expose the propagated header captured at the delegated scoring boundary."""
+
+    identity = ModelIdentity("candidate-b", "candidate-b-test", 0.35)
+
+    def __init__(self, headers_provider) -> None:
+        self._headers_provider = headers_provider
+        self.headers: dict[str, str] | None = None
+
+    def ready(self) -> bool:
+        """Report the deterministic test backend as ready."""
+        return True
+
+    def score(self, _features: tuple[tuple[str, FeatureValue], ...]) -> float:
+        """Capture the trace context that a concrete KServe adapter would send."""
+        self.headers = self._headers_provider()
+        return 0.8
 
 
 def test_kserve_metadata_adapter_requires_the_mounted_feature_contract(
@@ -106,3 +135,42 @@ def test_metric_label_adapters_exclude_unbounded_request_identifiers() -> None:
         "prediction": "high_risk",
     }
     assert "request_id" not in request_labels | prediction_labels
+
+
+def test_kserve_tracing_scorer_creates_client_span_and_propagates_context() -> None:
+    """The outbound KServe call is a child CLIENT span, not only a header hop."""
+    runtime = create_telemetry(
+        service_name="risk-api",
+        environment="test",
+        policy=TelemetryPolicy(2, "tta-aiqa", TelemetryLogLevel.INFO),
+        log_stream=io.StringIO(),
+    )
+    exporter = InMemorySpanExporter()
+    runtime.tracing.provider.add_span_processor(SimpleSpanProcessor(exporter))
+    delegate = CapturingKServeScorer(runtime.outbound_trace_headers)
+    scorer = KServeTracingScorer(
+        delegate,
+        telemetry=runtime,
+        model_name="mortality-risk",
+    )
+
+    try:
+        with runtime.operation_scope("risk.predict"):
+            assert scorer.score((("age", 67.0),)) == 0.8
+    finally:
+        runtime.shutdown()
+
+    parent_span = next(
+        span for span in exporter.get_finished_spans() if span.name == "risk.predict"
+    )
+    client_span = next(
+        span for span in exporter.get_finished_spans() if span.name == "kserve.infer"
+    )
+
+    assert delegate.headers is not None
+    traceparent = delegate.headers["traceparent"].split("-")
+    assert client_span.kind is SpanKind.CLIENT
+    assert client_span.parent is not None
+    assert client_span.parent.span_id == parent_span.context.span_id
+    assert traceparent[1] == f"{client_span.context.trace_id:032x}"
+    assert traceparent[2] == f"{client_span.context.span_id:016x}"

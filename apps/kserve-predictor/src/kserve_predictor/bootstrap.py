@@ -9,7 +9,7 @@ from aiqa_serving.adapters import LocalSklearnRiskScorer, sha256_file
 from aiqa_serving.application import score_risk
 from fastapi import FastAPI
 
-from kserve_predictor.adapters import build_http_app
+from kserve_predictor.adapters import KSERVE_TRACE_EXCLUDED_URLS, build_http_app
 from kserve_predictor.settings import KServePredictorSettings
 
 
@@ -38,5 +38,9 @@ def build_application(settings: KServePredictorSettings) -> FastAPI:
         scorer=scorer,
         telemetry=telemetry,
     )
-    instrument_fastapi(app, telemetry.tracing)
+    instrument_fastapi(
+        app,
+        telemetry.tracing,
+        excluded_urls=KSERVE_TRACE_EXCLUDED_URLS,
+    )
     return app

@@ -115,7 +115,7 @@ class RiskApiTelemetry:
         status_code: int,
         duration_seconds: float,
     ) -> None:
-        """Record one bounded HTTP metric set and correlated structured event."""
+        """Record one business prediction HTTP metric set and correlated event."""
         labels = request_metric_labels(
             self._platform.resource,
             route=route,

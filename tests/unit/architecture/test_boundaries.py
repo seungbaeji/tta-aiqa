@@ -72,6 +72,7 @@ DELIVERY_ONLY_APPS = {
             "__init__.py",
             "config.py",
             "http.py",
+            "kserve_tracing.py",
             "metadata.py",
             "metric_labels.py",
             "telemetry.py",

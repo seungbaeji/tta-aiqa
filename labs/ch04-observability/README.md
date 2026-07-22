@@ -45,6 +45,14 @@ uv run --package aiqa-grafana-dashboard-importer aiqa-grafana-dashboard
 
 `invalid` 요청은 HTTP 422를 의도적으로 만듭니다. 422는 상태 코드별 요청 건수에서 확인하고, 5xx만 집계하는 오류율과 구분합니다. 5xx 패널에 422가 없다는 사실을 입력 검증 실패가 없었다고 해석하지 않습니다.
 
+### Trace 확인
+
+대표 요청 하나는 로그의 `request_id` 또는 `trace_id`로 Tempo에서 찾습니다. Compose에서는 `traffic.generate` 아래의 Risk API client span, Risk API HTTP server span, `risk.predict` 순서를 확인합니다. Kubernetes의 KServe 경로에서는 Risk API의 KServe client span과 KServe server span, `kserve.infer`가 그 뒤에 이어집니다.
+
+- `/health/*`, `/metrics`, KServe readiness는 반복 probe이므로 trace에 의도적으로 나타나지 않습니다.
+- trace ID는 로그와 trace를 연결하는 값이며 Prometheus metric label이나 집계 조건으로 사용하지 않습니다.
+- 한 요청의 trace를 확인해도 Grafana Cloud 전체 수집 성공을 단정하지 않습니다. 시간 범위와 환경을 함께 기록합니다.
+
 ## 4. 완료 기준과 정리
 
 최종 기록에는 환경, 시간 범위, 모델 정보, 시나리오, 관측한 신호, 강화된 원인 후보, 아직 확정할 수 없는 내용을 적습니다. 실시간 자료를 보지 못했다면 필요한 설정과 담당 팀을 함께 남깁니다.

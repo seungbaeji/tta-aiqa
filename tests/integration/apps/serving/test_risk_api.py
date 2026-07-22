@@ -139,7 +139,24 @@ def test_api_exposes_prediction_metrics_without_request_id_label(
     assert "private-request" not in metrics
 
 
-def test_api_bounds_unknown_scenarios_and_unmatched_routes(tmp_path: Path) -> None:
+def test_api_excludes_probe_and_scrape_endpoints_from_business_metrics(
+    tmp_path: Path,
+) -> None:
+    """Health and scrape traffic must not change the prediction API SLO signals."""
+    api = client(tmp_path)
+
+    api.get("/health/live")
+    api.get("/health/ready")
+    metrics = api.get("/metrics").text
+
+    assert 'route="/health/live"' not in metrics
+    assert 'route="/health/ready"' not in metrics
+    assert 'route="/metrics"' not in metrics
+
+
+def test_api_bounds_unknown_scenarios_and_ignores_nonbusiness_routes(
+    tmp_path: Path,
+) -> None:
     api = client(tmp_path)
     api.post(
         "/v1/predict",
@@ -154,7 +171,8 @@ def test_api_bounds_unknown_scenarios_and_unmatched_routes(tmp_path: Path) -> No
 
     assert 'scenario="other"' in metrics
     assert "student-unique-scenario-123" not in metrics
-    assert 'route="unmatched"' in metrics
-    assert 'method="other"' in metrics
+    assert 'route="/v1/predict"' in metrics
+    assert 'method="POST"' in metrics
     assert "/missing/first" not in metrics
     assert "/missing/second" not in metrics
+    assert 'route="unmatched"' not in metrics

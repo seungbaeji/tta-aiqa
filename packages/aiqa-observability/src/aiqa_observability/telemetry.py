@@ -8,6 +8,8 @@ from contextlib import contextmanager
 from typing import TextIO
 from uuid import uuid4
 
+from opentelemetry.trace import SpanKind
+
 from aiqa_observability.adapters.logging import StructuredLogger
 from aiqa_observability.adapters.opentelemetry import TracingRuntime
 from aiqa_observability.adapters.prometheus import PrometheusMeter
@@ -121,6 +123,30 @@ class Telemetry:
         )
         with bind_context(context), self.tracing.span(
             operation, context.as_log_fields()
+        ):
+            yield context
+
+    @contextmanager
+    def client_scope(
+        self,
+        operation: str,
+        *,
+        request_id: str | None = None,
+        scenario: str | None = None,
+        attributes: TelemetryAttributes | None = None,
+    ) -> Iterator[TelemetryContext]:
+        """Create a CLIENT span and bind context for one outbound request."""
+        context = derive_telemetry_context(
+            current_context(),
+            operation=operation,
+            request_id=request_id,
+            scenario=scenario,
+            attributes=attributes,
+        )
+        with bind_context(context), self.tracing.span(
+            operation,
+            context.as_log_fields(),
+            kind=SpanKind.CLIENT,
         ):
             yield context
 

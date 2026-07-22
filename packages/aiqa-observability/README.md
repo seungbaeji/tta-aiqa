@@ -18,13 +18,15 @@
 
 ### 2-1. Process composition
 
-각 app의 composition root는 `create_telemetry()`를 한 번 호출합니다. CLI와 batch job은 `run_scope()`로 root span과 run context를 만들고, FastAPI app은 자신의 middleware에서 `request_scope()`를 사용합니다. HTTP middleware의 route, request validation과 business policy는 app에 남기며, `instrument_fastapi()`와 `telemetry_lifespan()`만 framework bridge로 제공합니다.
+각 app의 composition root는 `create_telemetry()`를 한 번 호출합니다. CLI와 batch job은 `run_scope()`로 root span과 run context를 만들고, FastAPI app은 자신의 middleware에서 `request_scope()`를 사용합니다. outbound HTTP adapter는 요청마다 `client_scope()`를 열고 그 안에서 W3C header를 주입합니다. HTTP middleware의 route, request validation과 business policy는 app에 남기며, `instrument_fastapi()`와 `telemetry_lifespan()`만 framework bridge로 제공합니다.
 
 ### 2-2. Signal 경계
 
 - `event()`는 현재 context를 JSON log와 active span event로 기록합니다.
 - `operation_scope()`는 request 또는 run 아래의 child span을 만듭니다.
-- `outbound_trace_headers()`는 app-owned HTTP adapter가 다음 process에 trace context를 전달할 때 사용합니다.
+- `client_scope()`는 outbound HTTP 요청의 `CLIENT` span과 request context를 만듭니다.
+- `outbound_trace_headers()`는 `client_scope()` 안에서 app-owned HTTP adapter가 다음 process에 trace context를 전달할 때 사용합니다.
+- `instrument_fastapi()`는 app별 제외 URL을 받아 health, readiness, scrape처럼 반복되는 endpoint를 trace에서 제외하고 ASGI send/receive 보조 span을 만들지 않습니다.
 - `MetricSpec`은 app이 선언한 bounded metric만 등록합니다. `request_id`, `run_id`, `trace_id`, `span_id`는 metric label로 허용하지 않습니다.
 
 ## 3. 설정

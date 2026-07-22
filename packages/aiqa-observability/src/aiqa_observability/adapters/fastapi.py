@@ -9,9 +9,19 @@ from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from aiqa_observability.adapters.opentelemetry import TracingRuntime
 
 
-def instrument_fastapi(app: FastAPI, tracing: TracingRuntime) -> None:
-    """Attach FastAPI server spans to the package-owned tracer provider."""
-    FastAPIInstrumentor.instrument_app(app, tracer_provider=tracing.provider)
+def instrument_fastapi(
+    app: FastAPI,
+    tracing: TracingRuntime,
+    *,
+    excluded_urls: str | None = None,
+) -> None:
+    """Attach concise server spans to the package-owned tracer provider."""
+    FastAPIInstrumentor.instrument_app(
+        app,
+        tracer_provider=tracing.provider,
+        excluded_urls=excluded_urls,
+        exclude_spans=["receive", "send"],
+    )
 
 
 def telemetry_lifespan(shutdown: Callable[[], None]):

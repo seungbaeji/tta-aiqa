@@ -261,7 +261,7 @@ def test_data_quality_notebook_is_executed_and_scoped_to_eda() -> None:
         if cell["outputs"]
     )
     assert "All EDA contract checks passed." in source
-    assert "Feature 선택이나 모델 튜닝은 이 실습의 범위가 아닙니다." in source
+    assert "특성 선택이나 모델 조정은 이 실습의 범위가 아닙니다." in source
     assert "parameter_coverage" in source
     assert "same_minute_duplicates" in source
     assert "split_target_summary" in source
@@ -281,6 +281,9 @@ def test_observability_notebook_reads_panel_level_datasources() -> None:
 
     assert 'panel.get("datasource", {}).get("type", "")' in source
     assert 'target.get("datasource", {}).get("type", "")' not in source
+    assert "API_METRICS_UNAVAILABLE" in source
+    assert "PREDICTION_SERIES_NOT_YET_OBSERVED" in source
+    assert "DASHBOARD_URL_NOT_CONFIGURED" in source
 
 
 def test_release_decision_notebook_keeps_model_and_operational_gates_separate() -> None:
@@ -294,7 +297,8 @@ def test_release_decision_notebook_keeps_model_and_operational_gates_separate() 
     assert '"operational_deployment_scope": "target_pending"' in source
     assert '"current_recommendation": "target evidence collection"' in source
     assert "rollback_required" in source
-    assert "Candidate B model approval" in source
+    assert '"model_approval": {' in source
+    assert '"candidate-b": decisions.loc["candidate-b", "decision"]' in source
 
 
 @pytest.mark.parametrize("relative_path", APPENDIX_NOTEBOOKS)
