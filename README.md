@@ -243,6 +243,25 @@ uv run --package aiqa-grafana-dashboard-importer aiqa-grafana-dashboard
 
 Alloy override에서는 Risk API의 Prometheus metric과 Compose workload의 JSON log/OTLP trace를 전송합니다. traffic profile을 실행하면 같은 trace policy로 생성된 traffic process log와 trace도 개인 stack에 누적됩니다.
 
+### 6-3. Trace 경계
+
+하나의 traffic 실행은 `traffic.generate` root span을 만들고, 각 prediction 요청은 다음과 같이 연결됩니다.
+
+```text
+traffic.generate
+  -> risk-api.predict (CLIENT)
+      -> POST /v1/predict (SERVER)
+          -> risk.predict
+```
+
+Kubernetes에서 KServe backend를 선택하면 `risk.predict` 아래에 Risk API의
+`kserve.infer` CLIENT span, KServe HTTP SERVER span, KServe 쪽
+`kserve.infer` operation이 이어집니다. W3C `traceparent`와 `X-Request-ID`는
+각 outbound CLIENT span 안에서 다음 process로 전달됩니다.
+
+- `/health/*`, `/metrics`, KServe readiness는 반복 probe이므로 trace에서 의도적으로 제외합니다.
+- `trace_id`는 JSON log와 Tempo trace를 연결하는 데만 쓰며 Prometheus metric label이나 집계 차원으로 사용하지 않습니다.
+
 ## 7. Kubernetes 배포
 
 ### 7-1. Immutable model publish
@@ -257,7 +276,7 @@ uv run python scripts/publish_model.py candidate-b \
 
 ### 7-2. Manifest 확인
 
-Kubernetes에서는 외부 Risk API가 내부 KServe V2 custom predictor를 호출합니다. Base는 baseline으로 시작하고 Candidate B와 rollback은 별도 overlay입니다. `/mnt/course-models`는 단일 노드 수업 VM의 static model PV에 연결됩니다. 각 overlay는 PVC subPath와 non-secret `model-identity` ConfigMap의 expected model SHA-256을 함께 선택하며 predictor는 mount된 bundle이 다르면 시작을 거부합니다. Private GHCR image pull용 `ghcr-pull` Secret은 강사가 사전에 provision하며 Grafana Cloud Secret과 별개입니다. Alloy는 개인 Grafana Cloud Secret을 준비한 뒤 observed overlay에서만 추가합니다.
+Kubernetes에서는 외부 Risk API가 내부 KServe V2 custom predictor를 호출합니다. 이 호출은 `kserve.infer` CLIENT span 안에서 W3C trace context와 request ID를 전달합니다. Base는 baseline으로 시작하고 Candidate B와 rollback은 별도 overlay입니다. `/mnt/course-models`는 단일 노드 수업 VM의 static model PV에 연결됩니다. 각 overlay는 PVC subPath와 non-secret `model-identity` ConfigMap의 expected model SHA-256을 함께 선택하며 predictor는 mount된 bundle이 다르면 시작을 거부합니다. Private GHCR image pull용 `ghcr-pull` Secret은 강사가 사전에 provision하며 Grafana Cloud Secret과 별개입니다. Alloy는 개인 Grafana Cloud Secret을 준비한 뒤 observed overlay에서만 추가합니다.
 
 ```bash
 kubectl kustomize deploy/kubernetes/overlays/baseline >/tmp/tta-aiqa-baseline.yaml

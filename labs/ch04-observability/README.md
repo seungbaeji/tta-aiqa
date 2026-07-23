@@ -47,7 +47,10 @@ uv run --package aiqa-grafana-dashboard-importer aiqa-grafana-dashboard
 
 ### Trace 확인
 
-대표 요청 하나는 로그의 `request_id` 또는 `trace_id`로 Tempo에서 찾습니다. Compose에서는 `traffic.generate` 아래의 Risk API client span, Risk API HTTP server span, `risk.predict` 순서를 확인합니다. Kubernetes의 KServe 경로에서는 Risk API의 KServe client span과 KServe server span, `kserve.infer`가 그 뒤에 이어집니다.
+대표 요청 하나는 로그의 `request_id` 또는 `trace_id`로 Tempo에서 찾습니다. 다음 parent-child 순서를 확인합니다.
+
+- Compose: `traffic.generate` -> `risk-api.predict` (CLIENT) -> `POST /v1/predict` (SERVER) -> `risk.predict`
+- Kubernetes KServe: `risk.predict` -> `kserve.infer` (Risk API CLIENT) -> KServe HTTP SERVER -> `kserve.infer`
 
 - `/health/*`, `/metrics`, KServe readiness는 반복 probe이므로 trace에 의도적으로 나타나지 않습니다.
 - trace ID는 로그와 trace를 연결하는 값이며 Prometheus metric label이나 집계 조건으로 사용하지 않습니다.

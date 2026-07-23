@@ -35,12 +35,15 @@ concerns owned by that app.
 Every process creates one telemetry facade in its composition root.
 
 - CLI and batch processes use `run_scope` and emit JSON logs plus optional OTLP traces.
-- APIs use app-owned middleware to bind request context, then use `operation_scope` for
-  important child work.
+- APIs use app-owned middleware to bind request context. FastAPI instrumentation creates
+  the HTTP SERVER span, then `operation_scope` records important child work.
 - Long-lived services may register explicitly declared Prometheus metrics. Short-lived
   CLI jobs do not publish scrape metrics.
 - Metric labels cannot contain request, run, trace or span identifiers.
-- Outbound HTTP adapters receive W3C trace headers through an app-owned header supplier.
+- Outbound HTTP adapters open a request-level `CLIENT` span and inject W3C trace headers
+  while that span is active. Header injection remains an app-owned adapter responsibility.
+- The FastAPI bridge accepts app-specific endpoint exclusions and suppresses ASGI
+  `send`/`receive` support spans, keeping health, readiness and scrape traffic out of traces.
 
 The shared `telemetry.yaml` contains only the versioned namespace and logging policy.
 Each app keeps metric names, labels, buckets and bounded value normalization in its own
@@ -59,8 +62,9 @@ Dashboard Importer receives only its separate dashboard API credential.
 
 - Every Python process has one consistent correlation and trace API.
 - Business metrics stay close to their bounded domain and cardinality policy.
-- Risk API to KServe calls can carry W3C trace context and the app request ID without a
-  serving package dependency on observability.
+- Risk API to KServe calls have explicit `CLIENT` to `SERVER` boundaries while carrying
+  W3C trace context and the app request ID without a serving package dependency on
+  observability.
 - The course can show JSON logs, metrics and traces without deploying monitoring
   backends in the student VM.
 

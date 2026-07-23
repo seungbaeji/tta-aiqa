@@ -11,6 +11,7 @@
 - `uv lock --check`
 - `ruff check apps packages scripts tests`
 - `pytest`: 187 passed
+- trace topology와 propagation contract: `traffic.generate` -> Traffic CLIENT -> Risk API SERVER -> `risk.predict` parent-child, Risk API KServe CLIENT context 전달, probe/scrape trace 제외
 - `dvc repro` 후 `dvc status`: `Data and pipelines are up to date.`
 - 학생용 ch01~ch05 Notebook top-to-bottom 실행
 - baseline, baseline-observed, Candidate B와 rollback Kustomize render

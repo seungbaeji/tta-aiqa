@@ -608,11 +608,12 @@ FastAPI route와 Pydantic HTTP schema는 app이 소유한다.
 
 - 모든 Python process의 execution context와 correlation ID
 - JSON structured log formatting
-- W3C trace 생성, child operation과 outbound propagation
+- W3C trace 생성, 요청 단위 `CLIENT` span, child operation과 outbound propagation
+- health, readiness, scrape endpoint의 trace 제외와 ASGI `send`/`receive` 보조 span 억제
 - long-lived app이 명시적으로 선언한 bounded Prometheus metric registry
 - FastAPI instrumentation과 lifespan bridge
 
-`aiqa-observability`는 bounded context가 아닌 platform SDK다. prediction event, metric 이름·label·bucket, traffic scenario와 dashboard query는 각 app이 소유한다. SDK는 AIQA business package를 import하지 않으며, Grafana/Loki/Tempo SDK 또는 dashboard API도 포함하지 않는다. Runtime app은 log, metric과 trace를 표준 형식으로 노출하고 Alloy가 Grafana Cloud로 전달한다. Telemetry write credential은 Alloy 실행 환경에만 주입하고 dashboard API 호출은 Dashboard Importer app으로 격리한다.
+`aiqa-observability`는 bounded context가 아닌 platform SDK다. prediction event, metric 이름·label·bucket, traffic scenario와 dashboard query는 각 app이 소유한다. SDK는 AIQA business package를 import하지 않으며, Grafana/Loki/Tempo SDK 또는 dashboard API도 포함하지 않는다. Runtime app은 log, metric과 trace를 표준 형식으로 노출하고 Alloy가 Grafana Cloud로 전달한다. `trace_id`는 log와 trace correlation에만 사용하며 metric label이 될 수 없다. Telemetry write credential은 Alloy 실행 환경에만 주입하고 dashboard API 호출은 Dashboard Importer app으로 격리한다.
 
 ### 6-6. AIQA QA
 
@@ -1336,15 +1337,28 @@ observability profile
 
 Compose와 k3s에는 Grafana, Loki, Tempo와 Prometheus server를 추가하지 않는다. Local에서는 JSONL, `/metrics`와 trace payload를 직접 확인할 수 있고, 통합 환경에서는 Alloy가 이를 Grafana Cloud로 전달한다.
 
-교육에서는 Compose의 Risk API와 Alloy를 먼저 실행해 local sklearn adapter, container log, Risk API service metrics와 OTLP 흐름을 확인한다. traffic process도 같은 SDK로 run context와 trace를 남긴다. 이후 동일한 Risk API application을 Kubernetes로 옮기고 model adapter를 KServe HTTP로 교체한다. Risk API와 KServe predictor는 W3C trace context와 request ID를 전달하며, Alloy discovery는 개별 service 이름이 아닌 AIQA workload label을 기준으로 동작한다.
+교육에서는 Compose의 Risk API와 Alloy를 먼저 실행해 local sklearn adapter, container log, Risk API service metrics와 OTLP 흐름을 확인한다. traffic process도 같은 SDK로 run context와 trace를 남긴다. 이후 동일한 Risk API application을 Kubernetes로 옮기고 model adapter를 KServe HTTP로 교체한다. outbound HTTP adapter는 각 요청의 CLIENT span 안에서 W3C trace context와 request ID를 전달하며, Alloy discovery는 개별 service 이름이 아닌 AIQA workload label을 기준으로 동작한다.
 
 ```text
-Compose     Traffic -> Risk API -> Local sklearn adapter
-                        -> Compose Alloy -> Grafana Cloud
+Compose trace
+  traffic.generate
+    -> risk-api.predict (CLIENT)
+        -> Risk API POST /v1/predict (SERVER)
+            -> risk.predict
+  Risk API and Traffic JSON log / OTLP -> Compose Alloy -> Grafana Cloud
 
-Kubernetes Traffic -> Risk API -> KServe HTTP adapter
-                        -> Kubernetes Alloy -> Grafana Cloud
+Kubernetes trace
+  traffic.generate
+    -> risk-api.predict (CLIENT)
+        -> Risk API POST /v1/predict (SERVER)
+            -> risk.predict
+                -> kserve.infer (CLIENT)
+                    -> KServe V2 infer (SERVER)
+                        -> kserve.infer
+  AIQA workload JSON log / OTLP -> Kubernetes Alloy -> Grafana Cloud
 ```
+
+`/health/*`, `/metrics`, KServe readiness는 반복 probe이므로 trace에 포함하지 않는다. `trace_id`는 로그와 trace를 찾는 correlation 값이며 Prometheus metric label이나 집계 조건으로 사용하지 않는다.
 
 ### 12-2. Kubernetes와 Argo CD
 
