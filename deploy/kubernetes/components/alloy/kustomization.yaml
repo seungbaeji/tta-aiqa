@@ -3,6 +3,7 @@ kind: Component
 resources:
   - alloy-rbac.yaml
   - alloy.yaml
+  - network-policy.yaml
 configMapGenerator:
   - name: alloy-config
     namespace: tta-aiqa

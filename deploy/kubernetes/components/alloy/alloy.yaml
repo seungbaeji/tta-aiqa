@@ -80,6 +80,3 @@ spec:
     - name: otlp-http
       port: 4318
       targetPort: otlp-http
-    - name: http
-      port: 12345
-      targetPort: http

@@ -118,6 +118,36 @@ def test_alloy_collects_all_aiqa_workload_logs_and_otlp_traces() -> None:
     assert 'otelcol.processor.batch "aiqa"' in config
 
 
+def test_shared_cluster_bounds_namespace_objects_and_alloy_ingress() -> None:
+    quota = documents("resource-quota.yaml")[0]
+    policy = documents("network-policy.yaml", ALLOY)[0]
+
+    assert quota["kind"] == "ResourceQuota"
+    assert quota["spec"]["hard"] == {
+        "count/configmaps": "50",
+        "count/persistentvolumeclaims": "10",
+        "count/pods": "30",
+        "count/secrets": "50",
+        "count/services": "30",
+    }
+    assert policy["kind"] == "NetworkPolicy"
+    assert policy["spec"]["podSelector"]["matchLabels"] == {
+        "app.kubernetes.io/name": "alloy"
+    }
+    source = policy["spec"]["ingress"][0]["from"][0]["podSelector"]["matchLabels"]
+    assert source == {"app.kubernetes.io/part-of": "tta-aiqa"}
+    assert {item["port"] for item in policy["spec"]["ingress"][0]["ports"]} == {
+        4318
+    }
+
+    alloy_service = next(
+        document
+        for document in documents("alloy.yaml", ALLOY)
+        if document["kind"] == "Service"
+    )
+    assert {item["port"] for item in alloy_service["spec"]["ports"]} == {4318}
+
+
 def test_candidate_and_rollback_overlays_select_only_approved_models() -> None:
     candidate = Path(
         "deploy/kubernetes/overlays/candidate-b/kustomization.yaml"
@@ -159,3 +189,17 @@ def test_deployment_config_copies_match_canonical_config() -> None:
         (ROOT / "config/model-identity.env").read_text(encoding="utf-8").strip()
         == f"AIQA_KSERVE_EXPECTED_MODEL_SHA256={BASELINE_MODEL_SHA256}"
     )
+
+
+def test_secret_creation_guides_fail_closed_on_kubernetes_context() -> None:
+    guides = (
+        Path("deploy/kubernetes/README.md"),
+        Path("deploy/compose/simple-mlops/secrets/alloy/README.md"),
+    )
+
+    for path in guides:
+        guide = path.read_text(encoding="utf-8")
+        assert 'if [ -z "${TARGET_CONTEXT:-}" ]' in guide
+        assert 'CURRENT_CONTEXT="$(kubectl config current-context)"' in guide
+        assert 'if [ "$CURRENT_CONTEXT" != "$TARGET_CONTEXT" ]' in guide
+        assert 'kubectl --context "$TARGET_CONTEXT" -n tta-aiqa' in guide

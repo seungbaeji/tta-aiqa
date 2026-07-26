@@ -31,11 +31,15 @@ mlruns/
 artifacts/mlflow.db
 artifacts/mlruns/
 artifacts/mlflow/
+/mlruns/
 artifacts/phase0/
 artifacts/data-quality/great-expectations/
 artifacts/model/
 artifacts/models/
 artifacts/traffic/
+/artifacts/deploy/
+/artifacts/reports/
+/artifacts/security/
 set-a/
 data/interim/physionet-2012/
 

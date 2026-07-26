@@ -17,7 +17,7 @@ services:
       - --port
       - "5000"
     ports:
-      - "5000:5000"
+      - "${AIQA_COMPOSE_BIND_HOST:-127.0.0.1}:5000:5000"
     volumes:
       - ../../../artifacts/mlflow:/runtime/mlflow
     healthcheck:
@@ -39,7 +39,7 @@ services:
       AIQA_API_TELEMETRY_CONFIG_PATH: /runtime/configs/observability/telemetry.yaml
       AIQA_API_MODEL_BUNDLE_PATH: /runtime/model/model.joblib
     ports:
-      - "8000:8000"
+      - "${AIQA_COMPOSE_BIND_HOST:-127.0.0.1}:8000:8000"
     volumes:
       - ../../../configs:/runtime/configs:ro
       - ../../../artifacts/models/revisions/v2/deployed:/runtime/model:ro
