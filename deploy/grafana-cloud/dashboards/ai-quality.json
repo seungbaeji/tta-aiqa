@@ -87,7 +87,7 @@
       {"allValue": ".*", "current": {"text": "All", "value": "$__all"}, "hide": 0, "includeAll": true, "label": "Scenario", "multi": true, "name": "scenario", "options": [], "query": "baseline,approved-candidate,current-shift,invalid,unspecified,other", "type": "custom"}
     ]
   },
-  "time": {"from": "now-30m", "to": "now"},
+  "time": {"from": "now-2h", "to": "now"},
   "timezone": "browser",
   "title": "TTA AIQA Service Quality",
   "uid": "tta-aiqa-quality",

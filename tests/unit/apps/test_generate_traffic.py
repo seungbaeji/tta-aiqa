@@ -1,12 +1,22 @@
 """Deterministic traffic scenario use case tests."""
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
+from datetime import UTC, datetime
+from pathlib import Path
 
+import pytest
 from aiqa_observability import is_valid_correlation_id
-from traffic_generator.application import generate_traffic
+from traffic_generator.application import (
+    collect_course_session,
+    generate_traffic,
+    update_signal_availability,
+)
 from traffic_generator.domain import (
+    CollectionModelIdentity,
+    CollectionSession,
     FeatureTransform,
     InvalidTrafficCase,
+    ScenarioCollection,
     ScenarioMode,
     TrafficPlan,
     TrafficResponse,
@@ -27,9 +37,7 @@ class Pool:
 
 @dataclass
 class Client:
-    calls: list[tuple[dict[str, object], str, str, str]] = field(
-        default_factory=list
-    )
+    calls: list[tuple[dict[str, object], str, str, str]] = field(default_factory=list)
 
     def predict(
         self,
@@ -143,9 +151,9 @@ def test_scenarios_share_samples_while_run_ids_keep_reruns_distinct() -> None:
         sleep=lambda _: None,
     )
 
-    assert [
-        call[0]["age"] for call in baseline_client.calls
-    ] == [call[0]["age"] - 10 for call in shifted_client.calls]
+    assert [call[0]["age"] for call in baseline_client.calls] == [
+        call[0]["age"] - 10 for call in shifted_client.calls
+    ]
     assert [response.request_id for response in baseline_responses] != [
         response.request_id for response in shifted_responses
     ]
@@ -290,3 +298,336 @@ def test_use_case_controls_sleep_and_zero_count_override() -> None:
         assert str(error) == "traffic request count must be positive"
     else:
         raise AssertionError("explicit zero traffic override must be rejected")
+
+
+def test_course_session_collects_three_scenarios_with_a_stable_handoff() -> None:
+    plans = {
+        name: TrafficPlan(
+            name=name,
+            mode=ScenarioMode.INVALID if name == "invalid" else ScenarioMode.VALID,
+            request_count=1,
+            interval_seconds=0,
+            timeout_seconds=1,
+            invalid_cases=(
+                (InvalidTrafficCase.MISSING_FEATURE,) if name == "invalid" else ()
+            ),
+        )
+        for name in ("baseline", "current-shift", "invalid")
+    }
+    moments = iter(datetime(2026, 7, 27, 5, minute, tzinfo=UTC) for minute in range(8))
+    calls: list[tuple[str, str]] = []
+
+    def execute(plan: TrafficPlan, run_id: str) -> tuple[TrafficResponse, ...]:
+        calls.append((plan.name, run_id))
+        if plan.name == "invalid":
+            return (
+                TrafficResponse(
+                    request_id=f"{plan.name}-{run_id}-0001",
+                    run_id=run_id,
+                    scenario=plan.name,
+                    status_code=422,
+                    elapsed_seconds=0.01,
+                    body={"detail": {"code": "MODEL_INPUT_INVALID"}},
+                ),
+            )
+        return (
+            TrafficResponse(
+                request_id=f"{plan.name}-{run_id}-0001",
+                run_id=run_id,
+                scenario=plan.name,
+                status_code=200,
+                elapsed_seconds=0.01,
+                body={
+                    "model_profile": "baseline",
+                    "model_version": "baseline-f2576f12512a",
+                    "threshold": 0.5,
+                },
+            ),
+        )
+
+    session = collect_course_session(
+        plans,
+        execute=execute,
+        session_id="class-session-01",
+        environment="compose",
+        scope="local",
+        artifact_path=Path("/runtime/artifacts/traffic/compose.jsonl"),
+        manifest_path=Path("/runtime/artifacts/traffic/collection-session.json"),
+        now=lambda: next(moments),
+    )
+
+    assert [name for name, _ in calls] == [
+        "baseline",
+        "current-shift",
+        "invalid",
+    ]
+    assert len({run_id for _, run_id in calls}) == 3
+    assert all(is_valid_correlation_id(run_id) for _, run_id in calls)
+    assert session.as_document() == {
+        "schema_version": 1,
+        "session_id": "class-session-01",
+        "started_at": "2026-07-27T05:00:00Z",
+        "completed_at": "2026-07-27T05:07:00Z",
+        "environment": "compose",
+        "scope": "local",
+        "dashboard_url": None,
+        "signal_availability": {
+            "prometheus": {
+                "status": "not_checked",
+                "checked_at": None,
+            },
+            "loki": {
+                "status": "not_checked",
+                "checked_at": None,
+            },
+            "tempo": {
+                "status": "not_checked",
+                "checked_at": None,
+            },
+        },
+        "model_identity": {
+            "profile": "baseline",
+            "version": "baseline-f2576f12512a",
+            "threshold": 0.5,
+        },
+        "manifest_path": ("/runtime/artifacts/traffic/collection-session.json"),
+        "scenarios": [
+            {
+                "name": "baseline",
+                "run_id": calls[0][1],
+                "started_at": "2026-07-27T05:01:00Z",
+                "completed_at": "2026-07-27T05:02:00Z",
+                "status_counts": {"200": 1},
+                "artifact_path": "/runtime/artifacts/traffic/compose.jsonl",
+            },
+            {
+                "name": "current-shift",
+                "run_id": calls[1][1],
+                "started_at": "2026-07-27T05:03:00Z",
+                "completed_at": "2026-07-27T05:04:00Z",
+                "status_counts": {"200": 1},
+                "artifact_path": "/runtime/artifacts/traffic/compose.jsonl",
+            },
+            {
+                "name": "invalid",
+                "run_id": calls[2][1],
+                "started_at": "2026-07-27T05:05:00Z",
+                "completed_at": "2026-07-27T05:06:00Z",
+                "status_counts": {"422": 1},
+                "artifact_path": "/runtime/artifacts/traffic/compose.jsonl",
+            },
+        ],
+    }
+
+
+def test_course_session_rejects_a_model_change_between_scenarios() -> None:
+    plans = {
+        name: TrafficPlan(
+            name=name,
+            mode=ScenarioMode.INVALID if name == "invalid" else ScenarioMode.VALID,
+            request_count=1,
+            interval_seconds=0,
+            timeout_seconds=1,
+            invalid_cases=(
+                (InvalidTrafficCase.MISSING_FEATURE,) if name == "invalid" else ()
+            ),
+        )
+        for name in ("baseline", "current-shift", "invalid")
+    }
+
+    def execute(plan: TrafficPlan, run_id: str) -> tuple[TrafficResponse, ...]:
+        version = (
+            "unexpected-model"
+            if plan.name == "current-shift"
+            else "baseline-f2576f12512a"
+        )
+        return (
+            TrafficResponse(
+                request_id=f"{plan.name}-{run_id}-0001",
+                run_id=run_id,
+                scenario=plan.name,
+                status_code=200,
+                elapsed_seconds=0.01,
+                body={
+                    "model_profile": "baseline",
+                    "model_version": version,
+                    "threshold": 0.5,
+                },
+            ),
+        )
+
+    with pytest.raises(ValueError, match="model identity changed"):
+        collect_course_session(
+            plans,
+            execute=execute,
+            session_id="class-session-01",
+            environment="compose",
+            scope="local",
+            artifact_path=Path("artifacts/traffic/compose.jsonl"),
+            manifest_path=Path("artifacts/traffic/collection-session.json"),
+        )
+
+
+def test_signal_availability_updates_only_explicitly_checked_backends() -> None:
+    session = CollectionSession(
+        session_id="class-session-01",
+        started_at="2026-07-27T05:00:00Z",
+        completed_at="2026-07-27T05:07:00Z",
+        environment="compose",
+        scope="local",
+        model_identity=CollectionModelIdentity(
+            profile="baseline",
+            version="baseline-f2576f12512a",
+            threshold=0.5,
+        ),
+        manifest_path=Path("artifacts/traffic/collection-session.json"),
+        scenarios=tuple(
+            ScenarioCollection(
+                name=name,
+                run_id=f"class-session-01-{name}",
+                started_at=f"2026-07-27T05:0{index}:00Z",
+                completed_at=f"2026-07-27T05:0{index + 1}:00Z",
+                status_counts=((422, 1),) if name == "invalid" else ((200, 1),),
+                artifact_path=Path("artifacts/traffic/compose.jsonl"),
+            )
+            for index, name in enumerate(
+                ("baseline", "current-shift", "invalid"),
+                start=1,
+            )
+        ),
+    )
+
+    updated = update_signal_availability(
+        session,
+        statuses={
+            "prometheus": "available",
+            "loki": "unavailable",
+        },
+        dashboard_url=(
+            "https://example.grafana.net/d/tta-aiqa-quality/service-quality"
+        ),
+        now=lambda: datetime(2026, 7, 27, 5, 10, tzinfo=UTC),
+    )
+
+    assert updated.session_id == session.session_id
+    assert updated.dashboard_url == (
+        "https://example.grafana.net/d/tta-aiqa-quality/service-quality"
+    )
+    assert updated.as_document()["signal_availability"] == {
+        "prometheus": {
+            "status": "available",
+            "checked_at": "2026-07-27T05:10:00Z",
+        },
+        "loki": {
+            "status": "unavailable",
+            "checked_at": "2026-07-27T05:10:00Z",
+        },
+        "tempo": {
+            "status": "not_checked",
+            "checked_at": None,
+        },
+    }
+    assert session.as_document()["signal_availability"]["prometheus"] == {
+        "status": "not_checked",
+        "checked_at": None,
+    }
+    with pytest.raises(ValueError, match="must be available or unavailable"):
+        update_signal_availability(
+            updated,
+            statuses={"prometheus": "not_checked"},
+        )
+    with pytest.raises(
+        ValueError,
+        match="signal check time must not precede session completion",
+    ):
+        update_signal_availability(
+            session,
+            statuses={"tempo": "available"},
+            now=lambda: datetime(2026, 7, 27, 5, 6, tzinfo=UTC),
+        )
+
+
+def test_collection_manifest_rejects_reversed_or_uncontained_time_ranges() -> None:
+    with pytest.raises(ValueError, match="completion must not precede start"):
+        ScenarioCollection(
+            name="baseline",
+            run_id="class-session-01-baseline",
+            started_at="2026-07-27T05:02:00Z",
+            completed_at="2026-07-27T05:01:00Z",
+            status_counts=((200, 1),),
+            artifact_path=Path("artifacts/traffic/compose.jsonl"),
+        )
+
+    scenarios = tuple(
+        ScenarioCollection(
+            name=name,
+            run_id=f"class-session-01-{name}",
+            started_at=f"2026-07-27T05:0{index}:00Z",
+            completed_at=f"2026-07-27T05:0{index + 1}:00Z",
+            status_counts=((422, 1),) if name == "invalid" else ((200, 1),),
+            artifact_path=Path("artifacts/traffic/compose.jsonl"),
+        )
+        for index, name in enumerate(
+            ("baseline", "current-shift", "invalid"),
+            start=1,
+        )
+    )
+    with pytest.raises(
+        ValueError,
+        match="collection session completion must not precede start",
+    ):
+        CollectionSession(
+            session_id="class-session-01",
+            started_at="2026-07-27T05:08:00Z",
+            completed_at="2026-07-27T05:07:00Z",
+            environment="compose",
+            scope="local",
+            model_identity=CollectionModelIdentity(
+                profile="baseline",
+                version="baseline-f2576f12512a",
+                threshold=0.5,
+            ),
+            manifest_path=Path("artifacts/traffic/collection-session.json"),
+            scenarios=scenarios,
+        )
+    with pytest.raises(ValueError, match="must contain every scenario range"):
+        CollectionSession(
+            session_id="class-session-01",
+            started_at="2026-07-27T05:02:00Z",
+            completed_at="2026-07-27T05:07:00Z",
+            environment="compose",
+            scope="local",
+            model_identity=CollectionModelIdentity(
+                profile="baseline",
+                version="baseline-f2576f12512a",
+                threshold=0.5,
+            ),
+            manifest_path=Path("artifacts/traffic/collection-session.json"),
+            scenarios=scenarios,
+        )
+    overlapping = (
+        scenarios[0],
+        replace(
+            scenarios[1],
+            started_at="2026-07-27T05:01:30Z",
+        ),
+        scenarios[2],
+    )
+    with pytest.raises(
+        ValueError,
+        match="scenario ranges must be ordered and non-overlapping",
+    ):
+        CollectionSession(
+            session_id="class-session-01",
+            started_at="2026-07-27T05:00:00Z",
+            completed_at="2026-07-27T05:07:00Z",
+            environment="compose",
+            scope="local",
+            model_identity=CollectionModelIdentity(
+                profile="baseline",
+                version="baseline-f2576f12512a",
+                threshold=0.5,
+            ),
+            manifest_path=Path("artifacts/traffic/collection-session.json"),
+            scenarios=overlapping,
+        )

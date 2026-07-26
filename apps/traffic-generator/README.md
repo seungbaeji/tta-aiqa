@@ -14,7 +14,9 @@
 
 ```bash
 docker compose -f deploy/compose/simple-mlops/compose.yaml \
-  --profile traffic run --rm traffic-generator baseline --count 20 --fast
+  --profile traffic run --rm \
+  --user "$(id -u):$(id -g)" \
+  traffic-generator baseline --count 20 --fast
 ```
 
 `--fast`는 로컬 API 응답만 빠르게 확인합니다. 이 결과를 Grafana의 `rate()`
@@ -25,7 +27,9 @@ docker compose -f deploy/compose/simple-mlops/compose.yaml \
 docker compose \
   -f deploy/compose/simple-mlops/compose.yaml \
   -f deploy/compose/simple-mlops/compose.grafana-cloud.yaml \
-  --profile traffic run --rm traffic-generator baseline
+  --profile traffic run --rm \
+  --user "$(id -u):$(id -g)" \
+  traffic-generator baseline
 ```
 
 ## 3. 설정

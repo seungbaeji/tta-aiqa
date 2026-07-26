@@ -89,3 +89,11 @@ def test_dashboard_uses_the_learner_facing_high_risk_panel_name() -> None:
 
     assert "High-risk prediction rate" in titles
     assert "Positive mortality-risk rate" not in titles
+
+
+def test_dashboard_keeps_p5_collection_visible_during_p6_analysis() -> None:
+    dashboard = json.loads(
+        Path("deploy/grafana-cloud/dashboards/ai-quality.json").read_text()
+    )
+
+    assert dashboard["time"] == {"from": "now-2h", "to": "now"}

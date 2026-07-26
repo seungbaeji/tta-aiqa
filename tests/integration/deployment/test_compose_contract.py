@@ -22,9 +22,30 @@ def test_compose_runs_same_local_risk_api_and_independent_traffic_app() -> None:
     assert services["traffic-generator"]["environment"]["AIQA_TRAFFIC_API_URL"] == (
         "http://risk-api:8000"
     )
-    assert services["traffic-generator"]["environment"][
-        "AIQA_TRAFFIC_TELEMETRY_CONFIG_PATH"
-    ] == "/runtime/configs/observability/telemetry.yaml"
+    assert (
+        services["traffic-generator"]["environment"][
+            "AIQA_TRAFFIC_TELEMETRY_CONFIG_PATH"
+        ]
+        == "/runtime/configs/observability/telemetry.yaml"
+    )
+    assert (
+        services["traffic-generator"]["environment"][
+            "AIQA_TRAFFIC_RESPONSE_ARTIFACT_PATH"
+        ]
+        == "/runtime/artifacts/traffic/compose.jsonl"
+    )
+    assert (
+        services["traffic-generator"]["environment"][
+            "AIQA_TRAFFIC_PORTABLE_RESPONSE_ARTIFACT_PATH"
+        ]
+        == "artifacts/traffic/compose.jsonl"
+    )
+    assert (
+        services["traffic-generator"]["environment"][
+            "AIQA_TRAFFIC_PORTABLE_MANIFEST_PATH"
+        ]
+        == "artifacts/traffic/collection-session.json"
+    )
 
 
 def test_compose_excludes_monitoring_servers_and_mounts_secrets_read_only() -> None:
@@ -69,9 +90,12 @@ def test_grafana_cloud_override_adds_only_alloy_collector() -> None:
     assert override["services"]["alloy"]["image"] == (
         "grafana/alloy@sha256:51aeb9d829239345070619dad3edd6873186f913c84f45b365b74574fcb38ec0"
     )
-    assert override["services"]["traffic-generator"]["environment"][
-        "AIQA_TRAFFIC_OTLP_ENDPOINT"
-    ] == "http://alloy:4318"
+    assert (
+        override["services"]["traffic-generator"]["environment"][
+            "AIQA_TRAFFIC_OTLP_ENDPOINT"
+        ]
+        == "http://alloy:4318"
+    )
     assert all(
         name not in override["services"]
         for name in ("grafana", "loki", "tempo", "prometheus")
@@ -89,12 +113,16 @@ def test_grafana_cloud_override_routes_both_apps_through_alloy_otlp() -> None:
         encoding="utf-8"
     )
 
-    assert override["services"]["risk-api"]["environment"][
-        "AIQA_API_OTLP_ENDPOINT"
-    ] == "http://alloy:4318"
-    assert override["services"]["traffic-generator"]["environment"][
-        "AIQA_TRAFFIC_OTLP_ENDPOINT"
-    ] == "http://alloy:4318"
+    assert (
+        override["services"]["risk-api"]["environment"]["AIQA_API_OTLP_ENDPOINT"]
+        == "http://alloy:4318"
+    )
+    assert (
+        override["services"]["traffic-generator"]["environment"][
+            "AIQA_TRAFFIC_OTLP_ENDPOINT"
+        ]
+        == "http://alloy:4318"
+    )
     assert 'otelcol.receiver.otlp "aiqa"' in alloy
     assert 'endpoint = "0.0.0.0:4318"' in alloy
     assert "traces = [otelcol.processor.batch.aiqa.input]" in alloy

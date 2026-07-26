@@ -3,6 +3,7 @@
 from collections.abc import Callable
 from dataclasses import dataclass
 from functools import partial
+from pathlib import Path
 from time import sleep
 
 from aiqa_core.adapters.config import load_feature_contract
@@ -26,6 +27,10 @@ class TrafficRuntime:
     plans: dict[str, TrafficPlan]
     run: Callable[[TrafficPlan, int | None, str], tuple[TrafficResponse, ...]]
     telemetry: Telemetry
+    environment: str
+    response_artifact_path: Path
+    portable_response_artifact_path: Path = Path("artifacts/traffic/compose.jsonl")
+    portable_manifest_path: Path = Path("artifacts/traffic/collection-session.json")
 
 
 def bootstrap(**overrides: object) -> TrafficRuntime:
@@ -57,4 +62,8 @@ def bootstrap(**overrides: object) -> TrafficRuntime:
             sleep=sleep,
         ),
         telemetry=telemetry,
+        environment=settings.environment,
+        response_artifact_path=settings.response_artifact_path,
+        portable_response_artifact_path=settings.portable_response_artifact_path,
+        portable_manifest_path=settings.portable_manifest_path,
     )

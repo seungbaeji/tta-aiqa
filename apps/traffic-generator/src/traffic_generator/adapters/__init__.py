@@ -3,11 +3,15 @@
 from traffic_generator.adapters.config import TrafficConfig, load_traffic_config
 from traffic_generator.adapters.csv_pool import CsvPatientPool
 from traffic_generator.adapters.http_client import RequestsPredictionClient
-from traffic_generator.adapters.jsonl import JsonlTrafficRecorder
+from traffic_generator.adapters.jsonl import (
+    JsonCollectionSessionRecorder,
+    JsonlTrafficRecorder,
+)
 from traffic_generator.adapters.wire_values import to_wire_value
 
 __all__ = [
     "CsvPatientPool",
+    "JsonCollectionSessionRecorder",
     "JsonlTrafficRecorder",
     "RequestsPredictionClient",
     "TrafficConfig",

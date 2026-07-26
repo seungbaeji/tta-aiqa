@@ -11,11 +11,25 @@ from traffic_generator.domain.scenarios import (
     TrafficPlan,
     TrafficResponse,
 )
+from traffic_generator.domain.sessions import (
+    OBSERVABILITY_SIGNALS,
+    CollectionModelIdentity,
+    CollectionSession,
+    ScenarioCollection,
+    SignalAvailability,
+    SignalAvailabilityStatus,
+)
 
 __all__ = [
+    "CollectionModelIdentity",
+    "CollectionSession",
     "FeatureTransform",
     "InvalidTrafficCase",
+    "OBSERVABILITY_SIGNALS",
+    "ScenarioCollection",
     "ScenarioMode",
+    "SignalAvailability",
+    "SignalAvailabilityStatus",
     "TrafficPlan",
     "TrafficResponse",
     "apply_feature_transforms",

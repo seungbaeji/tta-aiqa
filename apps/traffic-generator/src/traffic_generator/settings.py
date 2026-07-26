@@ -25,3 +25,5 @@ class TrafficSettings(BaseSettings):
     feature_contract_path: Path
     patient_pool_path: Path
     response_artifact_path: Path
+    portable_response_artifact_path: Path = Path("artifacts/traffic/compose.jsonl")
+    portable_manifest_path: Path = Path("artifacts/traffic/collection-session.json")

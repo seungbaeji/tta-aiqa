@@ -1,8 +1,10 @@
 """Traffic configuration and V2 patient pool adapter tests."""
 
 import io
+import json
 from pathlib import Path
 
+import pytest
 from aiqa_core.adapters.config import load_feature_contract
 from aiqa_observability import (
     TelemetryLogLevel,
@@ -12,12 +14,19 @@ from aiqa_observability import (
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 from opentelemetry.trace import SpanKind
+from pydantic import ValidationError
 from traffic_generator.adapters import (
     CsvPatientPool,
+    JsonCollectionSessionRecorder,
     RequestsPredictionClient,
     load_traffic_config,
 )
-from traffic_generator.domain import ScenarioMode
+from traffic_generator.domain import (
+    CollectionModelIdentity,
+    CollectionSession,
+    ScenarioCollection,
+    ScenarioMode,
+)
 
 
 class CapturingResponse:
@@ -146,3 +155,127 @@ def test_prediction_client_propagates_trace_context_with_course_headers() -> Non
     assert client_span.parent.span_id == root_span.context.span_id
     assert traceparent[1] == f"{client_span.context.trace_id:032x}"
     assert traceparent[2] == f"{client_span.context.span_id:016x}"
+
+
+def test_session_manifest_recorder_writes_one_deterministic_document(
+    tmp_path: Path,
+) -> None:
+    manifest_path = tmp_path / "collection-session.json"
+    session = CollectionSession(
+        session_id="session-01",
+        started_at="2026-07-27T05:00:00Z",
+        completed_at="2026-07-27T05:03:00Z",
+        environment="compose",
+        scope="local",
+        model_identity=CollectionModelIdentity(
+            profile="baseline",
+            version="baseline-f2576f12512a",
+            threshold=0.5,
+        ),
+        manifest_path=Path("artifacts/traffic/collection-session.json"),
+        scenarios=tuple(
+            ScenarioCollection(
+                name=name,
+                run_id=f"session-01-{name}",
+                started_at=f"2026-07-27T05:0{index}:00Z",
+                completed_at=f"2026-07-27T05:0{index + 1}:00Z",
+                status_counts=((422, 3),) if name == "invalid" else ((200, 20),),
+                artifact_path=Path("artifacts/traffic/compose.jsonl"),
+            )
+            for index, name in enumerate(("baseline", "current-shift", "invalid"))
+        ),
+    )
+
+    recorder = JsonCollectionSessionRecorder(manifest_path)
+    recorder.write(session)
+
+    assert json.loads(manifest_path.read_text(encoding="utf-8")) == (
+        session.as_document()
+    )
+    assert recorder.read() == session
+    assert manifest_path.read_text(encoding="utf-8").endswith("\n")
+    assert not manifest_path.with_suffix(".json.tmp").exists()
+
+
+def test_session_manifest_reader_rejects_type_coercion(tmp_path: Path) -> None:
+    manifest_path = tmp_path / "collection-session.json"
+    session = CollectionSession(
+        session_id="session-01",
+        started_at="2026-07-27T05:00:00Z",
+        completed_at="2026-07-27T05:03:00Z",
+        environment="compose",
+        scope="local",
+        model_identity=CollectionModelIdentity(
+            profile="baseline",
+            version="baseline-f2576f12512a",
+            threshold=0.5,
+        ),
+        manifest_path=Path("artifacts/traffic/collection-session.json"),
+        scenarios=tuple(
+            ScenarioCollection(
+                name=name,
+                run_id=f"session-01-{name}",
+                started_at=f"2026-07-27T05:0{index}:00Z",
+                completed_at=f"2026-07-27T05:0{index + 1}:00Z",
+                status_counts=((422, 3),) if name == "invalid" else ((200, 20),),
+                artifact_path=Path("artifacts/traffic/compose.jsonl"),
+            )
+            for index, name in enumerate(("baseline", "current-shift", "invalid"))
+        ),
+    )
+    recorder = JsonCollectionSessionRecorder(manifest_path)
+    recorder.write(session)
+    document = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert isinstance(document["model_identity"], dict)
+    document["model_identity"]["threshold"] = "0.5"
+    manifest_path.write_text(
+        json.dumps(document),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValidationError):
+        recorder.read()
+
+
+def test_session_manifest_write_failure_preserves_previous_document(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    manifest_path = tmp_path / "collection-session.json"
+    previous = '{"session_id":"previous"}\n'
+    manifest_path.write_text(previous, encoding="utf-8")
+    session = CollectionSession(
+        session_id="session-01",
+        started_at="2026-07-27T05:00:00Z",
+        completed_at="2026-07-27T05:03:00Z",
+        environment="compose",
+        scope="local",
+        model_identity=CollectionModelIdentity(
+            profile="baseline",
+            version="baseline-f2576f12512a",
+            threshold=0.5,
+        ),
+        manifest_path=Path("artifacts/traffic/collection-session.json"),
+        scenarios=tuple(
+            ScenarioCollection(
+                name=name,
+                run_id=f"session-01-{name}",
+                started_at=f"2026-07-27T05:0{index}:00Z",
+                completed_at=f"2026-07-27T05:0{index + 1}:00Z",
+                status_counts=((422, 3),) if name == "invalid" else ((200, 20),),
+                artifact_path=Path("artifacts/traffic/compose.jsonl"),
+            )
+            for index, name in enumerate(("baseline", "current-shift", "invalid"))
+        ),
+    )
+
+    def fail_replace(_source: Path, _target: Path) -> Path:
+        raise OSError("simulated atomic replace failure")
+
+    monkeypatch.setattr(Path, "replace", fail_replace)
+
+    with pytest.raises(OSError, match="simulated atomic replace failure"):
+        JsonCollectionSessionRecorder(manifest_path).write(session)
+
+    assert manifest_path.read_text(encoding="utf-8") == previous
+    assert not manifest_path.with_suffix(".json.tmp").exists()

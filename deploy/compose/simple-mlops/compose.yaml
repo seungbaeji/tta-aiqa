@@ -64,6 +64,8 @@ services:
       AIQA_TRAFFIC_FEATURE_CONTRACT_PATH: /runtime/configs/contracts/model-input.yaml
       AIQA_TRAFFIC_PATIENT_POOL_PATH: /runtime/data/operational.csv
       AIQA_TRAFFIC_RESPONSE_ARTIFACT_PATH: /runtime/artifacts/traffic/compose.jsonl
+      AIQA_TRAFFIC_PORTABLE_RESPONSE_ARTIFACT_PATH: artifacts/traffic/compose.jsonl
+      AIQA_TRAFFIC_PORTABLE_MANIFEST_PATH: artifacts/traffic/collection-session.json
     volumes:
       - ../../../configs:/runtime/configs:ro
       - ../../../data/splits/physionet-2012/revisions/v2/datasets/operational.csv:/runtime/data/operational.csv:ro
