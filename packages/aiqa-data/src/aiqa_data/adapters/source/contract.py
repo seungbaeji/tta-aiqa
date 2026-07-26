@@ -17,6 +17,7 @@ class PhysioNetSourceConfig:
     outcomes_path: Path
     expected_record_count: int
     expected_death_count: int
+    record_id_parameter: str
     target_column: str
     blocked_outcome_columns: tuple[str, ...]
     observation_window_hours: int
@@ -52,6 +53,7 @@ class PhysioNetSourceDocument(BaseModel):
             outcomes_path=self.outcomes_path,
             expected_record_count=self.expected_record_count,
             expected_death_count=self.expected_death_count,
+            record_id_parameter=self.record_id_parameter,
             target_column=self.target_column,
             blocked_outcome_columns=self.blocked_outcome_columns,
             observation_window_hours=self.observation_window_hours,

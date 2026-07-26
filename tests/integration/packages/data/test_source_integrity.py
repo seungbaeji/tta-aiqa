@@ -18,6 +18,7 @@ def test_official_source_files_match_versioned_manifest() -> None:
     ]
     assert source.expected_record_count == 4000
     assert source.expected_death_count == 554
+    assert source.record_id_parameter == "RecordID"
 
 
 def test_record_parser_rejects_observation_after_configured_window(
