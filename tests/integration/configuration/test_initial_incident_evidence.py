@@ -113,10 +113,33 @@ def test_release_record_names_the_working_and_submission_path() -> None:
 
     assert "docs/reference/evidence/incident/initial-signal.json" in template
     assert "artifacts/reports/release-decision-record.md" in template
-    assert "E-01" in template
-    assert "`observation_window`" in template
-    assert "`run_id`, `representative_request_id`" in template
-    assert "`telemetry_available`, `identifier_scope`" in template
+    assert all(f"| D1-P{period} |" in template for period in range(1, 8))
+    assert all(f"| D2-P{period} |" in template for period in range(1, 8))
+    assert all(f"| E-0{evidence} |" in template for evidence in range(1, 6))
+    assert "P5 역할" in template
+    assert "P5 수집 경로: `live` / `offline`" in template
+    assert "증거 범위=`local` / `target` / `static`" in template
+    assert "묶음 ID= · 자료 경로=" in template
+    assert "P6 분석·P7 추적·T-01은 개인별로 작성" in template
+    assert (
+        "| 교시 | 예상 → 관측 → 수정 "
+        "(근거 범위·경로, 미실행은 `BLOCKED`) | "
+        "근거 ID · 다음 확인 |"
+    ) in template
+    assert "| ID | 범위·확인한 사실 | 출처·UTC | 미확인 |" in template
+    assert "## 14교시 간결 기록" in template
+    assert "## E-01~E-05 근거 목록" in template
+    assert "잘못 승인= / 지나치게 보류=" in template
+    assert "운영 환경 확인 상태(`operational_deployment_scope`)=" in template
+    assert (
+        "선택한 live 매니페스트 또는 offline 수집 묶음" in template
+    )
+    assert "artifacts/traffic/collection-session.json" not in template
+    assert "artifacts/traffic/compose.jsonl" not in template
+    assert "### 1장" not in template
+    assert "### 2장" not in template
+    assert "### 3장" not in template
+    assert "### 4장" not in template
     assert "3/100" not in template
     assert "6/100" not in template
     assert (
@@ -127,6 +150,43 @@ def test_release_record_names_the_working_and_submission_path() -> None:
     assert "Docker, Kubernetes나 대상 환경의 실행 근거로 쓰지 않습니다." in (
         lab_guide
     )
+    assert "`artifacts/traffic`" in lab_guide
+    assert "host 사용자" in lab_guide
+    assert "기존 파일이나 디렉터리 권한을 바꾸지 않습니다" in lab_guide
+
+
+def test_baseline_local_evidence_does_not_verify_candidate_b() -> None:
+    serving = Path("labs/ch03-serving/README.md").read_text(encoding="utf-8")
+    decision = Path("labs/ch05-release-decision/README.md").read_text(
+        encoding="utf-8"
+    )
+
+    assert "baseline `scope=local`" in serving
+    assert "Candidate B의 운영 환경 확인 상태는 `target_pending`" in serving
+    assert "| `local_verified` |" not in serving
+    assert (
+        "`local_verified`는 Candidate B를 실제 로컬 서빙하고 같은 모델의 "
+        "요청·운영 자료까지 확인했을 때만 사용"
+    ) in decision
+
+
+def test_learner_facing_labs_use_korean_handoff_terms() -> None:
+    guides = (
+        Path("labs/README.md"),
+        Path("labs/ch04-observability/README.md"),
+        Path("labs/ch05-release-decision/README.md"),
+    )
+
+    for path in (*guides, Path("labs/release-decision-record.md")):
+        guide = path.read_text(encoding="utf-8")
+        prose_without_code_key = guide.replace("handoff_contract", "")
+        assert "packet" not in guide
+        assert "handoff" not in prose_without_code_key
+        assert "gate" not in guide
+    for path in guides:
+        assert (
+            path.read_text(encoding="utf-8").count("collection manifest") == 1
+        )
 
 
 def test_observability_setup_preserves_an_existing_personal_environment() -> None:

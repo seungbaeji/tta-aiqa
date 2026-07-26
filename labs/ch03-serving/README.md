@@ -4,12 +4,12 @@
 
 이 실습은 API 응답 여부보다 실제로 확인한 모델 정보와 배포 설정이 같은 모델을 가리키는지 살펴봅니다. Compose는 로컬 scikit-learn 어댑터를 사용하고 Kubernetes는 KServe HTTP 어댑터를 사용하지만, 외부에 공개하는 Risk API 규약은 같아야 합니다.
 
-Candidate B의 `APPROVE`는 2장의 공식 모델 평가 결과입니다. 대상 환경의 모델 정보를 확인하지 못했다는 이유로 이 결과를 `HOLD`로 바꾸지 않고, 운영 배포 상태만 확인한 범위에 맞춰 적습니다.
+Candidate B의 `APPROVE`는 2장의 공식 모델 평가 결과입니다. 대상 환경의 모델 정보를 확인하지 못했다는 이유로 이 결과를 `HOLD`로 바꾸지 않고, 운영 환경 확인 상태만 확인한 범위에 맞춰 적습니다.
 
 | 확인 범위 | 이 실습에서 확인할 수 있는 근거 | 아직 말할 수 없는 내용 |
 | --- | --- | --- |
 | `prepared` | 게시한 모델 묶음, 펼친 배포 설정, 노트북의 정적 검사 | 대상 클러스터가 실행 중임 |
-| `local_verified` | 로컬 `/health/ready`, `/v1/model`, 정상 200과 의도한 422 | 대상 환경도 같은 상태임 |
+| baseline `scope=local` | 기본 로컬 `/health/ready`, `/v1/model`, 정상 200과 의도한 422 | Candidate B가 로컬 또는 대상 환경에서 실행 중임 |
 | `target_pending` | Docker, `kubectl`, 대상 URL이 없어 실제 결과를 보지 못함 | 대상 배포의 성공 또는 실패 |
 
 ## 2. 기준 모델과 로컬 API 실행
@@ -28,9 +28,13 @@ docker compose -f deploy/compose/simple-mlops/compose.yaml up -d --build risk-ap
 curl http://127.0.0.1:8000/health/ready
 curl http://127.0.0.1:8000/v1/model
 docker compose -f deploy/compose/simple-mlops/compose.yaml \
-  --profile traffic run --rm traffic-generator baseline --count 20 --fast
+  --profile traffic run --rm \
+  --user "$(id -u):$(id -g)" \
+  traffic-generator baseline --count 20 --fast
 docker compose -f deploy/compose/simple-mlops/compose.yaml \
-  --profile traffic run --rm traffic-generator invalid --count 3 --fast
+  --profile traffic run --rm \
+  --user "$(id -u):$(id -g)" \
+  traffic-generator invalid --count 3 --fast
 ```
 
 여기서 `--fast`는 로컬 API의 200과 422만 빠르게 확인합니다. Grafana의
@@ -77,6 +81,6 @@ uv run pytest -q tests/integration/deployment/test_kubernetes_contract.py \
 
 최종 기록에는 확인한 환경, API가 반환한 모델 프로필·버전·임계값, 배포 선언 파일의 전체 SHA-256 해시값, 정상·무효 요청 결과, 아직 빠진 대상 환경 근거를 구분해 씁니다. 기준 모델의 로컬 200과 422를 Candidate B 대상 환경의 근거로 바꾸지 않습니다.
 
-> 운영 배포 상태는 [prepared/local_verified/target_pending]입니다. [파일/API/배포 설정]에서 [프로필, 버전 또는 해시값]을 확인했고, 정상, 무효 요청은 [실행 결과 또는 실행하지 못한 이유]로 기록했습니다. Candidate B의 모델 `APPROVE`는 유지하되 [대상 모델 정보와 요청 시간대]는 [담당 팀]이 확인할 때까지 대상 환경 결론으로 넓히지 않습니다.
+> 기존 운영 모델의 증거 범위는 [`prepared`/`scope=local`]이고, Candidate B의 운영 환경 확인 상태는 `target_pending`입니다. [파일/API/배포 설정]에서 [프로필, 버전 또는 해시값]을 확인했고, 정상·무효 요청은 [실행 결과 또는 실행하지 못한 이유]로 기록했습니다. Candidate B의 모델 `APPROVE`는 유지하되 [Candidate B 모델 정보와 같은 모델의 요청·운영 자료]는 [담당 팀]이 확인할 때까지 배포 결론으로 넓히지 않습니다.
 
 4장에서는 같은 모델 정보를 전제로 요청 시나리오와 운영 기록을 확인합니다. 입력, API, 실행 환경 가운데 어느 원인 후보가 강화되는지 기록합니다.
