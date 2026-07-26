@@ -56,6 +56,7 @@ class Telemetry:
         self,
         *,
         request_id: str,
+        run_id: str | None = None,
         scenario: str,
         operation: str = "http.request",
         attributes: TelemetryAttributes | None = None,
@@ -65,6 +66,7 @@ class Telemetry:
             current_context(),
             operation=operation,
             request_id=request_id,
+            run_id=run_id,
             scenario=scenario,
             attributes=attributes,
         )
@@ -132,6 +134,7 @@ class Telemetry:
         operation: str,
         *,
         request_id: str | None = None,
+        run_id: str | None = None,
         scenario: str | None = None,
         attributes: TelemetryAttributes | None = None,
     ) -> Iterator[TelemetryContext]:
@@ -140,6 +143,7 @@ class Telemetry:
             current_context(),
             operation=operation,
             request_id=request_id,
+            run_id=run_id,
             scenario=scenario,
             attributes=attributes,
         )

@@ -22,6 +22,7 @@ class DefaultsDocument(BaseModel):
     request_count: int = Field(gt=0)
     interval_seconds: float = Field(ge=0)
     timeout_seconds: float = Field(gt=0)
+    collection_wait_seconds: float = Field(ge=0)
 
 
 class TransformDocument(BaseModel):
@@ -79,6 +80,7 @@ class TrafficConfig(BaseModel):
                     if document.timeout_seconds is None
                     else document.timeout_seconds
                 ),
+                collection_wait_seconds=self.defaults.collection_wait_seconds,
                 transforms=tuple(
                     FeatureTransform(feature=feature, **transform.model_dump())
                     for feature, transform in document.transforms.items()

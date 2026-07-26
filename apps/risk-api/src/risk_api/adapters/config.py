@@ -94,6 +94,7 @@ class RiskApiObservabilityConfig(BaseModel):
             "route",
             "method",
             "status_code",
+            "scenario",
         }:
             raise ValueError("Risk API request metric labels are invalid")
         if set(self.prediction_metric_labels) != {
@@ -117,7 +118,9 @@ class ApiConfig(BaseModel):
     title: str = Field(min_length=1)
     api_version: str = Field(pattern=r"^v[1-9][0-9]*$")
     request_id_header: str = Field(min_length=1)
+    run_id_header: str = Field(min_length=1)
     scenario_header: str = Field(min_length=1)
+    max_request_body_bytes: int = Field(gt=0, le=1_048_576)
     positive_label: str = Field(min_length=1)
     negative_label: str = Field(min_length=1)
     score_decimal_places: int = Field(ge=0, le=12)

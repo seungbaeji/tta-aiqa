@@ -2,7 +2,12 @@
 
 import argparse
 from collections import Counter
+from dataclasses import replace
 
+from aiqa_observability import (
+    CORRELATION_ID_MAX_LENGTH,
+    CORRELATION_ID_PATTERN_TEXT,
+)
 from pydantic import BaseModel, ConfigDict, Field
 
 from traffic_generator.bootstrap import bootstrap
@@ -18,6 +23,13 @@ class TrafficCommandDto(BaseModel):
 
     scenario: str = Field(min_length=1)
     request_count: int | None = Field(default=None, gt=0)
+    run_id: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=CORRELATION_ID_MAX_LENGTH,
+        pattern=CORRELATION_ID_PATTERN_TEXT,
+    )
+    fast: bool = False
 
 
 def main() -> None:
@@ -25,17 +37,35 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("scenario")
     parser.add_argument("--count", dest="request_count", type=int)
+    parser.add_argument("--run-id")
+    parser.add_argument(
+        "--fast",
+        action="store_true",
+        help="skip request pacing and the post-run collection wait",
+    )
     command = TrafficCommandDto.model_validate(vars(parser.parse_args()))
     runtime = bootstrap()
     try:
         plan = runtime.plans.get(command.scenario)
         if plan is None:
             raise ValueError(f"unknown traffic scenario: {command.scenario}")
+        if command.fast:
+            plan = replace(
+                plan,
+                interval_seconds=0,
+                collection_wait_seconds=0,
+            )
         with runtime.telemetry.run_scope(
             TRAFFIC_GENERATE_OPERATION,
+            run_id=command.run_id,
             scenario=command.scenario,
-        ):
-            responses = runtime.run(plan, command.request_count)
+        ) as context:
+            assert context.run_id is not None
+            responses = runtime.run(
+                plan,
+                command.request_count,
+                run_id=context.run_id,
+            )
             runtime.telemetry.event(
                 TRAFFIC_GENERATION_COMPLETED_EVENT,
                 attributes={
@@ -44,4 +74,11 @@ def main() -> None:
             )
     finally:
         runtime.telemetry.shutdown()
-    print(dict(Counter(response.status_code for response in responses)))
+    print(
+        {
+            "run_id": context.run_id,
+            "status_codes": dict(
+                Counter(response.status_code for response in responses)
+            ),
+        }
+    )

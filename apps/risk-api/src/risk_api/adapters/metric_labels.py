@@ -10,6 +10,7 @@ def request_metric_labels(
     route: str,
     method: str,
     status_code: int,
+    scenario: str,
 ) -> dict[str, str]:
     """Return the stable label set for one completed Risk API HTTP request."""
     return {
@@ -18,6 +19,7 @@ def request_metric_labels(
         "route": route,
         "method": method,
         "status_code": str(status_code),
+        "scenario": scenario,
     }
 
 

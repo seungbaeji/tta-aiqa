@@ -73,6 +73,8 @@ def test_versioned_config_defines_all_four_course_scenarios() -> None:
     assert plans["baseline"].mode is ScenarioMode.VALID
     assert plans["current-shift"].mode is ScenarioMode.SHIFT
     assert plans["invalid"].mode is ScenarioMode.INVALID
+    assert plans["invalid"].request_count == 3
+    assert plans["invalid"].interval_seconds == 8.0
 
 
 def test_v2_operational_pool_is_target_free_and_wire_compatible() -> None:
@@ -102,10 +104,15 @@ def test_prediction_client_propagates_trace_context_with_course_headers() -> Non
     )
 
     try:
-        with runtime.run_scope("traffic.generate", scenario="baseline"):
+        with runtime.run_scope(
+            "traffic.generate",
+            run_id="course-run",
+            scenario="baseline",
+        ):
             response = client.predict(
                 features={"age": 42.0},
-                request_id="baseline-43-0001",
+                request_id="baseline-course-run-0001",
+                run_id="course-run",
                 scenario="baseline",
                 timeout_seconds=1.0,
             )
@@ -117,9 +124,11 @@ def test_prediction_client_propagates_trace_context_with_course_headers() -> Non
     assert {
         name: value for name, value in session.headers.items() if name != "traceparent"
     } == {
-        "X-Request-ID": "baseline-43-0001",
+        "X-Request-ID": "baseline-course-run-0001",
+        "X-AIQA-Run-ID": "course-run",
         "X-AIQA-Scenario": "baseline",
     }
+    assert response.run_id == "course-run"
     client_span = next(
         span
         for span in exporter.get_finished_spans()

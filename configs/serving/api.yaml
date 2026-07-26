@@ -2,7 +2,9 @@ schema_version: 1
 title: TTA AIQA Mortality Risk API
 api_version: v1
 request_id_header: X-Request-ID
+run_id_header: X-AIQA-Run-ID
 scenario_header: X-AIQA-Scenario
+max_request_body_bytes: 65536
 positive_label: high_risk
 negative_label: low_risk
 score_decimal_places: 6
@@ -28,6 +30,7 @@ observability:
     - route
     - method
     - status_code
+    - scenario
   prediction_metric_labels:
     - service_name
     - environment

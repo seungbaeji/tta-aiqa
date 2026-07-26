@@ -1,9 +1,10 @@
 schema_version: 1
 random_seed: 43
 defaults:
-  request_count: 50
-  interval_seconds: 0.1
+  request_count: 20
+  interval_seconds: 1.0
   timeout_seconds: 10.0
+  collection_wait_seconds: 20.0
 scenarios:
   baseline:
     mode: valid
@@ -24,6 +25,8 @@ scenarios:
         minimum: 3.0
   invalid:
     mode: invalid
+    request_count: 3
+    interval_seconds: 8.0
     invalid_cases:
       - missing_feature
       - extra_feature

@@ -26,6 +26,7 @@ class PredictionClient(Protocol):
         *,
         features: dict[str, object],
         request_id: str,
+        run_id: str,
         scenario: str,
         timeout_seconds: float,
     ) -> TrafficResponse:

@@ -17,6 +17,7 @@ from aiqa_serving.domain import FeatureValue, ModelIdentity, PredictionEvent
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 from opentelemetry.trace import SpanKind
+from risk_api.adapters.http import normalize_external_correlation_id
 from risk_api.adapters.kserve_tracing import KServeTracingScorer
 from risk_api.adapters.metadata import load_kserve_model_identity
 from risk_api.adapters.metric_labels import (
@@ -61,6 +62,24 @@ def prediction_event() -> PredictionEvent:
         missing_feature_count=2,
         scenario="baseline",
     )
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("course-run_01.2", "course-run_01.2"),
+        ("", None),
+        (" leading-space", None),
+        ("contains/slash", None),
+        ("x" * 65, None),
+    ],
+)
+def test_external_correlation_ids_accept_only_bounded_safe_values(
+    value: str,
+    expected: str | None,
+) -> None:
+    """Caller headers cannot inject arbitrary or oversized telemetry context."""
+    assert normalize_external_correlation_id(value, fallback=None) == expected
 
 
 class CapturingKServeScorer:
@@ -112,6 +131,7 @@ def test_metric_label_adapters_exclude_unbounded_request_identifiers() -> None:
         route="/v1/predict",
         method="POST",
         status_code=200,
+        scenario="baseline",
     )
     prediction_labels = prediction_metric_labels(
         telemetry_resource(),
@@ -125,6 +145,7 @@ def test_metric_label_adapters_exclude_unbounded_request_identifiers() -> None:
         "route": "/v1/predict",
         "method": "POST",
         "status_code": "200",
+        "scenario": "baseline",
     }
     assert prediction_labels == {
         "service_name": "risk-api",

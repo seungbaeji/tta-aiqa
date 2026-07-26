@@ -38,9 +38,12 @@ def test_risk_api_owns_its_metric_names_and_bounded_dimensions() -> None:
 
     assert config.observability.metrics.request_count == "aiqa_risk_requests_total"
     assert "request_id" not in config.observability.request_metric_labels
+    assert "run_id" not in config.observability.request_metric_labels
+    assert "scenario" in config.observability.request_metric_labels
     assert "trace_id" not in config.observability.prediction_metric_labels
     assert config.observability.fallback_scenario == "other"
     assert config.observability.fallback_method == "other"
+    assert config.max_request_body_bytes == 65_536
 
 
 def test_risk_api_rejects_unbounded_identifier_metric_label() -> None:

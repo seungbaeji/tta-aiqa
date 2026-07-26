@@ -2,6 +2,8 @@
 
 from aiqa_observability.adapters.config import load_telemetry_policy
 from aiqa_observability.domain import (
+    CORRELATION_ID_MAX_LENGTH,
+    CORRELATION_ID_PATTERN_TEXT,
     CounterMetric,
     HistogramMetric,
     MetricKind,
@@ -13,10 +15,13 @@ from aiqa_observability.domain import (
     TelemetryPolicy,
     TelemetryResource,
     derive_telemetry_context,
+    is_valid_correlation_id,
 )
 from aiqa_observability.telemetry import Telemetry, create_telemetry
 
 __all__ = [
+    "CORRELATION_ID_MAX_LENGTH",
+    "CORRELATION_ID_PATTERN_TEXT",
     "CounterMetric",
     "derive_telemetry_context",
     "HistogramMetric",
@@ -30,5 +35,6 @@ __all__ = [
     "TelemetryPolicy",
     "TelemetryResource",
     "create_telemetry",
+    "is_valid_correlation_id",
     "load_telemetry_policy",
 ]

@@ -17,6 +17,10 @@ from risk_api.adapters.metric_labels import (
 RISK_PREDICTION_OPERATION = "risk.predict"
 HTTP_REQUEST_COMPLETED_EVENT = "http.request.completed"
 RISK_PREDICTION_COMPLETED_EVENT = "risk.prediction.completed"
+MODEL_INPUT_VALIDATION_FAILED_EVENT = "model.input.validation.failed"
+HTTP_REQUEST_REJECTED_EVENT = "http.request.rejected"
+VALIDATION_CATEGORIES = frozenset({"missing", "extra", "type", "other"})
+REQUEST_REJECTION_CATEGORIES = frozenset({"body_too_large"})
 
 
 class RiskApiTelemetry:
@@ -76,11 +80,18 @@ class RiskApiTelemetry:
         )
 
     @contextmanager
-    def request_scope(self, *, request_id: str, scenario: str) -> Iterator[str]:
+    def request_scope(
+        self,
+        *,
+        request_id: str,
+        run_id: str | None,
+        scenario: str,
+    ) -> Iterator[str]:
         """Bind one normalized request context around a FastAPI request."""
         normalized_scenario = self.normalize_scenario(scenario)
         with self._platform.request_scope(
             request_id=request_id,
+            run_id=run_id,
             scenario=normalized_scenario,
         ):
             yield normalized_scenario
@@ -114,6 +125,7 @@ class RiskApiTelemetry:
         method: str,
         status_code: int,
         duration_seconds: float,
+        scenario: str,
     ) -> None:
         """Record one business prediction HTTP metric set and correlated event."""
         labels = request_metric_labels(
@@ -121,6 +133,7 @@ class RiskApiTelemetry:
             route=route,
             method=self.normalize_method(method),
             status_code=status_code,
+            scenario=self.normalize_scenario(scenario),
         )
         self._requests.increment(labels=labels)
         self._latency.observe(duration_seconds, labels=labels)
@@ -131,6 +144,40 @@ class RiskApiTelemetry:
                 "method": method,
                 "route": route,
                 "status_code": status_code,
+            },
+        )
+
+    def record_input_validation_failure(
+        self,
+        *,
+        error_code: str,
+        validation_category: str,
+    ) -> None:
+        """Record only bounded input-error details in logs and the active span."""
+        if validation_category not in VALIDATION_CATEGORIES:
+            raise ValueError("input validation category must be bounded")
+        self._platform.event(
+            MODEL_INPUT_VALIDATION_FAILED_EVENT,
+            attributes={
+                "error_code": error_code,
+                "validation_category": validation_category,
+            },
+        )
+
+    def record_request_rejection(
+        self,
+        *,
+        error_code: str,
+        rejection_category: str,
+    ) -> None:
+        """Record a bounded transport rejection without request-controlled values."""
+        if rejection_category not in REQUEST_REJECTION_CATEGORIES:
+            raise ValueError("request rejection category must be bounded")
+        self._platform.event(
+            HTTP_REQUEST_REJECTED_EVENT,
+            attributes={
+                "error_code": error_code,
+                "rejection_category": rejection_category,
             },
         )
 

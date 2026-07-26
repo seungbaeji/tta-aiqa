@@ -24,7 +24,7 @@ class TrafficRuntime:
     """Bound traffic operation and process resources for the CLI adapter."""
 
     plans: dict[str, TrafficPlan]
-    run: Callable[[TrafficPlan, int | None], tuple[TrafficResponse, ...]]
+    run: Callable[[TrafficPlan, int | None, str], tuple[TrafficResponse, ...]]
     telemetry: Telemetry
 
 

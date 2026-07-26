@@ -30,6 +30,7 @@ class RequestsPredictionClient:
         *,
         features: dict[str, object],
         request_id: str,
+        run_id: str,
         scenario: str,
         timeout_seconds: float,
     ) -> TrafficResponse:
@@ -37,6 +38,7 @@ class RequestsPredictionClient:
         with self._telemetry.client_scope(
             RISK_API_PREDICT_OPERATION,
             request_id=request_id,
+            run_id=run_id,
             scenario=scenario,
             attributes={
                 "http_method": "POST",
@@ -49,6 +51,7 @@ class RequestsPredictionClient:
             headers.update(
                 {
                     "X-Request-ID": request_id,
+                    "X-AIQA-Run-ID": run_id,
                     "X-AIQA-Scenario": scenario,
                 }
             )
@@ -67,6 +70,7 @@ class RequestsPredictionClient:
                 body = {"response": body}
             return TrafficResponse(
                 request_id=request_id,
+                run_id=run_id,
                 scenario=scenario,
                 status_code=response.status_code,
                 elapsed_seconds=elapsed,

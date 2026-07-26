@@ -52,6 +52,7 @@ class TrafficPlan:
     request_count: int
     interval_seconds: float
     timeout_seconds: float
+    collection_wait_seconds: float = 0.0
     transforms: tuple[FeatureTransform, ...] = ()
     invalid_cases: tuple[InvalidTrafficCase, ...] = ()
 
@@ -62,6 +63,7 @@ class TrafficPlan:
             self.request_count < 1
             or self.interval_seconds < 0
             or self.timeout_seconds <= 0
+            or self.collection_wait_seconds < 0
         ):
             raise ValueError("traffic timing and count values are invalid")
         if self.mode is ScenarioMode.SHIFT and not self.transforms:
@@ -77,6 +79,7 @@ class TrafficResponse:
     """Captured response evidence from one request sent through a client port."""
 
     request_id: str
+    run_id: str
     scenario: str
     status_code: int
     elapsed_seconds: float
