@@ -76,7 +76,7 @@ def verify_course_state(*, require_model: bool) -> dict[str, object]:
         "data_pipeline": "ready",
         "great_expectations": "ready",
         "notebook_runtime": "ready",
-        "canonical_decisions": decisions,
+        "canonical_decisions": "sealed_until_day1_period6",
         "deployed_model": model_status,
     }
 

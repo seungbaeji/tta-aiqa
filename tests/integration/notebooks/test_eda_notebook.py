@@ -11,9 +11,11 @@ from nbclient import NotebookClient
 ROOT = Path(__file__).resolve().parents[3]
 STUDENT_NOTEBOOKS = (
     Path("labs/ch01-data-quality/01_physionet_data_quality_eda.ipynb"),
+    Path("labs/ch02-model-quality/00_train_valid_model_walkthrough.ipynb"),
     Path("labs/ch02-model-quality/01_compare_model_evidence.ipynb"),
     Path("labs/ch03-serving/01_verify_risk_api.ipynb"),
     Path("labs/ch04-observability/01_inspect_dashboard_contract.ipynb"),
+    Path("labs/ch05-release-decision/00_compare_input_distributions.ipynb"),
     Path("labs/ch05-release-decision/01_review_release_decision.ipynb"),
 )
 APPENDIX_NOTEBOOKS = (
@@ -248,7 +250,7 @@ APPENDIX_API_SNIPPETS = {
     ),
 }
 
-def test_data_quality_notebook_is_executed_and_scoped_to_eda() -> None:
+def test_data_quality_notebook_is_runnable_and_scoped_to_eda() -> None:
     path = Path("labs/ch01-data-quality/01_physionet_data_quality_eda.ipynb")
     notebook = json.loads(path.read_text(encoding="utf-8"))
     code_cells = [cell for cell in notebook["cells"] if cell["cell_type"] == "code"]
@@ -265,7 +267,10 @@ def test_data_quality_notebook_is_executed_and_scoped_to_eda() -> None:
     assert "parameter_coverage" in source
     assert "same_minute_duplicates" in source
     assert "split_target_summary" in source
-    assert "EDA findings are descriptive" in source
+    assert "이 탐색 결과는 현상을 설명하는 근거입니다." in source
+    assert "히스토그램의 비시각 등가 자료" in source
+    assert "distribution_summary" in source
+    assert "비시각 관찰" in source
     assert (
         "data/splits/physionet-2012/revisions/v2/split-manifest.csv" in source
     )
@@ -286,6 +291,27 @@ def test_observability_notebook_reads_panel_level_datasources() -> None:
     assert "DASHBOARD_URL_NOT_CONFIGURED" in source
 
 
+def test_serving_notebook_checks_the_bounded_public_api_contract() -> None:
+    """Keep the live exercise aligned with the safe Risk API response contract."""
+    path = Path("labs/ch03-serving/01_verify_risk_api.ipynb")
+    source = "\n".join(
+        "".join(cell["source"])
+        for cell in json.loads(path.read_text(encoding="utf-8"))["cells"]
+    )
+
+    assert "expected_response_fields" in source
+    assert 'valid_body["education_only"] is True' in source
+    assert (
+        'valid_body["request_id"] == valid_response.headers["X-Request-ID"]'
+        in source
+    )
+    assert 'invalid_detail["code"] == "MODEL_INPUT_INVALID"' in source
+    assert (
+        'invalid_detail["validation_category"] in validation_categories' in source
+    )
+    assert '"status": "API_NOT_RUNNING"' in source
+
+
 def test_release_decision_notebook_keeps_model_and_operational_gates_separate() -> None:
     """Keep a missing target observation from silently changing model approval."""
     path = Path("labs/ch05-release-decision/01_review_release_decision.ipynb")
@@ -299,6 +325,66 @@ def test_release_decision_notebook_keeps_model_and_operational_gates_separate() 
     assert "rollback_required" in source
     assert '"model_approval": {' in source
     assert '"candidate-b": decisions.loc["candidate-b", "decision"]' in source
+
+
+@pytest.mark.parametrize("relative_path", STUDENT_NOTEBOOKS)
+def test_student_notebook_is_checked_in_without_stale_outputs(
+    relative_path: Path,
+) -> None:
+    """A learner starts every core notebook from one unambiguous clean state."""
+    notebook = nbformat.read(ROOT / relative_path, as_version=4)
+    code_cells = [cell for cell in notebook.cells if cell.cell_type == "code"]
+
+    assert code_cells
+    assert all(cell.execution_count is None for cell in code_cells)
+    assert all(not cell.outputs for cell in code_cells)
+
+
+@pytest.mark.parametrize("relative_path", STUDENT_NOTEBOOKS)
+def test_student_notebook_follows_the_learning_activity_headings(
+    relative_path: Path,
+) -> None:
+    """Expose one repeatable question-to-record path in every core activity."""
+    notebook = nbformat.read(ROOT / relative_path, as_version=4)
+    headings = [
+        line
+        for cell in notebook.cells
+        if cell.cell_type == "markdown"
+        for line in cell.source.splitlines()
+        if line.startswith("#")
+    ]
+    required = (
+        "## 이번 질문",
+        "## 먼저 예상",
+        "## 실행과 관측",
+        "## 해석과 기록",
+        "## 결과 점검",
+        "## 다음 확인",
+    )
+    positions = [headings.index(heading) for heading in required]
+    numbered_steps = [
+        heading
+        for heading in headings
+        if re.match(r"^### [1-9][0-9]*\\. ", heading)
+    ]
+
+    assert headings[0].startswith("# ")
+    assert positions == sorted(positions)
+    assert len(numbered_steps) == len(set(numbered_steps))
+
+
+def test_mlflow_appendix_restores_the_callers_tracking_uri() -> None:
+    """The optional exercise must not change a shared kernel's next MLflow run."""
+    notebook = nbformat.read(ROOT / APPENDIX_NOTEBOOKS[-1], as_version=4)
+    source = "\n".join(
+        cell.source for cell in notebook.cells if cell.cell_type == "code"
+    )
+
+    assert "previous_tracking_uri = mlflow.get_tracking_uri()" in source
+    assert "mlflow.set_tracking_uri(previous_tracking_uri)" in source
+    assert source.index("mlflow.set_tracking_uri(previous_tracking_uri)") > (
+        source.index('mlflow.set_experiment("appendix-local-tracking")')
+    )
 
 
 @pytest.mark.parametrize("relative_path", APPENDIX_NOTEBOOKS)

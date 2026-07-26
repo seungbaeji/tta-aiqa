@@ -28,12 +28,20 @@ docker compose -f deploy/compose/simple-mlops/compose.yaml up -d --build risk-ap
 curl http://127.0.0.1:8000/health/ready
 curl http://127.0.0.1:8000/v1/model
 docker compose -f deploy/compose/simple-mlops/compose.yaml \
-  --profile traffic run --rm traffic-generator baseline --count 20
+  --profile traffic run --rm traffic-generator baseline --count 20 --fast
 docker compose -f deploy/compose/simple-mlops/compose.yaml \
-  --profile traffic run --rm traffic-generator invalid --count 3
+  --profile traffic run --rm traffic-generator invalid --count 3 --fast
 ```
 
-`/v1/model`의 프로필, 버전, 임계값과 응답의 `X-Request-ID`를 함께 기록합니다. 요청 ID는 응답, 로그, 추적 기록에서 같은 요청을 찾는 값이며 Prometheus 지표 레이블로 사용하지 않습니다. 요청 기록은 `artifacts/traffic/`에 생성됩니다.
+여기서 `--fast`는 로컬 API의 200과 422만 빠르게 확인합니다. Grafana의
+`rate()` 근거는 4장에서 Alloy override와 기본 수집 간격을 사용해 따로 만듭니다.
+
+`/v1/model`의 프로필, 버전, 임계값과 출력된 run ID를 기록합니다. 이 명령은
+응답 헤더를 화면이나 파일에 보존하지 않으므로, 요청 ID는
+`artifacts/traffic/*.jsonl`의 `request_id`와 응답 본문의 `request_id`에서
+확인합니다. run ID는 한 번의 실행을, 요청 ID는 그 안의 한 요청을 JSONL, 로그,
+추적 기록에서 찾는 값입니다. 두 식별자는 Prometheus 지표 레이블로 사용하지
+않습니다.
 
 Docker가 없거나 API가 시작하지 않으면 다음 노트북의 정적 검사만 실행합니다. 없는 API 응답을 재현한 것처럼 쓰지 않고 `prepared` 또는 `target_pending`으로 기록합니다.
 
@@ -44,9 +52,18 @@ Docker가 없거나 API가 시작하지 않으면 다음 노트북의 정적 검
 대상 연결 이름을 정확히 제공받은 경우에만 서버 측 검사를 실행합니다. 수강생은 `kubectl apply`로 공동 환경의 배포 상태를 직접 바꾸지 않습니다.
 
 ```bash
-kubectl config current-context
+test -n "${TARGET_CONTEXT:-}" || {
+  echo "TARGET_CONTEXT를 강사가 안내한 값으로 설정하세요."
+  exit 1
+}
+CURRENT_CONTEXT="$(kubectl config current-context)"
+test "$CURRENT_CONTEXT" = "$TARGET_CONTEXT" || {
+  echo "현재 context가 TARGET_CONTEXT와 다릅니다: $CURRENT_CONTEXT"
+  exit 1
+}
 kubectl kustomize deploy/kubernetes/overlays/baseline >/tmp/tta-aiqa-baseline.yaml
-kubectl apply --dry-run=server -f /tmp/tta-aiqa-baseline.yaml
+kubectl --context "$TARGET_CONTEXT" apply --dry-run=server \
+  -f /tmp/tta-aiqa-baseline.yaml
 ```
 
 `kubectl`이나 대상 환경이 없으면 Candidate B와 되돌리기 오버레이의 정적 계약을 검사합니다. 이 결과는 고정 모델 경로가 배포 설정에 선언됐다는 근거일 뿐, Candidate B가 대상 API에서 실행된다는 관측 결과는 아닙니다.
@@ -58,7 +75,7 @@ uv run pytest -q tests/integration/deployment/test_kubernetes_contract.py \
 
 ## 4. 완료 기준
 
-최종 기록에는 확인한 환경, 모델 프로필과 해시값, 정상, 무효 요청 결과, 아직 빠진 대상 환경 근거를 구분해 씁니다. 기준 모델의 로컬 200과 422를 Candidate B 대상 환경의 근거로 바꾸지 않습니다.
+최종 기록에는 확인한 환경, API가 반환한 모델 프로필·버전·임계값, 배포 선언 파일의 전체 SHA-256 해시값, 정상·무효 요청 결과, 아직 빠진 대상 환경 근거를 구분해 씁니다. 기준 모델의 로컬 200과 422를 Candidate B 대상 환경의 근거로 바꾸지 않습니다.
 
 > 운영 배포 상태는 [prepared/local_verified/target_pending]입니다. [파일/API/배포 설정]에서 [프로필, 버전 또는 해시값]을 확인했고, 정상, 무효 요청은 [실행 결과 또는 실행하지 못한 이유]로 기록했습니다. Candidate B의 모델 `APPROVE`는 유지하되 [대상 모델 정보와 요청 시간대]는 [담당 팀]이 확인할 때까지 대상 환경 결론으로 넓히지 않습니다.
 

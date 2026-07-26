@@ -1,179 +1,93 @@
-# Appendix A. EDA 도구 API 빠른 실습
+# 부록: 막힌 개념을 찾아보는 실습
 
-## 1. 목적
+## 1. 이용 방법
 
-이 appendix는 Python 객체와 container, `pandas`의 객체 모델과 핵심 데이터 변환,
-NumPy 배열 규칙, `matplotlib`의 Figure/Axes 구조를 먼저 다룬다. 이어서 EDA와
-Feature Engineering의 기본 원리, Great Expectations, DVC, scikit-learn, model metrics,
-class imbalance와 MLflow를 사용해 데이터 이해부터 model workflow와 artifact provenance까지 연습한다. 각 notebook은 작은 합성 데이터와
-임시 local storage를 사용하므로 canonical DVC data, model bundle, 외부 서비스 없이
-실행할 수 있다. API를 암기하기보다 객체와 반환값을 확인하고 data가 validation,
-pipeline, Run과 versioned artifact로 이어지는 흐름을 이해하는 데 집중한다.
+이 부록은 13개 노트북을 처음부터 차례대로 듣는 선행 과정이 아닙니다. 본편 실습에서
+막힌 개념을 골라 확인하고 돌아오는 참고 경로입니다.
 
-각 notebook의 `## 3. Steps`는 `### 3-x`에서 관련 개념을 묶고,
-`#### 3-x-y`에서 하나의 설명과 실행 예제를 다룬다. 따라서 큰 개념을 먼저 읽은 뒤
-필요한 세부 API 단위로 다시 찾아볼 수 있다.
+1. 지금 막힌 질문을 아래 표에서 찾습니다.
+2. 해당 노트북의 목표와 필요한 부분만 실행합니다.
+3. 마지막 검사 셀을 통과하면 본편 실습으로 돌아갑니다.
 
-## 2. Notebook 순서
+각 노트북은 작은 합성 데이터와 임시 저장 공간을 사용합니다. 수업의 공식 DVC
+데이터, 모델 묶음이나 외부 서비스를 바꾸지 않습니다.
 
-### 2-1. 데이터 분석을 위한 Python 기초
+## 2. 질문별 선택 경로
 
-[데이터 분석을 위한 Python 기초](01_python_basics.ipynb)에서 기본 문법을 익힌 뒤
-Python Data Model의 identity·type·value와 name binding을 살펴본다. mutable과
-immutable, shallow/deep copy, hashability, 함수 인자의 객체 공유, special method
-protocol을 실습하고 list·tuple·dict·set, slicing, 반복, 함수와 예외로 이어 간다. 이후
-notebook에서 pandas 객체의 변경과 복사 동작을 판단하기 위한 기반이다.
+| 지금 막힌 질문 | 열어 볼 노트북 | 확인할 핵심 |
+| --- | --- | --- |
+| Python 객체를 복사했는데 원본도 바뀌는 이유는 무엇인가요? | [01 Python 기초](01_python_basics.ipynb) | 객체 식별, 변경 가능성, 얕은 복사와 깊은 복사 |
+| pandas가 행을 예상과 다르게 맞추는 이유는 무엇인가요? | [02 pandas 기초](02_pandas_basics.ipynb) | `Series`, `DataFrame`, `Index`, 레이블 정렬 |
+| 배열의 축, 모양과 브로드캐스팅이 헷갈립니다. | [03 NumPy 기초](03_numpy_basics.ipynb) | `ndarray`, `shape`, `axis`, view와 copy |
+| 그래프의 크기나 축을 어디서 바꿔야 하나요? | [04 Matplotlib 기초](04_matplotlib_basics.ipynb) | `Figure`, `Axes`, `Axis`, `Artist` |
+| pandas 그래프를 만든 뒤 세부 모양을 바꾸고 싶습니다. | [05 pandas 시각화](05_pandas+visualization.ipynb) | 반환된 `Axes`, `ax=`, 여러 그래프 배치 |
+| EDA에서 무엇을 먼저 확인해야 하나요? | [06 EDA 기초](06_eda_basics.ipynb) | 한 행의 의미, 분포, 결측, 중복, 질문 범위 |
+| 특성을 만들고 고르는 방법을 구분하고 싶습니다. | [07 특성 공학 기초](07_feature_engineering_basics.ipynb) | 집계, 결측 표시, 누수, 중요도와 안정성 |
+| 데이터 규칙을 자동 검사로 옮기고 싶습니다. | [08 Great Expectations 기초](08_great_expectations_basics.ipynb) | Expectation, Suite, Validation, Checkpoint |
+| 데이터와 처리 결과를 재현하는 파일의 역할이 궁금합니다. | [09 DVC 기초](09_dvc_basics.ipynb) | `.dvc`, `dvc.yaml`, `params.yaml`, `dvc.lock` |
+| 전처리와 모델을 한 흐름으로 묶고 싶습니다. | [10 scikit-learn 기초](10_scikit-learn_basics.ipynb) | `ColumnTransformer`, `Pipeline`, 교차검증 |
+| 문제와 운영 판단에 맞는 평가 지표를 고르고 싶습니다. | [11 모델 지표 기초](11_metrics_basics.ipynb) | 기준선, 임계값, 혼동 행렬, 보정과 불확실성 |
+| 클래스 불균형을 누수 없이 다루고 싶습니다. | [12 클래스 불균형 기초](12_class_imbalance_basics.ipynb) | 계층 분할, 가중치, 재표집, 운영 용량 |
+| 실행 조건과 모델 파일을 함께 추적하고 싶습니다. | [13 MLflow 기초](13_mlflow_basics.ipynb) | Experiment, Run, 지표, 데이터와 산출물 |
 
-### 2-2. pandas 객체와 핵심 API
+## 3. 추천 조합
 
-[pandas 객체와 핵심 API](02_pandas_basics.ipynb)에서 `Series`, `DataFrame`,
-`Index`의 관계와 label 정렬을 먼저 익힌다. 이후 `eq`, `lt`, `ge`, `between`, `isin`을
-이용한 조건 선택, 결측값과 dtype 변환, 문자열 정리, 범주화, 중복 제거, `merge`,
-`melt`, `pivot`, 시간 관련 Index, `MultiIndex`, `GroupBy`까지 전처리 흐름을 연결한다.
-ch01 EDA의 raw 행 선택, 품질 점검, 시간 집계와 patient-level 요약을 읽기 위한 기반이다.
+### 3-1. 1장 데이터 품질에서 막혔을 때
 
-### 2-3. pandas 이해를 위한 NumPy 기초
+- 표 선택과 결측 처리: 02 pandas
+- 배열과 pandas의 차이: 03 NumPy
+- 탐색 순서: 06 EDA
+- 자동 규칙: 08 Great Expectations
 
-[pandas 이해를 위한 NumPy 기초](03_numpy_basics.ipynb)에서 `ndarray`, shape, dtype,
-indexing, view와 copy, axis reduction, broadcasting, vectorized 연산을 앞에서 배운
-pandas 객체와 나란히 비교한다. NumPy의 위치·shape 계산과 pandas의 label alignment
-차이, `np.nan`과 nullable dtype, `np.where`와 `Series.where`, `to_numpy`와
-`Series.array` 변환 경계도 확인한다.
+### 3-2. 2장 모델 품질에서 막혔을 때
 
-### 2-4. Matplotlib Figure와 Axes 기초
+- 특성 생성과 누수: 07 특성 공학
+- 전처리와 평가 흐름: 10 scikit-learn
+- 지표와 기준선: 11 모델 지표
+- 불균형 자료의 평가와 학습: 12 클래스 불균형
+- 실행 근거 조회: 13 MLflow
 
-[Matplotlib Figure와 Axes 기초](04_matplotlib_basics.ipynb)에서 `Figure`, `Axes`,
-`Axis`, `Artist`의 관계를 확인한다. `figsize`, `dpi`, 배경, layout, `add_subplot`,
-`plt.subplots`, 축 설정과 `savefig`를 연습한다. 다음 notebook에서 pandas가 반환하는
-Axes를 직접 다루기 위한 준비 단계다.
+### 3-3. 그래프 해석에서 막혔을 때
 
-### 2-5. pandas와 Matplotlib 연결
+- 그래프 객체 구조: 04 Matplotlib
+- pandas 결과를 그래프로 연결하기: 05 pandas 시각화
 
-[pandas와 Matplotlib 연결](05_pandas+visualization.ipynb)에서 Series/DataFrame
-plot이 반환하는 Axes, 미리 만든 Axes를 `ax=`로 전달하는 패턴, pandas subplot의 반환
-배열을 다룬다. line, bar, barh, hist, box, scatter, hexbin을 질문에 맞게 선택하고,
-GroupBy·crosstab·rolling·resample 결과를 시각화한다. 정렬, 결측값, 공통 axis,
-percentage tick, annotation, legend와 Artist style까지 chart 검토 흐름을 연결한다.
+### 3-4. 재현 파일의 역할이 헷갈릴 때
 
-### 2-6. EDA 기초
+- Python 객체와 복사: 01 Python
+- 데이터 처리 재현: 09 DVC
+- 실행 기록과 모델 산출물: 13 MLflow
 
-[EDA 기초](06_eda_basics.ipynb)에서 population, sample, row grain과 prediction 시점을
-정의하고 schema, target·feature 분포, 결측, 중복과 범위를 확인한다. Pearson·Spearman
-correlation과 feature redundancy, split profile을 살펴보고 기술·추론·예측·인과
-질문을 구분해 EDA finding을 기록한다.
+## 4. 노트북 안에서 보는 순서
 
-### 2-7. Feature Engineering 기초
+각 노트북은 같은 구조를 사용합니다.
 
-[Feature Engineering 기초](07_feature_engineering_basics.ipynb)에서 long-format 관측값을
-patient-level feature로 집계하고 derived feature와 missing indicator를 만든다. Filter,
-wrapper, embedded와 inspection을 구분하고 correlation, mutual information, 단변량
-Logistic Regression, coefficient, tree importance와 permutation importance를 비교한다.
-Leakage, redundancy, stability와 feature contract를 함께 검토한다.
+- `Goal`: 이번에 해결할 질문
+- `Setup`: 본편을 오염시키지 않는 임시 환경
+- `Steps`: 개념별 설명과 실행 예제
+- `Checks`: 핵심 규약 확인
+- `Next Steps`: 본편으로 돌아갈 때 적용할 내용
+- `References`: 더 확인할 공식 자료
 
-### 2-8. Great Expectations 기초
+API 이름을 외우기보다 셀의 입력, 반환값과 객체가 어떻게 달라지는지 확인하세요.
 
-[Great Expectations 기초](08_great_expectations_basics.ipynb)에서 in-memory pandas
-DataFrame을 Data Source, Data Asset과 Batch Definition에 연결한다. Expectation을
-개별 실행한 뒤 Expectation Suite, Validation Definition과 Checkpoint로 확장하고,
-실패한 규칙의 statistics와 unexpected value를 읽는다.
+## 5. 실행
 
-### 2-9. DVC 기초
-
-[DVC 기초](09_dvc_basics.ipynb)에서 임시 Git·DVC project를 만들고 `dvc add`,
-`dvc stage add`, `dvc repro`, `dvc status`, `dvc dag`를 실행한다. `.dvc` pointer,
-`dvc.yaml`, `params.yaml`, `dvc.lock`, cache와 remote의 역할을 구분한다.
-
-### 2-10. scikit-learn 기초
-
-[scikit-learn 기초](10_scikit-learn_basics.ipynb)에서 `X`와 `y`, stratified split,
-estimator의 `fit`·`predict`·`predict_proba`를 익힌다. `ColumnTransformer`와
-`Pipeline`으로 imputation, scaling, encoding과 classifier를 연결하고 metric,
-cross-validation과 parameter search를 leakage 없이 수행한다.
-
-### 2-11. Model Metrics 기초
-
-[Model Metrics 기초](11_metrics_basics.ipynb)에서 metric을 target 종류, prediction 형태와
-운영 의사결정을 잇는 evaluation contract로 다룬다. Binary classification은 confusion
-matrix, threshold, AUROC, trapezoidal PR-AUC·Average Precision과 calibration을, multiclass는 class order,
-per-class metric, macro·micro·weighted averaging, multiclass probability와 OvR calibration을
-실습한다. Numeric target은 MAE·RMSE, relative error, R², residual, pinball loss와 target
-range slice를 다룬다. 세 task 모두 baseline, guardrail과 bootstrap interval을 함께 확인한다.
-
-### 2-12. Class Imbalance 기초
-
-[Class Imbalance 기초](12_class_imbalance_basics.ipynb)에서 class count, prevalence,
-support와 imbalance ratio를 확인한다. Stratified split과 majority baseline을 만든 뒤
-AUROC, PR-AUC·AP, threshold metric과 confusion count를 비교한다. `class_weight`, random
-over/under-sampling, SMOTE를 실습하고 sampler-aware Pipeline으로 resampling을 train fold
-안에 둔다. Multiclass imbalance, threshold·capacity와 prevalence monitoring까지 연결한다.
-
-### 2-13. MLflow 기초
-
-[MLflow 기초](13_mlflow_basics.ipynb)에서 임시 local tracking backend를 구성한다.
-Experiment와 Run에 parameter, metric, tag, dataset과 JSON artifact를 기록하고,
-signature를 포함한 scikit-learn model을 log한 뒤 API로 조회하고 다시 load한다.
-
-## 3. 학습 흐름
-
-### 3-1. Python 객체에서 label이 있는 표로 확장
-
-Python 객체가 mutable인지 확인한 뒤 Series, DataFrame, Index로 label이 있는 표를
-구성한다. 현재 객체의 type, shape, dtype과 각 row를 식별하는 Index를 함께 확인한다.
-
-### 3-2. label 규칙과 배열 규칙을 구분해 계산
-
-현재 객체가 Series인지 DataFrame인지, 한 행이 무엇을 의미하는지, 어떤 Index가 행을
-식별하는지 확인한다. 이후 같은 계산을 NumPy의 shape·위치 규칙과 pandas의 label
-alignment 규칙으로 비교한다. raw 행은 분석 질문에 맞는 grain으로 집계하고, 집계표의
-index, columns, 분모와 단위를 검토한다.
-
-### 3-3. pandas plot 이후 Axes 후처리
-
-pandas plot의 반환값을 보관하고 그 Axes에 Matplotlib 설정을 적용한다. 여러 chart가
-필요하면 Figure와 Axes grid를 먼저 만들고 `ax=`로 전달해 layout 소유권을 분명히 한다.
-
-### 3-4. EDA에서 Feature Engineering으로 연결
-
-EDA에서 data grain, 분포, 결측과 feature 관계를 확인하고 finding을 가설과 위험으로
-기록한다. Feature Engineering에서는 observation window 안의 candidate를 만들고 여러
-association·importance 방법을 비교한다. 높은 점수 하나로 결정하지 않고 availability,
-leakage, redundancy, stability와 feature contract를 함께 검토한다.
-
-### 3-5. task에 맞는 metric contract 정의
-
-Binary, multiclass, regression에서 model이 반환하는 prediction 형태를 먼저 확인한다.
-Primary metric 하나뿐 아니라 threshold 또는 averaging, baseline, guardrail, class·cohort
-slice와 uncertainty를 함께 기록한다. Score와 loss의 방향, target unit과 class order를
-명시해 model selection 수치와 reporting 수치가 같은 계산을 가리키게 한다.
-
-### 3-6. Class imbalance 전략을 train boundary 안에서 비교
-
-Class support와 prevalence를 확인하고 group·time boundary를 지키는 split을 설계한다.
-Validation 분포를 유지한 상태에서 class weight와 sampling strategy를 비교하며 sampler는
-Pipeline 안에서 train fold에만 적용한다. Ranking, threshold, confusion count, calibration과
-운영 capacity를 함께 검토하고 resampling 자체를 목표로 삼지 않는다.
-
-### 3-7. 검증에서 재현 가능한 artifact까지 연결
-
-EDA에서 발견한 data invariant를 Great Expectations의 실행 가능한 규칙으로 옮긴다.
-검증 결과와 data, pipeline output을 DVC revision으로 재현한 뒤 train data를
-scikit-learn Pipeline에 전달한다. Task에 맞는 metrics로 validation evidence를 만든 뒤
-실행 metadata와 model을 MLflow Run으로 추적하며,
-Git revision, DVC lock digest, MLflow Run과 release manifest의 역할을 구분해 연결한다.
-
-## 4. 실행 방법
-
-VS Code에서 위 순서대로 열어 위에서 아래로 실행한다. 필요한 환경은 다음과 같다.
+저장소 루트에서 필요한 패키지를 준비합니다.
 
 ```bash
-uv sync --all-packages --group notebook
+uv sync --all-packages --group dev --group notebook
 ```
 
-## 5. 해석 범위
+VS Code에서 필요한 노트북 하나를 열어 위에서 아래로 실행합니다. 마지막에
+`All appendix checks passed.`가 출력되는지 확인합니다.
 
-이 자료의 합성 데이터와 chart는 기초 개념과 API의 동작을 설명한다. 합성 data의
-correlation, regression score와 importance는 실제 PhysioNet feature의 임상적 유효성을
-뜻하지 않는다. Appendix의 feature screening은 train/CV와 validation 범위의 교육용
-예제이며 canonical feature set, threshold 또는 V2 sealed test 결과를 변경하지 않는다.
-실제 workflow에서는 versioned artifact, aggregation plan과 feature contract를 기준으로
-결과를 해석한다.
+## 6. 해석할 수 있는 범위
+
+부록의 합성 데이터와 그래프는 개념과 API 동작을 설명하기 위한 예제입니다. 여기서
+나온 상관계수, 회귀 점수나 특성 중요도를 실제 PhysioNet 특성의 임상적 유효성으로
+해석하지 않습니다.
+
+부록의 특성 검토는 학습·교차검증과 검증 자료를 사용하는 교육용 예제입니다. V2
+공식 특성 집합, 임계값이나 봉인 평가 결과를 바꾸지 않습니다. 본편에서는 버전이
+지정된 산출물, 집계 계획과 모델 입력 규약을 기준으로 판단합니다.

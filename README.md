@@ -1,67 +1,89 @@
-# TTA AIQA Monorepo
+# TTA AI 서비스 품질 실습 저장소
 
-PhysioNet 2012 기반의 데이터, 모델, serving과 운영 품질 교육을 하나의 실행 흐름으로 구성하는 V2 작업 공간입니다. 이전 course/lab과 Simple MLOps 구현은 `tmp/legacy/` 아래에 보존합니다.
+PhysioNet 2012 데이터에서 시작해 모델 평가, API 서빙, 운영 관측과 배포 판단까지
+이어지는 V2 실습 공간입니다. 수강생은 [실습 안내](labs/README.md)에서 시작합니다.
+이전 강의와 Simple MLOps 구현은 `tmp/legacy/`에 보존합니다.
+
+## 먼저 갈 곳
+
+- 수강생: [실습 시작과 누적 제출물 만들기](labs/README.md)
+- 강사: [환경 준비](#2-준비)와 `uv run python scripts/setup_course.py`
+- 개발자: [저장소 구조](#1-구조)와 [구현 검증](#8-구현-검증)
 
 ## 1. 구조
 
 ### 1-1. 현재 작업 대상
 
 ```text
-apps/       여섯 개 독립 실행 process와 composition root
-packages/   다섯 bounded-context와 하나의 platform SDK
+apps/       여섯 개 실행 프로그램과 조립 지점
+packages/   다섯 업무 영역과 공통 관측 도구
 data/       PhysioNet 공식 원본과 생성 데이터 경계
 artifacts/  모델, 품질 결과와 MLflow 로컬 상태
-configs/    versioned data/model/serving/QA/telemetry 계약
-docs/       V2 기획, ADR과 canonical historical evidence
-scripts/    강사 준비와 재현 command
-tests/      architecture/configuration/scenario/integration/e2e 검증
-tmp/        Git이 추적하지 않는 다운로드와 archive 작업 공간
+configs/    버전이 지정된 데이터·모델·서빙·QA·관측 규약
+docs/       V2 설계, ADR과 공식 과거 근거
+scripts/    강사 준비와 재현 명령
+tests/      구조, 설정, 시나리오와 통합 검증
+tmp/        Git이 추적하지 않는 다운로드와 보관 공간
 ```
 
-### 1-2. Package 역할
+### 1-2. 패키지 역할
 
 ```text
-packages/aiqa-core/            공유 canonical feature contract
-packages/aiqa-data/            PhysioNet 정규화, 집계, split과 lineage
-packages/aiqa-model/           feature preparation, 학습, 평가와 MLflow
-packages/aiqa-serving/         framework 독립 prediction use case와 port
-packages/aiqa-observability/   모든 Python app의 context, JSON log, trace와 metric SDK
-packages/aiqa-qa/              release evidence와 decision
+packages/aiqa-core/            공통 모델 입력 특성 규약
+packages/aiqa-data/            PhysioNet 정규화, 집계, 분할과 계보
+packages/aiqa-model/           특성 준비, 학습, 평가와 MLflow
+packages/aiqa-serving/         프레임워크와 분리된 예측 흐름
+packages/aiqa-observability/   Python 프로그램의 로그, trace와 지표 도구
+packages/aiqa-qa/              배포 근거와 판단
 ```
 
-비즈니스 package는 `domain -> application/ports -> adapters` 의존 방향을 지키고 app이 composition root에서 조립합니다. `aiqa-observability`는 business bounded context가 아닌 platform SDK로서 AIQA package를 import하지 않습니다. Architecture test가 package 간 직접 의존과 `legacy` import를 차단합니다.
+업무 패키지는 `domain -> application/ports -> adapters` 의존 방향을 지키며,
+각 실행 프로그램이 필요한 구현을 조립합니다. `aiqa-observability`는 특정 업무
+영역에 속하지 않는 공통 도구입니다. 구조 검사가 패키지 사이의 잘못된 직접 의존과
+`legacy` 가져오기를 차단합니다.
 
 ## 2. 준비
 
 ### 2-1. 실행 위치
 
-모든 실습 명령은 강사가 제공한 Linux VM의 VS Code Remote SSH terminal에서
-실행합니다. 수강생의 Windows, macOS 또는 Linux PC는 VS Code와 browser를 위한
-host일 뿐이며, repository, Docker, kubectl과 data는 VM에서만 사용합니다.
+강사가 제공한 Linux VM에 VS Code Remote SSH로 접속한 터미널을 기본 실행 환경으로
+사용합니다. 개인 PC에서는 `setup_course.py --data-only`로 데이터와 노트북의 정적
+실습만 준비할 수 있습니다. 개인 PC의 결과를 Docker, `kubectl`, Grafana Cloud나
+대상 환경의 실행 근거로 쓰지 않습니다.
 
-수업에서 수강생이 확인하는 user-facing URL은 두 개입니다.
+수업에서 직접 여는 주소는 두 개입니다.
 
-- 강사가 제공하는 Risk API URL
-- 4장에서 각자 생성하는 Grafana Cloud dashboard URL
+- 강사가 제공하는 Risk API 주소
+- 4장에서 각자 생성하는 Grafana Cloud 대시보드 주소
 
-MLflow UI는 VM의 Compose service를 VS Code port forwarding으로 열거나 강사가
-제공한 URL을 사용합니다.
+MLflow 화면은 VM의 Compose 서비스를 VS Code 포트 전달로 열거나 강사가 제공한
+주소를 사용합니다.
 
 ### 2-2. uv 설치
 
-`uv`가 없다면 먼저 설치합니다.
+`uv`가 없다면 과정에서 확인한 버전의 설치 스크립트를 파일로 내려받아
+내용을 확인한 뒤 실행합니다. 현재 과정 고정 버전은 `0.11.12`입니다.
 
 ```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
+curl -LsSf https://astral.sh/uv/0.11.12/install.sh \
+  -o /tmp/uv-0.11.12-install.sh
+less /tmp/uv-0.11.12-install.sh
+sh /tmp/uv-0.11.12-install.sh
+uv --version
 ```
 
 Windows PowerShell에서는 다음 명령을 사용합니다.
 
 ```powershell
-powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+$installer = Join-Path $env:TEMP "uv-0.11.12-install.ps1"
+irm https://astral.sh/uv/0.11.12/install.ps1 -OutFile $installer
+Get-Content $installer
+powershell -ExecutionPolicy ByPass -File $installer
+uv --version
 ```
 
-다운로드와 추가 설치 옵션은 uv 공식 문서의 설치 페이지에서 확인합니다.
+관리형 강의 VM에서는 강사가 미리 설치한 바이너리를 사용합니다. 다운로드와
+추가 설치 옵션은 uv 공식 문서의 설치 페이지에서 확인합니다.
 
 ```text
 https://docs.astral.sh/uv/getting-started/installation/
@@ -72,20 +94,21 @@ https://docs.astral.sh/uv/getting-started/installation/
 의존성을 설치합니다.
 
 ```bash
-uv sync --all-packages --group notebook
+uv sync --all-packages --group dev --group notebook
 ```
 
 ### 2-4. 실습 환경 준비
 
-제공 VM에서는 공식 데이터를 재현하고 GE validation을 실행한 뒤 baseline
-model 준비 상태를 확인합니다. 이 명령은 local data와 ignored runtime artifact만
-생성하며 `docs/reference/evidence/`의 historical V2 기록을 수정하지 않습니다.
+제공된 VM에서는 공식 데이터를 재현하고 GE 검증을 실행한 뒤 기준 모델의 준비
+상태를 확인합니다. 이 명령은 Git에서 제외된 로컬 데이터와 실행 결과만 만들며
+`docs/reference/evidence/`의 V2 공식 기록은 수정하지 않습니다.
 
 ```bash
 uv run python scripts/setup_course.py
 ```
 
-Baseline model이 사전 배포되지 않은 일반 clone에서 데이터 실습만 준비하려면 `--data-only`를 사용합니다.
+기준 모델이 준비되지 않은 일반 복제본에서 데이터 실습만 준비하려면
+`--data-only`를 사용합니다.
 
 ```bash
 uv run python scripts/setup_course.py --data-only
@@ -95,11 +118,14 @@ uv run python scripts/setup_course.py --data-only
 
 ### 3-1. 공식 원본
 
-PhysioNet Challenge 2012 Set A의 ODC-By 1.0 고지와 checksum manifest는 `data/raw/physionet-2012/`에서 관리합니다. 준비 명령이 공식 archive와 outcome을 내려받아 checksum을 검증하며, 원본 파일과 생성 데이터는 Git이 아니라 local DVC pipeline이 관리합니다.
+PhysioNet Challenge 2012 Set A의 ODC-By 1.0 고지와 체크섬 목록은
+`data/raw/physionet-2012/`에서 관리합니다. 준비 명령은 공식 압축 파일과 결과
+파일을 내려받아 체크섬을 검증합니다. 원본과 생성 데이터는 Git이 아니라 로컬 DVC
+흐름으로 관리합니다.
 
 ### 3-2. DVC 재현
 
-Repository root에서 다음 명령을 실행합니다. Python wrapper이므로 Windows, macOS와 Linux에서 동일합니다.
+저장소 루트에서 다음 명령을 실행합니다.
 
 ```bash
 uv run python scripts/prepare_data.py
@@ -114,28 +140,32 @@ data/splits/physionet-2012/split-manifest.csv
 data/splits/physionet-2012/datasets/{train,valid,test,operational}.csv
 ```
 
-4,000개 patient record를 133개 available feature로 집계하고 고정 seed로 `train 2,400 / valid 600 / test 600 / operational 400`으로 분할합니다. `operational.csv`에는 정답인 `target` 열을 포함하지 않습니다.
+4,000개 개별 기록을 사용할 수 있는 특성 133개로 집계하고 고정된 난수로
+`train 2,400 / valid 600 / test 600 / operational 400`으로 나눕니다.
+`operational.csv`에는 정답인 `target` 열을 넣지 않습니다.
 
-승인된 V2 split revision은 V1의 sealed test를 재사용하지 않고 역할을 다시 고정합니다.
+승인된 V2 분할은 V1의 봉인 평가 자료를 재사용하지 않고 역할을 다시 고정합니다.
 
 ```text
 data/splits/physionet-2012/revisions/v2/datasets/
   train.csv        2,900건
   valid.csv          600건
-  test.csv           400건, sealed one-shot 평가 전용
+  test.csv           400건, 한 번만 여는 봉인 평가 전용
   operational.csv    100건, target 미포함
 ```
 
-현재 `dvc.lock`은 active data-pipeline 구현의 재현 기준입니다. sealed V2
-release가 참고한 historical data lineage는
-`docs/reference/evidence/data-lineage/revisions/v2/`에 read-only로 보존합니다.
-수강생은 V2 evidence를 읽되, 이를 현재 data 재현 결과로 덮어쓰지 않습니다.
+현재 `dvc.lock`은 데이터 처리 흐름의 재현 기준입니다. V2 배포 판단에서 사용한
+과거 데이터 계보는 `docs/reference/evidence/data-lineage/revisions/v2/`에 읽기
+전용으로 보존합니다. 수강생은 이 근거를 읽되 현재 데이터 재현 결과로 덮어쓰지
+않습니다.
 
 ## 4. 데이터 품질 실습
 
 ### 4-1. 수동 EDA
 
-VS Code에서 `labs/ch01-data-quality/01_physionet_data_quality_eda.ipynb`를 열고 위에서 아래로 실행합니다. Raw measurement coverage, `-1` sentinel, 48시간 범위, outcome join과 processed missingness를 확인합니다.
+VS Code에서 `labs/ch01-data-quality/01_physionet_data_quality_eda.ipynb`를 열고
+위에서 아래로 실행합니다. 원본 측정 범위, `-1` 결측 표식, 48시간 범위, 정답
+연결과 가공 뒤 결측률을 확인합니다.
 
 ### 4-2. Great Expectations
 
@@ -145,15 +175,18 @@ EDA에서 확인한 규칙을 자동 검증으로 실행합니다.
 uv run python scripts/validate_data.py
 ```
 
-Runtime Validation Result와 Data Docs는 `artifacts/data-quality/great-expectations/`에 생성됩니다. GE 결과는 품질 evidence이며 DVC dataset publish를 차단하는 gate가 아닙니다.
+실행 검증 결과와 Data Docs는
+`artifacts/data-quality/great-expectations/`에 생성됩니다. GE 결과는 데이터
+품질 근거이며 DVC 데이터 게시를 자동으로 막는 조건은 아닙니다.
 
 수강생 전체 동선은 [labs/README.md](labs/README.md)에서 시작합니다.
 
 ## 5. 모델 품질
 
-### 5-1. 현재 canonical 결과
+### 5-1. 현재 공식 결과
 
-모델 profile, threshold와 release policy를 train/CV와 valid에서 동결한 뒤 sealed test를 한 번 평가했습니다.
+모델 프로필, 임계값과 배포 정책을 학습·교차검증 자료와 검증 자료에서 고정한 뒤
+봉인 평가 자료를 한 번만 열었습니다.
 
 ```bash
 uv run python scripts/run_model.py status --revision v2
@@ -161,7 +194,7 @@ uv run python scripts/run_model.py status --revision v2
 
 V1 evidence는 `HOLD/HOLD`로 보존되어 있습니다. 승인된 V2 revision은 Candidate A `HOLD`, Candidate B `APPROVE`이며 Candidate B 배포가 허용됩니다.
 
-V2 sealed test의 핵심 결과는 다음과 같습니다.
+V2 봉인 평가의 핵심 결과는 다음과 같습니다.
 
 | Profile | Threshold | PR-AUC | Precision | Recall | FN | Decision |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
@@ -171,17 +204,26 @@ V2 sealed test의 핵심 결과는 다음과 같습니다.
 
 ### 5-2. One-shot 규칙
 
-`docs/reference/evidence/model/revisions/v2/canonical-benchmark.json`에 `evaluated_once`가 기록되어 있으므로 sealed test 재실행은 차단됩니다. Test 결과에 맞춰 feature, threshold, model profile이나 release policy를 변경하지 않습니다. 변경이 필요하면 기존 evidence를 덮지 않는 새 revision을 만듭니다.
+`docs/reference/evidence/model/revisions/v2/canonical-benchmark.json`에
+`evaluated_once`가 기록되어 있으므로 봉인 평가는 다시 실행할 수 없습니다. 결과에
+맞춰 특성, 임계값, 모델 프로필이나 배포 정책을 바꾸지 않습니다. 변경이 필요하면
+기존 근거를 덮지 않는 새 개정본을 만듭니다.
 
 ### 5-3. MLflow 확인
 
-강사용 환경 준비에서는 세 model bundle과 MLflow run을 생성하고 baseline만 초기 deployed 경로에 publish합니다. 수강생 VM에는 이 상태가 미리 준비됩니다. V2는 이미 sealed test가 확정된 historical revision이므로 Model Trainer lifecycle을 다시 실행하지 않습니다.
+강사용 환경 준비에서는 세 모델 묶음과 MLflow 실행을 만들고 기준 모델만 초기 배포
+경로에 게시합니다. 수강생 VM에는 이 상태가 미리 준비됩니다. V2는 봉인 평가가
+끝난 과거 개정본이므로 모델 학습 흐름을 다시 실행하지 않습니다.
 
 ```bash
 uv run python scripts/run_model.py status --revision v2
 ```
 
-V2의 기존 bootstrap 결과와 run ID는 `docs/reference/evidence/model/revisions/v2/model-bootstrap.json`에서 확인합니다. 새 revision에서는 development, diagnostics, bootstrap으로 train/valid 결과를 만들고 `release-freeze.json`을 commit한 뒤에만 final을 열 수 있습니다. 승인된 Candidate B를 local deployed 경로로 전환하거나 baseline으로 되돌릴 때는 다음 명령을 사용합니다.
+V2의 모델 준비 결과와 실행 ID는
+`docs/reference/evidence/model/revisions/v2/model-bootstrap.json`에서 확인합니다.
+새 개정본에서는 개발 평가와 진단을 마치고 `release-freeze.json`을 커밋한 뒤에만
+봉인 평가를 열 수 있습니다. 승인된 Candidate B를 로컬 배포 경로로 전환하거나
+기준 모델로 되돌릴 때는 다음 명령을 사용합니다.
 
 ```bash
 uv run python scripts/publish_model.py candidate-b --revision v2
@@ -189,26 +231,31 @@ uv run python scripts/publish_model.py baseline --revision v2
 ```
 
 Compose의 MLflow service만 시작합니다. 3장에서 같은 Compose stack을 확장하므로
-별도 `mlflow server` process를 띄우지 않아 port `5000`이 충돌하지 않습니다.
+별도 `mlflow server`를 실행하지 않아 포트 `5000`이 충돌하지 않습니다.
+게시 포트는 기본적으로 `127.0.0.1`에만 연결됩니다.
 
 ```bash
 docker compose -f deploy/compose/simple-mlops/compose.yaml up -d mlflow
 curl http://127.0.0.1:5000/health
 ```
 
-VS Code port forwarding 또는 강사가 제공한 MLflow URL로 UI를 엽니다. Run에는
-evaluation role, 접근한 dataset role, DVC lock과 model/data configuration
-SHA-256이 기록됩니다.
+VS Code 포트 전달 또는 강사가 제공한 주소로 MLflow 화면을 엽니다. 실행 기록에는
+평가와 데이터 역할, DVC 잠금 파일, 모델·데이터 설정의 SHA-256이 남습니다.
 
-Candidate B publish는 `release-manifest.json`의 post-test approval과 model/metadata
-digest를 모두 검증합니다. V2의 historical reconciliation scope는
+Candidate B 게시 명령은 `release-manifest.json`의 평가 뒤 승인과 모델·메타데이터
+해시를 모두 검증합니다. V2 과거 근거의 대조 범위는
 `docs/reference/evidence/model/revisions/v2/README.md`에서 확인합니다.
 
 ## 6. Serving과 Traffic
 
 ### 6-1. Compose 실행
 
-Compose에서는 Risk API가 local sklearn adapter를 사용합니다.
+Compose에서는 Risk API가 로컬 scikit-learn 어댑터를 사용합니다.
+MLflow와 Risk API, Alloy 관리 포트는 기본적으로 로컬 호스트에만 게시됩니다.
+통제된 원격 실습 환경에서 외부 인터페이스가 꼭 필요할 때만
+`AIQA_COMPOSE_BIND_HOST`를 명시합니다. 예를 들어
+`AIQA_COMPOSE_BIND_HOST=0.0.0.0`은 인증되지 않은 실습 서비스를 네트워크에
+노출하므로 방화벽과 접근 제어가 준비된 환경에서만 사용합니다.
 
 ```bash
 docker compose -f deploy/compose/simple-mlops/compose.yaml up -d --build
@@ -219,12 +266,19 @@ curl http://127.0.0.1:8000/health/ready
 
 ```bash
 docker compose -f deploy/compose/simple-mlops/compose.yaml \
-  --profile traffic run --rm traffic-generator baseline --count 20
+  --profile traffic run --rm traffic-generator baseline --count 20 --fast
 ```
+
+`--fast`는 로컬 응답 확인 전용입니다. 4장에서 Grafana `rate()`를 비교할 때는
+Alloy override를 함께 사용하고 `--fast` 없이
+[`labs/ch04-observability/README.md`](labs/ch04-observability/README.md)의 수집
+간격을 따릅니다.
 
 ### 6-2. Grafana Cloud 연결
 
-`deploy/compose/simple-mlops/secrets/alloy/README.md`에 적힌 일곱 개 개인 설정 파일을 만든 후 Alloy override를 함께 실행합니다. Repository는 Grafana, Loki, Tempo 또는 Prometheus server를 배포하지 않습니다.
+`deploy/compose/simple-mlops/secrets/alloy/README.md`에 적힌 개인 설정 파일 일곱
+개를 만든 뒤 Alloy 추가 설정을 함께 실행합니다. 이 저장소는 Grafana, Loki,
+Tempo나 Prometheus 서버를 직접 배포하지 않습니다.
 
 ```bash
 docker compose \
@@ -233,19 +287,25 @@ docker compose \
   up -d --build
 ```
 
-Dashboard Importer용 값은 개인 `.env.grafanacloud` 또는 `/var/run/secrets/aiqa/grafana-dashboard-importer`에 별도로 둡니다. Alloy write token과 dashboard token은 공유하지 않습니다.
+대시보드 가져오기에 쓰는 값은 개인 `.env.grafanacloud` 또는
+`/var/run/secrets/aiqa/grafana-dashboard-importer`에 따로 둡니다. Alloy 전송
+토큰과 대시보드 토큰은 공유하지 않습니다.
 
 ```bash
 uv run --package aiqa-grafana-dashboard-importer aiqa-grafana-dashboard
 ```
 
-고정 UID `tta-aiqa-quality`가 생성되거나 갱신되며 실행 결과에 개인 dashboard URL이 출력됩니다.
+고정 UID `tta-aiqa-quality`의 대시보드가 생성되거나 갱신되며 개인 주소가
+출력됩니다.
 
-Alloy override에서는 Risk API의 Prometheus metric과 Compose workload의 JSON log/OTLP trace를 전송합니다. traffic profile을 실행하면 같은 trace policy로 생성된 traffic process log와 trace도 개인 stack에 누적됩니다.
+Alloy 추가 설정은 Risk API의 Prometheus 지표와 Compose 프로그램의 구조화 로그,
+OTLP trace를 전송합니다. 요청 생성기를 실행하면 같은 추적 규약으로 만든 로그와
+trace도 개인 Grafana Cloud 공간에 쌓입니다.
 
 ### 6-3. Trace 경계
 
-하나의 traffic 실행은 `traffic.generate` root span을 만들고, 각 prediction 요청은 다음과 같이 연결됩니다.
+요청 생성기를 한 번 실행하면 `traffic.generate` 최상위 span이 생기고, 각 예측
+요청은 다음과 같이 연결됩니다.
 
 ```text
 traffic.generate
@@ -256,17 +316,23 @@ traffic.generate
 
 Kubernetes에서 KServe backend를 선택하면 `risk.predict` 아래에 Risk API의
 `kserve.infer` CLIENT span, KServe HTTP SERVER span, KServe 쪽
-`kserve.infer` operation이 이어집니다. W3C `traceparent`와 `X-Request-ID`는
-각 outbound CLIENT span 안에서 다음 process로 전달됩니다.
+`kserve.infer` operation이 이어집니다. Traffic Generator는 CLIENT span 안에서
+W3C `traceparent`, `X-Request-ID`, `X-AIQA-Run-ID`, `X-AIQA-Scenario`를 Risk
+API로 전달합니다. Risk API의 KServe CLIENT span은 trace context와 request ID를
+KServe로 전달합니다.
 
 - `/health/*`, `/metrics`, KServe readiness는 반복 probe이므로 trace에서 의도적으로 제외합니다.
-- `trace_id`는 JSON log와 Tempo trace를 연결하는 데만 쓰며 Prometheus metric label이나 집계 차원으로 사용하지 않습니다.
+- 요청과 예측 지표는 허용된 시나리오를 공통 레이블로 사용합니다. 요청 ID, 실행
+  ID와 trace ID는 JSONL, 구조화 로그와 Tempo trace를 연결하는 데만 쓰며
+  Prometheus 지표 레이블이나 집계 기준으로 사용하지 않습니다.
 
 ## 7. Kubernetes 배포
 
 ### 7-1. Immutable model publish
 
-강사 환경에서 course model PVC가 `/mnt/course-models`에 연결되어 있다고 가정하면 승인된 bundle을 hash 경로에 publish합니다. 같은 hash는 idempotent하며 기존 경로를 덮어쓰지 않습니다.
+강사 환경에서 수업용 모델 PVC가 `/mnt/course-models`에 연결되어 있으면 승인된
+모델 묶음을 해시 경로에 게시합니다. 같은 해시는 다시 실행해도 기존 경로를
+덮어쓰지 않습니다.
 
 ```bash
 uv run python scripts/publish_model.py candidate-b \
@@ -276,16 +342,36 @@ uv run python scripts/publish_model.py candidate-b \
 
 ### 7-2. Manifest 확인
 
-Kubernetes에서는 외부 Risk API가 내부 KServe V2 custom predictor를 호출합니다. 이 호출은 `kserve.infer` CLIENT span 안에서 W3C trace context와 request ID를 전달합니다. Base는 baseline으로 시작하고 Candidate B와 rollback은 별도 overlay입니다. `/mnt/course-models`는 단일 노드 수업 VM의 static model PV에 연결됩니다. 각 overlay는 PVC subPath와 non-secret `model-identity` ConfigMap의 expected model SHA-256을 함께 선택하며 predictor는 mount된 bundle이 다르면 시작을 거부합니다. Private GHCR image pull용 `ghcr-pull` Secret은 강사가 사전에 provision하며 Grafana Cloud Secret과 별개입니다. Alloy는 개인 Grafana Cloud Secret을 준비한 뒤 observed overlay에서만 추가합니다.
+Kubernetes에서는 외부 Risk API가 내부 KServe V2 예측기를 호출합니다.
+`kserve.infer` CLIENT span이 W3C 추적 정보와 요청 ID를 전달합니다. 기본 설정은
+기준 모델로 시작하고 Candidate B와 되돌리기는 별도 overlay로 둡니다.
+`/mnt/course-models`는 단일 노드 수업 VM의 정적 모델 PV에 연결됩니다. 각
+overlay는 PVC 하위 경로와 `model-identity` ConfigMap의 예상 모델 SHA-256을 함께
+고릅니다. 탑재된 모델 묶음이 다르면 예측기가 시작을 거부합니다. 비공개 GHCR
+이미지용 `ghcr-pull` Secret은 강사가 미리 만들며 Grafana Cloud Secret과
+분리합니다. Alloy는 개인 Grafana Cloud Secret을 준비한 뒤 관측용 overlay에서만
+추가합니다.
 
 ```bash
+test -n "${TARGET_CONTEXT:-}" || {
+  echo "TARGET_CONTEXT를 강사가 안내한 값으로 설정하세요."
+  exit 1
+}
+CURRENT_CONTEXT="$(kubectl config current-context)"
+test "$CURRENT_CONTEXT" = "$TARGET_CONTEXT" || {
+  echo "현재 context가 TARGET_CONTEXT와 다릅니다: $CURRENT_CONTEXT"
+  exit 1
+}
 kubectl kustomize deploy/kubernetes/overlays/baseline >/tmp/tta-aiqa-baseline.yaml
 kubectl kustomize deploy/kubernetes/overlays/candidate-b >/tmp/tta-aiqa-candidate-b.yaml
 kubectl kustomize deploy/kubernetes/overlays/rollback >/tmp/tta-aiqa-rollback.yaml
-kubectl apply --dry-run=server -f /tmp/tta-aiqa-baseline.yaml
+kubectl --context "$TARGET_CONTEXT" apply --dry-run=server \
+  -f /tmp/tta-aiqa-baseline.yaml
 ```
 
-실제 sync는 강사가 제공한 Argo CD 절차를 따릅니다. `alloy-grafana-cloud` Secret에는 각 수강생의 개인 Grafana Cloud write 설정만 저장하며, Secret 준비 전에는 Alloy component를 포함하지 않습니다.
+실제 동기화는 강사가 제공한 Argo CD 절차를 따릅니다. `alloy-grafana-cloud`
+Secret에는 각 수강생의 Grafana Cloud 전송 설정만 저장합니다. Secret을 준비하기
+전에는 Alloy 구성을 추가하지 않습니다.
 
 Private GHCR image와 `ghcr-pull` Secret의 준비 방식은
 [`deploy/kubernetes/README.md`](deploy/kubernetes/README.md)에 분리해 두었습니다.
@@ -294,6 +380,12 @@ Private GHCR image와 `ghcr-pull` Secret의 준비 방식은
 
 ### 8-1. 정적 검증과 테스트
 
+강의 D-1에는 일반 테스트와 별도로
+[`docs/runbooks/course-preflight.md`](docs/runbooks/course-preflight.md)의
+정적·실행 점검을 순서대로 수행합니다. 이 점검은 Docker·포트·디스크·비밀
+파일 권한·Kubernetes context·대상 readiness를 확인하고, 결과를
+`artifacts/reports/course-preflight.json`에 남깁니다.
+
 ```bash
 uv lock --check
 uv run ruff check apps packages scripts tests
@@ -301,11 +393,13 @@ uv run pytest -q
 uv run dvc status
 ```
 
-실제로 완료한 local 검증과 target k3s/Grafana Cloud에서 남은 검증은 [V2 구현 검증 상태](docs/v2-implementation-verification.md)에 구분해 기록합니다.
+완료한 로컬 검증과 대상 k3s·Grafana Cloud에서 남은 검증은
+[V2 구현 검증 상태](docs/v2-implementation-verification.md)에 나눠 기록합니다.
 
 ### 8-2. 테스트 경계
 
-핵심 로직은 unit suite에서 실행하고, 파일·YAML·sklearn·MLflow·FastAPI·Notebook·배포 계약은 integration suite에서 실행합니다.
+핵심 로직은 단위 검사에서 확인하고 파일, YAML, scikit-learn, MLflow, FastAPI,
+노트북과 배포 규약은 통합 검사에서 확인합니다.
 
 ```bash
 uv run pytest -q tests/unit
@@ -328,8 +422,12 @@ uv run pytest -q
 
 ### 10-1. V2 TO-BE 계획
 
-기존 2일 14교시 구성, repository 경계, 데이터·모델 계보, conditional deployment gate, Grafana Cloud와 수강생 동선은 [docs/v2-to-be-plan.md](docs/v2-to-be-plan.md)에 정리했습니다.
+2일 14교시 구성, 저장소 경계, 데이터·모델 계보, 조건부 배포 기준과 수강생
+동선은 [V2 계획](docs/v2-to-be-plan.md)에 정리했습니다.
 
-### 10-2. Artifact Identity ADR
+### 10-2. 산출물 식별 ADR
 
-Git, DVC, MLflow, immutable model/image artifact와 release manifest의 역할 분리는 [ADR 0006](docs/adr/0006-layered-artifact-identity-and-release-provenance.md)에 기록합니다. 이 문서는 어떤 hash를 왜 쓰는지와 SLSA, KServe, Grafana Alloy, Great Expectations, k6를 교육 범위에서 어떻게 참조하는지 설명합니다.
+Git, DVC, MLflow, 변경 불가능한 모델·이미지와 배포 선언의 역할은
+[ADR 0006](docs/adr/0006-layered-artifact-identity-and-release-provenance.md)에
+기록합니다. 이 문서는 각 해시의 쓰임과 SLSA, KServe, Grafana Alloy, Great
+Expectations, k6를 교육 범위에서 어떻게 참조하는지 설명합니다.

@@ -3,13 +3,12 @@
 from scripts.setup_course import missing_notebook_runtime_modules, verify_course_state
 
 
-def test_course_state_has_v2_decisions_without_generated_model() -> None:
+def test_course_state_validates_but_does_not_reveal_v2_decisions() -> None:
     state = verify_course_state(require_model=False)
 
-    assert state["canonical_decisions"] == {
-        "candidate-a": "HOLD",
-        "candidate-b": "APPROVE",
-    }
+    assert state["canonical_decisions"] == "sealed_until_day1_period6"
+    assert "HOLD" not in str(state)
+    assert "APPROVE" not in str(state)
     assert state["deployed_model"] == "not_required"
     assert state["notebook_runtime"] == "ready"
 

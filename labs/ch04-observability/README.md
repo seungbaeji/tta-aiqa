@@ -15,7 +15,8 @@ Grafana Cloud 접속 정보, Alloy 비밀값, Docker가 없으면 노트북의 �
 개인 Grafana URL, 대시보드 API 토큰, 폴더 UID, 지표, 로그, 추적 데이터 소스 UID를 `.env.grafanacloud`에 입력합니다. 실제 값은 Git에 추가하지 않습니다.
 
 ```bash
-cp .env.grafanacloud.example .env.grafanacloud
+test -f .env.grafanacloud || \
+  cp .env.grafanacloud.example .env.grafanacloud
 uv run --package aiqa-grafana-dashboard-importer aiqa-grafana-dashboard --check
 ```
 
@@ -25,38 +26,118 @@ uv run --package aiqa-grafana-dashboard-importer aiqa-grafana-dashboard --check
 
 `01_inspect_dashboard_contract.ipynb`는 대시보드 UID `tta-aiqa-quality`, Risk API가 제공하는 다섯 `aiqa_risk_*` 지표, Prometheus, Loki, Tempo 데이터 소스와 로컬 `/metrics` 대체 경로를 확인합니다. 정적 검사가 통과해도 Grafana Cloud가 실제 자료를 수집했다는 뜻은 아닙니다.
 
-Docker, Alloy, 개인 Grafana Cloud 설정이 준비된 경우에만 다음 경로를 실행합니다. 기준 조건, 변화 조건, 무효 요청을 서로 다른 시간대에 보내고 시작, 종료 시각을 기록합니다.
+Docker, Alloy, 개인 Grafana Cloud 설정이 준비된 경우에만 다음 경로를 실행합니다.
+각 실행은 출력된 실행 ID(run ID)로 구분합니다. `baseline`과 `current-shift`는 같은 표본
+순서를 사용하고 변화 조건에만 네 특성 변환을 적용합니다.
+
+Alloy는 15초마다 수집합니다. 기본 설정은 정상 시나리오를 20초, 무효 시나리오를
+24초 동안 보내고 마지막 요청 뒤 20초를 더 기다립니다. 따라서 각 시나리오에는
+값이 서로 다른 수집 표본이 두 개 이상 생깁니다. 이 실습에서는 `--fast`를 쓰지
+않습니다.
 
 ```bash
 docker compose \
   -f deploy/compose/simple-mlops/compose.yaml \
   -f deploy/compose/simple-mlops/compose.grafana-cloud.yaml \
   up -d --build
-docker compose -f deploy/compose/simple-mlops/compose.yaml \
-  --profile traffic run --rm traffic-generator baseline --count 20
-docker compose -f deploy/compose/simple-mlops/compose.yaml \
-  --profile traffic run --rm traffic-generator current-shift --count 20
-docker compose -f deploy/compose/simple-mlops/compose.yaml \
-  --profile traffic run --rm traffic-generator invalid --count 3
+docker compose \
+  -f deploy/compose/simple-mlops/compose.yaml \
+  -f deploy/compose/simple-mlops/compose.grafana-cloud.yaml \
+  --profile traffic run --rm traffic-generator baseline
+docker compose \
+  -f deploy/compose/simple-mlops/compose.yaml \
+  -f deploy/compose/simple-mlops/compose.grafana-cloud.yaml \
+  --profile traffic run --rm traffic-generator current-shift
+docker compose \
+  -f deploy/compose/simple-mlops/compose.yaml \
+  -f deploy/compose/simple-mlops/compose.grafana-cloud.yaml \
+  --profile traffic run --rm traffic-generator invalid
 uv run --package aiqa-grafana-dashboard-importer aiqa-grafana-dashboard
 ```
 
-출력된 대시보드 URL에서 환경, 모델 프로필과 버전, 시나리오, 시간 범위, 요청 상태 구성, P95 지연 시간, 점수, 예측, 결측 신호, 대표 요청 ID를 확인합니다. 다시 가져와도 같은 UID의 대시보드가 갱신되어야 합니다.
+출력된 대시보드 URL에서 환경과 `Scenario`(시나리오)를 먼저 선택합니다. 같은 선택이 요청,
+지연, `High-risk prediction rate`, 점수, 결측, 로그와 추적 기록에 적용되어야 합니다.
+모델 프로필과 버전, 시간 범위, 대표 실행 ID와 요청 ID도 함께 기록합니다. 다시
+가져와도 같은 UID의 대시보드가 갱신되어야 합니다.
 
 `invalid` 요청은 HTTP 422를 의도적으로 만듭니다. 422는 상태 코드별 요청 건수에서 확인하고, 5xx만 집계하는 오류율과 구분합니다. 5xx 패널에 422가 없다는 사실을 입력 검증 실패가 없었다고 해석하지 않습니다.
 
-### Trace 확인
+### 추적 기록 확인
 
-대표 요청 하나는 로그의 `request_id` 또는 `trace_id`로 Tempo에서 찾습니다. 다음 parent-child 순서를 확인합니다.
+대표 요청 하나는 로그의 `request_id` 또는 `trace_id`로 Tempo에서 찾습니다. 다음 부모-자식 순서를 확인합니다.
 
-- Compose: `traffic.generate` -> `risk-api.predict` (CLIENT) -> `POST /v1/predict` (SERVER) -> `risk.predict`
-- Kubernetes KServe: `risk.predict` -> `kserve.infer` (Risk API CLIENT) -> KServe HTTP SERVER -> `kserve.infer`
+- Compose: `traffic.generate` -> `risk-api.predict`(클라이언트 스팬, `CLIENT`) -> `POST /v1/predict`(서버 스팬, `SERVER`) -> `risk.predict`
+- Kubernetes KServe: `risk.predict` -> `kserve.infer`(Risk API 클라이언트 스팬, `CLIENT`) -> KServe HTTP 서버 스팬(`SERVER`) -> `kserve.infer`
 
-- `/health/*`, `/metrics`, KServe readiness는 반복 probe이므로 trace에 의도적으로 나타나지 않습니다.
-- trace ID는 로그와 trace를 연결하는 값이며 Prometheus metric label이나 집계 조건으로 사용하지 않습니다.
-- 한 요청의 trace를 확인해도 Grafana Cloud 전체 수집 성공을 단정하지 않습니다. 시간 범위와 환경을 함께 기록합니다.
+- `/health/*`, `/metrics`, KServe 준비 상태 경로는 반복 점검 요청(probe)이므로 추적 기록에 의도적으로 나타나지 않습니다.
+- 추적 ID(trace ID)는 로그와 추적 기록을 연결하는 값이며 Prometheus 지표 레이블이나 집계 조건으로 사용하지 않습니다.
+- 한 요청의 추적 기록을 확인해도 Grafana Cloud 전체 수집 성공을 단정하지 않습니다. 시간 범위와 환경을 함께 기록합니다.
 
-## 4. 완료 기준과 정리
+### 실시간 로그와 추적 기록 조회
+
+아래처럼 실행 ID를 직접 정하면 요청 ID도
+`invalid-{run_id}-0001` 형식으로 정해집니다. 같은 실행 ID를 재사용하지 말고
+실행할 때마다 끝의 번호를 바꿉니다.
+
+```bash
+docker compose \
+  -f deploy/compose/simple-mlops/compose.yaml \
+  -f deploy/compose/simple-mlops/compose.grafana-cloud.yaml \
+  --profile traffic run --rm traffic-generator \
+  invalid --run-id learner-observe-01
+```
+
+Loki에서 실행 ID와 요청 ID가 모두 같은 Risk API 로그를 찾습니다.
+
+```logql
+{service_name="risk-api", environment="compose"} | json | run_id="learner-observe-01" | request_id="invalid-learner-observe-01-0001"
+```
+
+422의 제한된 오류 이벤트만 보려면 이벤트 조건을 하나 더 붙입니다. 원문 입력이나
+내부 예외문 대신 `error_code`와 `validation_category`만 확인합니다.
+
+```logql
+{service_name="risk-api", environment="compose"} | json | run_id="learner-observe-01" | request_id="invalid-learner-observe-01-0001" | event="model.input.validation.failed"
+```
+
+Tempo에서는 같은 두 식별자가 붙은 Risk API 스팬을 찾은 뒤 전체 추적 기록을 엽니다.
+
+```traceql
+{ resource.service.name = "risk-api" && span."aiqa.run_id" = "learner-observe-01" && span."aiqa.request_id" = "invalid-learner-observe-01-0001" }
+```
+
+검색 결과에서 앞서 제시한 네 스팬의 순서, 같은 추적 ID와 부모 스팬 ID를
+확인합니다. 검색 결과가 없다면 시간 범위, 시나리오, Alloy 상태를 먼저 확인하고
+수집 성공을 기록하지 않습니다.
+
+## 4. [PREPARED/OFFLINE] Grafana Cloud가 없을 때
+
+Grafana Cloud, Loki 또는 Tempo를 사용할 수 없으면
+`docs/reference/evidence/incident/prepared-observability-correlation.json`으로
+상관관계 추적을 연습합니다. 이 파일은 실제 수집 자료가 아니라 코드의 텔레메트리
+계약을 반영한 준비 자료입니다. 운영 환경, 실시간 수집 성공, 발생 시각이나 지연의
+근거로 쓰지 않습니다.
+
+```bash
+uv run python -m json.tool \
+  docs/reference/evidence/incident/prepared-observability-correlation.json
+```
+
+파일을 위에서 아래로 읽으며 다음 순서로 확인합니다.
+
+1. `classification`이 `PREPARED/OFFLINE`이고 `live_telemetry`가 `false`인지 확인합니다.
+2. `correlation.run_id`로 같은 실행의 `request_id`를 찾습니다.
+3. `bounded_log_event`에서 실행 ID, 요청 ID, 추적 ID가 모두 같은지 확인합니다.
+4. `trace_path`에서 각 `parent_span_id`가 바로 앞 스팬의 `span_id`를 가리키는지 따라갑니다.
+5. `traffic.generate`부터 `risk.predict`까지 서비스 경계를 건넌 뒤에도 추적 ID가 같은지 확인합니다.
+6. 422 이벤트에는 제한된 `error_code`와 `validation_category`만 있고 원문 입력이 없는지 확인합니다.
+
+판단 기록에는 출처를
+`PREPARED/OFFLINE: docs/reference/evidence/incident/prepared-observability-correlation.json`
+으로 적습니다. Grafana 대시보드 URL, 실제 관측 시각, 실시간 수집 성공은 적지
+않습니다.
+
+## 5. 완료 기준과 정리
 
 최종 기록에는 환경, 시간 범위, 모델 정보, 시나리오, 관측한 신호, 강화된 원인 후보, 아직 확정할 수 없는 내용을 적습니다. 실시간 자료를 보지 못했다면 필요한 설정과 담당 팀을 함께 남깁니다.
 
