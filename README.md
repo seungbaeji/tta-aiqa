@@ -266,7 +266,9 @@ curl http://127.0.0.1:8000/health/ready
 
 ```bash
 docker compose -f deploy/compose/simple-mlops/compose.yaml \
-  --profile traffic run --rm traffic-generator baseline --count 20 --fast
+  --profile traffic run --rm \
+  --user "$(id -u):$(id -g)" \
+  traffic-generator baseline --count 20 --fast
 ```
 
 `--fast`는 로컬 응답 확인 전용입니다. 4장에서 Grafana `rate()`를 비교할 때는

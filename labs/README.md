@@ -13,9 +13,14 @@ uv sync --all-packages --group dev --group notebook
 uv run python scripts/setup_course.py
 ```
 
-준비 출력의 `canonical_decisions=sealed_until_day1_period6`은 공식 평가
-근거가 준비됐지만 아직 공개하지 않는다는 뜻입니다. 후보별 값은 1일차
-6교시의 모델 품질 실습에서 보호 기준과 함께 확인합니다.
+준비 스크립트는 Compose bind mount에 사용할 `artifacts/traffic`을 host 사용자
+소유로 만듭니다.
+디렉터리가 이미 있으면 기존 파일이나 디렉터리 권한을 바꾸지 않습니다.
+컨테이너를 root로 실행하거나 전체 권한을 느슨하게 바꾸어 우회하지 않습니다.
+
+준비 출력의 `canonical_decisions=available_read_only`는 공식 평가 근거를 공개된
+읽기 전용 자료로 사용할 수 있다는 뜻입니다. 값을 다시 만들거나 조정하지 않고,
+먼저 자신의 예상과 판단을 적은 뒤 공식 근거·배포 기준과 대조합니다.
 
 개인 PC에서 정적 실습만 준비할 때는 다음 명령을 사용합니다.
 
@@ -43,6 +48,17 @@ test -f artifacts/reports/release-decision-record.md || \
 `artifacts/reports/release-decision-record.md`입니다. 작업본을 처음부터 다시 만들
 때만 위 명령을 재실행합니다. 기존 기록을 덮어쓰지 않도록 먼저 파일 존재 여부를
 확인합니다.
+
+강사의 D-1 점검은 목적에 따라 scope를 나눕니다.
+
+- `static`: 두 저장소의 필수 파일, Git 상태와 디스크를 확인합니다.
+- `compose-observability`: Docker, Compose, 로컬 포트, Alloy 비밀 파일과 Grafana
+  대시보드 설정, `artifacts/traffic`의 임시 파일 쓰기·교체·삭제를 확인합니다.
+- `kubernetes-target`: 강사가 지정한 context와 HTTP(S) 대상 API base URL의
+  `/health/ready`를 확인합니다.
+
+Compose와 Kubernetes를 한 번에 통과했다고 기록하지 않습니다. 실행하지 않은
+scope는 별도 `BLOCKED` 또는 미확인으로 남깁니다.
 
 ### 1-2. 공통 완료 증거
 
@@ -87,8 +103,16 @@ revision, feature contract 또는 model 결정을 변경하지 않습니다.
 ### 2-3. 2일차
 
 3. [3장 서빙](ch03-serving/README.md): Compose Risk API와 Kubernetes 어댑터 확인
-4. [4장 운영 관측](ch04-observability/README.md): Alloy와 Grafana Cloud 대시보드 연결
-5. [5장 배포 판단](ch05-release-decision/README.md): 모델 승인, 운영 상태와 되돌리기 검토
+4. [4장 운영 관측](ch04-observability/README.md): P5 팀 수집 묶음을 고정하고
+   수집 매니페스트(collection manifest)
+   `artifacts/traffic/collection-session.json`과
+   `artifacts/traffic/compose.jsonl`을 P6에 인계해 같은 수집 묶음의 범위를
+   복원하고 세 시나리오를 비교한 뒤 대표 요청을 선택
+5. [5장 배포 판단](ch05-release-decision/README.md): P7에 대표 요청의 log·trace를
+   연결하고 모델 승인, 운영 상태와 되돌리기 검토
+
+P5가 끝난 뒤 Compose를 내리지 않습니다. P6 분석과 P7 대표 요청 추적이 끝난 뒤,
+본인이 시작했고 다른 사람이 사용하지 않는 작업만 정리합니다.
 
 각 장의 README에 있는 실행 명령을 먼저 수행하고 노트북을 위에서 아래로
 실행합니다. 모델 개발 과정의 탐색 결과는

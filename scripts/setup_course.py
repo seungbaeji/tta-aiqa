@@ -13,6 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 COURSE_SETUP_SCRIPTS = ("prepare_data.py", "validate_data.py")
 NOTEBOOK_RUNTIME_MODULES = ("ipykernel", "nbclient", "nbformat")
+TRAFFIC_ARTIFACT_DIRECTORY = ROOT / "artifacts/traffic"
 
 
 def run_script(name: str) -> None:
@@ -42,6 +43,31 @@ def assert_notebook_runtime() -> None:
             f"notebook runtime is missing: {modules}. "
             "Run `uv sync --all-packages --group notebook` and retry."
         )
+
+
+def ensure_traffic_artifact_directory(
+    path: Path = TRAFFIC_ARTIFACT_DIRECTORY,
+) -> Path:
+    """Create the host-owned bind mount directory without changing existing state."""
+    if path.is_symlink():
+        raise RuntimeError(
+            "traffic artifact path must not be a symbolic link"
+        )
+    try:
+        path.mkdir(parents=True, exist_ok=True)
+    except FileExistsError as error:
+        raise NotADirectoryError(
+            "traffic artifact path exists and is not a directory"
+        ) from error
+    if path.is_symlink():
+        raise RuntimeError(
+            "traffic artifact path must not be a symbolic link"
+        )
+    if not path.is_dir():
+        raise NotADirectoryError(
+            "traffic artifact path exists and is not a directory"
+        )
+    return path
 
 
 def verify_course_state(*, require_model: bool) -> dict[str, object]:
@@ -76,7 +102,7 @@ def verify_course_state(*, require_model: bool) -> dict[str, object]:
         "data_pipeline": "ready",
         "great_expectations": "ready",
         "notebook_runtime": "ready",
-        "canonical_decisions": "sealed_until_day1_period6",
+        "canonical_decisions": "available_read_only",
         "deployed_model": model_status,
     }
 
@@ -91,6 +117,7 @@ def main() -> None:
     )
     args = parser.parse_args()
     assert_notebook_runtime()
+    ensure_traffic_artifact_directory()
     for script in COURSE_SETUP_SCRIPTS:
         run_script(script)
     print(
