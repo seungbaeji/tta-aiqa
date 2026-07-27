@@ -73,8 +73,10 @@ API ingress path remains unchanged.
 ## 4. Read-only release verification
 
 After the platform workflow synchronizes an overlay, verify that stage without
-applying or patching any resource. Run the command once for `baseline`, once for
-`candidate-b`, and once for `rollback`, using a different output file each time.
+applying or patching any resource. Use `baseline-observed` when the baseline
+stage must emit live telemetry, then synchronize `candidate-b` and `rollback`.
+Run the verifier with release names `baseline`, `candidate-b`, and `rollback`,
+using a different output file each time.
 
 ```bash
 uv run python scripts/verify_target_release.py \

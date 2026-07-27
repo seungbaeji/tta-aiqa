@@ -54,6 +54,7 @@ REQUIRED_LAB_PATHS = (
     "docs/reference/evidence/incident/initial-signal.json",
     "docs/reference/evidence/incident/prepared-observability-correlation.json",
     "labs/release-decision-record.md",
+    "scripts/verify_target_release.py",
 )
 REQUIRED_CURRICULUM_PATHS = (
     "docs/v2/index.md",

@@ -109,7 +109,9 @@ HTTP 200은 해당 경로에 연결됐다는 근거일 뿐, GitOps 동기화·�
 예측·Grafana 수집을 확인한 결과가 아닙니다.
 
 플랫폼 담당자가 각 오버레이를 동기화한 뒤에는 별도의 읽기 전용 검증기를
-실행합니다. `baseline`, `candidate-b`, `rollback`마다 출력 파일을 분리합니다.
+실행합니다. live 기준 상태가 필요하면 `baseline` 대신 Alloy를 포함한
+`baseline-observed` 오버레이를 동기화합니다. 검증기의 release 이름
+`baseline`, `candidate-b`, `rollback`마다 출력 파일을 분리합니다.
 
 ```bash
 uv run python scripts/verify_target_release.py \
