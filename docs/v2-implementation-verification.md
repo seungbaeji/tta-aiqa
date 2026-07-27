@@ -1,3 +1,8 @@
+# V2 구현 검증 상태
+
+> 이 문서는 강사·플랫폼 담당자를 위한 개발·운영 검증 기록입니다. 수강생 실습
+> 절차는 `labs/`의 장별 README를 따릅니다.
+
 ## 1. 검증 기준
 
 ### 1-1. 목적
@@ -10,7 +15,7 @@
 
 - `uv lock --check`
 - `ruff check apps packages scripts tests`
-- 전체 `pytest`: 337 passed
+- 전체 `pytest`: 339 passed
 - trace topology와 propagation contract: `traffic.generate` -> Traffic CLIENT -> Risk API SERVER -> `risk.predict` parent-child, Risk API KServe CLIENT context 전달, probe/scrape trace 제외
 - `dvc repro` 후 `dvc status`: `Data and pipelines are up to date.`
 - 학생용 ch01~ch05 Notebook top-to-bottom 실행
@@ -77,7 +82,9 @@ repo에서 복원할 수 없으므로, `release-manifest.json`의 `historical_re
 `tta-aiqa` namespace와 런타임이 없다. 이 클러스터에는 resource를 적용하지
 않았다. Target VM context를 제공받으면 static `/mnt/course-models` PV,
 `ghcr-pull` registry Secret, baseline sync, Candidate B sync와 rollback health를
-확인해야 한다.
+강사·플랫폼 담당자가 확인해야 한다. 완료 근거는 대상 node의 고정 digest pull,
+baseline·Candidate B·rollback의 모델 정보와 health, 같은 모델·시간대의 운영
+신호다.
 
 ### 4-2. Grafana Cloud
 

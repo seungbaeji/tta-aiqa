@@ -87,6 +87,9 @@ def test_runtime_image_evidence_matches_pinned_deployment_images() -> None:
     assert evidence["source_commit"] == latest_build_input_commit
     assert evidence["local_verification"]["status"] == "verified"
     assert evidence["target_verification"]["status"] == "pending"
+    assert evidence["target_verification"]["owner"] == "instructor_platform"
+    assert evidence["target_verification"]["required_inputs"]
+    assert evidence["target_verification"]["completion_evidence"]
     assert set(images) == {"risk_api", "kserve_predictor"}
     assert risk_api == images["risk_api"]["reference"]
     assert predictor == images["kserve_predictor"]["reference"]

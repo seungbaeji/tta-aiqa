@@ -46,8 +46,8 @@ The base manifests pin published OCI image digests. The selected PVC model
 subPath and the non-secret `model-identity` ConfigMap must move together. The
 predictor verifies the expected model SHA-256 before it becomes ready.
 
-The current source commit, multi-architecture OCI index digests, and local image
-smoke results are recorded in
+The latest runtime build-input commit, multi-architecture OCI index digests, and
+local image smoke results are recorded in
 [`runtime-images-v2.json`](../../docs/reference/evidence/deployment/runtime-images-v2.json).
 The deployment contract test rejects manifests that drift from this record or
 runtime build inputs that changed after the recorded source commit.

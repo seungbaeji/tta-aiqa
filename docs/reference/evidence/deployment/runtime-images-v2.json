@@ -43,6 +43,19 @@
   "target_verification": {
     "status": "pending",
     "checked_context": "oracle/k3s",
-    "reason": "The configured context does not contain the course tta-aiqa runtime or namespace."
+    "reason": "The configured context does not contain the course tta-aiqa runtime or namespace.",
+    "owner": "instructor_platform",
+    "required_inputs": [
+      "Approved course TARGET_CONTEXT",
+      "The ghcr-pull Secret in the tta-aiqa namespace",
+      "The static course-models volume with baseline and Candidate B bundles",
+      "Grafana Cloud credentials and the approved Alloy configuration"
+    ],
+    "completion_evidence": [
+      "The course node pulls both pinned OCI index digests.",
+      "Baseline, Candidate B, and rollback expose the expected model identity and readiness.",
+      "A valid request returns HTTP 200 through Risk API and the predictor.",
+      "Metrics, bounded logs, and the representative trace agree on model, environment, and UTC range."
+    ]
   }
 }
