@@ -54,7 +54,7 @@ packages/aiqa-qa/              배포 근거와 판단
 수업에서 직접 여는 주소는 두 개입니다.
 
 - 강사가 제공하는 Risk API 주소
-- 4장에서 각자 생성하는 Grafana Cloud 대시보드 주소
+- 4장에서 강사가 제공하는 Grafana 대시보드 주소 또는 준비된 오프라인 수집 묶음
 
 MLflow 화면은 VM의 Compose 서비스를 VS Code 포트 전달로 열거나 강사가 제공한
 주소를 사용합니다.
@@ -222,13 +222,9 @@ uv run python scripts/run_model.py status --revision v2
 V2의 모델 준비 결과와 실행 ID는
 `docs/reference/evidence/model/revisions/v2/model-bootstrap.json`에서 확인합니다.
 새 개정본에서는 개발 평가와 진단을 마치고 `release-freeze.json`을 커밋한 뒤에만
-봉인 평가를 열 수 있습니다. 승인된 Candidate B를 로컬 배포 경로로 전환하거나
-기준 모델로 되돌릴 때는 다음 명령을 사용합니다.
-
-```bash
-uv run python scripts/publish_model.py candidate-b --revision v2
-uv run python scripts/publish_model.py baseline --revision v2
-```
+봉인 평가를 열 수 있습니다. 모델 게시와 기준 모델 복구는 수강생 활동이 아닙니다.
+강사 또는 플랫폼 담당자는 `scripts/publish_model.py`와 승인된 배포 절차를
+사용하고, 수강생은 준비된 `deployment.json`과 모델 근거를 읽습니다.
 
 Compose의 MLflow service만 시작합니다. 3장에서 같은 Compose stack을 확장하므로
 별도 `mlflow server`를 실행하지 않아 포트 `5000`이 충돌하지 않습니다.
@@ -257,10 +253,10 @@ MLflow와 Risk API, Alloy 관리 포트는 기본적으로 로컬 호스트에�
 `AIQA_COMPOSE_BIND_HOST=0.0.0.0`은 인증되지 않은 실습 서비스를 네트워크에
 노출하므로 방화벽과 접근 제어가 준비된 환경에서만 사용합니다.
 
-```bash
-docker compose -f deploy/compose/simple-mlops/compose.yaml up -d --build
-curl http://127.0.0.1:8000/health/ready
-```
+수강생 실행 명령의 단일 원본은
+[`labs/ch03-serving/README.md`](labs/ch03-serving/README.md)입니다. 강사는
+[강의 시작 전 실행 환경 점검](docs/runbooks/course-preflight.md)에 따라 이미지를
+미리 빌드합니다.
 
 독립 Traffic Generator로 baseline 요청을 보냅니다.
 
@@ -276,33 +272,15 @@ Alloy override를 함께 사용하고 `--fast` 없이
 [`labs/ch04-observability/README.md`](labs/ch04-observability/README.md)의 수집
 간격을 따릅니다.
 
-### 6-2. Grafana Cloud 연결
+### 6-2. 관측 환경
 
-`deploy/compose/simple-mlops/secrets/alloy/README.md`에 적힌 개인 설정 파일 일곱
-개를 만든 뒤 Alloy 추가 설정을 함께 실행합니다. 이 저장소는 Grafana, Loki,
-Tempo나 Prometheus 서버를 직접 배포하지 않습니다.
-
-```bash
-docker compose \
-  -f deploy/compose/simple-mlops/compose.yaml \
-  -f deploy/compose/simple-mlops/compose.grafana-cloud.yaml \
-  up -d --build
-```
-
-대시보드 가져오기에 쓰는 값은 개인 `.env.grafanacloud` 또는
-`/var/run/secrets/aiqa/grafana-dashboard-importer`에 따로 둡니다. Alloy 전송
-토큰과 대시보드 토큰은 공유하지 않습니다.
-
-```bash
-uv run --package aiqa-grafana-dashboard-importer aiqa-grafana-dashboard
-```
-
-고정 UID `tta-aiqa-quality`의 대시보드가 생성되거나 갱신되며 개인 주소가
-출력됩니다.
-
-Alloy 추가 설정은 Risk API의 Prometheus 지표와 Compose 프로그램의 구조화 로그,
-OTLP trace를 전송합니다. 요청 생성기를 실행하면 같은 추적 규약으로 만든 로그와
-trace도 개인 Grafana Cloud 공간에 쌓입니다.
+Grafana 접속 정보, Alloy 설정, 대시보드 가져오기와 이미지 빌드는 강사 또는 환경
+담당자가 강의 시작 전에 준비합니다. 수강생은
+[`labs/ch04-observability/README.md`](labs/ch04-observability/README.md)에서
+LIVE와 PREPARED/OFFLINE 가운데 하나를 고르고 선택한 경로의 품질 근거만
+확인합니다. 운영자용 설정은
+[`docs/runbooks/course-preflight.md`](docs/runbooks/course-preflight.md)와
+[`deploy/compose/simple-mlops/secrets/alloy/README.md`](deploy/compose/simple-mlops/secrets/alloy/README.md)에 분리돼 있습니다.
 
 ### 6-3. Trace 경계
 
@@ -330,50 +308,14 @@ KServe로 전달합니다.
 
 ## 7. Kubernetes 배포
 
-### 7-1. Immutable model publish
-
-강사 환경에서 수업용 모델 PVC가 `/mnt/course-models`에 연결되어 있으면 승인된
-모델 묶음을 해시 경로에 게시합니다. 같은 해시는 다시 실행해도 기존 경로를
-덮어쓰지 않습니다.
-
-```bash
-uv run python scripts/publish_model.py candidate-b \
-  --revision v2 \
-  --target-root /mnt/course-models
-```
-
-### 7-2. Manifest 확인
+### 7-1. 선언 파일 확인
 
 Kubernetes에서는 외부 Risk API가 내부 KServe V2 예측기를 호출합니다.
 `kserve.infer` CLIENT span이 W3C 추적 정보와 요청 ID를 전달합니다. 기본 설정은
 기준 모델로 시작하고 Candidate B와 되돌리기는 별도 overlay로 둡니다.
-`/mnt/course-models`는 단일 노드 수업 VM의 정적 모델 PV에 연결됩니다. 각
-overlay는 PVC 하위 경로와 `model-identity` ConfigMap의 예상 모델 SHA-256을 함께
-고릅니다. 탑재된 모델 묶음이 다르면 예측기가 시작을 거부합니다. 비공개 GHCR
-이미지용 `ghcr-pull` Secret은 강사가 미리 만들며 Grafana Cloud Secret과
-분리합니다. Alloy는 개인 Grafana Cloud Secret을 준비한 뒤 관측용 overlay에서만
-추가합니다.
-
-```bash
-test -n "${TARGET_CONTEXT:-}" || {
-  echo "TARGET_CONTEXT를 강사가 안내한 값으로 설정하세요."
-  exit 1
-}
-CURRENT_CONTEXT="$(kubectl config current-context)"
-test "$CURRENT_CONTEXT" = "$TARGET_CONTEXT" || {
-  echo "현재 context가 TARGET_CONTEXT와 다릅니다: $CURRENT_CONTEXT"
-  exit 1
-}
-kubectl kustomize deploy/kubernetes/overlays/baseline >/tmp/tta-aiqa-baseline.yaml
-kubectl kustomize deploy/kubernetes/overlays/candidate-b >/tmp/tta-aiqa-candidate-b.yaml
-kubectl kustomize deploy/kubernetes/overlays/rollback >/tmp/tta-aiqa-rollback.yaml
-kubectl --context "$TARGET_CONTEXT" apply --dry-run=server \
-  -f /tmp/tta-aiqa-baseline.yaml
-```
-
-실제 동기화는 강사가 제공한 Argo CD 절차를 따릅니다. `alloy-grafana-cloud`
-Secret에는 각 수강생의 Grafana Cloud 전송 설정만 저장합니다. Secret을 준비하기
-전에는 Alloy 구성을 추가하지 않습니다.
+각 overlay는 PVC 하위 경로와 `model-identity` ConfigMap의 예상 모델 SHA-256을
+함께 고릅니다. 수강생은 로컬 렌더링과 계약 검사로 선언 파일을 읽고, 서버 측
+검사·모델 게시·Secret·실제 동기화는 플랫폼 담당자가 수행합니다.
 
 Private GHCR image와 `ghcr-pull` Secret의 준비 방식은
 [`deploy/kubernetes/README.md`](deploy/kubernetes/README.md)에 분리해 두었습니다.
@@ -382,7 +324,7 @@ Private GHCR image와 `ghcr-pull` Secret의 준비 방식은
 
 ### 8-1. 정적 검증과 테스트
 
-강의 D-1에는 일반 테스트와 별도로
+강의 시작 전에는 일반 테스트와 별도로
 [`docs/runbooks/course-preflight.md`](docs/runbooks/course-preflight.md)의
 정적·실행 점검을 순서대로 수행합니다. 이 점검은 Docker·포트·디스크·비밀
 파일 권한·Kubernetes context·대상 readiness를 확인하고, 결과를

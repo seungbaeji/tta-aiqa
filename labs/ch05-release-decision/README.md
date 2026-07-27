@@ -54,7 +54,7 @@ uv run jupyter nbconvert --to notebook --execute \
   --ExecutePreprocessor.timeout=120
 ```
 
-이 결과는 준비된 표본의 입력 변화 후보를 강화하지만 새 모델 성능이나 실제 대상 환경의 상태를 확정하지 않습니다. 대상 환경의 같은 모델 정보와 시간 범위에서 점수, 예측 분포와 대표 요청을 더 확인해야 합니다.
+이 결과는 준비된 표본에서 입력 조건 변화라는 원인 후보를 강화하지만 새 모델 성능이나 실제 대상 환경의 상태를 확정하지 않습니다. 대상 환경의 같은 모델 정보와 시간 범위에서 점수, 예측 분포와 대표 요청을 더 확인해야 합니다.
 
 ## 4. 모델 승인과 운영 상태를 나누기
 
@@ -81,24 +81,16 @@ uv run pytest -q \
 
 `01_review_release_decision.ipynb`는 공식 평가, 배포 선언, 기준 모델, Candidate B와 되돌리기 오버레이를 대조합니다. URL이 없을 때 `URL_NOT_CONFIGURED`와 `target_pending`이 나오는 것은 예상한 결과입니다. Candidate A는 어떤 배포 오버레이에도 포함되지 않아야 합니다.
 
-강사 환경에 모델 저장 위치가 준비된 경우에만 Candidate B 모델 묶음을 게시합니다. 출력 경로의 `candidate-b-c712a8e52344`와 `deployment.json`의 프로필, SHA-256을 기록합니다. 이 결과는 모델 묶음을 준비했다는 근거이며 대상 PVC 탑재나 API 응답을 뜻하지 않습니다.
-
-```bash
-uv run python scripts/publish_model.py candidate-b \
-  --revision v2 \
-  --target-root /mnt/course-models
-```
+Candidate B 모델 묶음 게시와 대상 저장소 준비는 플랫폼 담당자가 수행합니다.
+수강생은 제공된 `deployment.json`과 배포 선언에서 프로필, SHA-256과 고정 경로를
+대조합니다. 게시 기록이 없으면 직접 대상 경로를 만들지 않고 필요한 자료와
+담당자를 남깁니다.
 
 ## 6. 대상 환경과 되돌리기 조건 확인하기
 
-Candidate B와 되돌리기 오버레이를 로컬에서 펼쳐 프로필·전체 SHA-256·고정 경로를
-대조합니다. 수강생은 클러스터에 서버 요청을 보내거나 실제 동기화·되돌리기를
-수행하지 않습니다.
-
-```bash
-kubectl kustomize deploy/kubernetes/overlays/candidate-b >/tmp/tta-aiqa-candidate-b.yaml
-kubectl kustomize deploy/kubernetes/overlays/rollback >/tmp/tta-aiqa-rollback.yaml
-```
+앞 절의 배포 계약 검사와 노트북 결과에서 Candidate B와 되돌리기 선언의
+프로필·전체 SHA-256·고정 경로를 대조합니다. 수강생은 클러스터에 요청하거나
+실제 동기화·되돌리기를 수행하지 않습니다.
 
 대상 `/v1/model`의 프로필·버전·임계값과 정상 요청 응답을 기록하고, 배포 선언 파일·오버레이에서는 전체 SHA-256 해시값을 따로 기록합니다. 요청 시나리오, 대시보드 URL과 조회 시간 범위도 함께 남깁니다. API 프로필 하나나 HTTP 200 한 건만으로 `target_verified`라고 쓰지 않습니다.
 

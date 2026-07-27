@@ -49,16 +49,9 @@ test -f artifacts/reports/release-decision-record.md || \
 때만 위 명령을 재실행합니다. 기존 기록을 덮어쓰지 않도록 먼저 파일 존재 여부를
 확인합니다.
 
-강사의 D-1 점검은 목적에 따라 scope를 나눕니다.
-
-- `static`: 두 저장소의 필수 파일, Git 상태와 디스크를 확인합니다.
-- `compose-observability`: Docker, Compose, 로컬 포트, Alloy 비밀 파일과 Grafana
-  대시보드 설정, `artifacts/traffic`의 임시 파일 쓰기·교체·삭제를 확인합니다.
-- `kubernetes-target`: 강사가 지정한 context와 HTTP(S) 대상 API base URL의
-  `/health/ready`를 확인합니다.
-
-Compose와 Kubernetes를 한 번에 통과했다고 기록하지 않습니다. 실행하지 않은
-scope는 별도 `BLOCKED` 또는 미확인으로 남깁니다.
+강사는 [시작 전 실행 환경 점검](../docs/runbooks/course-preflight.md)에서 사용할
+LIVE 또는 PREPARED/OFFLINE 경로를 확정합니다. 수강생은 안내받은 경로만 사용하고,
+실행하지 않은 외부 범위는 `BLOCKED` 또는 미확인으로 남깁니다.
 
 ### 1-2. 공통 완료 증거
 
@@ -84,16 +77,16 @@ scope는 별도 `BLOCKED` 또는 미확인으로 남깁니다.
 | QA | 어떤 데이터·API·배포 규약이 실패했으며 담당자와 재평가 조건은 무엇인가 |
 | 개발자 | 요청과 응답, 422 입력 검증, 요청 ID와 구조화된 관측 기록은 어떻게 연결되는가 |
 | ML 엔지니어 | 데이터 분할, 입력 특성 규약, 모델 프로필, 임계값과 보호 기준은 언제 고정되는가 |
-| DevOps | 비밀값, 변경 불가능한 모델 경로, Kustomize 목표 상태와 되돌리기는 무엇을 바꾸는가 |
+| 플랫폼 담당자 | 강사가 준비한 접속 정보·고정 모델 경로·배포 선언은 어떤 실행 조건을 보장하는가 |
 | MLOps | Git, DVC, MLflow, 모델 묶음 해시와 배포 선언은 각각 무엇을 책임지는가 |
 
 ## 2. 진행 순서
 
-### 2-1. 사전 API appendix
+### 2-1. 선택 부록
 
-ch01 EDA가 낯선 수강생은 먼저 [Appendix: EDA 도구 API 빠른 실습](appendix/README.md)을
-위에서 아래로 실행합니다. Appendix는 합성 데이터만 사용하며 본 교육 시나리오의 data
-revision, feature contract 또는 model 결정을 변경하지 않습니다.
+ch01 EDA 도구가 낯설 때만 [부록: EDA 도구 API 빠른 실습](appendix/README.md)을
+선택해 확인합니다. 부록은 합성 데이터만 사용하며 본 교육 시나리오의 데이터
+개정본, 특성 규약 또는 모델 판단을 바꾸지 않습니다.
 
 ### 2-2. 1일차
 
@@ -104,18 +97,18 @@ revision, feature contract 또는 model 결정을 변경하지 않습니다.
 
 3. [3장 서빙](ch03-serving/README.md): Compose Risk API와 Kubernetes 어댑터 확인
 4. [4장 운영 관측](ch04-observability/README.md): P5 팀 수집 묶음을 고정하고
-   수집 매니페스트(collection manifest)
-   `artifacts/traffic/collection-session.json`과
-   `artifacts/traffic/compose.jsonl`을 P6에 인계해 같은 수집 묶음의 범위를
-   복원하고 세 시나리오를 비교한 뒤 대표 요청을 선택
+   LIVE의 수집 매니페스트(collection manifest)·응답 JSONL 또는
+   PREPARED/OFFLINE 수집 묶음 가운데 하나를 P6에 인계해 같은 범위를 복원하고
+   세 시나리오를 비교한 뒤 대표 요청을 선택
 5. [5장 배포 판단](ch05-release-decision/README.md): P7에 대표 요청의 log·trace를
    연결하고 모델 승인, 운영 상태와 되돌리기 검토
 
 P5가 끝난 뒤 Compose를 내리지 않습니다. P6 분석과 P7 대표 요청 추적이 끝난 뒤,
 본인이 시작했고 다른 사람이 사용하지 않는 작업만 정리합니다.
 
-각 장의 README에 있는 실행 명령을 먼저 수행하고 노트북을 위에서 아래로
-실행합니다. 모델 개발 과정의 탐색 결과는
+각 장의 README에서 현재 환경에 맞는 경로를 먼저 고릅니다. LIVE와 OFFLINE,
+본편과 선택 심화 명령을 모두 실행하지 않습니다. 고른 경로의 본편 명령과 노트북만
+위에서 아래로 실행합니다. 모델 개발 과정의 탐색 결과는
 `docs/reference/evidence/model/revisions/v2/`에 내부 근거로 보존되어 있습니다.
 수강생은 특성이나 임계값을 다시 조정하지 않고 준비된 근거를 읽어 데이터, 모델과
 운영 품질을 연결합니다.

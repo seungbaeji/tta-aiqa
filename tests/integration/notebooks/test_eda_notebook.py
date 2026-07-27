@@ -289,6 +289,9 @@ def test_observability_notebook_reads_panel_level_datasources() -> None:
     assert "API_METRICS_UNAVAILABLE" in source
     assert "PREDICTION_SERIES_NOT_YET_OBSERVED" in source
     assert "DASHBOARD_URL_NOT_CONFIGURED" in source
+    assert "dashboard_observation" in source
+    assert "target_observation" not in source
+    assert "접속 정보, Alloy와 대시보드는 강사 또는 환경 담당자가 준비" in source
 
 
 def test_serving_notebook_checks_the_bounded_public_api_contract() -> None:

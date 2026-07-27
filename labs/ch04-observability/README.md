@@ -60,8 +60,8 @@ docker compose \
 ```
 
 `course-session`은 baseline, current-shift, invalid를 정해진 순서로 실행합니다.
-재실행을 구분할 ID가 필요하면 끝에 `--run-id <SESSION_ID>`를 선택해서 붙입니다.
-명령 출력의 `session_id`는 다음 상태 갱신 명령에서 그대로 사용합니다.
+세션 ID는 실행할 때마다 자동으로 새로 생성됩니다. 명령 출력의 `session_id`는
+다음 상태 갱신 명령에서 그대로 사용합니다.
 호스트에는 다음 두 파일이 남습니다.
 
 - **수집 매니페스트(collection manifest)**:

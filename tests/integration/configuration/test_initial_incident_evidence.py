@@ -220,6 +220,8 @@ def test_release_guide_separates_api_identity_from_deployment_digest() -> None:
     assert "대상 `/v1/model`의 프로필·버전·임계값" in guide
     assert "배포 선언 파일·오버레이에서는 전체 SHA-256 해시값" in guide
     assert "대상 `/v1/model`의 프로필, 해시값, 임계값" not in guide
+    assert "publish_model.py candidate-b" not in guide
+    assert "--target-root /mnt/course-models" not in guide
 
 
 @pytest.mark.parametrize(
@@ -237,4 +239,5 @@ def test_learner_labs_do_not_send_server_side_kubernetes_requests(
     assert 'TARGET_CONTEXT' not in guide
     assert "kubectl config current-context" not in guide
     assert "apply --dry-run=server" not in guide
-    assert "kubectl kustomize" in guide
+    assert "kubectl kustomize" not in guide
+    assert "test_kubernetes_contract.py" in guide

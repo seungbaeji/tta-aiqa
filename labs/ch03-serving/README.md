@@ -14,10 +14,11 @@ Candidate B의 `APPROVE`는 2장의 공식 모델 평가 결과입니다. 대상
 
 ## 2. 기준 모델과 로컬 API 실행
 
-먼저 기준 모델 묶음을 로컬 배포 경로에 준비합니다. `deployment.json`의 `profile`과 모델 SHA-256은 로컬 마운트가 읽을 모델을 가리키며, 대상 환경의 배포 성공을 뜻하지 않습니다.
+강사가 준비한 기준 모델 묶음의 배포 기록을 확인합니다. `deployment.json`의
+`profile`과 모델 SHA-256은 로컬 마운트가 읽을 모델을 가리키며, 대상 환경의 배포
+성공을 뜻하지 않습니다.
 
 ```bash
-uv run python scripts/publish_model.py baseline --revision v2
 cat artifacts/models/revisions/v2/deployed/deployment.json
 ```
 
@@ -56,17 +57,9 @@ Docker가 없거나 API가 시작하지 않으면 다음 노트북의 정적 검
 
 `01_verify_risk_api.ipynb`는 정답 없는 운영 요청의 133개 특성과 Kubernetes 배포 설정을 검사합니다. 다른 로컬 URL을 사용하면 `AIQA_RISK_API_URL`을 지정합니다. `API_NOT_RUNNING`은 정적 검사 실패가 아니라 실제 API 근거가 없다는 상태입니다.
 
-수강생은 클러스터에 서버 요청을 보내지 않고 Candidate B 오버레이를 로컬에서
-펼쳐 읽습니다. 실제 동기화와 서버 측 검사는 플랫폼 담당자가 수행합니다.
-
-```bash
-kubectl kustomize deploy/kubernetes/overlays/candidate-b \
-  >/tmp/tta-aiqa-candidate-b.yaml
-```
-
-`kubectl`이 없으면 Candidate B와 되돌리기 오버레이의 정적 계약을 검사합니다.
-어느 경로든 고정 모델 경로가 배포 설정에 선언됐다는 근거일 뿐, Candidate B가
-대상 API에서 실행된다는 관측 결과는 아닙니다.
+수강생은 클러스터에 요청을 보내거나 배포 명령을 다루지 않습니다. 다음 계약
+검사로 Candidate B와 되돌리기 선언이 승인된 모델만 가리키는지 확인합니다.
+실제 동기화와 서버 측 검사는 플랫폼 담당자가 수행합니다.
 
 ```bash
 uv run pytest -q tests/integration/deployment/test_kubernetes_contract.py \
