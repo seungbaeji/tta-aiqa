@@ -16,52 +16,22 @@
 실시간 환경이 없으면 준비된 정적 수집 묶음을 사용합니다. 정적 수집 묶음을 읽은 사실을
 실제 Grafana 수집 성공이나 대상 환경 확인으로 바꾸어 쓰지 않습니다.
 
-## 2. D-1과 P5 시작 점검 기준
+## 2. P5 시작 경로 선택
 
-Alloy 전송 비밀값과 대시보드 API 설정은 용도가 다릅니다. 비밀값은
-`deploy/compose/simple-mlops/secrets/alloy/README.md`에 따라 소유자만 읽을 수 있는
-일곱 파일로 준비합니다. 대시보드 환경 파일은 기존 개인 설정을 덮어쓰지 않습니다.
+환경 구축은 강의 실습이 아닙니다. 강사 또는 환경 담당자는 강의 시작 전에
+[실행 환경 점검 안내](../../docs/runbooks/course-preflight.md)에 따라 이미지,
+Alloy 접속 정보와 대시보드를 준비합니다. 수강생은 비밀값을 만들거나 대시보드를
+가져오거나 이미지를 빌드하지 않습니다.
 
-```bash
-test -f .env.grafanacloud || \
-  cp .env.grafanacloud.example .env.grafanacloud
-chmod 600 .env.grafanacloud
-chmod 600 \
-  deploy/compose/simple-mlops/secrets/alloy/metrics-url \
-  deploy/compose/simple-mlops/secrets/alloy/metrics-username \
-  deploy/compose/simple-mlops/secrets/alloy/logs-url \
-  deploy/compose/simple-mlops/secrets/alloy/logs-username \
-  deploy/compose/simple-mlops/secrets/alloy/otlp-url \
-  deploy/compose/simple-mlops/secrets/alloy/otlp-username \
-  deploy/compose/simple-mlops/secrets/alloy/api-key
-```
+P5를 시작할 때 다음 둘 중 하나만 고릅니다.
 
-강사는 D-1에 Compose 관측 범위를 별도로 점검합니다. 이 scope는 Kubernetes
-context나 대상 API를 검사하지 않습니다.
+- **LIVE**: 강사가 Compose와 Grafana 대시보드가 준비됐다고 확인했고, 사용할
+  대시보드 URL과 데이터 소스를 안내한 경우
+- **PREPARED/OFFLINE**: 위 준비 상태 가운데 하나라도 확인되지 않은 경우
 
-```bash
-uv run python scripts/course_preflight.py \
-  --scope compose-observability \
-  --curriculum-repo ../ttamlops-2607
-uv run --package aiqa-grafana-dashboard-importer aiqa-grafana-dashboard --check
-docker compose \
-  -f deploy/compose/simple-mlops/compose.yaml \
-  -f deploy/compose/simple-mlops/compose.grafana-cloud.yaml \
-  build
-uv run --package aiqa-grafana-dashboard-importer aiqa-grafana-dashboard
-```
-
-개발 중 미커밋 변경이 있을 때만 preflight 명령에 `--allow-dirty`를 붙입니다.
-정적 자료만 사용할 환경은 `--scope static`으로 점검하고, Compose 통과로 기록하지
-않습니다.
-
-`traffic_artifact_write` 검사는 `artifacts/traffic`에 고유한 임시 파일을 만들고
-쓰기·원자적 교체·삭제를 확인합니다. 기존 실습 파일의 내용과 권한은 건드리지
-않으며 임시 파일명이나 내용도 보고서에 남기지 않습니다.
-
-`--check`나 Compose 설정 검사가 통과해도 원격 지표·로그·trace가 도착했다는 뜻은
-아닙니다. D-1에는 이미지 빌드와 대시보드 가져오기까지만 마치고 트래픽은 보내지
-않습니다. 비밀값, 토큰, 원본 특성은 명령 출력이나 판단 기록에 복사하지 않습니다.
+LIVE를 골라도 비밀값, 토큰, 원본 특성을 명령 출력이나 판단 기록에 복사하지
+않습니다. 준비 여부가 모호하면 환경을 고치는 데 머물지 말고 정적 수집 묶음으로
+진행합니다.
 
 ## 3. P5 · 팀 수집
 

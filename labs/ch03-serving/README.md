@@ -21,10 +21,13 @@ uv run python scripts/publish_model.py baseline --revision v2
 cat artifacts/models/revisions/v2/deployed/deployment.json
 ```
 
-Risk API를 시작한 뒤 준비 상태와 모델 정보를 확인합니다. 같은 API에 기준 요청과 의도적으로 잘못 만든 요청을 보내 정상 200과 `MODEL_INPUT_INVALID` 422를 구분합니다.
+강사가 준비한 Risk API 이미지를 시작한 뒤 준비 상태와 모델 정보를 확인합니다.
+같은 API에 기준 요청과 의도적으로 잘못 만든 요청을 보내 정상 200과
+`MODEL_INPUT_INVALID` 422를 구분합니다. 이미지 빌드는 수강생 활동에 포함하지
+않습니다.
 
 ```bash
-docker compose -f deploy/compose/simple-mlops/compose.yaml up -d --build risk-api
+docker compose -f deploy/compose/simple-mlops/compose.yaml up -d risk-api
 curl http://127.0.0.1:8000/health/ready
 curl http://127.0.0.1:8000/v1/model
 docker compose -f deploy/compose/simple-mlops/compose.yaml \
@@ -53,24 +56,17 @@ Docker가 없거나 API가 시작하지 않으면 다음 노트북의 정적 검
 
 `01_verify_risk_api.ipynb`는 정답 없는 운영 요청의 133개 특성과 Kubernetes 배포 설정을 검사합니다. 다른 로컬 URL을 사용하면 `AIQA_RISK_API_URL`을 지정합니다. `API_NOT_RUNNING`은 정적 검사 실패가 아니라 실제 API 근거가 없다는 상태입니다.
 
-대상 연결 이름을 정확히 제공받은 경우에만 서버 측 검사를 실행합니다. 수강생은 `kubectl apply`로 공동 환경의 배포 상태를 직접 바꾸지 않습니다.
+수강생은 클러스터에 서버 요청을 보내지 않고 Candidate B 오버레이를 로컬에서
+펼쳐 읽습니다. 실제 동기화와 서버 측 검사는 플랫폼 담당자가 수행합니다.
 
 ```bash
-test -n "${TARGET_CONTEXT:-}" || {
-  echo "TARGET_CONTEXT를 강사가 안내한 값으로 설정하세요."
-  exit 1
-}
-CURRENT_CONTEXT="$(kubectl config current-context)"
-test "$CURRENT_CONTEXT" = "$TARGET_CONTEXT" || {
-  echo "현재 context가 TARGET_CONTEXT와 다릅니다: $CURRENT_CONTEXT"
-  exit 1
-}
-kubectl kustomize deploy/kubernetes/overlays/baseline >/tmp/tta-aiqa-baseline.yaml
-kubectl --context "$TARGET_CONTEXT" apply --dry-run=server \
-  -f /tmp/tta-aiqa-baseline.yaml
+kubectl kustomize deploy/kubernetes/overlays/candidate-b \
+  >/tmp/tta-aiqa-candidate-b.yaml
 ```
 
-`kubectl`이나 대상 환경이 없으면 Candidate B와 되돌리기 오버레이의 정적 계약을 검사합니다. 이 결과는 고정 모델 경로가 배포 설정에 선언됐다는 근거일 뿐, Candidate B가 대상 API에서 실행된다는 관측 결과는 아닙니다.
+`kubectl`이 없으면 Candidate B와 되돌리기 오버레이의 정적 계약을 검사합니다.
+어느 경로든 고정 모델 경로가 배포 설정에 선언됐다는 근거일 뿐, Candidate B가
+대상 API에서 실행된다는 관측 결과는 아닙니다.
 
 ```bash
 uv run pytest -q tests/integration/deployment/test_kubernetes_contract.py \

@@ -195,7 +195,7 @@ def test_fallback_correlates_normal_slow_and_422_logs_with_trace_paths() -> None
 
 def test_guide_links_packet_and_separates_p5_p6_p7() -> None:
     guide = GUIDE_PATH.read_text(encoding="utf-8")
-    d1 = guide.split("## 2. D-1과 P5 시작 점검 기준", maxsplit=1)[1].split(
+    preparation = guide.split("## 2. P5 시작 경로 선택", maxsplit=1)[1].split(
         "## 3. P5 · 팀 수집",
         maxsplit=1,
     )[0]
@@ -207,12 +207,11 @@ def test_guide_links_packet_and_separates_p5_p6_p7() -> None:
     assert "[PREPARED/OFFLINE]" in guide
     assert str(FALLBACK_PATH) in guide
     assert "실제 수집 자료가 아니라" in guide
-    assert "\n  build\n" in d1
-    assert (
-        "uv run --package aiqa-grafana-dashboard-importer "
-        "aiqa-grafana-dashboard"
-    ) in d1
-    assert "`traffic_artifact_write`" in d1
+    assert "수강생은 비밀값을 만들거나" in preparation
+    assert "가져오거나 이미지를 빌드하지 않습니다" in preparation
+    assert "course_preflight.py" not in preparation
+    assert "aiqa-grafana-dashboard" not in preparation
+    assert "\n  build\n" not in preparation
     assert "\n  up -d\n" in p5
     assert "up -d --build" not in p5
     assert "aiqa-grafana-dashboard" not in p5

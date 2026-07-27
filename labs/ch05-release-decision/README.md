@@ -91,21 +91,13 @@ uv run python scripts/publish_model.py candidate-b \
 
 ## 6. 대상 환경과 되돌리기 조건 확인하기
 
-대상 연결 이름을 정확히 제공받은 경우에만 서버 측 검사를 실행합니다. 실제 Candidate B 동기화는 강사가 안내한 GitOps, Argo CD 절차에서만 수행합니다.
+Candidate B와 되돌리기 오버레이를 로컬에서 펼쳐 프로필·전체 SHA-256·고정 경로를
+대조합니다. 수강생은 클러스터에 서버 요청을 보내거나 실제 동기화·되돌리기를
+수행하지 않습니다.
 
 ```bash
-test -n "${TARGET_CONTEXT:-}" || {
-  echo "TARGET_CONTEXT를 강사가 안내한 값으로 설정하세요."
-  exit 1
-}
-CURRENT_CONTEXT="$(kubectl config current-context)"
-test "$CURRENT_CONTEXT" = "$TARGET_CONTEXT" || {
-  echo "현재 context가 TARGET_CONTEXT와 다릅니다: $CURRENT_CONTEXT"
-  exit 1
-}
 kubectl kustomize deploy/kubernetes/overlays/candidate-b >/tmp/tta-aiqa-candidate-b.yaml
-kubectl --context "$TARGET_CONTEXT" apply --dry-run=server \
-  -f /tmp/tta-aiqa-candidate-b.yaml
+kubectl kustomize deploy/kubernetes/overlays/rollback >/tmp/tta-aiqa-rollback.yaml
 ```
 
 대상 `/v1/model`의 프로필·버전·임계값과 정상 요청 응답을 기록하고, 배포 선언 파일·오버레이에서는 전체 SHA-256 해시값을 따로 기록합니다. 요청 시나리오, 대시보드 URL과 조회 시간 범위도 함께 남깁니다. API 프로필 하나나 HTTP 200 한 건만으로 `target_verified`라고 쓰지 않습니다.

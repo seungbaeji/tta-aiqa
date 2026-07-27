@@ -196,9 +196,12 @@ def test_learner_facing_labs_use_korean_handoff_terms() -> None:
 
 def test_observability_setup_preserves_an_existing_personal_environment() -> None:
     guide = Path("labs/ch04-observability/README.md").read_text(encoding="utf-8")
+    runbook = Path("docs/runbooks/course-preflight.md").read_text(encoding="utf-8")
 
-    assert "test -f .env.grafanacloud ||" in guide
-    assert "cp .env.grafanacloud.example .env.grafanacloud" in guide
+    assert "test -f .env.grafanacloud ||" not in guide
+    assert "cp .env.grafanacloud.example .env.grafanacloud" not in guide
+    assert "test -f .env.grafanacloud ||" in runbook
+    assert "cp .env.grafanacloud.example .env.grafanacloud" in runbook
 
 
 def test_serving_guide_only_requests_correlation_evidence_that_is_persisted() -> None:
@@ -226,12 +229,12 @@ def test_release_guide_separates_api_identity_from_deployment_digest() -> None:
         Path("labs/ch05-release-decision/README.md"),
     ),
 )
-def test_cluster_labs_stop_before_server_calls_on_context_mismatch(
+def test_learner_labs_do_not_send_server_side_kubernetes_requests(
     path: Path,
 ) -> None:
     guide = path.read_text(encoding="utf-8")
 
-    assert 'test -n "${TARGET_CONTEXT:-}"' in guide
-    assert 'CURRENT_CONTEXT="$(kubectl config current-context)"' in guide
-    assert 'test "$CURRENT_CONTEXT" = "$TARGET_CONTEXT"' in guide
-    assert 'kubectl --context "$TARGET_CONTEXT" apply --dry-run=server' in guide
+    assert 'TARGET_CONTEXT' not in guide
+    assert "kubectl config current-context" not in guide
+    assert "apply --dry-run=server" not in guide
+    assert "kubectl kustomize" in guide
