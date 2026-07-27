@@ -108,6 +108,23 @@ uv run python scripts/course_preflight.py \
 HTTP 200은 해당 경로에 연결됐다는 근거일 뿐, GitOps 동기화·대상 모델 정보·정상
 예측·Grafana 수집을 확인한 결과가 아닙니다.
 
+플랫폼 담당자가 각 오버레이를 동기화한 뒤에는 별도의 읽기 전용 검증기를
+실행합니다. `baseline`, `candidate-b`, `rollback`마다 출력 파일을 분리합니다.
+
+```bash
+uv run python scripts/verify_target_release.py \
+  --expected-context "${TARGET_CONTEXT:?강사가 승인한 context가 필요합니다}" \
+  --release candidate-b \
+  --target-url "${TARGET_API_URL:?대상 API base URL이 필요합니다}" \
+  --output artifacts/reports/target-candidate-b.json
+```
+
+이 명령은 리소스를 생성·수정·동기화하지 않습니다. 고정 이미지와 실제 Pod의
+플랫폼 manifest digest, 모델 해시와 경로, 준비 상태, 모델 정보, 정상 요청을
+확인합니다. 보고서의 `release_passed=true`는 해당 단계의 배포 확인 결과이며,
+`live_telemetry_status=not_checked`는 Grafana 근거를 아직 별도로 확인해야 한다는
+뜻입니다.
+
 ## 5. P5 수집과 인계
 
 P5에는 강의 시작 전에 빌드한 서비스를 시작하고 표준 세션을 한 번 실행합니다.

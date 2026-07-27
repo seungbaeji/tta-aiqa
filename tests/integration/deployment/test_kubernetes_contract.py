@@ -98,6 +98,14 @@ def test_runtime_image_evidence_matches_pinned_deployment_images() -> None:
         "linux/amd64",
         "linux/arm64",
     ]
+    for image in images.values():
+        assert set(image["platform_manifest_digests"]) == set(
+            image["platforms"]
+        )
+        assert all(
+            digest.startswith("sha256:") and len(digest) == 71
+            for digest in image["platform_manifest_digests"].values()
+        )
     source_tag = f":v2-{evidence['source_commit'][:12]}"
     assert images["risk_api"]["tag"].endswith(source_tag)
     assert images["kserve_predictor"]["tag"].endswith(source_tag)

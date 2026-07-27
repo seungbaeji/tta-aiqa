@@ -15,7 +15,7 @@
 
 - `uv lock --check`
 - `ruff check apps packages scripts tests`
-- 전체 `pytest`: 339 passed
+- 전체 `pytest`: 345 passed
 - trace topology와 propagation contract: `traffic.generate` -> Traffic CLIENT -> Risk API SERVER -> `risk.predict` parent-child, Risk API KServe CLIENT context 전달, probe/scrape trace 제외
 - `dvc repro` 후 `dvc status`: `Data and pipelines are up to date.`
 - 학생용 ch01~ch05 Notebook top-to-bottom 실행
@@ -84,7 +84,11 @@ repo에서 복원할 수 없으므로, `release-manifest.json`의 `historical_re
 `ghcr-pull` registry Secret, baseline sync, Candidate B sync와 rollback health를
 강사·플랫폼 담당자가 확인해야 한다. 완료 근거는 대상 node의 고정 digest pull,
 baseline·Candidate B·rollback의 모델 정보와 health, 같은 모델·시간대의 운영
-신호다.
+신호다. 각 동기화 단계에서는 `scripts/verify_target_release.py`가 context를
+고정한 읽기 전용 검사로 desired image, 실제 Pod의 platform manifest digest,
+모델 해시·경로, API 모델 정보와 정상 요청을 JSON 보고서에 남긴다. 이 보고서는
+Grafana 확인을 대신하지 않으며 live telemetry는 별도 근거가 있을 때만 완료로
+바꾼다.
 
 ### 4-2. Grafana Cloud
 

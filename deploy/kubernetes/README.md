@@ -69,3 +69,29 @@ The Alloy HTTP administration port remains inside the Pod and is not published
 by the Service. Grafana Cloud export remains outbound and is not restricted.
 The policy does not select Risk API or KServe pods, so the platform's existing
 API ingress path remains unchanged.
+
+## 4. Read-only release verification
+
+After the platform workflow synchronizes an overlay, verify that stage without
+applying or patching any resource. Run the command once for `baseline`, once for
+`candidate-b`, and once for `rollback`, using a different output file each time.
+
+```bash
+uv run python scripts/verify_target_release.py \
+  --expected-context "${TARGET_CONTEXT:?approved course context is required}" \
+  --release candidate-b \
+  --target-url "${TARGET_API_URL:?Risk API base URL is required}" \
+  --output artifacts/reports/target-candidate-b.json
+```
+
+The verifier fails closed when the active context differs. Every cluster read
+uses the explicit context and fixed `tta-aiqa` namespace. It checks the registry
+Secret type, bound model PVC, selected model SHA-256 and subPath, desired OCI
+index references, running platform manifest digests, rollout readiness, API
+model identity, and one valid prediction. It never creates, synchronizes,
+patches, or rolls back resources and never writes request features to its
+report.
+
+A passing release report does not claim that Grafana received live data. Keep
+`live_telemetry_status=not_checked` until metrics, bounded logs, and the
+representative trace are confirmed for the same model and UTC range.
