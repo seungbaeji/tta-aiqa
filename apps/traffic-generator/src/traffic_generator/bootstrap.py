@@ -1,10 +1,10 @@
 """Composition root for the Traffic Generator."""
 
-from collections.abc import Callable
 from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
 from time import sleep
+from typing import Protocol
 
 from aiqa_core.adapters.config import load_feature_contract
 from aiqa_observability import Telemetry, create_telemetry, load_telemetry_policy
@@ -20,12 +20,24 @@ from traffic_generator.domain import TrafficPlan, TrafficResponse
 from traffic_generator.settings import TrafficSettings
 
 
+class BoundTrafficOperation(Protocol):
+    """Invoke one configured traffic plan under an explicit run identity."""
+
+    def __call__(
+        self,
+        plan: TrafficPlan,
+        request_count: int | None = None,
+        *,
+        run_id: str,
+    ) -> tuple[TrafficResponse, ...]: ...
+
+
 @dataclass(frozen=True)
 class TrafficRuntime:
     """Bound traffic operation and process resources for the CLI adapter."""
 
     plans: dict[str, TrafficPlan]
-    run: Callable[[TrafficPlan, int | None, str], tuple[TrafficResponse, ...]]
+    run: BoundTrafficOperation
     telemetry: Telemetry
     environment: str
     response_artifact_path: Path

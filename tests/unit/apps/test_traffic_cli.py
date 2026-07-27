@@ -83,6 +83,7 @@ class StubRuntime:
         self,
         plan: TrafficPlan,
         count: int | None,
+        *,
         run_id: str,
     ) -> tuple[TrafficResponse, ...]:
         self.calls.append((plan.name, count, run_id))
@@ -425,8 +426,10 @@ def test_course_session_shuts_down_telemetry_when_execution_fails(
     def fail_run(
         _plan: TrafficPlan,
         _count: int | None,
-        _run_id: str,
+        *,
+        run_id: str,
     ) -> tuple[TrafficResponse, ...]:
+        assert run_id
         raise RuntimeError("prediction unavailable")
 
     monkeypatch.setattr(runtime, "run", fail_run)

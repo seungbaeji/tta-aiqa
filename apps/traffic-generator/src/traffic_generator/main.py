@@ -76,7 +76,7 @@ def run_plan(
         responses = runtime.run(
             plan,
             request_count,
-            context.run_id,
+            run_id=context.run_id,
         )
         runtime.telemetry.event(
             TRAFFIC_GENERATION_COMPLETED_EVENT,
