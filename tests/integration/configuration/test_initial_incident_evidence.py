@@ -18,7 +18,12 @@ def test_initial_signal_can_seed_the_first_learner_evidence_row() -> None:
     signals = {signal["scenario"]: signal for signal in evidence["signals"]}
 
     assert evidence["evidence_id"] == "E-01"
-    assert evidence["scope"] == "prepared_course_evidence"
+    assert evidence["schema_version"] == 2
+    assert evidence["scope"] == "static"
+    assert evidence["provenance"] == {
+        "source_kind": "course_static_fixture",
+        "captured_from_live_backend": False,
+    }
     assert evidence["source"]["live_telemetry"] is False
     assert "traffic_config" not in evidence["source"]
     assert evidence["model"] == {

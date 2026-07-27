@@ -327,6 +327,18 @@ def test_release_decision_notebook_keeps_model_and_operational_gates_separate() 
     assert '"candidate-b": decisions.loc["candidate-b", "decision"]' in source
 
 
+def test_distribution_notebook_marks_prepared_data_as_local_evidence() -> None:
+    """Prepared input data must not be mistaken for target telemetry."""
+    path = Path("labs/ch05-release-decision/00_compare_input_distributions.ipynb")
+    source = "\n".join(
+        "".join(cell["source"])
+        for cell in json.loads(path.read_text(encoding="utf-8"))["cells"]
+    )
+
+    assert '"scope": "local"' in source
+    assert '"source_kind": "course_prepared_dataset"' in source
+
+
 @pytest.mark.parametrize("relative_path", STUDENT_NOTEBOOKS)
 def test_student_notebook_is_checked_in_without_stale_outputs(
     relative_path: Path,

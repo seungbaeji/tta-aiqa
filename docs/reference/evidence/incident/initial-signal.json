@@ -1,7 +1,11 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "evidence_id": "E-01",
-  "scope": "prepared_course_evidence",
+  "scope": "static",
+  "provenance": {
+    "source_kind": "course_static_fixture",
+    "captured_from_live_backend": false
+  },
   "title": "기준 모델의 고위험 예측 비율 증가",
   "question": "관측된 변화의 원인을 좁히려면 어떤 근거를 더 확인해야 하는가?",
   "source": {

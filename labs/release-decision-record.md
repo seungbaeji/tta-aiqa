@@ -38,7 +38,7 @@ P5 수집 묶음은 팀이 공유하고 **P6 분석·P7 추적·T-01은 개인�
 
 | ID | 범위·확인한 사실 | 출처·UTC | 미확인 |
 | --- | --- | --- | --- |
-| E-01 | `prepared_course_evidence` ·  | `docs/reference/evidence/incident/initial-signal.json` ·  |  |
+| E-01 | `scope=static` ·  | `course_static_fixture` · `docs/reference/evidence/incident/initial-signal.json` ·  |  |
 | E-02 | 데이터 품질 ·  |  |  |
 | E-03 | 모델 품질 ·  |  |  |
 | E-04 | 서빙 ·  |  |  |
