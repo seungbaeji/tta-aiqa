@@ -130,6 +130,7 @@ docker compose \
 ```
 
 `course-session`은 baseline, current-shift, invalid를 정해진 순서로 실행합니다.
+출력의 `session_id`는 상태 갱신 명령에 그대로 전달합니다.
 수집 매니페스트(collection manifest)
 `artifacts/traffic/collection-session.json`과 응답 자료
 `artifacts/traffic/compose.jsonl`을 P6에 인계합니다. 환경·모델·UTC 범위, 세
@@ -147,6 +148,7 @@ docker compose \
   --user "$(id -u):$(id -g)" \
   traffic-generator \
   course-session-status \
+  --session-id '<course-session 출력의 session_id>' \
   --dashboard-url '<확인한 Grafana dashboard URL>' \
   --prometheus available \
   --loki available \

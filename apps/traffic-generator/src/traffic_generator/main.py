@@ -43,6 +43,12 @@ class TrafficCommandDto(BaseModel):
         max_length=CORRELATION_ID_MAX_LENGTH,
         pattern=CORRELATION_ID_PATTERN_TEXT,
     )
+    session_id: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=CORRELATION_ID_MAX_LENGTH,
+        pattern=CORRELATION_ID_PATTERN_TEXT,
+    )
     fast: bool = False
     scope: Literal["local", "target"] | None = None
     manifest_path: Path | None = None
@@ -106,8 +112,14 @@ def validate_command_options(
 ) -> None:
     """Reject options that do not belong to the selected command."""
     if command.scenario == COURSE_SESSION_COMMAND:
-        if command.request_count is not None or command.fast:
-            parser.error("course-session does not accept --count or --fast")
+        if (
+            command.request_count is not None
+            or command.fast
+            or command.session_id is not None
+        ):
+            parser.error(
+                "course-session does not accept --count, --fast, or --session-id"
+            )
         if signal_statuses:
             parser.error(
                 "--prometheus, --loki, and --tempo require course-session-status"
@@ -124,6 +136,8 @@ def validate_command_options(
                 "course-session-status does not accept "
                 "--count, --run-id, --fast, or --scope"
             )
+        if command.session_id is None:
+            parser.error("course-session-status requires --session-id")
         if not signal_statuses and command.dashboard_url is None:
             parser.error(
                 "course-session-status requires a signal result or --dashboard-url"
@@ -131,13 +145,14 @@ def validate_command_options(
         return
     if (
         command.scope is not None
+        or command.session_id is not None
         or command.manifest_path is not None
         or command.dashboard_url is not None
         or signal_statuses
     ):
         parser.error(
             "individual scenarios do not accept --scope, --manifest-path, "
-            "--dashboard-url, or signal status options"
+            "--session-id, --dashboard-url, or signal status options"
         )
 
 
@@ -150,6 +165,10 @@ def main() -> None:
     )
     parser.add_argument("--count", dest="request_count", type=int)
     parser.add_argument("--run-id")
+    parser.add_argument(
+        "--session-id",
+        help="expected complete session ID for course-session-status",
+    )
     parser.add_argument(
         "--fast",
         action="store_true",
@@ -185,8 +204,14 @@ def main() -> None:
     if command.scenario == COURSE_SESSION_STATUS_COMMAND:
         manifest_path = command.manifest_path or default_collection_manifest_path()
         recorder = JsonCollectionSessionRecorder(manifest_path)
+        current_session = recorder.read()
+        if current_session.session_id != command.session_id:
+            raise ValueError(
+                f"requested session {command.session_id} does not match "
+                f"manifest session {current_session.session_id}"
+            )
         session = update_signal_availability(
-            recorder.read(),
+            current_session,
             statuses=signal_statuses,
             dashboard_url=command.dashboard_url,
         )
@@ -201,6 +226,11 @@ def main() -> None:
             recorder_path = command.manifest_path or (
                 runtime.response_artifact_path.with_name("collection-session.json")
             )
+            recorder = JsonCollectionSessionRecorder(recorder_path)
+            if recorder_path.exists() and recorder.read().session_id == session_id:
+                raise ValueError(
+                    f"session ID {session_id} is already the latest complete session"
+                )
             portable_manifest_path = (
                 command.manifest_path or runtime.portable_manifest_path
             )
@@ -226,7 +256,7 @@ def main() -> None:
                 manifest_path=portable_manifest_path,
                 dashboard_url=command.dashboard_url,
             )
-            JsonCollectionSessionRecorder(recorder_path).write(session)
+            recorder.write(session)
             print_session_manifest(session.as_document())
             return
 

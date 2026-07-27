@@ -218,6 +218,8 @@ def test_course_session_status_updates_manifest_without_bootstrapping_traffic(
         [
             "aiqa-traffic",
             "course-session-status",
+            "--session-id",
+            "class-session-01",
             "--manifest-path",
             str(manifest_path),
             "--dashboard-url",
@@ -257,7 +259,9 @@ def test_course_session_status_updates_manifest_without_bootstrapping_traffic(
         ["course-session", "--fast"],
         ["course-session", "--count", "1"],
         ["course-session", "--prometheus", "available"],
+        ["course-session", "--session-id", "irrelevant"],
         ["baseline", "--scope", "target"],
+        ["baseline", "--session-id", "irrelevant"],
         ["baseline", "--manifest-path", "ignored.json"],
         [
             "baseline",
@@ -267,6 +271,8 @@ def test_course_session_status_updates_manifest_without_bootstrapping_traffic(
         ["baseline", "--prometheus", "available"],
         [
             "course-session-status",
+            "--session-id",
+            "class-session-01",
             "--scope",
             "target",
             "--prometheus",
@@ -274,11 +280,14 @@ def test_course_session_status_updates_manifest_without_bootstrapping_traffic(
         ],
         [
             "course-session-status",
+            "--session-id",
+            "class-session-01",
             "--run-id",
             "irrelevant",
             "--prometheus",
             "available",
         ],
+        ["course-session-status", "--prometheus", "available"],
     ],
 )
 def test_commands_reject_irrelevant_options_before_bootstrap(
@@ -296,6 +305,83 @@ def test_commands_reject_irrelevant_options_before_bootstrap(
 
     with pytest.raises(SystemExit):
         traffic_main.main()
+
+
+def test_course_session_status_rejects_a_stale_manifest(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    runtime = StubRuntime(tmp_path / "compose.jsonl")
+    manifest_path = tmp_path / "collection-session.json"
+    monkeypatch.setattr(traffic_main, "bootstrap", lambda: runtime)
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "aiqa-traffic",
+            "course-session",
+            "--run-id",
+            "class-session-01",
+        ],
+    )
+    traffic_main.main()
+    before = manifest_path.read_text(encoding="utf-8")
+    monkeypatch.setattr(
+        traffic_main,
+        "bootstrap",
+        lambda: (_ for _ in ()).throw(
+            AssertionError("status update must not bootstrap traffic")
+        ),
+    )
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "aiqa-traffic",
+            "course-session-status",
+            "--session-id",
+            "class-session-02",
+            "--manifest-path",
+            str(manifest_path),
+            "--prometheus",
+            "available",
+        ],
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="requested session class-session-02 does not match manifest session",
+    ):
+        traffic_main.main()
+
+    assert manifest_path.read_text(encoding="utf-8") == before
+
+
+def test_course_session_rejects_reusing_the_latest_session_id(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    runtime = StubRuntime(tmp_path / "compose.jsonl")
+    monkeypatch.setattr(traffic_main, "bootstrap", lambda: runtime)
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "aiqa-traffic",
+            "course-session",
+            "--run-id",
+            "class-session-01",
+        ],
+    )
+    traffic_main.main()
+    runtime.calls.clear()
+    runtime.telemetry.shutdown_called = False
+
+    with pytest.raises(
+        ValueError,
+        match="session ID class-session-01 is already the latest complete session",
+    ):
+        traffic_main.main()
+
+    assert runtime.calls == []
+    assert runtime.telemetry.shutdown_called is True
 
 
 def test_course_session_shuts_down_telemetry_when_execution_fails(

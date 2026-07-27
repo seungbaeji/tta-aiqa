@@ -221,6 +221,7 @@ def test_guide_links_packet_and_separates_p5_p6_p7() -> None:
     assert "`dashboard_url=null`" in p5
     assert "`not_checked`" in p5
     assert "course-session-status" in p5
+    assert "--session-id '<course-session 출력의 session_id>'" in p5
     assert "--dashboard-url" in p5
     assert "--prometheus available" in p5
     assert "--loki available" in p5
@@ -269,6 +270,7 @@ def test_operator_runbook_separates_preflight_and_reuses_p5_evidence() -> None:
     assert runbook.count('--user "$(id -u):$(id -g)"') == 2
     assert "course-session --scope local" in runbook
     assert "course-session-status" in runbook
+    assert "--session-id '<course-session 출력의 session_id>'" in runbook
     assert "artifacts/traffic/collection-session.json" in runbook
     assert "artifacts/traffic/compose.jsonl" in runbook
     assert "새 트래픽을 보내지 않습니다" in runbook
