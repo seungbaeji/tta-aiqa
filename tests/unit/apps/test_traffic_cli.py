@@ -384,6 +384,38 @@ def test_course_session_rejects_reusing_the_latest_session_id(
     assert runtime.telemetry.shutdown_called is True
 
 
+def test_course_session_rejects_an_id_found_in_partial_traffic_evidence(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    response_path = tmp_path / "compose.jsonl"
+    response_path.write_text(
+        '{"run_id":"class-session-02-baseline","status_code":200}\n',
+        encoding="utf-8",
+    )
+    runtime = StubRuntime(response_path)
+    monkeypatch.setattr(traffic_main, "bootstrap", lambda: runtime)
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "aiqa-traffic",
+            "course-session",
+            "--run-id",
+            "class-session-02",
+        ],
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="session ID class-session-02 already has traffic evidence",
+    ):
+        traffic_main.main()
+
+    assert runtime.calls == []
+    assert runtime.telemetry.shutdown_called is True
+    assert not (tmp_path / "collection-session.json").exists()
+
+
 def test_course_session_shuts_down_telemetry_when_execution_fails(
     monkeypatch,
     tmp_path: Path,

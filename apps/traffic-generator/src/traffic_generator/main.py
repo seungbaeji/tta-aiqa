@@ -17,6 +17,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from traffic_generator.adapters import JsonCollectionSessionRecorder
 from traffic_generator.application import (
+    build_session_run_id,
     collect_course_session,
     update_signal_availability,
 )
@@ -103,6 +104,36 @@ def print_session_manifest(session_document: dict[str, object]) -> None:
             sort_keys=True,
         )
     )
+
+
+def ensure_session_id_has_no_traffic_evidence(
+    response_path: Path,
+    *,
+    session_id: str,
+    plans: dict[str, TrafficPlan],
+) -> None:
+    """Reject a session ID whose deterministic run IDs already appear in JSONL."""
+    if not response_path.exists():
+        return
+    expected_run_ids = {
+        build_session_run_id(session_id=session_id, scenario=scenario)
+        for scenario in plans
+    }
+    with response_path.open(encoding="utf-8") as response_file:
+        for line_number, line in enumerate(response_file, start=1):
+            if not line.strip():
+                continue
+            try:
+                document = json.loads(line)
+            except json.JSONDecodeError as error:
+                raise ValueError(
+                    "cannot verify session ID against invalid traffic evidence "
+                    f"at {response_path}:{line_number}"
+                ) from error
+            if document.get("run_id") in expected_run_ids:
+                raise ValueError(
+                    f"session ID {session_id} already has traffic evidence"
+                )
 
 
 def validate_command_options(
@@ -231,6 +262,11 @@ def main() -> None:
                 raise ValueError(
                     f"session ID {session_id} is already the latest complete session"
                 )
+            ensure_session_id_has_no_traffic_evidence(
+                runtime.response_artifact_path,
+                session_id=session_id,
+                plans=plans,
+            )
             portable_manifest_path = (
                 command.manifest_path or runtime.portable_manifest_path
             )
