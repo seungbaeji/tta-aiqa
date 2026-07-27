@@ -222,8 +222,9 @@ Compose에서는 `traffic.generate → risk-api.predict`(CLIENT) →
 ## 6. 완료 기준과 정리
 
 개인 기록에는 수집 묶음 ID, 환경, 모델, UTC 범위, 시나리오, 관측값, 대표
-request ID·trace ID, 해석, 한계와 다음 담당자가 있어야 합니다. 확인하지 않은
-실시간 자료는 `target_pending` 또는 `BLOCKED`로 남깁니다.
+request ID·trace ID, 해석, 한계와 다음 담당자가 있어야 합니다. 실시간 확인이
+실패했다면 관측 결과에 `result=BLOCKED`와 사유·담당자를 남깁니다. Candidate B의
+대상 근거가 없다면 최종 운영 환경 확인 상태는 별도로 `target_pending`으로 둡니다.
 
 P7 기록과 팀의 수집 인계를 보존한 뒤, 본인이 시작했고 다른 사람이 사용하지 않는
 Compose 작업만 종료합니다.

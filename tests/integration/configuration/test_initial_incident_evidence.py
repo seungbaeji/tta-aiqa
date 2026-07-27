@@ -160,6 +160,23 @@ def test_release_record_names_the_working_and_submission_path() -> None:
     assert "기존 파일이나 디렉터리 권한을 바꾸지 않습니다" in lab_guide
 
 
+def test_learner_guide_assigns_gitops_changes_to_platform_staff() -> None:
+    guide = Path("labs/README.md").read_text(encoding="utf-8")
+
+    assert "후보 동기화와 되돌리기는" in guide
+    assert "플랫폼 담당자가 승인된 GitOps 절차로 수행" in guide
+    assert "수강생은 제공된 결과를" in guide
+    assert "강사가 안내한 GitOps 절차 안에서만 수행" not in guide
+
+
+def test_observability_guide_separates_blocked_result_from_target_state() -> None:
+    guide = Path("labs/ch04-observability/README.md").read_text(encoding="utf-8")
+
+    assert "`result=BLOCKED`와 사유·담당자" in guide
+    assert "최종 운영 환경 확인 상태는 별도로 `target_pending`" in guide
+    assert "`target_pending` 또는 `BLOCKED`" not in guide
+
+
 def test_baseline_local_evidence_does_not_verify_candidate_b() -> None:
     serving = Path("labs/ch03-serving/README.md").read_text(encoding="utf-8")
     decision = Path("labs/ch05-release-decision/README.md").read_text(
