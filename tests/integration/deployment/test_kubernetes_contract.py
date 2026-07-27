@@ -1,21 +1,18 @@
 """Kubernetes, KServe, secret, and Alloy deployment contracts."""
 
+import json
+import subprocess
 from pathlib import Path
 
 import yaml
 
 ROOT = Path("deploy/kubernetes/base")
 ALLOY = Path("deploy/kubernetes/components/alloy")
+RUNTIME_IMAGE_EVIDENCE = Path(
+    "docs/reference/evidence/deployment/runtime-images-v2.json"
+)
 BASELINE_MODEL_SHA256 = (
     "f2576f12512a490c9814e5238c3f0d2a421a21637a4b03c882df6ff25a637edc"
-)
-RISK_API_IMAGE = (
-    "ghcr.io/seungbaeji/tta-aiqa-risk-api@sha256:"
-    "922a0a4fa4640fee8ff0e9299ad4b814739f7ade230cc0305cf335fc2f282f65"
-)
-KSERVE_PREDICTOR_IMAGE = (
-    "ghcr.io/seungbaeji/tta-aiqa-kserve-predictor@sha256:"
-    "d7ccc20bc89dca3d37c6768de8986416daf87c626ad828cdbd7889da07811e24"
 )
 ALLOY_IMAGE = (
     "grafana/alloy@sha256:"
@@ -31,6 +28,11 @@ def documents(path: str, root: Path = ROOT) -> list[dict[str, object]]:
     ]
 
 
+def runtime_image_evidence() -> dict[str, object]:
+    """Load the recorded runtime image publication and verification facts."""
+    return json.loads(RUNTIME_IMAGE_EVIDENCE.read_text(encoding="utf-8"))
+
+
 def test_risk_api_uses_internal_kserve_and_read_only_secret_volume() -> None:
     deployment = documents("risk-api.yaml")[0]
     container = deployment["spec"]["template"]["spec"]["containers"][0]
@@ -38,7 +40,9 @@ def test_risk_api_uses_internal_kserve_and_read_only_secret_volume() -> None:
 
     assert environment["AIQA_API_MODEL_BACKEND"]["value"] == "kserve"
     assert "mortality-risk-predictor" in environment["AIQA_API_KSERVE_URL"]["value"]
-    assert container["image"] == RISK_API_IMAGE
+    assert container["image"] == runtime_image_evidence()["images"]["risk_api"][
+        "reference"
+    ]
     assert deployment["spec"]["template"]["spec"]["imagePullSecrets"] == [
         {"name": "ghcr-pull"}
     ]
@@ -49,6 +53,51 @@ def test_risk_api_uses_internal_kserve_and_read_only_secret_volume() -> None:
     )
     assert secret_mount["readOnly"] is True
     assert secret_mount["mountPath"] == "/var/run/secrets/aiqa/risk-api"
+
+
+def test_runtime_image_evidence_matches_pinned_deployment_images() -> None:
+    evidence = runtime_image_evidence()
+    images = evidence["images"]
+    latest_build_input_commit = subprocess.run(
+        (
+            "git",
+            "log",
+            "-1",
+            "--format=%H",
+            "--",
+            ".dockerignore",
+            "pyproject.toml",
+            "uv.lock",
+            "apps",
+            "packages",
+        ),
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    risk_api = documents("risk-api.yaml")[0]["spec"]["template"]["spec"][
+        "containers"
+    ][0]["image"]
+    predictor = documents("inference-service.yaml")[0]["spec"]["predictor"][
+        "containers"
+    ][0]["image"]
+
+    assert evidence["schema_version"] == 1
+    assert len(evidence["source_commit"]) == 40
+    assert evidence["source_commit"] == latest_build_input_commit
+    assert evidence["local_verification"]["status"] == "verified"
+    assert evidence["target_verification"]["status"] == "pending"
+    assert set(images) == {"risk_api", "kserve_predictor"}
+    assert risk_api == images["risk_api"]["reference"]
+    assert predictor == images["kserve_predictor"]["reference"]
+    assert images["risk_api"]["platforms"] == ["linux/amd64", "linux/arm64"]
+    assert images["kserve_predictor"]["platforms"] == [
+        "linux/amd64",
+        "linux/arm64",
+    ]
+    source_tag = f":v2-{evidence['source_commit'][:12]}"
+    assert images["risk_api"]["tag"].endswith(source_tag)
+    assert images["kserve_predictor"]["tag"].endswith(source_tag)
 
 
 def test_base_starts_with_baseline_model() -> None:
@@ -63,7 +112,9 @@ def test_base_starts_with_baseline_model() -> None:
     )
     assert "baseline-f2576f12512a" in serialized
     assert "candidate-a" not in serialized
-    assert container["image"] == KSERVE_PREDICTOR_IMAGE
+    assert container["image"] == runtime_image_evidence()["images"][
+        "kserve_predictor"
+    ]["reference"]
     assert service["spec"]["predictor"]["imagePullSecrets"] == [{"name": "ghcr-pull"}]
     assert container["command"] == ["aiqa-kserve-predictor"]
     predictor_secrets = next(

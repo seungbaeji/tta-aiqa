@@ -10,7 +10,7 @@
 
 - `uv lock --check`
 - `ruff check apps packages scripts tests`
-- `pytest`: 187 passed
+- 전체 `pytest`: 337 passed
 - trace topology와 propagation contract: `traffic.generate` -> Traffic CLIENT -> Risk API SERVER -> `risk.predict` parent-child, Risk API KServe CLIENT context 전달, probe/scrape trace 제외
 - `dvc repro` 후 `dvc status`: `Data and pipelines are up to date.`
 - 학생용 ch01~ch05 Notebook top-to-bottom 실행
@@ -23,8 +23,8 @@
 
 ### 2-2. Curriculum
 
-- `ttamlops-2607` package tests: 85 passed
-- `mkdocs build --strict`
+- `ttamlops-2607` package tests: 124 passed
+- V1·V2 `mkdocs build --strict`
 - public site에서 V1 JupyterLite build와 Kaggle/legacy Lab 경로 제외
 - curriculum canonical SHA와 sibling evidence 일치
 
@@ -51,8 +51,14 @@
 - Existing serialized baseline/Candidate A/Candidate B bundle이 frozen canonical metric과 완전히 일치
 - Model과 external metadata hash를 release manifest와 publish gate에서 검증
 - Candidate B immutable publish 경로 생성과 metadata 검증
-- Risk API와 KServe predictor를 source commit `366eb34` label로 GHCR에
-  `linux/amd64`/`linux/arm64` OCI index로 publish하고 digest를 GitOps manifest에 pin
+- Risk API와 KServe predictor를 source commit
+  `8e5c14dd773dbfcbd0896a6edbd522e9a035abf6` label로 GHCR에
+  `linux/amd64`/`linux/arm64` OCI index로 게시하고 digest를 배포 선언에 고정
+- [V2 런타임 이미지 근거](reference/evidence/deployment/runtime-images-v2.json)에
+  source commit, OCI index digest, 플랫폼과 로컬 smoke 결과를 기록하고 배포
+  계약 테스트에서 manifest와 대조
+- 로컬 `linux/arm64`에서 고정 digest를 다시 pull한 뒤 predictor readiness,
+  Risk API readiness와 `/v1/model`, Risk API→predictor baseline HTTP 200을 확인
 
 ### 3-4. Provenance Scope and Remaining Work
 
@@ -67,7 +73,11 @@ repo에서 복원할 수 없으므로, `release-manifest.json`의 `historical_re
 
 ### 4-1. Target k3s와 Argo CD
 
-현재 kubectl context는 수업 VM이 아닌 `oracle/k3s`이므로 resource를 적용하지 않았다. Target VM에서 static `/mnt/course-models` PV, `ghcr-pull` registry Secret, baseline sync, Candidate B sync와 rollback health를 확인해야 한다.
+현재 설정된 kubectl context는 수업 VM이 아닌 `oracle/k3s`이며 과정용
+`tta-aiqa` namespace와 런타임이 없다. 이 클러스터에는 resource를 적용하지
+않았다. Target VM context를 제공받으면 static `/mnt/course-models` PV,
+`ghcr-pull` registry Secret, baseline sync, Candidate B sync와 rollback health를
+확인해야 한다.
 
 ### 4-2. Grafana Cloud
 
@@ -75,6 +85,7 @@ repo에서 복원할 수 없으므로, `release-manifest.json`의 `historical_re
 
 ### 4-3. Target image pull
 
-GHCR OCI index에는 `linux/amd64`와 `linux/arm64` manifest가 모두 존재한다. 다만
-실제 course VM node가 private package를 `ghcr-pull` Secret으로 pull하는지와 Argo CD
-rollout에서 digest가 유지되는지는 target k3s에서 확인해야 한다.
+GHCR OCI index에는 `linux/amd64`와 `linux/arm64` manifest가 모두 존재하며 로컬
+`linux/arm64` pull과 source revision label을 확인했다. 실제 course VM node가
+private package를 `ghcr-pull` Secret으로 pull하는지와 Argo CD rollout에서
+digest가 유지되는지는 target k3s에서 확인해야 한다.

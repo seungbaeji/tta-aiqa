@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "artifact_id": "RUNTIME-IMAGES-V2-20260727",
+  "recorded_at": "2026-07-27T07:00:27Z",
+  "source_commit": "8e5c14dd773dbfcbd0896a6edbd522e9a035abf6",
+  "build": {
+    "builder": "tta-aiqa-publish",
+    "provenance": "mode=max",
+    "sbom": true
+  },
+  "images": {
+    "risk_api": {
+      "tag": "ghcr.io/seungbaeji/tta-aiqa-risk-api:v2-8e5c14dd773d",
+      "reference": "ghcr.io/seungbaeji/tta-aiqa-risk-api@sha256:20f47861095b23548d82d3270f01f8bc54b5aa1cd91eb6172f6919403ebd959c",
+      "oci_index_digest": "sha256:20f47861095b23548d82d3270f01f8bc54b5aa1cd91eb6172f6919403ebd959c",
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    },
+    "kserve_predictor": {
+      "tag": "ghcr.io/seungbaeji/tta-aiqa-kserve-predictor:v2-8e5c14dd773d",
+      "reference": "ghcr.io/seungbaeji/tta-aiqa-kserve-predictor@sha256:63ff48ef33105181186919b777e3e60ac3bbc6c78f0f545154049701bbcd8fb0",
+      "oci_index_digest": "sha256:63ff48ef33105181186919b777e3e60ac3bbc6c78f0f545154049701bbcd8fb0",
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    }
+  },
+  "local_verification": {
+    "status": "verified",
+    "performed_at": "2026-07-27T07:02:28Z",
+    "platform": "linux/arm64",
+    "checks": [
+      "Both pulled image configs label source revision 8e5c14dd773dbfcbd0896a6edbd522e9a035abf6.",
+      "The predictor readiness endpoint returned ready.",
+      "The Risk API readiness endpoint returned baseline-f2576f12512a.",
+      "The Risk API model endpoint returned the KServe baseline identity and 133 features.",
+      "One baseline request traversed Risk API to the predictor and returned HTTP 200."
+    ]
+  },
+  "target_verification": {
+    "status": "pending",
+    "checked_context": "oracle/k3s",
+    "reason": "The configured context does not contain the course tta-aiqa runtime or namespace."
+  }
+}
