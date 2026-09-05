@@ -11,6 +11,7 @@ import pytest
 
 import scripts.setup_course as setup_course
 from scripts.setup_course import (
+    MISSING_BASELINE_MODEL_MESSAGE,
     ensure_traffic_artifact_directory,
     missing_notebook_runtime_modules,
     verify_course_state,
@@ -105,3 +106,26 @@ def test_main_prepares_the_bind_mount_directory_before_course_scripts(
     setup_course.main()
 
     assert events == ["traffic-directory", *setup_course.COURSE_SETUP_SCRIPTS]
+
+
+def test_missing_baseline_model_is_instructor_scope(
+    tmp_path: Path,
+    monkeypatch,
+    capsys,
+) -> None:
+    missing = tmp_path / "metadata.json"
+    monkeypatch.setattr(setup_course, "DEPLOYED_MODEL_METADATA", missing)
+    monkeypatch.setattr(sys, "argv", ["setup_course.py"])
+    monkeypatch.setattr(setup_course, "assert_notebook_runtime", lambda: None)
+    monkeypatch.setattr(
+        setup_course, "ensure_traffic_artifact_directory", lambda: None
+    )
+    monkeypatch.setattr(setup_course, "run_script", lambda _name: None)
+
+    with pytest.raises(SystemExit) as exit_info:
+        setup_course.main()
+
+    captured = capsys.readouterr()
+    assert exit_info.value.code == 1
+    assert MISSING_BASELINE_MODEL_MESSAGE in captured.err
+    assert "instructor/platform scope" in captured.err

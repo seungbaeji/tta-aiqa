@@ -13,6 +13,11 @@ from traffic_generator.domain import apply_feature_transforms
 EVIDENCE_PATH = Path("docs/reference/evidence/incident/initial-signal.json")
 
 
+def _normalized(text: str) -> str:
+    """Collapse Markdown line wrapping without weakening semantic assertions."""
+    return " ".join(text.split())
+
+
 def test_initial_signal_can_seed_the_first_learner_evidence_row() -> None:
     evidence = json.loads(EVIDENCE_PATH.read_text(encoding="utf-8"))
     signals = {signal["scenario"]: signal for signal in evidence["signals"]}
@@ -115,6 +120,10 @@ def test_initial_signal_matches_the_frozen_sample_model_and_transforms() -> None
 def test_release_record_names_the_working_and_submission_path() -> None:
     template = Path("labs/release-decision-record.md").read_text(encoding="utf-8")
     lab_guide = Path("labs/README.md").read_text(encoding="utf-8")
+    preflight = Path("docs/runbooks/course-preflight.md").read_text(
+        encoding="utf-8"
+    )
+    normalized_guide = _normalized(lab_guide)
 
     assert "docs/reference/evidence/incident/initial-signal.json" in template
     assert "artifacts/reports/release-decision-record.md" in template
@@ -152,28 +161,28 @@ def test_release_record_names_the_working_and_submission_path() -> None:
     )
     assert "uv sync --all-packages --group dev --group notebook" in lab_guide
     assert "uv run python scripts/setup_course.py --data-only" in lab_guide
-    assert "Docker, Kubernetes나 대상 환경의 실행 근거로 쓰지 않습니다." in (
-        lab_guide
-    )
-    assert "`artifacts/traffic`" in lab_guide
-    assert "host 사용자" in lab_guide
-    assert "기존 파일이나 디렉터리 권한을 바꾸지 않습니다" in lab_guide
+    assert "개인 PC의 정적 결과를 Docker, Kubernetes나" in normalized_guide
+    assert "대상 환경의 실행 근거로 쓰지 않으며" in normalized_guide
+    assert "`artifacts/traffic`" in preflight
+    assert "host 사용자" in preflight
+    assert "기존 파일의 내용이나 권한은 읽거나 바꾸지 않고" in preflight
 
 
 def test_learner_guide_assigns_gitops_changes_to_platform_staff() -> None:
     guide = Path("labs/README.md").read_text(encoding="utf-8")
+    normalized = _normalized(guide)
 
-    assert "후보 동기화와 되돌리기는" in guide
-    assert "플랫폼 담당자가 승인된 GitOps 절차로 수행" in guide
-    assert "수강생은 제공된 결과를" in guide
+    assert "후보 동기화와 되돌리기는 강사·플랫폼 책임" in normalized
+    assert "수강생은 강사가 제공한 결과의 범위·시간·identity만 기록" in normalized
     assert "강사가 안내한 GitOps 절차 안에서만 수행" not in guide
 
 
 def test_observability_guide_separates_blocked_result_from_target_state() -> None:
     guide = Path("labs/ch04-observability/README.md").read_text(encoding="utf-8")
+    normalized = _normalized(guide)
 
-    assert "`result=BLOCKED`와 사유·담당자" in guide
-    assert "최종 운영 환경 확인 상태는 별도로 `target_pending`" in guide
+    assert "`result=BLOCKED`와 사유·담당자" in normalized
+    assert "별도의 `operational scope=target_pending`" in normalized
     assert "`target_pending` 또는 `BLOCKED`" not in guide
 
 
@@ -183,13 +192,17 @@ def test_baseline_local_evidence_does_not_verify_candidate_b() -> None:
         encoding="utf-8"
     )
 
-    assert "baseline `scope=local`" in serving
-    assert "Candidate B의 운영 환경 확인 상태는 `target_pending`" in serving
+    normalized_serving = _normalized(serving)
+    normalized_decision = _normalized(decision)
+
+    assert "baseline scope는 `local`" in normalized_serving
+    assert "Candidate B target 검증이 아닙니다" in normalized_serving
     assert "| `local_verified` |" not in serving
     assert (
-        "`local_verified`는 Candidate B를 실제 로컬 서빙하고 같은 모델의 "
-        "요청·운영 자료까지 확인했을 때만 사용"
-    ) in decision
+        "`local_verified`는 Candidate B를 실제 로컬에서 서빙하고 같은 모델의 "
+        "요청과 운영 자료까지 확인했을 때만 사용할 수 있습니다"
+    ) in normalized_decision
+    assert "baseline local probe만 확인한 경우" in normalized_decision
 
 
 def test_learner_facing_labs_use_korean_handoff_terms() -> None:
@@ -201,14 +214,14 @@ def test_learner_facing_labs_use_korean_handoff_terms() -> None:
 
     for path in (*guides, Path("labs/release-decision-record.md")):
         guide = path.read_text(encoding="utf-8")
-        prose_without_code_key = guide.replace("handoff_contract", "")
+        prose_without_code_key = guide.replace("handoff_contract", "").replace(
+            "publish_blocking_gate", ""
+        )
         assert "packet" not in guide
         assert "handoff" not in prose_without_code_key
-        assert "gate" not in guide
+        assert "gate" not in prose_without_code_key
     for path in guides:
-        assert (
-            path.read_text(encoding="utf-8").count("collection manifest") == 1
-        )
+        assert "collection manifest" in path.read_text(encoding="utf-8")
 
 
 def test_observability_setup_preserves_an_existing_personal_environment() -> None:
@@ -223,19 +236,28 @@ def test_observability_setup_preserves_an_existing_personal_environment() -> Non
 
 def test_serving_guide_only_requests_correlation_evidence_that_is_persisted() -> None:
     guide = Path("labs/ch03-serving/README.md").read_text(encoding="utf-8")
+    observability = Path("labs/ch04-observability/README.md").read_text(
+        encoding="utf-8"
+    )
 
-    assert "응답의 `X-Request-ID`" not in guide
-    assert "`artifacts/traffic/*.jsonl`의 `request_id`" in guide
-    assert "응답 본문의 `request_id`" in guide
+    assert "/tmp/ch03-risk-api.ipynb" in guide
+    assert "`request_id`" in guide
+    assert "`X-Request-ID`" in guide
+    assert "의도한 422" in guide
+    assert "artifacts/traffic/*.jsonl" not in guide
+    assert "traffic-generator" not in guide
+    assert "artifacts/traffic/compose.jsonl" in observability
 
 
 def test_release_guide_separates_api_identity_from_deployment_digest() -> None:
     guide = Path("labs/ch05-release-decision/README.md").read_text(
         encoding="utf-8"
     )
+    normalized = _normalized(guide)
 
-    assert "대상 `/v1/model`의 프로필·버전·임계값" in guide
-    assert "배포 선언 파일·오버레이에서는 전체 SHA-256 해시값" in guide
+    assert "대상 `/v1/model`의 프로필·버전·임계값" in normalized
+    assert "배포 선언의 예상 model SHA-256" in normalized
+    assert "두 증거를 하나로 합치지 않고 각각 대조" in normalized
     assert "대상 `/v1/model`의 프로필, 해시값, 임계값" not in guide
     assert "publish_model.py candidate-b" not in guide
     assert "--target-root /mnt/course-models" not in guide

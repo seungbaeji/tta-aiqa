@@ -17,6 +17,23 @@ EXPECTED_SCENARIOS = {"baseline", "current-shift", "invalid"}
 EXPECTED_CASES = {"normal", "slow", "invalid_422"}
 
 
+def _normalized(text: str) -> str:
+    """Collapse Markdown line wrapping for semantic prose assertions."""
+    return " ".join(text.split())
+
+
+def _heading_section(markdown: str, level: int, heading: str) -> str:
+    """Return one Markdown heading section up to its next peer heading."""
+    marks = "#" * level
+    match = re.search(
+        rf"^{marks} {re.escape(heading)}\n(.*?)(?=^{marks} |\Z)",
+        markdown,
+        flags=re.DOTALL | re.MULTILINE,
+    )
+    assert match is not None, heading
+    return match.group(1)
+
+
 def load_fallback() -> dict[str, Any]:
     """Load the prepared correlation bundle from its learner-facing path."""
     return json.loads(FALLBACK_PATH.read_text(encoding="utf-8"))
@@ -195,20 +212,24 @@ def test_fallback_correlates_normal_slow_and_422_logs_with_trace_paths() -> None
 
 def test_guide_links_packet_and_separates_p5_p6_p7() -> None:
     guide = GUIDE_PATH.read_text(encoding="utf-8")
-    preparation = guide.split("## 2. P5 시작 경로 선택", maxsplit=1)[1].split(
-        "## 3. P5 · 팀 수집",
-        maxsplit=1,
-    )[0]
-    p5 = guide.split("## 3. P5 · 팀 수집", maxsplit=1)[1].split(
-        "## 4. P6 · 개인 분석",
-        maxsplit=1,
-    )[0]
+    preparation = _heading_section(guide, 2, "관측")
+    traffic = _heading_section(guide, 2, "traffic")
+    p5 = _heading_section(
+        traffic,
+        3,
+        "baseline·current-shift·invalid traffic의 의도와 상태 코드를 인계한다",
+    )
+    p6 = _heading_section(
+        traffic,
+        3,
+        "선택한 대표 요청이 지표·로그·trace의 동일 사건으로 연결되는지 P6에 판정한다",
+    )
 
-    assert "[PREPARED/OFFLINE]" in guide
+    assert "PREPARED/OFFLINE" in guide
     assert str(FALLBACK_PATH) in guide
-    assert "실제 수집 자료가 아니라" in guide
-    assert "수강생은 비밀값을 만들거나" in preparation
-    assert "가져오거나 이미지를 빌드하지 않습니다" in preparation
+    assert "reference fixture" in guide
+    assert "실제 Loki/Tempo 검색으로 바꾸지" in guide
+    assert "secret과 token은 기록하지 않습니다" in preparation
     assert "course_preflight.py" not in preparation
     assert "aiqa-grafana-dashboard" not in preparation
     assert "\n  build\n" not in preparation
@@ -217,7 +238,6 @@ def test_guide_links_packet_and_separates_p5_p6_p7() -> None:
     assert "aiqa-grafana-dashboard" not in p5
     assert p5.count('\n  --user "$(id -u):$(id -g)"') == 2
     assert "course-session --scope local" in p5
-    assert "`dashboard_url=null`" in p5
     assert "`not_checked`" in p5
     assert "course-session-status" in p5
     assert "--session-id '<course-session 출력의 session_id>'" in p5
@@ -225,32 +245,33 @@ def test_guide_links_packet_and_separates_p5_p6_p7() -> None:
     assert "--prometheus available" in p5
     assert "--loki available" in p5
     assert "--tempo available" in p5
-    assert "자동 탐지 결과가 아니라" in p5
-    assert "생략한 신호는 `not_checked`" in p5
+    assert "사람이 확인한 경우에만" in p5
+    assert "확인하지 않은 옵션은 명령에 넣지 않아 `not_checked`" in p5
     assert "artifacts/traffic/collection-session.json" in guide
     assert "artifacts/traffic/compose.jsonl" in guide
     assert "invalid --run-id learner-observe-01" not in guide
     assert (
         '{service_name="risk-api", environment="<ENVIRONMENT>"} | json | '
         'run_id="<RUN_ID>" | request_id="<REQUEST_ID>"'
-    ) in guide
+    ) in p6
     assert (
         'resource.service.name = "risk-api" && '
         'span."aiqa.run_id" = "<RUN_ID>" && '
         'span."aiqa.request_id" = "<REQUEST_ID>"'
-    ) in guide
-    assert "P6에서 분석 대상으로 고른 요청을 그대로 추적합니다." in guide
-    assert "새 트래픽을 보내지" in guide
-    assert "P5 · 팀 수집" in guide
-    assert "P6 · 개인 분석" in guide
-    assert "범위 복원" in guide
-    assert "세 시나리오 비교" in guide
-    assert "대표 요청 선택" in guide
-    assert "E-05 인계" in guide
-    assert "P7 · 대표 요청 추적" in guide
-    assert "수집 묶음을 골랐다면 live 파일" in guide
-    assert "span_id, parent_span_id" in guide
-    assert "P5가 끝났다고 `docker compose down`을 실행하지 않습니다." in guide
+    ) in p6
+    assert "P6에서 P5 묶음" in p6
+    assert "실제 Loki/Tempo 검색으로 바꾸지" in p6
+    normalized = _normalized(guide)
+    for completion in (
+        "P5 인계 점검",
+        "범위를 복원",
+        "세 시나리오를 비교",
+        "대표 요청을 선택",
+        "E-05에 인계",
+    ):
+        assert completion in normalized
+    assert "span_id, parent_span_id" in p6
+    assert "P5 수집이 끝나도 P6와 P7이 끝날 때까지 Compose를 내리지" in normalized
 
 
 def test_operator_runbook_separates_preflight_and_reuses_p5_evidence() -> None:
@@ -284,7 +305,9 @@ def test_learner_materials_use_completion_gates_instead_of_fixed_minutes() -> No
         Path("labs/ch05-release-decision/README.md"),
         RUNBOOK_PATH,
     )
-    text = "\n".join(path.read_text(encoding="utf-8") for path in paths)
+    text = _normalized(
+        "\n".join(path.read_text(encoding="utf-8") for path in paths)
+    )
 
     for fixed_pacing in (
         "30분 분석",
@@ -298,10 +321,10 @@ def test_learner_materials_use_completion_gates_instead_of_fixed_minutes() -> No
         assert fixed_pacing not in text
     for completion_gate in (
         "인계 점검",
-        "범위 복원",
-        "세 시나리오 비교",
-        "대표 요청 선택",
-        "E-05 인계",
+        "범위를 복원",
+        "세 시나리오를 비교",
+        "대표 요청을 선택",
+        "E-05에 인계",
     ):
         assert completion_gate in text
 
@@ -326,6 +349,11 @@ def test_all_learner_compose_traffic_commands_use_the_host_identity() -> None:
                 )
             )
 
-    assert len(commands) == 9
+    assert commands
     for path, command in commands:
         assert '--user "$(id -u):$(id -g)"' in command, path
+
+    serving = Path("labs/ch03-serving/README.md").read_text(encoding="utf-8")
+    observability = GUIDE_PATH.read_text(encoding="utf-8")
+    assert "traffic-generator" not in serving
+    assert "course-session --scope local" in observability

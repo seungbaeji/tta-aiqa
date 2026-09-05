@@ -75,4 +75,6 @@ markers = [
   "integration: tests that cross a technical adapter boundary",
   "scenario: end-user quality decision scenarios",
   "e2e: full workflow tests requiring external runtimes",
+  "regression: previously closed exercise behavior that starters must keep green",
+  "current_goal: the unfinished learning goal that may fail on a starter",
 ]

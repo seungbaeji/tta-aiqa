@@ -1,5 +1,6 @@
 """Compose topology and security contract tests."""
 
+import json
 import re
 from pathlib import Path
 
@@ -15,8 +16,15 @@ def compose() -> dict[str, object]:
 
 def test_compose_runs_same_local_risk_api_and_independent_traffic_app() -> None:
     services = compose()["services"]
+    images = json.loads(
+        Path("docs/reference/evidence/deployment/runtime-images-v2.json").read_text(
+            encoding="utf-8"
+        )
+    )["images"]
 
     assert set(services) == {"mlflow", "risk-api", "traffic-generator"}
+    assert services["risk-api"]["image"] == images["risk_api"]["reference"]
+    assert services["risk-api"]["build"]["dockerfile"] == "apps/risk-api/Dockerfile"
     assert services["risk-api"]["environment"]["AIQA_API_MODEL_BACKEND"] == "local"
     assert services["traffic-generator"]["profiles"] == ["traffic"]
     assert services["traffic-generator"]["environment"]["AIQA_TRAFFIC_API_URL"] == (

@@ -227,3 +227,14 @@ docker compose \
 
 실패한 점검은 성공한 항목으로 덮지 않습니다. 새 점검 결과를 별도 파일로 남기고,
 무엇을 고친 뒤 어떤 범위가 통과했는지 연결합니다.
+
+## 8. 수강생 본편과 메모리
+
+수강생 여정·SSH alias·API URL·GitOps 역할은
+[실습 안내](../../labs/README.md)가 기준입니다. KServe 설치, GHCR credential,
+Argo sync, WireGuard 복구는 이 점검 안내서와 플랫폼 작업이며 수강생 본편이
+아닙니다.
+
+약 4GiB VM에서는 단계별로 필요한 Compose 서비스만 켭니다. 한도는
+[4GiB VM 메모리](../../labs/README.md#4gib-vm-메모리)를 따릅니다. 대상 API URL은
+강사가 제공하고, 수강생이 ClusterIP port-forward를 만들도록 안내하지 않습니다.
