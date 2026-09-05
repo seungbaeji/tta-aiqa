@@ -2,6 +2,13 @@
 
 이 파일은 repository 전체에 적용된다. 사용자·시스템 지시와 하위 `AGENTS.md`가 우선한다. 상세 기준은 [README.md](README.md), [V2 TO-BE 계획](docs/v2-to-be-plan.md), [ADR](docs/adr/), [구현 검증 상태](docs/v2-implementation-verification.md)를 따른다.
 
+## SUBAGENT ORCHESTRATION
+
+- 슬라이드·교육 자료의 사실, 논리, 초심자 언어, 시각 품질을 병렬 검수할 때 읽기 전용 Terra 검수자는 최대 4개까지 허용한다.
+- 파일을 수정하는 Terra 또는 구현 가능한 Sol 작업자는 합계 최대 2개로 유지한다.
+- 검수자는 이미지·원고·Keynote를 수정하지 않고 `PASS / REVISE / REJECT`와 정확한 파일 경로만 반환한다.
+- Keynote 통합과 최종 완료 판정은 main agent 한 곳에서만 수행한다.
+
 ## ARCHITECTURE IMPLEMENTATION RULES
 
 - **Runtime flow:** `delivery adapter -> application function -> domain / outbound port -> outbound adapter`
