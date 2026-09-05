@@ -5,6 +5,7 @@ resources:
   - resource-quota.yaml
   - model-pvc.yaml
   - risk-api.yaml
+  - risk-api-ingress.yaml
   - inference-service.yaml
 configMapGenerator:
   - name: risk-api-config

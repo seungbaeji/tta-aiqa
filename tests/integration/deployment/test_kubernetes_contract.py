@@ -28,6 +28,29 @@ def documents(path: str, root: Path = ROOT) -> list[dict[str, object]]:
     ]
 
 
+def overlay_documents(name: str) -> list[dict[str, object]]:
+    result = subprocess.run(
+        ("kustomize", "build", f"deploy/kubernetes/overlays/{name}"),
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return [item for item in yaml.safe_load_all(result.stdout) if item]
+
+
+def risk_api_ingress(
+    rendered: list[dict[str, object]],
+) -> dict[str, object]:
+    matches = [
+        item
+        for item in rendered
+        if item.get("kind") == "Ingress"
+        and item.get("metadata", {}).get("name") == "risk-api"
+    ]
+    assert matches, "expected risk-api Ingress in overlay render"
+    return matches[0]
+
+
 def runtime_image_evidence() -> dict[str, object]:
     """Load the recorded runtime image publication and verification facts."""
     return json.loads(RUNTIME_IMAGE_EVIDENCE.read_text(encoding="utf-8"))
@@ -265,3 +288,46 @@ def test_secret_creation_guides_fail_closed_on_kubernetes_context() -> None:
         assert 'CURRENT_CONTEXT="$(kubectl config current-context)"' in guide
         assert 'if [ "$CURRENT_CONTEXT" != "$TARGET_CONTEXT" ]' in guide
         assert 'kubectl --context "$TARGET_CONTEXT" -n tta-aiqa' in guide
+
+
+def test_risk_api_ingress_routes_clusterip_without_hostname() -> None:
+    ingress = documents("risk-api-ingress.yaml")[0]
+    rule = ingress["spec"]["rules"][0]
+    path = rule["http"]["paths"][0]
+    backend = path["backend"]["service"]
+
+    assert ingress["kind"] == "Ingress"
+    assert ingress["metadata"]["name"] == "risk-api"
+    assert ingress["metadata"]["namespace"] == "tta-aiqa"
+    assert ingress["metadata"]["labels"]["app.kubernetes.io/name"] == "risk-api"
+    assert ingress["spec"]["ingressClassName"] == "traefik"
+    assert "host" not in rule
+    assert path["path"] == "/"
+    assert path["pathType"] == "Prefix"
+    assert backend["name"] == "risk-api"
+    assert backend["port"]["name"] == "http"
+    assert "tls" not in ingress["spec"]
+
+
+def test_baseline_overlay_renders_risk_api_ingress_without_hostname() -> None:
+    ingress = risk_api_ingress(overlay_documents("baseline"))
+    rule = ingress["spec"]["rules"][0]
+    backend = rule["http"]["paths"][0]["backend"]["service"]
+
+    assert ingress["spec"]["ingressClassName"] == "traefik"
+    assert "host" not in rule
+    assert backend["name"] == "risk-api"
+    assert backend["port"]["name"] == "http"
+
+
+def test_candidate_and_rollback_overlays_inherit_risk_api_ingress() -> None:
+    for name in ("candidate-b", "rollback"):
+        ingress = risk_api_ingress(overlay_documents(name))
+        rule = ingress["spec"]["rules"][0]
+        backend = rule["http"]["paths"][0]["backend"]["service"]
+
+        assert ingress["metadata"]["namespace"] == "tta-aiqa"
+        assert ingress["spec"]["ingressClassName"] == "traefik"
+        assert "host" not in rule
+        assert backend["name"] == "risk-api"
+        assert backend["port"]["name"] == "http"
