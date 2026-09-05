@@ -1,19 +1,19 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: tta-aiqa
+  name: __TTA_AIQA_APP_NAME__
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://github.com/seungbaeji/tta-aiqa.git
-    # The release renderer replaces both placeholders. Do not apply this
+    # The release renderer replaces placeholders. Do not apply this
     # template directly or point a course environment at a mutable branch.
     targetRevision: __TTA_AIQA_REVISION__
     path: deploy/kubernetes/overlays/__TTA_AIQA_OVERLAY__
   destination:
-    server: https://kubernetes.default.svc
-    namespace: tta-aiqa
+    __TTA_AIQA_DEST_REF__
+    namespace: __TTA_AIQA_DEST_NAMESPACE__
   syncPolicy:
     syncOptions:
       - CreateNamespace=true
