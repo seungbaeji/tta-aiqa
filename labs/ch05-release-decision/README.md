@@ -1,51 +1,13 @@
 # 5장 배포 판단
 
-## 1. P5 수집 묶음에서 P7 판단까지 이어가기
+이 장은 9단계 여정의 **판단/rollback**과 **회고** 단계입니다. P5 수집 묶음은
+팀이 공유하고 P6 분석과 P7 판단은 개인이 작성합니다. 실제 overlay 전환과
+rollback Demo는 강사·플랫폼 범위입니다.
 
-마지막 세 교시는 같은 운영 근거를 역할만 바꾸어 사용합니다.
-P5 인계 자료는 live 수집 매니페스트(collection manifest)
-`artifacts/traffic/collection-session.json` 또는 offline 수집 묶음
-`docs/reference/evidence/incident/prepared-observability-correlation.json`
-가운데 하나입니다. 두 파일의 스키마는 다르지만 환경·모델·세 run ID·절대 UTC
-범위라는 공통 의미를 이어받습니다.
+## 판단/rollback
 
-| 교시 | 근거 소유 | 이 장에서 이어받을 결과 |
-| --- | --- | --- |
-| P5 수집 | 팀 공유 | 인계 자료의 유형·ID·경로, 환경, 모델, UTC 범위, 시나리오별 run ID와 누락 신호 |
-| P6 분석 | 개인 | 같은 수집 묶음에서 본 관측·해석·한계·다음 확인 |
-| P7 추적·판단 | 개인 | 대표 request ID·trace ID가 최종 권고를 바꾼 이유 |
-
-P5 뒤에는 Compose를 내리지 않습니다. P6의 범위 복원·세 시나리오 비교·대표 요청
-선택과 P7 추적·판단이 끝날 때까지 같은 시간 범위와 run ID를 보존합니다.
-시나리오별 응답은
-`artifacts/traffic/compose.jsonl`에서 다시 찾습니다. 실시간 환경이 없으면
-`docs/reference/evidence/incident/prepared-observability-correlation.json`의
-`OBS-FALLBACK-02`를 팀 수집 묶음으로 사용하되, `scope=static`과 실제 수집을
-확인하지 못한 이유를 적습니다.
-
-팀 수집 묶음은 공유해도 D2-P6 분석 행과 전이 사건 T-01은 개인별로 작성합니다.
-P7에서는 P6에서 고른 대표 요청을 그대로 사용하며 새 트래픽을 보내지 않습니다.
-
-## 2. 누적 기록과 출발 근거 확인하기
-
-개인 작업본 `artifacts/reports/release-decision-record.md`를 열고 앞 장의 근거가
-남아 있는지 확인합니다. 파일이 없다면 기존 기록이 없는지 확인한 뒤 한 번만
-초기화합니다.
-
-```bash
-mkdir -p artifacts/reports
-test -f artifacts/reports/release-decision-record.md || \
-  cp labs/release-decision-record.md \
-    artifacts/reports/release-decision-record.md
-```
-
-`docs/reference/evidence/incident/initial-signal.json`은 첫 교시에서 제공한 준비된
-E-01 근거입니다. 실제 Grafana 관측과 섞지 말고, 이 장에서 수집한 run ID, 시간
-범위와 URL은 별도 행에 추가합니다.
-
-## 3. 입력 분포를 먼저 확인하기
-
-기준 모델의 `high_risk` 예측 비율이 늘었다면 모델부터 탓하지 않고 입력 조건이 달라졌는지 확인합니다. `00_compare_input_distributions.ipynb`는 정답이 없는 운영 요청 표본과 `current-shift` 설정을 읽어 네 특성의 평균과 중앙값을 비교합니다.
+P6의 입력 분포 분석은 준비된 운영 표본에서 원인 후보를 좁히는 활동입니다.
+새 모델 성능이나 대상 환경 상태를 확정하지 않습니다.
 
 ```bash
 uv run jupyter nbconvert --to notebook --execute \
@@ -54,23 +16,30 @@ uv run jupyter nbconvert --to notebook --execute \
   --ExecutePreprocessor.timeout=120
 ```
 
-이 결과는 준비된 표본에서 입력 조건 변화라는 원인 후보를 강화하지만 새 모델 성능이나 실제 대상 환경의 상태를 확정하지 않습니다. 대상 환경의 같은 모델 정보와 시간 범위에서 점수, 예측 분포와 대표 요청을 더 확인해야 합니다.
+### Candidate B 모델 APPROVE와 운영 환경 확인 상태를 한 기록에서 분리한다
 
-## 4. 모델 승인과 운영 상태를 나누기
+P5 수집 묶음은 live collection manifest
+`artifacts/traffic/collection-session.json` 또는
+`docs/reference/evidence/incident/prepared-observability-correlation.json`의
+offline fixture입니다. Candidate B `APPROVE`는 공식 모델 판단으로 기록하되,
+대상 `/v1/model`, GitOps sync와 운영 telemetry가 없으면
+`operational_deployment_scope=target_pending`을 유지합니다.
+대상 `/v1/model`의 프로필·버전·임계값은 runtime model identity 증거이고,
+배포 선언의 예상 model SHA-256은 선언된 bundle identity 증거입니다. 두 증거를
+하나로 합치지 않고 각각 대조해, 모델 승인과 대상 배포 확인을 분리합니다.
+`local_verified`는 Candidate B를 실제 로컬에서 서빙하고 같은 모델의 요청과
+운영 자료까지 확인했을 때만 사용할 수 있습니다. baseline local probe만
+확인한 경우에는 `local_verified`로 기록하지 않습니다.
 
-이 실습은 Candidate B를 무조건 대상 환경에 배포하는 과정이 아닙니다. Candidate A=`HOLD`, Candidate B=`APPROVE`라는 공식 모델 평가와 실제 실행 환경, 운영 관측 결과를 한 기록에 모으되 두 판단을 별도로 씁니다.
+### rollback trigger와 baseline 복구 완료를 선언할 evidence가 있는지 판단한다
 
-| 판단 항목 | 현재 자료에서 쓸 수 있는 값 | 대상 환경에서 더 확인할 근거 |
-| --- | --- | --- |
-| 모델 승인 | A=`HOLD`, B=`APPROVE`, `deployment_allowed=true` | 새로운 봉인 평가가 없으면 변경하지 않음 |
-| 운영 환경 확인 상태 | 배포 설정과 오버레이의 정적 검사, 로컬 노트북 결과 | GitOps 동기화, 대상 API 모델 정보, 요청과 운영 기록의 시간 범위 |
-| 현재 권고 | 대상 환경 근거 수집 | 확인한 범위에 맞는 제한적 배포 또는 되돌리기 검토 |
+`deploy/kubernetes/overlays/rollback/`은 기준 모델로 돌아갈 설정을 선언할 뿐
+복구 완료를 증명하지 않습니다. 대상 model metadata, health, 같은 모델의 운영
+신호와 강사 smoke 결과가 모두 확인되어야 실제 복구를 말할 수 있습니다.
+의도한 invalid 422와 credential 누락은 자동 rollback 조건이 아닙니다.
 
-대상 클러스터나 Grafana Cloud를 보지 못했다면 Candidate B의 모델 승인을 바꾸지 않고 `operational_deployment_scope=target_pending`으로 남깁니다.
-
-## 5. 배포 연결과 판단 노트북 확인하기
-
-현재 모델 평가 상태와 배포 연결 검사를 실행합니다. 파일 경로의 `v2`는 내부 개정본 이름이며 과정 명칭이 아닙니다.
+수강생은 다음 정적 검사와 제공된 결과만 사용하며, cluster sync나 rollback 명령을
+실행하지 않습니다.
 
 ```bash
 uv run python scripts/run_model.py status --revision v2
@@ -79,27 +48,41 @@ uv run pytest -q \
   tests/integration/deployment/test_kubernetes_contract.py
 ```
 
-`01_review_release_decision.ipynb`는 공식 평가, 배포 선언, 기준 모델, Candidate B와 되돌리기 오버레이를 대조합니다. URL이 없을 때 `URL_NOT_CONFIGURED`와 `target_pending`이 나오는 것은 예상한 결과입니다. Candidate A는 어떤 배포 오버레이에도 포함되지 않아야 합니다.
+### 현재 운영 권고가 모델 승인과 분리되는지 기록한다
 
-Candidate B 모델 묶음 게시와 대상 저장소 준비는 플랫폼 담당자가 수행합니다.
-수강생은 제공된 `deployment.json`과 배포 선언에서 프로필, SHA-256과 고정 경로를
-대조합니다. 게시 기록이 없으면 직접 대상 경로를 만들지 않고 필요한 자료와
-담당자를 남깁니다.
+개인 작업본을 열어 E-01~E-05와 14교시 행을 연결합니다.
 
-## 6. 대상 환경과 되돌리기 조건 확인하기
+```bash
+mkdir -p artifacts/reports
+test -f artifacts/reports/release-decision-record.md || \
+  cp labs/release-decision-record.md \
+    artifacts/reports/release-decision-record.md
+```
 
-앞 절의 배포 계약 검사와 노트북 결과에서 Candidate B와 되돌리기 선언의
-프로필·전체 SHA-256·고정 경로를 대조합니다. 수강생은 클러스터에 요청하거나
-실제 동기화·되돌리기를 수행하지 않습니다.
+모델 승인, operational scope와 현재 권고를 별도 항목으로 씁니다. 대상 근거가
+없으면 operational scope=`target_pending`으로 남깁니다. 실행하지 않은 경로의
+evidence scope는 `offline`으로 기록하고, 실행 자체가 막힌 경우에는 별도
+execution result=`BLOCKED`와 사유·담당자를 남깁니다. local 200을 대상 승인으로
+바꾸지 않습니다.
 
-대상 `/v1/model`의 프로필·버전·임계값과 정상 요청 응답을 기록하고, 배포 선언 파일·오버레이에서는 전체 SHA-256 해시값을 따로 기록합니다. 요청 시나리오, 대시보드 URL과 조회 시간 범위도 함께 남깁니다. API 프로필 하나나 HTTP 200 한 건만으로 `target_verified`라고 쓰지 않습니다.
+## 회고
 
-되돌리기 오버레이는 기준 모델로 돌아갈 설정을 선언할 뿐 복구 완료를 증명하지 않습니다. 예상 Candidate B와 다른 모델 정보, 규약에 맞는 요청의 실패, 담당자가 확인한 운영 조건은 되돌리기 검토를 열 수 있습니다. 의도한 무효 요청의 422와 자격 증명 누락은 자동 되돌리기 조건이 아닙니다.
+### 14교시 기록에서 판단 변화와 미확인 위험 인계를 복원한다
 
-## 7. 제출물
+`release-decision-record.md`의 D1-P1부터 D2-P7까지 예상→관측→수정을 읽고
+판단이 바뀐 이유를 복원합니다. 미확인 위험마다 운영 scope
+(`target_pending` 또는 확인된 `target`/`local`), evidence scope (`static`/`offline`),
+그리고 실행이 막힌 경우의 별도 execution result (`result=BLOCKED`, 사유·담당자)를
+각각 기록하고 필요한 자료와 재평가 조건을 남깁니다. 실행하지 않은 LIVE나 Agent
+보고를 완료 근거로 쓰지 않습니다.
 
-개인별 `artifacts/reports/release-decision-record.md`를 제출합니다. 제출 전에는
-14교시 행, E-01~E-05, P5 팀 수집 묶음 ID, P6 개인 분석, 모델 승인과 운영 배포
-상태, 현재 권고, 담당자와 재평가 조건, 개인 T-01이 있는지만 확인합니다.
+최종 기록에는 P5 묶음 ID, P6 개인 분석, P7 대표 request/trace ID, E-01~E-05와
+전이 사건 T-01을 연결합니다. P7 기록과 팀 인계를 보존한 뒤 본인이 시작했고
+다른 사람이 사용하지 않는 Compose만 정리합니다.
 
-> Candidate A는 공식 평가에서 `HOLD`, Candidate B는 `APPROVE`입니다. Candidate B 배포 설정의 프로필과 해시값은 [정적/로컬/대상 범위]에서 확인했지만 [Candidate B API 모델 정보/같은 모델의 운영 기록]은 [확인 또는 미확인]입니다. 따라서 운영 환경 확인 상태는 [prepared/local_verified/target_verified/target_pending/rollback_required]입니다. `local_verified`는 Candidate B를 실제 로컬 서빙하고 같은 모델의 요청·운영 자료까지 확인했을 때만 사용합니다. 현재 권고는 [대상 근거 수집/제한적 배포/보류/되돌리기 검토]이며, [담당 팀]이 [다음 자료]를 [기한]까지 수집하면 다시 판단합니다.
+```bash
+docker compose \
+  -f deploy/compose/simple-mlops/compose.yaml \
+  -f deploy/compose/simple-mlops/compose.grafana-cloud.yaml \
+  down
+```

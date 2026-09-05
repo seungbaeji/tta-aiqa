@@ -14,6 +14,16 @@ ROOT = Path(__file__).resolve().parents[1]
 COURSE_SETUP_SCRIPTS = ("prepare_data.py", "validate_data.py")
 NOTEBOOK_RUNTIME_MODULES = ("ipykernel", "nbclient", "nbformat")
 TRAFFIC_ARTIFACT_DIRECTORY = ROOT / "artifacts/traffic"
+DEPLOYED_MODEL_METADATA = (
+    ROOT / "artifacts/models/revisions/v2/deployed/metadata.json"
+)
+MISSING_BASELINE_MODEL_MESSAGE = (
+    "baseline model is not provisioned at "
+    "artifacts/models/revisions/v2/deployed/metadata.json; "
+    "provided course VMs should already include this bundle; "
+    "personal clones use --data-only; "
+    "missing bundle on a provided VM is instructor/platform scope"
+)
 
 
 def run_script(name: str) -> None:
@@ -82,16 +92,11 @@ def verify_course_state(*, require_model: bool) -> dict[str, object]:
     if decisions != {"candidate-a": "HOLD", "candidate-b": "APPROVE"}:
         raise RuntimeError("canonical V2 release decisions do not match the course")
 
-    deployed_metadata = (
-        ROOT / "artifacts/models/revisions/v2/deployed/metadata.json"
-    )
+    deployed_metadata = DEPLOYED_MODEL_METADATA
     model_status = "not_required"
     if require_model:
         if not deployed_metadata.is_file():
-            raise FileNotFoundError(
-                "baseline model is not provisioned; use --data-only "
-                "outside the course VM"
-            )
+            raise FileNotFoundError(MISSING_BASELINE_MODEL_MESSAGE)
         metadata = json.loads(deployed_metadata.read_text(encoding="utf-8"))
         if metadata.get("profile") != "baseline":
             raise RuntimeError("course VM must start with the baseline model")
@@ -120,13 +125,12 @@ def main() -> None:
     ensure_traffic_artifact_directory()
     for script in COURSE_SETUP_SCRIPTS:
         run_script(script)
-    print(
-        json.dumps(
-            verify_course_state(require_model=not args.data_only),
-            indent=2,
-            sort_keys=True,
-        )
-    )
+    try:
+        state = verify_course_state(require_model=not args.data_only)
+    except FileNotFoundError as error:
+        print(f"error: {error}", file=sys.stderr)
+        raise SystemExit(1) from error
+    print(json.dumps(state, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

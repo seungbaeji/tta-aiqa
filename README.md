@@ -1,12 +1,15 @@
 # TTA AI 서비스 품질 실습 저장소
 
 PhysioNet 2012 데이터에서 시작해 모델 평가, API 서빙, 운영 관측과 배포 판단까지
-이어지는 V2 실습 공간입니다. 수강생은 [실습 안내](labs/README.md)에서 시작합니다.
-이전 강의와 Simple MLOps 구현은 `tmp/legacy/`에 보존합니다.
+이어지는 V2 실습 공간입니다. 수강생 본편의 첫 사건은 데이터 EDA가 아니라
+[배포된 baseline 관찰](labs/README.md#배포된-baseline-관찰)입니다. 대상
+baseline이 아직 없으면 그 사실을 숨기지 않고 OFFLINE 또는 `target_pending`으로
+적습니다. 수강생은 [실습 안내](labs/README.md)에서 시작합니다.
+이전 강의와 Simple MLOps 구현은 `tmp/legacy/`에 보존하며 실행 의존이 아닙니다.
 
 ## 먼저 갈 곳
 
-- 수강생: [실습 시작과 누적 제출물 만들기](labs/README.md)
+- 수강생: [실습 안내의 아홉 단계](labs/README.md)
 - 강사: [환경 준비](#2-준비)와 `uv run python scripts/setup_course.py`
 - 개발자: [저장소 구조](#1-구조)와 [구현 검증](#8-구현-검증)
 
@@ -47,17 +50,28 @@ packages/aiqa-qa/              배포 근거와 판단
 ### 2-1. 실행 위치
 
 강사가 제공한 Linux VM에 VS Code Remote SSH로 접속한 터미널을 기본 실행 환경으로
-사용합니다. 개인 PC에서는 `setup_course.py --data-only`로 데이터와 노트북의 정적
+사용합니다. 접속 입력은 강사가 알려 준 **SSH alias 하나**입니다. HostName,
+비밀번호, ProxyJump는 이 저장소에 없습니다. bastion 경로는 현재 P0 pending이며
+`tmp/legacy/`를 실행 설정으로 복사하지 않습니다.
+
+개인 PC에서는 `setup_course.py --data-only`로 데이터와 노트북의 정적
 실습만 준비할 수 있습니다. 개인 PC의 결과를 Docker, `kubectl`, Grafana Cloud나
 대상 환경의 실행 근거로 쓰지 않습니다.
 
-수업에서 직접 여는 주소는 두 개입니다.
+수업에서 직접 여는 주소는 두 종류입니다. 둘을 섞어 보고하지 않습니다.
 
-- 강사가 제공하는 Risk API 주소
-- 4장에서 강사가 제공하는 Grafana 대시보드 주소 또는 준비된 오프라인 수집 묶음
+- 로컬 Compose Risk API: `http://127.0.0.1:8000`
+- 대상 Risk API: 강사가 준 URL. 노트북 변수는 `AIQA_RISK_API_URL`
 
-MLflow 화면은 VM의 Compose 서비스를 VS Code 포트 전달로 열거나 강사가 제공한
-주소를 사용합니다.
+대상 URL이 없으면 대상 LIVE를 하지 않고
+[실습 안내 API 계약](labs/README.md#api-접근-계약)의 OFFLINE을 따릅니다.
+수강생은 ClusterIP에 붙이려고 port-forward나 tunnel을 만들지 않습니다.
+VS Code Remote SSH의 로컬 포트 전달은 VM 안 `127.0.0.1` 서비스용입니다.
+
+4장 Grafana는 강사가 LIVE 대시보드 URL을 주거나, 준비된 오프라인 수집 묶음을
+쓰게 합니다. MLflow 화면은 VM Compose를 VS Code 포트 전달로 열거나 강사가 준
+주소를 사용합니다. 4GiB 메모리 한도는
+[실습 안내](labs/README.md#4gib-vm-메모리)를 따릅니다.
 
 ### 2-2. uv 설치
 
@@ -258,19 +272,24 @@ MLflow와 Risk API, Alloy 관리 포트는 기본적으로 로컬 호스트에�
 [강의 시작 전 실행 환경 점검](docs/runbooks/course-preflight.md)에 따라 이미지를
 미리 빌드합니다.
 
-독립 Traffic Generator로 baseline 요청을 보냅니다.
+API contract probe는 [3장 서빙 README](labs/ch03-serving/README.md)의
+Risk API 기동·health/model 확인과 `01_verify_risk_api.ipynb` 실행을 따릅니다.
+이 probe는 정상 200과 의도한 422를 한정 확인하며 P5 collection manifest를 만들지
+않습니다. P5 세 시나리오는 [4장 운영 관측](labs/ch04-observability/README.md)에서
+관측 조건을 먼저 고정한 뒤 실행합니다.
 
 ```bash
-docker compose -f deploy/compose/simple-mlops/compose.yaml \
-  --profile traffic run --rm \
-  --user "$(id -u):$(id -g)" \
-  traffic-generator baseline --count 20 --fast
+docker compose -f deploy/compose/simple-mlops/compose.yaml up -d --no-build risk-api
+curl http://127.0.0.1:8000/health/ready
+curl http://127.0.0.1:8000/v1/model
+uv run jupyter nbconvert --to notebook --execute \
+  labs/ch03-serving/01_verify_risk_api.ipynb \
+  --output /tmp/ch03-risk-api.ipynb \
+  --ExecutePreprocessor.timeout=120
 ```
 
-`--fast`는 로컬 응답 확인 전용입니다. 4장에서 Grafana `rate()`를 비교할 때는
-Alloy override를 함께 사용하고 `--fast` 없이
-[`labs/ch04-observability/README.md`](labs/ch04-observability/README.md)의 수집
-간격을 따릅니다.
+4장에서 Grafana `rate()`를 비교할 때는 Alloy override를 함께 사용하고
+`--fast` 없이 수집 간격을 따릅니다.
 
 ### 6-2. 관측 환경
 
