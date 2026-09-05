@@ -70,6 +70,9 @@ by the Service. Grafana Cloud export remains outbound and is not restricted.
 The policy does not select Risk API or KServe pods, so the platform's existing
 API ingress path remains unchanged.
 
+The base includes a Traefik Ingress that connects the ClusterIP `risk-api`
+Service to the cluster HTTP entrypoint. The manifest does not set a hostname.
+
 ## 4. Read-only release verification
 
 After the platform workflow synchronizes an overlay, verify that stage without
