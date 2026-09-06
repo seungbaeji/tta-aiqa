@@ -60,3 +60,12 @@ tmp/
 .DS_Store
 .idea/
 .vscode/
+
+# Lecture authoring lives in the private curriculum repo.
+# Keep local Keynote, PDF, and generated PNG on disk; do not commit them.
+*.key
+*.pdf
+/slide/
+/docs/authoring/
+/docs/instructor/
+/docs/reviews/

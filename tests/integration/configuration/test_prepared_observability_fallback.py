@@ -10,7 +10,6 @@ FALLBACK_PATH = Path(
     "docs/reference/evidence/incident/prepared-observability-correlation.json"
 )
 GUIDE_PATH = Path("labs/ch04-observability/README.md")
-RUNBOOK_PATH = Path("docs/runbooks/course-preflight.md")
 HEX_TRACE_ID = re.compile(r"^[0-9a-f]{32}$")
 HEX_SPAN_ID = re.compile(r"^[0-9a-f]{16}$")
 EXPECTED_SCENARIOS = {"baseline", "current-shift", "invalid"}
@@ -274,36 +273,11 @@ def test_guide_links_packet_and_separates_p5_p6_p7() -> None:
     assert "P5 수집이 끝나도 P6와 P7이 끝날 때까지 Compose를 내리지" in normalized
 
 
-def test_operator_runbook_separates_preflight_and_reuses_p5_evidence() -> None:
-    runbook = RUNBOOK_PATH.read_text(encoding="utf-8")
-
-    assert "--scope static" in runbook
-    assert "--scope compose-observability" in runbook
-    assert "--scope kubernetes-target" in runbook
-    assert "--scope live" not in runbook
-    assert "사전 구성" in runbook
-    assert "실제 신호 도착을 보증하지 않습니다" in runbook
-    assert "\n  build\n" in runbook
-    assert "aiqa-grafana-dashboard" in runbook
-    assert "\n  up -d\n" in runbook
-    assert "up -d --build" not in runbook
-    assert runbook.count('--user "$(id -u):$(id -g)"') == 2
-    assert "course-session --scope local" in runbook
-    assert "course-session-status" in runbook
-    assert "--session-id '<course-session 출력의 session_id>'" in runbook
-    assert "artifacts/traffic/collection-session.json" in runbook
-    assert "artifacts/traffic/compose.jsonl" in runbook
-    assert "새 트래픽을 보내지 않습니다" in runbook
-    assert "P5 인계 점검" in runbook
-    assert "15분 안" not in runbook
-
-
 def test_learner_materials_use_completion_gates_instead_of_fixed_minutes() -> None:
     paths = (
         Path("labs/README.md"),
         Path("labs/ch04-observability/README.md"),
         Path("labs/ch05-release-decision/README.md"),
-        RUNBOOK_PATH,
     )
     text = _normalized(
         "\n".join(path.read_text(encoding="utf-8") for path in paths)
@@ -334,7 +308,6 @@ def test_all_learner_compose_traffic_commands_use_the_host_identity() -> None:
         Path("README.md"),
         Path("apps/traffic-generator/README.md"),
         *Path("labs").rglob("*.md"),
-        *Path("docs/runbooks").rglob("*.md"),
     )
     commands: list[tuple[Path, str]] = []
     for path in paths:

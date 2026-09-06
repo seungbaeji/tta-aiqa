@@ -1,6 +1,6 @@
 # TTA AIQA Agent Guide
 
-이 파일은 repository 전체에 적용된다. 사용자·시스템 지시와 하위 `AGENTS.md`가 우선한다. 상세 기준은 [README.md](README.md), [V2 TO-BE 계획](docs/v2-to-be-plan.md), [ADR](docs/adr/), [구현 검증 상태](docs/v2-implementation-verification.md)를 따른다.
+이 파일은 repository 전체에 적용된다. 사용자·시스템 지시와 하위 `AGENTS.md`가 우선한다. 상세 기준은 [README.md](README.md)와 [실습 안내](labs/README.md)를 따른다. 과정 설계, ADR, 구현 검증 기록은 비공개 교육자료 저장소에서 관리한다.
 
 ## SUBAGENT ORCHESTRATION
 
@@ -29,9 +29,9 @@
 - active code는 `apps/`, `packages/`, `configs/`, `deploy/`, `labs/`, `scripts/`, `tests/`, `docs/`에 둔다. app은 composition root이고 다른 app을 import하지 않는다.
 - versioned YAML/JSON/TOML을 정책의 단일 기준으로 사용한다. runtime setting은 app별 `pydantic-settings`, credential은 app별 secret mount 또는 private env file로 관리한다.
 - 데이터와 split은 DVC와 고정 seed로 재현한다. 개발은 `train`/`valid`만 사용하고 sealed `test`와 historical evidence는 새 revision 없이 변경하지 않는다.
-- Git, DVC, MLflow, release manifest, immutable runtime digest의 역할을 분리해 provenance를 기록한다. 자세한 기준은 [ADR 0006](docs/adr/0006-layered-artifact-identity-and-release-provenance.md)를 따른다.
+- Git, DVC, MLflow, release manifest, immutable runtime digest의 역할을 분리해 provenance를 기록한다.
 - 모든 Python app에 `aiqa-observability`를 적용하고, app이 bounded metric name/label을 소유한다. Alloy와 수강생별 Grafana Cloud만 course monitoring 범위로 둔다.
-- TDD로 핵심 public behavior와 invariant를 먼저 검증한다. architecture/policy 변경은 ADR, 외부 환경 pending은 구현 검증 문서에 사실대로 갱신한다.
+- TDD로 핵심 public behavior와 invariant를 먼저 검증한다. architecture/policy 변경과 외부 환경 pending은 비공개 교육자료 저장소의 ADR·구현 검증 문서에 사실대로 갱신한다.
 - 기존 작업 트리를 보존하고, 관련 검증을 마친 뒤에만 사용자가 요청한 scope로 커밋한다.
 
 ## HAVE NOT TO

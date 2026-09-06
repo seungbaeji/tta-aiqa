@@ -1,7 +1,9 @@
 # TTA AI 서비스 품질 실습 저장소
 
 PhysioNet 2012 데이터에서 시작해 모델 평가, API 서빙, 운영 관측과 배포 판단까지
-이어지는 V2 실습 공간입니다. 수강생 본편의 첫 사건은 데이터 EDA가 아니라
+이어지는 V2 실습 공간입니다. 이 저장소는 수강생 실습 코드와 Lab 실행 자산만
+둡니다. 교재와 126장 슬라이드 원고는 비공개 교육자료 저장소에서 관리합니다.
+수강생 본편의 첫 사건은 데이터 EDA가 아니라
 [배포된 baseline 관찰](labs/README.md#배포된-baseline-관찰)입니다. 대상
 baseline이 아직 없으면 그 사실을 숨기지 않고 OFFLINE 또는 `target_pending`으로
 적습니다. 수강생은 [실습 안내](labs/README.md)에서 시작합니다.
@@ -23,7 +25,7 @@ packages/   다섯 업무 영역과 공통 관측 도구
 data/       PhysioNet 공식 원본과 생성 데이터 경계
 artifacts/  모델, 품질 결과와 MLflow 로컬 상태
 configs/    버전이 지정된 데이터·모델·서빙·QA·관측 규약
-docs/       V2 설계, ADR과 공식 과거 근거
+docs/       Lab이 여는 공식 evidence JSON
 scripts/    강사 준비와 재현 명령
 tests/      구조, 설정, 시나리오와 통합 검증
 tmp/        Git이 추적하지 않는 다운로드와 보관 공간
@@ -269,8 +271,7 @@ MLflow와 Risk API, Alloy 관리 포트는 기본적으로 로컬 호스트에�
 
 수강생 실행 명령의 단일 원본은
 [`labs/ch03-serving/README.md`](labs/ch03-serving/README.md)입니다. 강사는
-[강의 시작 전 실행 환경 점검](docs/runbooks/course-preflight.md)에 따라 이미지를
-미리 빌드합니다.
+강의 시작 전에 이미지를 미리 빌드합니다.
 
 API contract probe는 [3장 서빙 README](labs/ch03-serving/README.md)의
 Risk API 기동·health/model 확인과 `01_verify_risk_api.ipynb` 실행을 따릅니다.
@@ -297,9 +298,8 @@ Grafana 접속 정보, Alloy 설정, 대시보드 가져오기와 이미지 빌�
 담당자가 강의 시작 전에 준비합니다. 수강생은
 [`labs/ch04-observability/README.md`](labs/ch04-observability/README.md)에서
 LIVE와 PREPARED/OFFLINE 가운데 하나를 고르고 선택한 경로의 품질 근거만
-확인합니다. 운영자용 설정은
-[`docs/runbooks/course-preflight.md`](docs/runbooks/course-preflight.md)와
-[`deploy/compose/simple-mlops/secrets/alloy/README.md`](deploy/compose/simple-mlops/secrets/alloy/README.md)에 분리돼 있습니다.
+확인합니다. 운영자용 Alloy 설정은
+[`deploy/compose/simple-mlops/secrets/alloy/README.md`](deploy/compose/simple-mlops/secrets/alloy/README.md)에 있습니다.
 
 ### 6-3. Trace 경계
 
@@ -343,11 +343,9 @@ Private GHCR image와 `ghcr-pull` Secret의 준비 방식은
 
 ### 8-1. 정적 검증과 테스트
 
-강의 시작 전에는 일반 테스트와 별도로
-[`docs/runbooks/course-preflight.md`](docs/runbooks/course-preflight.md)의
-정적·실행 점검을 순서대로 수행합니다. 이 점검은 Docker·포트·디스크·비밀
-파일 권한·Kubernetes context·대상 readiness를 확인하고, 결과를
-`artifacts/reports/course-preflight.json`에 남깁니다.
+강의 시작 전 점검은 `uv run python scripts/course_preflight.py`로 수행합니다.
+결과는 `artifacts/reports/course-preflight.json`에 남깁니다. 과정 설계와
+강사 runbook은 비공개 교육자료 저장소에서 관리합니다.
 
 ```bash
 uv lock --check
@@ -355,9 +353,6 @@ uv run ruff check apps packages scripts tests
 uv run pytest -q
 uv run dvc status
 ```
-
-완료한 로컬 검증과 대상 k3s·Grafana Cloud에서 남은 검증은
-[V2 구현 검증 상태](docs/v2-implementation-verification.md)에 나눠 기록합니다.
 
 ### 8-2. 테스트 경계
 
@@ -381,16 +376,8 @@ uv run pytest -q
 
 이전 Simple MLOps app과 package는 `tmp/legacy/apps/`와 `tmp/legacy/packages/`에 보존합니다. 새 V2 코드는 `legacy`를 import하지 않으며 architecture test가 이를 검증합니다.
 
-## 10. 기획 문서
+## 10. 과정 설계
 
-### 10-1. V2 TO-BE 계획
-
-2일 14교시 구성, 저장소 경계, 데이터·모델 계보, 조건부 배포 기준과 수강생
-동선은 [V2 계획](docs/v2-to-be-plan.md)에 정리했습니다.
-
-### 10-2. 산출물 식별 ADR
-
-Git, DVC, MLflow, 변경 불가능한 모델·이미지와 배포 선언의 역할은
-[ADR 0006](docs/adr/0006-layered-artifact-identity-and-release-provenance.md)에
-기록합니다. 이 문서는 각 해시의 쓰임과 SLSA, KServe, Grafana Alloy, Great
-Expectations, k6를 교육 범위에서 어떻게 참조하는지 설명합니다.
+과정 설계, ADR, 강사 runbook과 Lab이 열지 않는 과거 근거는 비공개 교육자료
+저장소에서 관리합니다. 이 저장소의 `docs/reference/evidence/`에는 수강생 Lab이
+여는 V2 JSON만 둡니다.

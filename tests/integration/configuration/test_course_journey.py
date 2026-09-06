@@ -7,7 +7,6 @@ from pathlib import Path
 
 LABS = Path("labs/README.md")
 ROOT = Path("README.md")
-AUTHORING = Path("docs/authoring/detailed-course-design.md")
 CHAPTERS = (
     Path("labs/ch01-data-quality/README.md"),
     Path("labs/ch02-model-quality/README.md"),
@@ -135,18 +134,6 @@ def test_learner_guide_uses_exact_stage_child_headings() -> None:
     assert generic.isdisjoint(all_h3)
 
 
-def test_authoring_contract_matches_the_learner_journey() -> None:
-    text = AUTHORING.read_text(encoding="utf-8")
-    for stage in STAGE_HEADINGS:
-        assert tuple(_h3_headings(_section(text, stage))) == STAGE_CHILDREN[stage]
-
-    api = _section(text, "API")
-    assert "/tmp/ch03-risk-api.ipynb" in api
-    assert "artifacts/traffic" not in api
-    assert "`scope=static` evidence는 `prepared`" in api
-    assert "`local_verified`로 승격하지 않는다" in api
-
-
 def test_root_readme_points_at_baseline_observation_before_data_lab() -> None:
     text = ROOT.read_text(encoding="utf-8")
     observe = text.index("labs/README.md#배포된-baseline-관찰")
@@ -215,8 +202,6 @@ def test_changed_markdown_links_resolve() -> None:
     paths = (
         LABS,
         ROOT,
-        Path("docs/v2-implementation-verification.md"),
-        Path("docs/runbooks/course-preflight.md"),
         *CHAPTERS,
     )
     link = re.compile(r"\[[^\]]+\]\(([^)]+)\)")

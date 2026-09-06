@@ -120,9 +120,6 @@ def test_initial_signal_matches_the_frozen_sample_model_and_transforms() -> None
 def test_release_record_names_the_working_and_submission_path() -> None:
     template = Path("labs/release-decision-record.md").read_text(encoding="utf-8")
     lab_guide = Path("labs/README.md").read_text(encoding="utf-8")
-    preflight = Path("docs/runbooks/course-preflight.md").read_text(
-        encoding="utf-8"
-    )
     normalized_guide = _normalized(lab_guide)
 
     assert "docs/reference/evidence/incident/initial-signal.json" in template
@@ -163,9 +160,6 @@ def test_release_record_names_the_working_and_submission_path() -> None:
     assert "uv run python scripts/setup_course.py --data-only" in lab_guide
     assert "개인 PC의 정적 결과를 Docker, Kubernetes나" in normalized_guide
     assert "대상 환경의 실행 근거로 쓰지 않으며" in normalized_guide
-    assert "`artifacts/traffic`" in preflight
-    assert "host 사용자" in preflight
-    assert "기존 파일의 내용이나 권한은 읽거나 바꾸지 않고" in preflight
 
 
 def test_learner_guide_assigns_gitops_changes_to_platform_staff() -> None:
@@ -226,12 +220,9 @@ def test_learner_facing_labs_use_korean_handoff_terms() -> None:
 
 def test_observability_setup_preserves_an_existing_personal_environment() -> None:
     guide = Path("labs/ch04-observability/README.md").read_text(encoding="utf-8")
-    runbook = Path("docs/runbooks/course-preflight.md").read_text(encoding="utf-8")
 
     assert "test -f .env.grafanacloud ||" not in guide
     assert "cp .env.grafanacloud.example .env.grafanacloud" not in guide
-    assert "test -f .env.grafanacloud ||" in runbook
-    assert "cp .env.grafanacloud.example .env.grafanacloud" in runbook
 
 
 def test_serving_guide_only_requests_correlation_evidence_that_is_persisted() -> None:
