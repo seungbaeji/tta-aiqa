@@ -1,0 +1,32 @@
+"""Runtime settings for the Grafana Cloud Dashboard Importer."""
+
+from pathlib import Path
+
+from pydantic import AnyHttpUrl, SecretStr
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+GRAFANA_DASHBOARD_SECRETS_DIR = Path(
+    "/var/run/secrets/aiqa/grafana-dashboard-importer"
+)
+
+
+class GrafanaDashboardSettings(BaseSettings):
+    """Validate per-student Grafana Cloud credentials and dashboard locations."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="AIQA_GRAFANA_",
+        env_file=".env.grafanacloud",
+        env_file_encoding="utf-8",
+        extra="forbid",
+    )
+
+    environment: str = "local"
+    telemetry_config_path: Path = Path("configs/observability/telemetry.yaml")
+    otlp_endpoint: AnyHttpUrl | None = None
+    url: AnyHttpUrl
+    dashboard_path: Path
+    dashboard_token: SecretStr
+    folder_uid: str
+    metrics_datasource_uid: str
+    logs_datasource_uid: str
+    traces_datasource_uid: str

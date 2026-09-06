@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "artifact_id": "RUNTIME-IMAGES-V2-20260727",
+  "recorded_at": "2026-07-27T07:00:27Z",
+  "source_commit": "8e5c14dd773dbfcbd0896a6edbd522e9a035abf6",
+  "build": {
+    "builder": "tta-aiqa-publish",
+    "provenance": "mode=max",
+    "sbom": true
+  },
+  "images": {
+    "risk_api": {
+      "tag": "ghcr.io/seungbaeji/tta-aiqa-risk-api:v2-8e5c14dd773d",
+      "reference": "ghcr.io/seungbaeji/tta-aiqa-risk-api@sha256:20f47861095b23548d82d3270f01f8bc54b5aa1cd91eb6172f6919403ebd959c",
+      "oci_index_digest": "sha256:20f47861095b23548d82d3270f01f8bc54b5aa1cd91eb6172f6919403ebd959c",
+      "platform_manifest_digests": {
+        "linux/amd64": "sha256:32a10ef051ac75553eb2b40be7173880a779c873436c66e69b587075bd17c401",
+        "linux/arm64": "sha256:bba8619794b4c5a15c305ca4ec509c4c02add02adb9b3135247184a5bfc013c1"
+      },
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    },
+    "kserve_predictor": {
+      "tag": "ghcr.io/seungbaeji/tta-aiqa-kserve-predictor:v2-8e5c14dd773d",
+      "reference": "ghcr.io/seungbaeji/tta-aiqa-kserve-predictor@sha256:63ff48ef33105181186919b777e3e60ac3bbc6c78f0f545154049701bbcd8fb0",
+      "oci_index_digest": "sha256:63ff48ef33105181186919b777e3e60ac3bbc6c78f0f545154049701bbcd8fb0",
+      "platform_manifest_digests": {
+        "linux/amd64": "sha256:df558feb8ff99c5ceec945be81fe3704e90c9190a69ddbd910c5544a56d9e8bd",
+        "linux/arm64": "sha256:3317e94621aea7a489735bcb0cfc8fb02384e70add2f913031008aeddb79232c"
+      },
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    }
+  },
+  "local_verification": {
+    "status": "verified",
+    "performed_at": "2026-07-27T07:02:28Z",
+    "platform": "linux/arm64",
+    "checks": [
+      "Both pulled image configs label source revision 8e5c14dd773dbfcbd0896a6edbd522e9a035abf6.",
+      "The predictor readiness endpoint returned ready.",
+      "The Risk API readiness endpoint returned baseline-f2576f12512a.",
+      "The Risk API model endpoint returned the KServe baseline identity and 133 features.",
+      "One baseline request traversed Risk API to the predictor and returned HTTP 200."
+    ]
+  },
+  "target_verification": {
+    "status": "pending",
+    "checked_context": "oracle/k3s",
+    "reason": "The configured context does not contain the course tta-aiqa runtime or namespace.",
+    "owner": "instructor_platform",
+    "required_inputs": [
+      "Approved course TARGET_CONTEXT",
+      "The ghcr-pull Secret in the tta-aiqa namespace",
+      "The static course-models volume with baseline and Candidate B bundles",
+      "Grafana Cloud credentials and the approved Alloy configuration"
+    ],
+    "completion_evidence": [
+      "The course node resolves both pinned OCI indexes and runs the recorded platform manifest digests.",
+      "Baseline, Candidate B, and rollback expose the expected model identity and readiness.",
+      "A valid request returns HTTP 200 through Risk API and the predictor.",
+      "Metrics, bounded logs, and the representative trace agree on model, environment, and UTC range."
+    ]
+  }
+}

@@ -1,0 +1,401 @@
+{
+  "schema_version": 2,
+  "artifact_id": "OBS-FALLBACK-02",
+  "classification": "PREPARED/OFFLINE",
+  "live_telemetry": false,
+  "purpose": "Grafana Cloud를 사용할 수 없을 때 P5 수집 인계, P6 대시보드 분석, P7 대표 요청 추적을 같은 제한된 자료로 연습하는 정적 수집 묶음",
+  "provenance": {
+    "source_kind": "course_static_fixture",
+    "captured_from_live_backend": false,
+    "contains_raw_features": false,
+    "contains_secrets": false,
+    "intended_use": "offline collection handoff and bounded analysis"
+  },
+  "limitations": [
+    "Grafana Cloud, Prometheus, Loki 또는 Tempo에서 수집한 실시간 자료가 아닙니다.",
+    "실제 환경의 수집 성공, 발생 시각, 지연 또는 장애 원인을 입증하지 않습니다.",
+    "원본 특성값과 인증 정보가 없으므로 정답 기반 모델 품질이나 외부 환경 상태를 다시 계산하지 않습니다."
+  ],
+  "observation_window": {
+    "start": "2026-07-15T06:00:00Z",
+    "end": "2026-07-15T06:15:00Z",
+    "timezone": "UTC"
+  },
+  "environment": {
+    "name": "prepared-offline",
+    "scope": "static"
+  },
+  "handoff_contract": {
+    "live_manifest_path": "artifacts/traffic/collection-session.json",
+    "live_scenario_artifact_path": "artifacts/traffic/compose.jsonl",
+    "offline_packet_path": "docs/reference/evidence/incident/prepared-observability-correlation.json",
+    "session_id": "OBS-FALLBACK-02",
+    "scope": "static"
+  },
+  "model": {
+    "profile": "baseline",
+    "version": "baseline-f2576f12512a",
+    "threshold": 0.5
+  },
+  "selection_rules": {
+    "normal_status": 200,
+    "slow_request_minimum_ms": 500.0,
+    "invalid_status": 422
+  },
+  "dashboard": {
+    "scenario_summaries": [
+      {
+        "scenario": "baseline",
+        "run_id": "prepared-baseline-01",
+        "request_count": 60,
+        "status_counts": {
+          "200": 60,
+          "422": 0,
+          "5xx": 0
+        },
+        "high_risk_prediction_count": 4,
+        "high_risk_prediction_rate": 0.0667,
+        "score_p95": 0.4,
+        "missing_features_p95": 0.5,
+        "latency_p95_ms": 55.0
+      },
+      {
+        "scenario": "current-shift",
+        "run_id": "prepared-current-shift-01",
+        "request_count": 60,
+        "status_counts": {
+          "200": 60,
+          "422": 0,
+          "5xx": 0
+        },
+        "high_risk_prediction_count": 11,
+        "high_risk_prediction_rate": 0.1833,
+        "score_p95": 0.56,
+        "missing_features_p95": 2.0,
+        "latency_p95_ms": 640.0
+      },
+      {
+        "scenario": "invalid",
+        "run_id": "prepared-invalid-01",
+        "request_count": 3,
+        "status_counts": {
+          "200": 0,
+          "422": 3,
+          "5xx": 0
+        },
+        "high_risk_prediction_count": 0,
+        "high_risk_prediction_rate": 0.0,
+        "score_p95": null,
+        "missing_features_p95": 1.0,
+        "latency_p95_ms": 30.0
+      }
+    ],
+    "time_series": [
+      {
+        "timestamp": "2026-07-15T06:01:00Z",
+        "scenario": "baseline",
+        "request_count": 20,
+        "status_200": 20,
+        "status_422": 0,
+        "status_5xx": 0,
+        "high_risk_prediction_rate": 0.05,
+        "score_p95": 0.37,
+        "missing_features_p95": 0.0,
+        "latency_p95_ms": 42.0
+      },
+      {
+        "timestamp": "2026-07-15T06:03:00Z",
+        "scenario": "baseline",
+        "request_count": 20,
+        "status_200": 20,
+        "status_422": 0,
+        "status_5xx": 0,
+        "high_risk_prediction_rate": 0.05,
+        "score_p95": 0.38,
+        "missing_features_p95": 0.0,
+        "latency_p95_ms": 45.0
+      },
+      {
+        "timestamp": "2026-07-15T06:05:00Z",
+        "scenario": "baseline",
+        "request_count": 20,
+        "status_200": 20,
+        "status_422": 0,
+        "status_5xx": 0,
+        "high_risk_prediction_rate": 0.1,
+        "score_p95": 0.42,
+        "missing_features_p95": 1.0,
+        "latency_p95_ms": 58.0
+      },
+      {
+        "timestamp": "2026-07-15T06:06:00Z",
+        "scenario": "current-shift",
+        "request_count": 20,
+        "status_200": 20,
+        "status_422": 0,
+        "status_5xx": 0,
+        "high_risk_prediction_rate": 0.15,
+        "score_p95": 0.52,
+        "missing_features_p95": 1.0,
+        "latency_p95_ms": 120.0
+      },
+      {
+        "timestamp": "2026-07-15T06:08:00Z",
+        "scenario": "current-shift",
+        "request_count": 20,
+        "status_200": 20,
+        "status_422": 0,
+        "status_5xx": 0,
+        "high_risk_prediction_rate": 0.2,
+        "score_p95": 0.58,
+        "missing_features_p95": 2.0,
+        "latency_p95_ms": 960.0
+      },
+      {
+        "timestamp": "2026-07-15T06:10:00Z",
+        "scenario": "current-shift",
+        "request_count": 20,
+        "status_200": 20,
+        "status_422": 0,
+        "status_5xx": 0,
+        "high_risk_prediction_rate": 0.2,
+        "score_p95": 0.55,
+        "missing_features_p95": 2.0,
+        "latency_p95_ms": 220.0
+      },
+      {
+        "timestamp": "2026-07-15T06:12:00Z",
+        "scenario": "invalid",
+        "request_count": 3,
+        "status_200": 0,
+        "status_422": 3,
+        "status_5xx": 0,
+        "high_risk_prediction_rate": 0.0,
+        "score_p95": null,
+        "missing_features_p95": 1.0,
+        "latency_p95_ms": 30.0
+      }
+    ]
+  },
+  "representative_requests": [
+    {
+      "case": "normal",
+      "selection_reason": "baseline의 HTTP 200 정상 처리 경로",
+      "scenario": "baseline",
+      "correlation": {
+        "run_id": "prepared-baseline-01",
+        "request_id": "baseline-prepared-baseline-01-0007",
+        "trace_id": "11111111111111111111111111111111"
+      },
+      "http": {
+        "status_code": 200,
+        "duration_ms": 44.0,
+        "score": 0.31,
+        "prediction": "low_risk"
+      },
+      "bounded_log_event": {
+        "level": "info",
+        "event": "http.request.completed",
+        "service_name": "risk-api",
+        "service_namespace": "tta-aiqa",
+        "environment": "prepared-offline",
+        "operation": "risk.predict",
+        "scenario": "baseline",
+        "run_id": "prepared-baseline-01",
+        "request_id": "baseline-prepared-baseline-01-0007",
+        "trace_id": "11111111111111111111111111111111",
+        "span_id": "4444444444444444",
+        "status_code": 200,
+        "duration_ms": 44.0,
+        "model_profile": "baseline",
+        "model_version": "baseline-f2576f12512a",
+        "prediction": "low_risk"
+      },
+      "trace_path": [
+        {
+          "span_name": "traffic.generate",
+          "span_kind": "INTERNAL",
+          "service_name": "traffic-generator",
+          "trace_id": "11111111111111111111111111111111",
+          "span_id": "1111111111111111",
+          "parent_span_id": null,
+          "duration_ms": 46.0
+        },
+        {
+          "span_name": "risk-api.predict",
+          "span_kind": "CLIENT",
+          "service_name": "traffic-generator",
+          "trace_id": "11111111111111111111111111111111",
+          "span_id": "2222222222222222",
+          "parent_span_id": "1111111111111111",
+          "duration_ms": 45.0
+        },
+        {
+          "span_name": "POST /v1/predict",
+          "span_kind": "SERVER",
+          "service_name": "risk-api",
+          "trace_id": "11111111111111111111111111111111",
+          "span_id": "3333333333333333",
+          "parent_span_id": "2222222222222222",
+          "duration_ms": 44.0
+        },
+        {
+          "span_name": "risk.predict",
+          "span_kind": "INTERNAL",
+          "service_name": "risk-api",
+          "trace_id": "11111111111111111111111111111111",
+          "span_id": "4444444444444444",
+          "parent_span_id": "3333333333333333",
+          "duration_ms": 31.0
+        }
+      ]
+    },
+    {
+      "case": "slow",
+      "selection_reason": "current-shift의 HTTP 200 중 500ms를 넘은 대표 요청",
+      "scenario": "current-shift",
+      "correlation": {
+        "run_id": "prepared-current-shift-01",
+        "request_id": "current-shift-prepared-current-shift-01-0012",
+        "trace_id": "22222222222222222222222222222222"
+      },
+      "http": {
+        "status_code": 200,
+        "duration_ms": 920.0,
+        "score": 0.61,
+        "prediction": "high_risk"
+      },
+      "bounded_log_event": {
+        "level": "info",
+        "event": "http.request.completed",
+        "service_name": "risk-api",
+        "service_namespace": "tta-aiqa",
+        "environment": "prepared-offline",
+        "operation": "risk.predict",
+        "scenario": "current-shift",
+        "run_id": "prepared-current-shift-01",
+        "request_id": "current-shift-prepared-current-shift-01-0012",
+        "trace_id": "22222222222222222222222222222222",
+        "span_id": "8888888888888888",
+        "status_code": 200,
+        "duration_ms": 920.0,
+        "model_profile": "baseline",
+        "model_version": "baseline-f2576f12512a",
+        "prediction": "high_risk"
+      },
+      "trace_path": [
+        {
+          "span_name": "traffic.generate",
+          "span_kind": "INTERNAL",
+          "service_name": "traffic-generator",
+          "trace_id": "22222222222222222222222222222222",
+          "span_id": "5555555555555555",
+          "parent_span_id": null,
+          "duration_ms": 924.0
+        },
+        {
+          "span_name": "risk-api.predict",
+          "span_kind": "CLIENT",
+          "service_name": "traffic-generator",
+          "trace_id": "22222222222222222222222222222222",
+          "span_id": "6666666666666666",
+          "parent_span_id": "5555555555555555",
+          "duration_ms": 922.0
+        },
+        {
+          "span_name": "POST /v1/predict",
+          "span_kind": "SERVER",
+          "service_name": "risk-api",
+          "trace_id": "22222222222222222222222222222222",
+          "span_id": "7777777777777777",
+          "parent_span_id": "6666666666666666",
+          "duration_ms": 920.0
+        },
+        {
+          "span_name": "risk.predict",
+          "span_kind": "INTERNAL",
+          "service_name": "risk-api",
+          "trace_id": "22222222222222222222222222222222",
+          "span_id": "8888888888888888",
+          "parent_span_id": "7777777777777777",
+          "duration_ms": 861.0
+        }
+      ]
+    },
+    {
+      "case": "invalid_422",
+      "selection_reason": "invalid의 제한된 입력 검증 오류",
+      "scenario": "invalid",
+      "correlation": {
+        "run_id": "prepared-invalid-01",
+        "request_id": "invalid-prepared-invalid-01-0001",
+        "trace_id": "4bf92f3577b34da6a3ce929d0e0e4736"
+      },
+      "http": {
+        "status_code": 422,
+        "duration_ms": 31.0,
+        "error": {
+          "code": "MODEL_INPUT_INVALID",
+          "validation_category": "missing"
+        }
+      },
+      "bounded_log_event": {
+        "level": "info",
+        "event": "model.input.validation.failed",
+        "service_name": "risk-api",
+        "service_namespace": "tta-aiqa",
+        "environment": "prepared-offline",
+        "operation": "risk.predict",
+        "scenario": "invalid",
+        "run_id": "prepared-invalid-01",
+        "request_id": "invalid-prepared-invalid-01-0001",
+        "trace_id": "4bf92f3577b34da6a3ce929d0e0e4736",
+        "span_id": "cccccccccccccccc",
+        "status_code": 422,
+        "duration_ms": 31.0,
+        "model_profile": "baseline",
+        "model_version": "baseline-f2576f12512a",
+        "error_code": "MODEL_INPUT_INVALID",
+        "validation_category": "missing"
+      },
+      "trace_path": [
+        {
+          "span_name": "traffic.generate",
+          "span_kind": "INTERNAL",
+          "service_name": "traffic-generator",
+          "trace_id": "4bf92f3577b34da6a3ce929d0e0e4736",
+          "span_id": "9999999999999999",
+          "parent_span_id": null,
+          "duration_ms": 34.0
+        },
+        {
+          "span_name": "risk-api.predict",
+          "span_kind": "CLIENT",
+          "service_name": "traffic-generator",
+          "trace_id": "4bf92f3577b34da6a3ce929d0e0e4736",
+          "span_id": "aaaaaaaaaaaaaaaa",
+          "parent_span_id": "9999999999999999",
+          "duration_ms": 33.0
+        },
+        {
+          "span_name": "POST /v1/predict",
+          "span_kind": "SERVER",
+          "service_name": "risk-api",
+          "trace_id": "4bf92f3577b34da6a3ce929d0e0e4736",
+          "span_id": "bbbbbbbbbbbbbbbb",
+          "parent_span_id": "aaaaaaaaaaaaaaaa",
+          "duration_ms": 31.0
+        },
+        {
+          "span_name": "risk.predict",
+          "span_kind": "INTERNAL",
+          "service_name": "risk-api",
+          "trace_id": "4bf92f3577b34da6a3ce929d0e0e4736",
+          "span_id": "cccccccccccccccc",
+          "parent_span_id": "bbbbbbbbbbbbbbbb",
+          "duration_ms": 8.0
+        }
+      ]
+    }
+  ]
+}

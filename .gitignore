@@ -12,7 +12,9 @@ __pycache__/
 .ipynb_checkpoints/
 
 # Local data and generated outputs
-data/raw/
+data/raw/physionet-2012/*
+!data/raw/physionet-2012/LICENSE.txt
+!data/raw/physionet-2012/source-manifest.yaml
 data/drift_requests.csv
 data/operational_baseline_events.jsonl
 data/operational_current_events.jsonl
@@ -29,6 +31,20 @@ mlruns/
 artifacts/mlflow.db
 artifacts/mlruns/
 artifacts/mlflow/
+/mlruns/
+artifacts/phase0/
+artifacts/data-quality/great-expectations/
+artifacts/model/
+artifacts/models/
+artifacts/traffic/
+/artifacts/deploy/
+/artifacts/reports/
+/artifacts/security/
+set-a/
+data/interim/physionet-2012/
+
+# Local scratch and archived workspace material
+tmp/
 
 # Environment
 .env
@@ -44,3 +60,12 @@ artifacts/mlflow/
 .DS_Store
 .idea/
 .vscode/
+
+# Lecture authoring lives in the private curriculum repo.
+# Keep local Keynote, PDF, and generated PNG on disk; do not commit them.
+*.key
+*.pdf
+/slide/
+/docs/authoring/
+/docs/instructor/
+/docs/reviews/

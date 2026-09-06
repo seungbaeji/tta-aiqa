@@ -1,0 +1,62 @@
+{
+  "accessed_roles": [
+    "train",
+    "valid",
+    "test"
+  ],
+  "evaluation_role": "test",
+  "profiles": [
+    {
+      "bootstrap_recall_lower": 0.12962962962962962,
+      "cross_validation": {},
+      "metrics": {
+        "f1": 0.3333333333333333,
+        "false_negative": 42,
+        "false_positive": 10,
+        "pr_auc": 0.5243964482172888,
+        "precision": 0.5652173913043478,
+        "recall": 0.23636363636363636,
+        "roc_auc": 0.8792094861660079,
+        "true_negative": 335,
+        "true_positive": 13
+      },
+      "profile": "baseline",
+      "threshold": 0.5
+    },
+    {
+      "bootstrap_recall_lower": 0.18643082380764683,
+      "cross_validation": {},
+      "metrics": {
+        "f1": 0.44155844155844154,
+        "false_negative": 38,
+        "false_positive": 5,
+        "pr_auc": 0.5941658639910755,
+        "precision": 0.7727272727272727,
+        "recall": 0.3090909090909091,
+        "roc_auc": 0.8731488801054018,
+        "true_negative": 340,
+        "true_positive": 17
+      },
+      "profile": "candidate-a",
+      "threshold": 0.4
+    },
+    {
+      "bootstrap_recall_lower": 0.6956337509211495,
+      "cross_validation": {},
+      "metrics": {
+        "f1": 0.5146198830409356,
+        "false_negative": 11,
+        "false_positive": 72,
+        "pr_auc": 0.5743375957957177,
+        "precision": 0.3793103448275862,
+        "recall": 0.8,
+        "roc_auc": 0.8796837944664031,
+        "true_negative": 273,
+        "true_positive": 44
+      },
+      "profile": "candidate-b",
+      "threshold": 0.35
+    }
+  ],
+  "schema_version": 1
+}

@@ -1,0 +1,62 @@
+{
+  "ancestry": {
+    "operational_to_test": 400,
+    "test_to_operational": 100,
+    "test_to_train": 500,
+    "train_to_train": 2400,
+    "valid_to_valid": 600
+  },
+  "approval": "scenario_review_option_2",
+  "configuration": {
+    "dvc_lock_sha256": "7a489161a04b4748ac964b68ba2a3df8c51cbbd60b6a913849d97b3f0153d4cf",
+    "parent_manifest_sha256": "a2d7d73386f5f565b8c5ad8cb29954c6be63d5ccb1a5f5572cd252bfe68da064",
+    "revision_manifest_sha256": "495d47899cf462c906ffe5b0cb155cbe624e91ce2c7cccce92bbcd812bb30b4a",
+    "split_revision_sha256": "090a79ac01b5ffb67b69eeeb02320e161a8e3d095a5d3116a0d0e4436cfe5322",
+    "split_seed": 43
+  },
+  "invariants": {
+    "operational_target_removed": true,
+    "parent_operational_is_new_sealed_test": true,
+    "parent_test_is_not_new_test": true,
+    "parent_train_and_valid_are_stable": true,
+    "roles_are_disjoint_and_exhaustive": true
+  },
+  "parent_revision": "v1",
+  "revision": "v2",
+  "role_datasets": {
+    "operational": {
+      "deaths": 14,
+      "path": "data/splits/physionet-2012/revisions/v2/datasets/operational.csv",
+      "rows": 100,
+      "sha256": "b15ea04132ae3dcf3438ebf41e884f198b01861f90f2f8aae5f0a5920d971775",
+      "target_included": false
+    },
+    "test": {
+      "deaths": 55,
+      "path": "data/splits/physionet-2012/revisions/v2/datasets/test.csv",
+      "rows": 400,
+      "sha256": "051491069cd385789047031d87ad92f3ebf86868f7b2da410307b639b906aa77",
+      "target_included": true
+    },
+    "train": {
+      "deaths": 402,
+      "path": "data/splits/physionet-2012/revisions/v2/datasets/train.csv",
+      "rows": 2900,
+      "sha256": "503e5cd4281467171854d21746adf0e9023ecdb4aa7cb4c20c796b303d97e000",
+      "target_included": true
+    },
+    "valid": {
+      "deaths": 83,
+      "path": "data/splits/physionet-2012/revisions/v2/datasets/valid.csv",
+      "rows": 600,
+      "sha256": "cdaf5426fa5deeb3d92f53a1340ba2a938ef1217633f42ff1f158a6d96cec8b3",
+      "target_included": true
+    }
+  },
+  "schema_version": 1,
+  "source": {
+    "archive_sha256": "1433638192fda622e8bb11a4559b8af2dbb1c69f0e1c3b5b606cc12aabd0a4c5",
+    "outcomes_sha256": "2613ea60ccda29f87571a7d6b09ad130858a8ccd66325bd073365925026883c2",
+    "source_manifest_sha256": "b80d4745fd4efdb011d1121b9526bda8f0c7ff488db9d29f1cfd08a06f309148"
+  }
+}

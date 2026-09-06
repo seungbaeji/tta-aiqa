@@ -1,0 +1,65 @@
+stages:
+  verify-source:
+    cmd: python -m data_quality_pipeline.dvc_stage verify-source
+    deps:
+      - apps/data-quality-pipeline/src/data_quality_pipeline
+      - configs/contracts/physionet-record.yaml
+      - data/raw/physionet-2012/LICENSE.txt
+      - data/raw/physionet-2012/Outcomes-a.txt
+      - data/raw/physionet-2012/set-a.zip
+      - data/raw/physionet-2012/source-manifest.yaml
+      - packages/aiqa-data/src/aiqa_data
+    outs:
+      - artifacts/data-quality/source-integrity.json
+
+  extract:
+    cmd: python -m data_quality_pipeline.dvc_stage extract
+    deps:
+      - apps/data-quality-pipeline/src/data_quality_pipeline
+      - artifacts/data-quality/source-integrity.json
+      - configs/contracts/physionet-record.yaml
+      - data/raw/physionet-2012/set-a.zip
+    outs:
+      - data/interim/physionet-2012/set-a
+
+  aggregate:
+    cmd: python -m data_quality_pipeline.dvc_stage aggregate
+    deps:
+      - apps/data-quality-pipeline/src/data_quality_pipeline
+      - artifacts/data-quality/source-integrity.json
+      - configs/contracts/physionet-record.yaml
+      - configs/data/aggregation.yaml
+      - data/interim/physionet-2012/set-a
+      - data/raw/physionet-2012/Outcomes-a.txt
+      - packages/aiqa-data/src/aiqa_data
+    outs:
+      - data/processed/physionet-2012/patient-features.csv
+
+  split:
+    cmd: python -m data_quality_pipeline.dvc_stage split
+    deps:
+      - apps/data-quality-pipeline/src/data_quality_pipeline
+      - data/processed/physionet-2012/patient-features.csv
+      - packages/aiqa-data/src/aiqa_data
+      - params.yaml
+    params:
+      - data.random_seed
+      - data.train_ratio
+      - data.valid_ratio
+      - data.test_ratio
+      - data.operational_ratio
+    outs:
+      - data/splits/physionet-2012/split-manifest.csv
+      - data/splits/physionet-2012/datasets
+
+  revise-split-v2:
+    cmd: python -m data_quality_pipeline.dvc_stage revise-split
+    deps:
+      - apps/data-quality-pipeline/src/data_quality_pipeline
+      - configs/data/split-revisions/v2.yaml
+      - data/processed/physionet-2012/patient-features.csv
+      - data/splits/physionet-2012/split-manifest.csv
+      - packages/aiqa-data/src/aiqa_data
+    outs:
+      - data/splits/physionet-2012/revisions/v2/split-manifest.csv
+      - data/splits/physionet-2012/revisions/v2/datasets

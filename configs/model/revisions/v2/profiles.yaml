@@ -1,0 +1,33 @@
+schema_version: 1
+random_seed: 43
+profiles:
+  - name: baseline
+    model_role: baseline
+    kind: logistic_regression
+    threshold: 0.50
+    params:
+      C: 1.0
+      class_weight: null
+      max_iter: 2000
+  - name: candidate-a
+    model_role: candidate
+    candidate_id: candidate-a
+    kind: random_forest
+    threshold: 0.40
+    params:
+      n_estimators: 400
+      min_samples_leaf: 8
+      max_features: sqrt
+      class_weight: null
+      n_jobs: -1
+  - name: candidate-b
+    model_role: candidate
+    candidate_id: candidate-b
+    kind: random_forest
+    threshold: 0.35
+    params:
+      n_estimators: 400
+      min_samples_leaf: 8
+      max_features: sqrt
+      class_weight: balanced_subsample
+      n_jobs: -1

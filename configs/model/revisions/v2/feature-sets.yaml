@@ -1,0 +1,8 @@
+schema_version: 1
+canonical_feature_set: available-v1-full
+feature_sets:
+  - name: available-v1-full
+    selection: all_from_model_input_contract
+    rationale: >-
+      Preserve the 133-feature V1 contract for the approved split-only benchmark
+      revision. No feature was selected from the new sealed test.

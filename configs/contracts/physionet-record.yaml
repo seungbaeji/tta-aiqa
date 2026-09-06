@@ -1,0 +1,12 @@
+schema_version: 1
+dataset: physionet-challenge-2012-set-a
+source_manifest_path: data/raw/physionet-2012/source-manifest.yaml
+records_dir: data/interim/physionet-2012/set-a
+outcomes_path: data/raw/physionet-2012/Outcomes-a.txt
+expected_record_count: 4000
+expected_death_count: 554
+record_columns: [Time, Parameter, Value]
+record_id_parameter: RecordID
+target_column: In-hospital_death
+blocked_outcome_columns: [SAPS-I, SOFA, Length_of_stay, Survival]
+observation_window_hours: 48

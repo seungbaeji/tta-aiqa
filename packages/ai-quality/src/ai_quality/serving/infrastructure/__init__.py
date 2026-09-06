@@ -1,1 +1,0 @@
-"""Serving infrastructure adapters."""

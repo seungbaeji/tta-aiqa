@@ -1,0 +1,1847 @@
+{
+  "accessed_roles": [
+    "train",
+    "valid"
+  ],
+  "candidate_permutation_importance": [
+    {
+      "feature": "gcs__last",
+      "mean": 0.03547808440678894,
+      "standard_deviation": 0.0037645876041162733
+    },
+    {
+      "feature": "gcs__mean",
+      "mean": 0.011427388874060218,
+      "standard_deviation": 0.006467960779075773
+    },
+    {
+      "feature": "age",
+      "mean": 0.006569130829909442,
+      "standard_deviation": 0.0023144752099851624
+    },
+    {
+      "feature": "weight__mean",
+      "mean": 0.005569528729638018,
+      "standard_deviation": 0.0011577254563764755
+    },
+    {
+      "feature": "weight__min",
+      "mean": 0.005346641387418938,
+      "standard_deviation": 0.0014670792713348758
+    },
+    {
+      "feature": "heart_rate__last",
+      "mean": 0.004935013308620062,
+      "standard_deviation": 0.0007661382245041142
+    },
+    {
+      "feature": "non_invasive_map__last",
+      "mean": 0.004779164200746633,
+      "standard_deviation": 0.0012104821750932827
+    },
+    {
+      "feature": "lactate__last",
+      "mean": 0.0046812666200209295,
+      "standard_deviation": 0.007326069013785734
+    },
+    {
+      "feature": "non_invasive_systolic_bp__last",
+      "mean": 0.004558201748488822,
+      "standard_deviation": 0.0010905764762441552
+    },
+    {
+      "feature": "heart_rate__mean",
+      "mean": 0.004481215604255462,
+      "standard_deviation": 0.0016420073801202881
+    },
+    {
+      "feature": "urine__sum",
+      "mean": 0.004274040300274529,
+      "standard_deviation": 0.006874554454917448
+    },
+    {
+      "feature": "ph__min",
+      "mean": 0.004212747083977153,
+      "standard_deviation": 0.0006919808422267105
+    },
+    {
+      "feature": "lactate__mean",
+      "mean": 0.004038918845044315,
+      "standard_deviation": 0.004084763361176458
+    },
+    {
+      "feature": "weight__max",
+      "mean": 0.0035843840903126423,
+      "standard_deviation": 0.0024261961711169095
+    },
+    {
+      "feature": "icu_type",
+      "mean": 0.003532977941624027,
+      "standard_deviation": 0.0013954267320110123
+    },
+    {
+      "feature": "lactate__max",
+      "mean": 0.0033929956351442803,
+      "standard_deviation": 0.0037426893110281763
+    },
+    {
+      "feature": "heart_rate__count",
+      "mean": 0.0033040950798605916,
+      "standard_deviation": 0.001026389927547289
+    },
+    {
+      "feature": "urine__min",
+      "mean": 0.0032254485780178754,
+      "standard_deviation": 0.0009467799532145854
+    },
+    {
+      "feature": "pao2__min",
+      "mean": 0.003023483112882153,
+      "standard_deviation": 0.0005413764400244759
+    },
+    {
+      "feature": "urine__last",
+      "mean": 0.0029567302058037927,
+      "standard_deviation": 0.0010049989010603234
+    },
+    {
+      "feature": "lactate__min",
+      "mean": 0.0029325168977890836,
+      "standard_deviation": 0.0041216160930457445
+    },
+    {
+      "feature": "temperature__last",
+      "mean": 0.002896173658274137,
+      "standard_deviation": 0.0009423284037719412
+    },
+    {
+      "feature": "temperature__mean",
+      "mean": 0.0022559706381263477,
+      "standard_deviation": 0.0015181444521756206
+    },
+    {
+      "feature": "creatinine__max",
+      "mean": 0.0022501162284032207,
+      "standard_deviation": 0.001944115971061974
+    },
+    {
+      "feature": "heart_rate__max",
+      "mean": 0.0022128363612914925,
+      "standard_deviation": 0.0022532686499918534
+    },
+    {
+      "feature": "ph__mean",
+      "mean": 0.0020732789908829872,
+      "standard_deviation": 0.0007694057404994499
+    },
+    {
+      "feature": "non_invasive_systolic_bp__mean",
+      "mean": 0.0020292578343104163,
+      "standard_deviation": 0.0013880392508027744
+    },
+    {
+      "feature": "pao2__last",
+      "mean": 0.0020185153733063067,
+      "standard_deviation": 0.001596997630536316
+    },
+    {
+      "feature": "glucose__mean",
+      "mean": 0.0019509192852302237,
+      "standard_deviation": 0.004270827627157986
+    },
+    {
+      "feature": "ph__max",
+      "mean": 0.0018244581604922928,
+      "standard_deviation": 0.0011257464206271784
+    },
+    {
+      "feature": "weight__last",
+      "mean": 0.0017686992854309192,
+      "standard_deviation": 0.001124748707589612
+    },
+    {
+      "feature": "glucose__last",
+      "mean": 0.0016654327104219213,
+      "standard_deviation": 0.002381006568554517
+    },
+    {
+      "feature": "non_invasive_diastolic_bp__count",
+      "mean": 0.0016320144010864902,
+      "standard_deviation": 0.0009729123615423902
+    },
+    {
+      "feature": "lactate__count",
+      "mean": 0.0015677298453673828,
+      "standard_deviation": 0.001035888351163182
+    },
+    {
+      "feature": "sodium__max",
+      "mean": 0.001538210694787212,
+      "standard_deviation": 0.0006582554463976361
+    },
+    {
+      "feature": "non_invasive_diastolic_bp__max",
+      "mean": 0.0014947388267137595,
+      "standard_deviation": 0.0016884299759013753
+    },
+    {
+      "feature": "ph__last",
+      "mean": 0.001459744653081807,
+      "standard_deviation": 0.0012030397770365858
+    },
+    {
+      "feature": "non_invasive_systolic_bp__max",
+      "mean": 0.0014173636490590557,
+      "standard_deviation": 0.0003237399762755175
+    },
+    {
+      "feature": "non_invasive_map__mean",
+      "mean": 0.0012947737217584687,
+      "standard_deviation": 0.0008426678991836411
+    },
+    {
+      "feature": "ph__count",
+      "mean": 0.001286125892180101,
+      "standard_deviation": 0.0011702733519939094
+    },
+    {
+      "feature": "platelets__min",
+      "mean": 0.0012489301229354655,
+      "standard_deviation": 0.000883248738390552
+    },
+    {
+      "feature": "hematocrit__max",
+      "mean": 0.0012466268342247733,
+      "standard_deviation": 0.00040664621208046987
+    },
+    {
+      "feature": "sodium__mean",
+      "mean": 0.0011005929663394198,
+      "standard_deviation": 0.000225205107987048
+    },
+    {
+      "feature": "potassium__min",
+      "mean": 0.0010596306937439182,
+      "standard_deviation": 0.001638321045534618
+    },
+    {
+      "feature": "non_invasive_diastolic_bp__last",
+      "mean": 0.0010300815945685105,
+      "standard_deviation": 0.0018789291943827127
+    },
+    {
+      "feature": "non_invasive_map__min",
+      "mean": 0.0008938505286880782,
+      "standard_deviation": 0.0009850767075181928
+    },
+    {
+      "feature": "potassium__mean",
+      "mean": 0.0008343162528826719,
+      "standard_deviation": 0.0007622299969993467
+    },
+    {
+      "feature": "non_invasive_systolic_bp__min",
+      "mean": 0.0008013000809908965,
+      "standard_deviation": 0.001921567689849465
+    },
+    {
+      "feature": "fio2__mean",
+      "mean": 0.0007817216828847507,
+      "standard_deviation": 0.000640083141493646
+    },
+    {
+      "feature": "hematocrit__last",
+      "mean": 0.0007512593222016139,
+      "standard_deviation": 0.0011694557963308524
+    },
+    {
+      "feature": "non_invasive_map__count",
+      "mean": 0.000678322303128387,
+      "standard_deviation": 0.0009517523762707818
+    },
+    {
+      "feature": "urine__count",
+      "mean": 0.0006658450888991085,
+      "standard_deviation": 0.002160109793787791
+    },
+    {
+      "feature": "potassium__max",
+      "mean": 0.000522757493746595,
+      "standard_deviation": 0.0009504290376274666
+    },
+    {
+      "feature": "pao2__max",
+      "mean": 0.0004194350375709366,
+      "standard_deviation": 0.0017601463025738837
+    },
+    {
+      "feature": "ph__missing",
+      "mean": 0.0003845719030189154,
+      "standard_deviation": 0.0005676588366021306
+    },
+    {
+      "feature": "sodium__min",
+      "mean": 0.00034505185121972424,
+      "standard_deviation": 0.0004074422965196113
+    },
+    {
+      "feature": "mechanical_ventilation__last",
+      "mean": 0.00028587734679846877,
+      "standard_deviation": 0.00040748194339818944
+    },
+    {
+      "feature": "glucose__min",
+      "mean": 0.0002093140476787547,
+      "standard_deviation": 0.0011125445753704616
+    },
+    {
+      "feature": "non_invasive_map__missing",
+      "mean": 0.00017116948321201919,
+      "standard_deviation": 2.933853602971109e-05
+    },
+    {
+      "feature": "creatinine__count",
+      "mean": 0.00016288982457109968,
+      "standard_deviation": 0.000525397279471431
+    },
+    {
+      "feature": "gender",
+      "mean": 7.461967544076797e-05,
+      "standard_deviation": 0.00202742278047145
+    },
+    {
+      "feature": "bun__missing",
+      "mean": 6.771444817205152e-05,
+      "standard_deviation": 0.0
+    },
+    {
+      "feature": "hematocrit__count",
+      "mean": 4.253687002571116e-05,
+      "standard_deviation": 0.0008733859705363882
+    },
+    {
+      "feature": "platelets__last",
+      "mean": 2.1722448488592506e-05,
+      "standard_deviation": 0.0005625787278012645
+    },
+    {
+      "feature": "pao2__missing",
+      "mean": 1.479263949532017e-05,
+      "standard_deviation": 0.00045968110760070345
+    },
+    {
+      "feature": "urine__missing",
+      "mean": 1.4255303480270599e-05,
+      "standard_deviation": 1.742171331982319e-05
+    },
+    {
+      "feature": "pao2__count",
+      "mean": 1.1383238615236823e-05,
+      "standard_deviation": 0.0021248598650844505
+    },
+    {
+      "feature": "age__missing",
+      "mean": 0.0,
+      "standard_deviation": 0.0
+    },
+    {
+      "feature": "gender__missing",
+      "mean": 0.0,
+      "standard_deviation": 0.0
+    },
+    {
+      "feature": "icu_type__missing",
+      "mean": 0.0,
+      "standard_deviation": 0.0
+    },
+    {
+      "feature": "heart_rate__missing",
+      "mean": 0.0,
+      "standard_deviation": 0.0
+    },
+    {
+      "feature": "temperature__missing",
+      "mean": 0.0,
+      "standard_deviation": 0.0
+    },
+    {
+      "feature": "creatinine__missing",
+      "mean": 0.0,
+      "standard_deviation": 0.0
+    },
+    {
+      "feature": "hematocrit__missing",
+      "mean": 0.0,
+      "standard_deviation": 0.0
+    },
+    {
+      "feature": "platelets__missing",
+      "mean": 0.0,
+      "standard_deviation": 0.0
+    },
+    {
+      "feature": "wbc__missing",
+      "mean": 0.0,
+      "standard_deviation": 0.0
+    },
+    {
+      "feature": "sodium__missing",
+      "mean": 0.0,
+      "standard_deviation": 0.0
+    },
+    {
+      "feature": "potassium__missing",
+      "mean": 0.0,
+      "standard_deviation": 0.0
+    },
+    {
+      "feature": "glucose__missing",
+      "mean": 0.0,
+      "standard_deviation": 0.0
+    },
+    {
+      "feature": "mechanical_ventilation__missing",
+      "mean": -3.94980353446428e-07,
+      "standard_deviation": 0.0006037505601990476
+    },
+    {
+      "feature": "gcs__missing",
+      "mean": -4.674950679295353e-06,
+      "standard_deviation": 0.0
+    },
+    {
+      "feature": "wbc__max",
+      "mean": -3.096746723950661e-05,
+      "standard_deviation": 0.002429063074574644
+    },
+    {
+      "feature": "temperature__max",
+      "mean": -8.567345742314104e-05,
+      "standard_deviation": 0.0007375206782599888
+    },
+    {
+      "feature": "non_invasive_diastolic_bp__missing",
+      "mean": -0.00010655007035104136,
+      "standard_deviation": 0.0003789767595487684
+    },
+    {
+      "feature": "potassium__last",
+      "mean": -0.00011581849318111903,
+      "standard_deviation": 0.0005309857843090456
+    },
+    {
+      "feature": "non_invasive_diastolic_bp__min",
+      "mean": -0.0001512395706567249,
+      "standard_deviation": 0.0014162654879317
+    },
+    {
+      "feature": "non_invasive_systolic_bp__missing",
+      "mean": -0.00016672060171658566,
+      "standard_deviation": 7.604513057616558e-05
+    },
+    {
+      "feature": "non_invasive_systolic_bp__count",
+      "mean": -0.00017798659941807847,
+      "standard_deviation": 0.0014384859871524951
+    },
+    {
+      "feature": "platelets__count",
+      "mean": -0.00021747345138252162,
+      "standard_deviation": 0.0007867791711365921
+    },
+    {
+      "feature": "wbc__last",
+      "mean": -0.0002217757233975437,
+      "standard_deviation": 0.001737277171785033
+    },
+    {
+      "feature": "height__missing",
+      "mean": -0.0002441607808249979,
+      "standard_deviation": 0.0006184710840250397
+    },
+    {
+      "feature": "non_invasive_diastolic_bp__mean",
+      "mean": -0.00029628200895582825,
+      "standard_deviation": 0.0005835271721435878
+    },
+    {
+      "feature": "sodium__last",
+      "mean": -0.000324319218267366,
+      "standard_deviation": 0.0008920365226713416
+    },
+    {
+      "feature": "heart_rate__min",
+      "mean": -0.0003711363664637646,
+      "standard_deviation": 0.0009316745403401422
+    },
+    {
+      "feature": "temperature__min",
+      "mean": -0.0004176958029566191,
+      "standard_deviation": 0.002545173351577186
+    },
+    {
+      "feature": "creatinine__last",
+      "mean": -0.00043282234605940273,
+      "standard_deviation": 0.003159588274436363
+    },
+    {
+      "feature": "weight__missing",
+      "mean": -0.0004342773586647142,
+      "standard_deviation": 0.0007608083757617976
+    },
+    {
+      "feature": "bun__count",
+      "mean": -0.0005031800016134236,
+      "standard_deviation": 0.0008900713849244391
+    },
+    {
+      "feature": "platelets__max",
+      "mean": -0.0005155314102078922,
+      "standard_deviation": 0.001419755449285407
+    },
+    {
+      "feature": "gcs__count",
+      "mean": -0.0005705195743781033,
+      "standard_deviation": 0.001197296763965946
+    },
+    {
+      "feature": "fio2__max",
+      "mean": -0.0005775749633690541,
+      "standard_deviation": 0.001042742670585654
+    },
+    {
+      "feature": "urine__mean",
+      "mean": -0.0006356029196579405,
+      "standard_deviation": 0.006509274069832991
+    },
+    {
+      "feature": "height",
+      "mean": -0.0006929138637086663,
+      "standard_deviation": 0.00029658493739672894
+    },
+    {
+      "feature": "non_invasive_map__max",
+      "mean": -0.0007874237736390955,
+      "standard_deviation": 0.001310361715851719
+    },
+    {
+      "feature": "pao2__mean",
+      "mean": -0.0008046313435473684,
+      "standard_deviation": 0.0030855731226765892
+    },
+    {
+      "feature": "lactate__missing",
+      "mean": -0.0008257986239991411,
+      "standard_deviation": 0.0008365337075577294
+    },
+    {
+      "feature": "hematocrit__mean",
+      "mean": -0.0009067857975765037,
+      "standard_deviation": 0.0003398341002883323
+    },
+    {
+      "feature": "fio2__last",
+      "mean": -0.0009314692663439095,
+      "standard_deviation": 0.004286345769644754
+    },
+    {
+      "feature": "mechanical_ventilation__max",
+      "mean": -0.0010504790030746558,
+      "standard_deviation": 0.0005613466866170283
+    },
+    {
+      "feature": "wbc__mean",
+      "mean": -0.0011042906830219356,
+      "standard_deviation": 0.0013645822656734236
+    },
+    {
+      "feature": "fio2__missing",
+      "mean": -0.001146931078852853,
+      "standard_deviation": 0.0007945239343450448
+    },
+    {
+      "feature": "weight__count",
+      "mean": -0.00125092559747918,
+      "standard_deviation": 0.004095960261168514
+    },
+    {
+      "feature": "urine__max",
+      "mean": -0.0014937738509147925,
+      "standard_deviation": 0.0036001529099638813
+    },
+    {
+      "feature": "creatinine__min",
+      "mean": -0.0015274153725997274,
+      "standard_deviation": 0.00210944348460829
+    },
+    {
+      "feature": "platelets__mean",
+      "mean": -0.0019141474684352012,
+      "standard_deviation": 0.002193754189702848
+    },
+    {
+      "feature": "wbc__count",
+      "mean": -0.001923860923790366,
+      "standard_deviation": 0.0005080594464991499
+    },
+    {
+      "feature": "hematocrit__min",
+      "mean": -0.0020109894520749737,
+      "standard_deviation": 0.0008644967984179166
+    },
+    {
+      "feature": "wbc__min",
+      "mean": -0.0022455561908722443,
+      "standard_deviation": 0.0009349430098429008
+    },
+    {
+      "feature": "fio2__min",
+      "mean": -0.002417081952798128,
+      "standard_deviation": 0.0033866725284214727
+    },
+    {
+      "feature": "temperature__count",
+      "mean": -0.002492251638262233,
+      "standard_deviation": 0.0014962718685711189
+    },
+    {
+      "feature": "glucose__max",
+      "mean": -0.0025968010498136464,
+      "standard_deviation": 0.003433991121788715
+    },
+    {
+      "feature": "bun__last",
+      "mean": -0.002625187315195432,
+      "standard_deviation": 0.009079663075928305
+    },
+    {
+      "feature": "gcs__min",
+      "mean": -0.0028042415485995064,
+      "standard_deviation": 0.0024720969797558555
+    },
+    {
+      "feature": "potassium__count",
+      "mean": -0.0030464257319339884,
+      "standard_deviation": 0.0035821965450234137
+    },
+    {
+      "feature": "fio2__count",
+      "mean": -0.003257436129738078,
+      "standard_deviation": 0.0029944748517910314
+    },
+    {
+      "feature": "sodium__count",
+      "mean": -0.0033572129339343947,
+      "standard_deviation": 0.005330083071266981
+    },
+    {
+      "feature": "creatinine__mean",
+      "mean": -0.0036661562551909776,
+      "standard_deviation": 0.0031171801044034613
+    },
+    {
+      "feature": "bun__max",
+      "mean": -0.005139109027669864,
+      "standard_deviation": 0.006633532112401651
+    },
+    {
+      "feature": "glucose__count",
+      "mean": -0.005171418664955618,
+      "standard_deviation": 0.0022896173165267986
+    },
+    {
+      "feature": "mechanical_ventilation__count",
+      "mean": -0.006851764432608753,
+      "standard_deviation": 0.004909656476714415
+    },
+    {
+      "feature": "bun__min",
+      "mean": -0.007597825504649591,
+      "standard_deviation": 0.0076039201350308425
+    },
+    {
+      "feature": "gcs__max",
+      "mean": -0.00888521316102996,
+      "standard_deviation": 0.004802252655412972
+    },
+    {
+      "feature": "bun__mean",
+      "mean": -0.013138408521312983,
+      "standard_deviation": 0.0092196846634144
+    }
+  ],
+  "feature_contract_sha256": "fbd02c6149682807d0f3a6d8f7a1c0b823fee96eccf0c13eb584e88a320aede3",
+  "feature_count": 133,
+  "features": [
+    {
+      "distinct_values": 76,
+      "dtype": "float",
+      "feature": "age",
+      "missing_rate": 0.0,
+      "target_correlation": 0.10681063442493288,
+      "variance": 310.18310047562426
+    },
+    {
+      "distinct_values": 1,
+      "dtype": "boolean",
+      "feature": "age__missing",
+      "missing_rate": 0.0,
+      "target_correlation": null,
+      "variance": 0.0
+    },
+    {
+      "distinct_values": 2,
+      "dtype": "category",
+      "feature": "gender",
+      "missing_rate": 0.000689655172413793,
+      "target_correlation": -0.019969521608254815,
+      "variance": 0.2453319702171984
+    },
+    {
+      "distinct_values": 2,
+      "dtype": "boolean",
+      "feature": "gender__missing",
+      "missing_rate": 0.0,
+      "target_correlation": 0.027473743947565566,
+      "variance": 0.0006891795481569562
+    },
+    {
+      "distinct_values": 57,
+      "dtype": "float",
+      "feature": "height",
+      "missing_rate": 0.46827586206896554,
+      "target_correlation": -0.009411143508845473,
+      "variance": 302.05721901753077
+    },
+    {
+      "distinct_values": 2,
+      "dtype": "boolean",
+      "feature": "height__missing",
+      "missing_rate": 0.0,
+      "target_correlation": 0.049502409600448063,
+      "variance": 0.24899357907253264
+    },
+    {
+      "distinct_values": 4,
+      "dtype": "category",
+      "feature": "icu_type",
+      "missing_rate": 0.0,
+      "target_correlation": 0.07611330057235591,
+      "variance": 1.0206015457788347
+    },
+    {
+      "distinct_values": 1,
+      "dtype": "boolean",
+      "feature": "icu_type__missing",
+      "missing_rate": 0.0,
+      "target_correlation": null,
+      "variance": 0.0
+    },
+    {
+      "distinct_values": 747,
+      "dtype": "float",
+      "feature": "weight__min",
+      "missing_rate": 0.07241379310344828,
+      "target_correlation": -0.03641509831037493,
+      "variance": 545.7603098966156
+    },
+    {
+      "distinct_values": 788,
+      "dtype": "float",
+      "feature": "weight__max",
+      "missing_rate": 0.07241379310344828,
+      "target_correlation": -0.039067380898989354,
+      "variance": 589.9004903616036
+    },
+    {
+      "distinct_values": 1806,
+      "dtype": "float",
+      "feature": "weight__mean",
+      "missing_rate": 0.07241379310344828,
+      "target_correlation": -0.03934722624530921,
+      "variance": 567.3358315163579
+    },
+    {
+      "distinct_values": 797,
+      "dtype": "float",
+      "feature": "weight__last",
+      "missing_rate": 0.07241379310344828,
+      "target_correlation": -0.04354306929164375,
+      "variance": 570.9871581990851
+    },
+    {
+      "distinct_values": 111,
+      "dtype": "float",
+      "feature": "weight__count",
+      "missing_rate": 0.07241379310344828,
+      "target_correlation": 0.07465333953840184,
+      "variance": 672.6782460165006
+    },
+    {
+      "distinct_values": 2,
+      "dtype": "boolean",
+      "feature": "weight__missing",
+      "missing_rate": 0.0,
+      "target_correlation": -0.04277898786925366,
+      "variance": 0.06717003567181924
+    },
+    {
+      "distinct_values": 92,
+      "dtype": "float",
+      "feature": "heart_rate__min",
+      "missing_rate": 0.016206896551724137,
+      "target_correlation": 0.03566278636457425,
+      "variance": 204.6960543190711
+    },
+    {
+      "distinct_values": 138,
+      "dtype": "float",
+      "feature": "heart_rate__max",
+      "missing_rate": 0.016206896551724137,
+      "target_correlation": 0.11081992170264196,
+      "variance": 517.7787729115736
+    },
+    {
+      "distinct_values": 2770,
+      "dtype": "float",
+      "feature": "heart_rate__mean",
+      "missing_rate": 0.016206896551724137,
+      "target_correlation": 0.08232856183894437,
+      "variance": 214.02658854525896
+    },
+    {
+      "distinct_values": 105,
+      "dtype": "float",
+      "feature": "heart_rate__last",
+      "missing_rate": 0.016206896551724137,
+      "target_correlation": 0.066704448540566,
+      "variance": 295.97347440153453
+    },
+    {
+      "distinct_values": 109,
+      "dtype": "float",
+      "feature": "heart_rate__count",
+      "missing_rate": 0.016206896551724137,
+      "target_correlation": 0.06223291725144329,
+      "variance": 218.21060372801688
+    },
+    {
+      "distinct_values": 2,
+      "dtype": "boolean",
+      "feature": "heart_rate__missing",
+      "missing_rate": 0.0,
+      "target_correlation": -0.019877268337897352,
+      "variance": 0.015944233055885847
+    },
+    {
+      "distinct_values": 78,
+      "dtype": "float",
+      "feature": "temperature__min",
+      "missing_rate": 0.016551724137931035,
+      "target_correlation": 0.007298162171563072,
+      "variance": 33.27553112011157
+    },
+    {
+      "distinct_values": 53,
+      "dtype": "float",
+      "feature": "temperature__max",
+      "missing_rate": 0.016551724137931035,
+      "target_correlation": 0.007594524164569488,
+      "variance": 0.5628465445375307
+    },
+    {
+      "distinct_values": 2162,
+      "dtype": "float",
+      "feature": "temperature__mean",
+      "missing_rate": 0.016551724137931035,
+      "target_correlation": -0.044522671579442424,
+      "variance": 0.5703026413296647
+    },
+    {
+      "distinct_values": 58,
+      "dtype": "float",
+      "feature": "temperature__last",
+      "missing_rate": 0.016551724137931035,
+      "target_correlation": -0.04035392478321182,
+      "variance": 1.0255873821476131
+    },
+    {
+      "distinct_values": 102,
+      "dtype": "float",
+      "feature": "temperature__count",
+      "missing_rate": 0.016551724137931035,
+      "target_correlation": -0.05805862984075932,
+      "variance": 316.7921670823752
+    },
+    {
+      "distinct_values": 2,
+      "dtype": "boolean",
+      "feature": "temperature__missing",
+      "missing_rate": 0.0,
+      "target_correlation": -0.020756801694165068,
+      "variance": 0.016277764565992867
+    },
+    {
+      "distinct_values": 13,
+      "dtype": "float",
+      "feature": "gcs__min",
+      "missing_rate": 0.016551724137931035,
+      "target_correlation": -0.08366018852479525,
+      "variance": 23.01652343081502
+    },
+    {
+      "distinct_values": 13,
+      "dtype": "float",
+      "feature": "gcs__max",
+      "missing_rate": 0.016551724137931035,
+      "target_correlation": -0.2877386885643578,
+      "variance": 6.965210678660579
+    },
+    {
+      "distinct_values": 1013,
+      "dtype": "float",
+      "feature": "gcs__mean",
+      "missing_rate": 0.016551724137931035,
+      "target_correlation": -0.2560569611415257,
+      "variance": 10.635948026448963
+    },
+    {
+      "distinct_values": 13,
+      "dtype": "float",
+      "feature": "gcs__last",
+      "missing_rate": 0.016551724137931035,
+      "target_correlation": -0.3414259286394202,
+      "variance": 13.385512786971667
+    },
+    {
+      "distinct_values": 50,
+      "dtype": "float",
+      "feature": "gcs__count",
+      "missing_rate": 0.016551724137931035,
+      "target_correlation": 0.0571428412694723,
+      "variance": 58.000813385552604
+    },
+    {
+      "distinct_values": 2,
+      "dtype": "boolean",
+      "feature": "gcs__missing",
+      "missing_rate": 0.0,
+      "target_correlation": -0.020756801694165068,
+      "variance": 0.016277764565992867
+    },
+    {
+      "distinct_values": 112,
+      "dtype": "float",
+      "feature": "bun__min",
+      "missing_rate": 0.017241379310344827,
+      "target_correlation": 0.2390443469119019,
+      "variance": 334.08360726377344
+    },
+    {
+      "distinct_values": 129,
+      "dtype": "float",
+      "feature": "bun__max",
+      "missing_rate": 0.017241379310344827,
+      "target_correlation": 0.22705918060047234,
+      "variance": 514.7809099415205
+    },
+    {
+      "distinct_values": 695,
+      "dtype": "float",
+      "feature": "bun__mean",
+      "missing_rate": 0.017241379310344827,
+      "target_correlation": 0.23597713310103724,
+      "variance": 406.2455919510774
+    },
+    {
+      "distinct_values": 119,
+      "dtype": "float",
+      "feature": "bun__last",
+      "missing_rate": 0.017241379310344827,
+      "target_correlation": 0.24998025901813276,
+      "variance": 411.68323164050486
+    },
+    {
+      "distinct_values": 17,
+      "dtype": "float",
+      "feature": "bun__count",
+      "missing_rate": 0.017241379310344827,
+      "target_correlation": 0.12292557795468265,
+      "variance": 2.7771056940597107
+    },
+    {
+      "distinct_values": 2,
+      "dtype": "boolean",
+      "feature": "bun__missing",
+      "missing_rate": 0.0,
+      "target_correlation": -0.030136178224146642,
+      "variance": 0.01694411414982164
+    },
+    {
+      "distinct_values": 89,
+      "dtype": "float",
+      "feature": "creatinine__min",
+      "missing_rate": 0.017241379310344827,
+      "target_correlation": 0.11518309340937812,
+      "variance": 1.465878024007387
+    },
+    {
+      "distinct_values": 105,
+      "dtype": "float",
+      "feature": "creatinine__max",
+      "missing_rate": 0.017241379310344827,
+      "target_correlation": 0.12354027221005129,
+      "variance": 2.705469898430286
+    },
+    {
+      "distinct_values": 606,
+      "dtype": "float",
+      "feature": "creatinine__mean",
+      "missing_rate": 0.017241379310344827,
+      "target_correlation": 0.12076272332741034,
+      "variance": 1.9751403784679573
+    },
+    {
+      "distinct_values": 98,
+      "dtype": "float",
+      "feature": "creatinine__last",
+      "missing_rate": 0.017241379310344827,
+      "target_correlation": 0.12777600449522095,
+      "variance": 1.989825649738381
+    },
+    {
+      "distinct_values": 18,
+      "dtype": "float",
+      "feature": "creatinine__count",
+      "missing_rate": 0.017241379310344827,
+      "target_correlation": 0.1225275504208069,
+      "variance": 2.8389490920283165
+    },
+    {
+      "distinct_values": 2,
+      "dtype": "boolean",
+      "feature": "creatinine__missing",
+      "missing_rate": 0.0,
+      "target_correlation": -0.030136178224146642,
+      "variance": 0.01694411414982164
+    },
+    {
+      "distinct_values": 284,
+      "dtype": "float",
+      "feature": "hematocrit__min",
+      "missing_rate": 0.016551724137931035,
+      "target_correlation": -0.0034845314514344375,
+      "variance": 28.84215301655884
+    },
+    {
+      "distinct_values": 261,
+      "dtype": "float",
+      "feature": "hematocrit__max",
+      "missing_rate": 0.016551724137931035,
+      "target_correlation": 0.0082968741036585,
+      "variance": 23.048186627233367
+    },
+    {
+      "distinct_values": 1707,
+      "dtype": "float",
+      "feature": "hematocrit__mean",
+      "missing_rate": 0.016551724137931035,
+      "target_correlation": 0.0027332618408294007,
+      "variance": 20.620986647763008
+    },
+    {
+      "distinct_values": 256,
+      "dtype": "float",
+      "feature": "hematocrit__last",
+      "missing_rate": 0.016551724137931035,
+      "target_correlation": 0.006625395587477674,
+      "variance": 21.756201699700416
+    },
+    {
+      "distinct_values": 18,
+      "dtype": "float",
+      "feature": "hematocrit__count",
+      "missing_rate": 0.016551724137931035,
+      "target_correlation": 0.0003233799378168976,
+      "variance": 6.633459652339147
+    },
+    {
+      "distinct_values": 2,
+      "dtype": "boolean",
+      "feature": "hematocrit__missing",
+      "missing_rate": 0.0,
+      "target_correlation": -0.02857836158411809,
+      "variance": 0.016277764565992867
+    },
+    {
+      "distinct_values": 447,
+      "dtype": "float",
+      "feature": "platelets__min",
+      "missing_rate": 0.01793103448275862,
+      "target_correlation": -0.026666572031276686,
+      "variance": 9574.89658374495
+    },
+    {
+      "distinct_values": 498,
+      "dtype": "float",
+      "feature": "platelets__max",
+      "missing_rate": 0.01793103448275862,
+      "target_correlation": -0.016273724195259576,
+      "variance": 12774.27861410728
+    },
+    {
+      "distinct_values": 1603,
+      "dtype": "float",
+      "feature": "platelets__mean",
+      "missing_rate": 0.01793103448275862,
+      "target_correlation": -0.02258410470793755,
+      "variance": 10452.613301149266
+    },
+    {
+      "distinct_values": 463,
+      "dtype": "float",
+      "feature": "platelets__last",
+      "missing_rate": 0.01793103448275862,
+      "target_correlation": -0.026430989928763835,
+      "variance": 10380.634700636312
+    },
+    {
+      "distinct_values": 20,
+      "dtype": "float",
+      "feature": "platelets__count",
+      "missing_rate": 0.01793103448275862,
+      "target_correlation": 0.03689673100565606,
+      "variance": 3.7418763216449946
+    },
+    {
+      "distinct_values": 2,
+      "dtype": "boolean",
+      "feature": "platelets__missing",
+      "missing_rate": 0.0,
+      "target_correlation": -0.03164617979134148,
+      "variance": 0.017609512485136748
+    },
+    {
+      "distinct_values": 282,
+      "dtype": "float",
+      "feature": "wbc__min",
+      "missing_rate": 0.019310344827586208,
+      "target_correlation": 0.08749229786550537,
+      "variance": 34.16329274346417
+    },
+    {
+      "distinct_values": 365,
+      "dtype": "float",
+      "feature": "wbc__max",
+      "missing_rate": 0.019310344827586208,
+      "target_correlation": 0.10651739803123439,
+      "variance": 77.18881270743451
+    },
+    {
+      "distinct_values": 1370,
+      "dtype": "float",
+      "feature": "wbc__mean",
+      "missing_rate": 0.019310344827586208,
+      "target_correlation": 0.10466044262327877,
+      "variance": 47.80638411439279
+    },
+    {
+      "distinct_values": 299,
+      "dtype": "float",
+      "feature": "wbc__last",
+      "missing_rate": 0.019310344827586208,
+      "target_correlation": 0.11621215983706154,
+      "variance": 49.33081940378095
+    },
+    {
+      "distinct_values": 14,
+      "dtype": "float",
+      "feature": "wbc__count",
+      "missing_rate": 0.019310344827586208,
+      "target_correlation": 0.06296721956914492,
+      "variance": 2.4005990849044845
+    },
+    {
+      "distinct_values": 2,
+      "dtype": "boolean",
+      "feature": "wbc__missing",
+      "missing_rate": 0.0,
+      "target_correlation": -0.034537310623154766,
+      "variance": 0.018937455410225915
+    },
+    {
+      "distinct_values": 39,
+      "dtype": "float",
+      "feature": "sodium__min",
+      "missing_rate": 0.020344827586206895,
+      "target_correlation": -0.01926266243102319,
+      "variance": 19.604928139659613
+    },
+    {
+      "distinct_values": 43,
+      "dtype": "float",
+      "feature": "sodium__max",
+      "missing_rate": 0.020344827586206895,
+      "target_correlation": 0.05077974269339286,
+      "variance": 20.019309945967684
+    },
+    {
+      "distinct_values": 359,
+      "dtype": "float",
+      "feature": "sodium__mean",
+      "missing_rate": 0.020344827586206895,
+      "target_correlation": 0.02073459127058567,
+      "variance": 16.90775878049462
+    },
+    {
+      "distinct_values": 36,
+      "dtype": "float",
+      "feature": "sodium__last",
+      "missing_rate": 0.020344827586206895,
+      "target_correlation": 0.05572679855257139,
+      "variance": 18.77701073720516
+    },
+    {
+      "distinct_values": 18,
+      "dtype": "float",
+      "feature": "sodium__count",
+      "missing_rate": 0.020344827586206895,
+      "target_correlation": 0.17713789513000142,
+      "variance": 3.379402104820784
+    },
+    {
+      "distinct_values": 2,
+      "dtype": "boolean",
+      "feature": "sodium__missing",
+      "missing_rate": 0.0,
+      "target_correlation": -0.022468073584172566,
+      "variance": 0.019930915576694408
+    },
+    {
+      "distinct_values": 40,
+      "dtype": "float",
+      "feature": "potassium__min",
+      "missing_rate": 0.02517241379310345,
+      "target_correlation": -0.03446325083472121,
+      "variance": 0.26625579881903355
+    },
+    {
+      "distinct_values": 64,
+      "dtype": "float",
+      "feature": "potassium__max",
+      "missing_rate": 0.02517241379310345,
+      "target_correlation": 0.05313532447563409,
+      "variance": 0.6604863731897518
+    },
+    {
+      "distinct_values": 537,
+      "dtype": "float",
+      "feature": "potassium__mean",
+      "missing_rate": 0.02517241379310345,
+      "target_correlation": 0.020203587417876964,
+      "variance": 0.23869687711480106
+    },
+    {
+      "distinct_values": 40,
+      "dtype": "float",
+      "feature": "potassium__last",
+      "missing_rate": 0.02517241379310345,
+      "target_correlation": 0.01864129158957133,
+      "variance": 0.2675870243592004
+    },
+    {
+      "distinct_values": 19,
+      "dtype": "float",
+      "feature": "potassium__count",
+      "missing_rate": 0.02517241379310345,
+      "target_correlation": 0.1558499010949503,
+      "variance": 3.5492114607124265
+    },
+    {
+      "distinct_values": 2,
+      "dtype": "boolean",
+      "feature": "potassium__missing",
+      "missing_rate": 0.0,
+      "target_correlation": -0.03261188320964843,
+      "variance": 0.02453876337693223
+    },
+    {
+      "distinct_values": 190,
+      "dtype": "float",
+      "feature": "glucose__min",
+      "missing_rate": 0.029655172413793104,
+      "target_correlation": 0.0175590285351913,
+      "variance": 888.5664973942351
+    },
+    {
+      "distinct_values": 345,
+      "dtype": "float",
+      "feature": "glucose__max",
+      "missing_rate": 0.029655172413793104,
+      "target_correlation": 0.1216051113929501,
+      "variance": 7521.80228111145
+    },
+    {
+      "distinct_values": 1017,
+      "dtype": "float",
+      "feature": "glucose__mean",
+      "missing_rate": 0.029655172413793104,
+      "target_correlation": 0.11453076974525574,
+      "variance": 1586.7362230528697
+    },
+    {
+      "distinct_values": 236,
+      "dtype": "float",
+      "feature": "glucose__last",
+      "missing_rate": 0.029655172413793104,
+      "target_correlation": 0.12356550942960888,
+      "variance": 1753.4647263226966
+    },
+    {
+      "distinct_values": 17,
+      "dtype": "float",
+      "feature": "glucose__count",
+      "missing_rate": 0.029655172413793104,
+      "target_correlation": 0.1577482922882557,
+      "variance": 3.1250152173440844
+    },
+    {
+      "distinct_values": 2,
+      "dtype": "boolean",
+      "feature": "glucose__missing",
+      "missing_rate": 0.0,
+      "target_correlation": -0.04071647128318449,
+      "variance": 0.02877574316290131
+    },
+    {
+      "distinct_values": 75,
+      "dtype": "float",
+      "feature": "urine__min",
+      "missing_rate": 0.030344827586206897,
+      "target_correlation": -0.0669202243978243,
+      "variance": 2539.591144004864
+    },
+    {
+      "distinct_values": 357,
+      "dtype": "float",
+      "feature": "urine__max",
+      "missing_rate": 0.030344827586206897,
+      "target_correlation": -0.10395830883688767,
+      "variance": 369825.156187969
+    },
+    {
+      "distinct_values": 2693,
+      "dtype": "float",
+      "feature": "urine__mean",
+      "missing_rate": 0.030344827586206897,
+      "target_correlation": -0.11454055139837253,
+      "variance": 13756.68540225244
+    },
+    {
+      "distinct_values": 137,
+      "dtype": "float",
+      "feature": "urine__last",
+      "missing_rate": 0.030344827586206897,
+      "target_correlation": -0.11143099474040795,
+      "variance": 27462.85558943686
+    },
+    {
+      "distinct_values": 57,
+      "dtype": "float",
+      "feature": "urine__count",
+      "missing_rate": 0.030344827586206897,
+      "target_correlation": -0.029988197731712685,
+      "variance": 128.65944873525171
+    },
+    {
+      "distinct_values": 2059,
+      "dtype": "float",
+      "feature": "urine__sum",
+      "missing_rate": 0.030344827586206897,
+      "target_correlation": -0.08896717717108112,
+      "variance": 12182591.848975206
+    },
+    {
+      "distinct_values": 2,
+      "dtype": "boolean",
+      "feature": "urine__missing",
+      "missing_rate": 0.0,
+      "target_correlation": 0.004662060293959994,
+      "variance": 0.029424019024970275
+    },
+    {
+      "distinct_values": 123,
+      "dtype": "float",
+      "feature": "non_invasive_systolic_bp__min",
+      "missing_rate": 0.1289655172413793,
+      "target_correlation": -0.06906550379003545,
+      "variance": 705.4878404733292
+    },
+    {
+      "distinct_values": 157,
+      "dtype": "float",
+      "feature": "non_invasive_systolic_bp__max",
+      "missing_rate": 0.1289655172413793,
+      "target_correlation": 0.012672416047866716,
+      "variance": 750.1376162964551
+    },
+    {
+      "distinct_values": 2099,
+      "dtype": "float",
+      "feature": "non_invasive_systolic_bp__mean",
+      "missing_rate": 0.1289655172413793,
+      "target_correlation": -0.04330033703600368,
+      "variance": 375.11220392947274
+    },
+    {
+      "distinct_values": 135,
+      "dtype": "float",
+      "feature": "non_invasive_systolic_bp__last",
+      "missing_rate": 0.1289655172413793,
+      "target_correlation": -0.0644891796318267,
+      "variance": 608.4794352510612
+    },
+    {
+      "distinct_values": 87,
+      "dtype": "float",
+      "feature": "non_invasive_systolic_bp__count",
+      "missing_rate": 0.1289655172413793,
+      "target_correlation": -0.007973493853113911,
+      "variance": 386.82511508185024
+    },
+    {
+      "distinct_values": 2,
+      "dtype": "boolean",
+      "feature": "non_invasive_systolic_bp__missing",
+      "missing_rate": 0.0,
+      "target_correlation": -0.023355087666426726,
+      "variance": 0.11233341260404282
+    },
+    {
+      "distinct_values": 81,
+      "dtype": "float",
+      "feature": "non_invasive_diastolic_bp__min",
+      "missing_rate": 0.13206896551724137,
+      "target_correlation": -0.06257189097040228,
+      "variance": 193.5255663948401
+    },
+    {
+      "distinct_values": 124,
+      "dtype": "float",
+      "feature": "non_invasive_diastolic_bp__max",
+      "missing_rate": 0.13206896551724137,
+      "target_correlation": 0.01946220364140399,
+      "variance": 373.9930749804784
+    },
+    {
+      "distinct_values": 1955,
+      "dtype": "float",
+      "feature": "non_invasive_diastolic_bp__mean",
+      "missing_rate": 0.13206896551724137,
+      "target_correlation": -0.07010346409208516,
+      "variance": 132.55204922305484
+    },
+    {
+      "distinct_values": 98,
+      "dtype": "float",
+      "feature": "non_invasive_diastolic_bp__last",
+      "missing_rate": 0.13206896551724137,
+      "target_correlation": -0.08170269450659103,
+      "variance": 228.22417319872858
+    },
+    {
+      "distinct_values": 87,
+      "dtype": "float",
+      "feature": "non_invasive_diastolic_bp__count",
+      "missing_rate": 0.13206896551724137,
+      "target_correlation": -0.008353556587121249,
+      "variance": 385.96053471278105
+    },
+    {
+      "distinct_values": 2,
+      "dtype": "boolean",
+      "feature": "non_invasive_diastolic_bp__missing",
+      "missing_rate": 0.0,
+      "target_correlation": -0.023850024418145814,
+      "variance": 0.11462675386444708
+    },
+    {
+      "distinct_values": 224,
+      "dtype": "float",
+      "feature": "non_invasive_map__min",
+      "missing_rate": 0.13241379310344828,
+      "target_correlation": -0.09313005280509717,
+      "variance": 203.9049879283713
+    },
+    {
+      "distinct_values": 300,
+      "dtype": "float",
+      "feature": "non_invasive_map__max",
+      "missing_rate": 0.13241379310344828,
+      "target_correlation": 0.010834722208097105,
+      "variance": 354.7465275316986
+    },
+    {
+      "distinct_values": 2363,
+      "dtype": "float",
+      "feature": "non_invasive_map__mean",
+      "missing_rate": 0.13241379310344828,
+      "target_correlation": -0.07114766881873613,
+      "variance": 142.92893331091878
+    },
+    {
+      "distinct_values": 246,
+      "dtype": "float",
+      "feature": "non_invasive_map__last",
+      "missing_rate": 0.13241379310344828,
+      "target_correlation": -0.09545936017128817,
+      "variance": 233.11932359588621
+    },
+    {
+      "distinct_values": 88,
+      "dtype": "float",
+      "feature": "non_invasive_map__count",
+      "missing_rate": 0.13241379310344828,
+      "target_correlation": -0.005580811833680388,
+      "variance": 377.28944342851224
+    },
+    {
+      "distinct_values": 2,
+      "dtype": "boolean",
+      "feature": "non_invasive_map__missing",
+      "missing_rate": 0.0,
+      "target_correlation": -0.024231809998671777,
+      "variance": 0.11488038049940548
+    },
+    {
+      "distinct_values": 63,
+      "dtype": "float",
+      "feature": "ph__min",
+      "missing_rate": 0.2396551724137931,
+      "target_correlation": -0.017245115666784404,
+      "variance": 6.825956353289009
+    },
+    {
+      "distinct_values": 53,
+      "dtype": "float",
+      "feature": "ph__max",
+      "missing_rate": 0.2396551724137931,
+      "target_correlation": 0.029336163855273236,
+      "variance": 503.1315047663473
+    },
+    {
+      "distinct_values": 1121,
+      "dtype": "float",
+      "feature": "ph__mean",
+      "missing_rate": 0.2396551724137931,
+      "target_correlation": 0.031375441190089955,
+      "variance": 16.076409068888086
+    },
+    {
+      "distinct_values": 50,
+      "dtype": "float",
+      "feature": "ph__last",
+      "missing_rate": 0.2396551724137931,
+      "target_correlation": -0.01494234125004973,
+      "variance": 6.9588847669438145
+    },
+    {
+      "distinct_values": 33,
+      "dtype": "float",
+      "feature": "ph__count",
+      "missing_rate": 0.2396551724137931,
+      "target_correlation": -0.009045152827088761,
+      "variance": 31.354531085298817
+    },
+    {
+      "distinct_values": 2,
+      "dtype": "boolean",
+      "feature": "ph__missing",
+      "missing_rate": 0.0,
+      "target_correlation": -0.07794273076724116,
+      "variance": 0.18222057074910822
+    },
+    {
+      "distinct_values": 204,
+      "dtype": "float",
+      "feature": "pao2__min",
+      "missing_rate": 0.24344827586206896,
+      "target_correlation": -0.03484517899185998,
+      "variance": 1808.3039390335498
+    },
+    {
+      "distinct_values": 446,
+      "dtype": "float",
+      "feature": "pao2__max",
+      "missing_rate": 0.24344827586206896,
+      "target_correlation": -0.09344335645356566,
+      "variance": 15052.034717207534
+    },
+    {
+      "distinct_values": 1612,
+      "dtype": "float",
+      "feature": "pao2__mean",
+      "missing_rate": 0.24344827586206896,
+      "target_correlation": -0.0991700030564094,
+      "variance": 3185.0610891516026
+    },
+    {
+      "distinct_values": 230,
+      "dtype": "float",
+      "feature": "pao2__last",
+      "missing_rate": 0.24344827586206896,
+      "target_correlation": 0.01063667710087052,
+      "variance": 2532.3260223664606
+    },
+    {
+      "distinct_values": 33,
+      "dtype": "float",
+      "feature": "pao2__count",
+      "missing_rate": 0.24344827586206896,
+      "target_correlation": 0.00701083476631643,
+      "variance": 29.457712423623224
+    },
+    {
+      "distinct_values": 2,
+      "dtype": "boolean",
+      "feature": "pao2__missing",
+      "missing_rate": 0.0,
+      "target_correlation": -0.08107235621161736,
+      "variance": 0.18418121284185496
+    },
+    {
+      "distinct_values": 24,
+      "dtype": "float",
+      "feature": "fio2__min",
+      "missing_rate": 0.3220689655172414,
+      "target_correlation": 0.08516377803244157,
+      "variance": 0.01069915832633922
+    },
+    {
+      "distinct_values": 17,
+      "dtype": "float",
+      "feature": "fio2__max",
+      "missing_rate": 0.3220689655172414,
+      "target_correlation": -0.0006748295750256198,
+      "variance": 0.05144411340706559
+    },
+    {
+      "distinct_values": 858,
+      "dtype": "float",
+      "feature": "fio2__mean",
+      "missing_rate": 0.3220689655172414,
+      "target_correlation": 0.05000370677749278,
+      "variance": 0.015761997880449973
+    },
+    {
+      "distinct_values": 27,
+      "dtype": "float",
+      "feature": "fio2__last",
+      "missing_rate": 0.3220689655172414,
+      "target_correlation": 0.06948075262444575,
+      "variance": 0.025030826724716928
+    },
+    {
+      "distinct_values": 35,
+      "dtype": "float",
+      "feature": "fio2__count",
+      "missing_rate": 0.3220689655172414,
+      "target_correlation": 0.11927685409171798,
+      "variance": 34.09456617016234
+    },
+    {
+      "distinct_values": 2,
+      "dtype": "boolean",
+      "feature": "fio2__missing",
+      "missing_rate": 0.0,
+      "target_correlation": -0.09711022961594878,
+      "variance": 0.2183405469678954
+    },
+    {
+      "distinct_values": 1,
+      "dtype": "float",
+      "feature": "mechanical_ventilation__max",
+      "missing_rate": 0.36724137931034484,
+      "target_correlation": null,
+      "variance": 0.0
+    },
+    {
+      "distinct_values": 1,
+      "dtype": "float",
+      "feature": "mechanical_ventilation__last",
+      "missing_rate": 0.36724137931034484,
+      "target_correlation": null,
+      "variance": 0.0
+    },
+    {
+      "distinct_values": 36,
+      "dtype": "float",
+      "feature": "mechanical_ventilation__count",
+      "missing_rate": 0.36724137931034484,
+      "target_correlation": 0.2089805713542556,
+      "variance": 35.369835992545795
+    },
+    {
+      "distinct_values": 2,
+      "dtype": "boolean",
+      "feature": "mechanical_ventilation__missing",
+      "missing_rate": 0.0,
+      "target_correlation": -0.055129487236903085,
+      "variance": 0.23237514863258027
+    },
+    {
+      "distinct_values": 72,
+      "dtype": "float",
+      "feature": "lactate__min",
+      "missing_rate": 0.4513793103448276,
+      "target_correlation": 0.17636606032496877,
+      "variance": 1.260757890886077
+    },
+    {
+      "distinct_values": 133,
+      "dtype": "float",
+      "feature": "lactate__max",
+      "missing_rate": 0.4513793103448276,
+      "target_correlation": 0.19224087666941903,
+      "variance": 6.328366817986623
+    },
+    {
+      "distinct_values": 585,
+      "dtype": "float",
+      "feature": "lactate__mean",
+      "missing_rate": 0.4513793103448276,
+      "target_correlation": 0.21462446127823281,
+      "variance": 2.499941807058673
+    },
+    {
+      "distinct_values": 90,
+      "dtype": "float",
+      "feature": "lactate__last",
+      "missing_rate": 0.4513793103448276,
+      "target_correlation": 0.23541544278921314,
+      "variance": 2.5528105239204972
+    },
+    {
+      "distinct_values": 25,
+      "dtype": "float",
+      "feature": "lactate__count",
+      "missing_rate": 0.4513793103448276,
+      "target_correlation": 0.10065542142726619,
+      "variance": 12.577491001591685
+    },
+    {
+      "distinct_values": 2,
+      "dtype": "boolean",
+      "feature": "lactate__missing",
+      "missing_rate": 0.0,
+      "target_correlation": -0.11721998546617318,
+      "variance": 0.24763602853745545
+    }
+  ],
+  "profiles_sha256": "01730dc3b772f51cd6587d4708233a63e6349030c3ac085551c25dcd62de4ca8",
+  "schema_version": 1,
+  "selection": "retain_all_canonical_features",
+  "test_accessed": false,
+  "top_baseline_coefficients": [
+    {
+      "coefficient": 0.8582663052740462,
+      "feature": "numeric__bun__last"
+    },
+    {
+      "coefficient": -0.8278460547307048,
+      "feature": "numeric__gcs__last"
+    },
+    {
+      "coefficient": -0.7996421163728489,
+      "feature": "numeric__non_invasive_diastolic_bp__mean"
+    },
+    {
+      "coefficient": -0.7288746532628915,
+      "feature": "numeric__ph__count"
+    },
+    {
+      "coefficient": -0.7005515081371265,
+      "feature": "numeric__urine__mean"
+    },
+    {
+      "coefficient": 0.6284091737436746,
+      "feature": "numeric__urine__sum"
+    },
+    {
+      "coefficient": 0.602754787711244,
+      "feature": "numeric__weight__mean"
+    },
+    {
+      "coefficient": -0.596915103606827,
+      "feature": "numeric__platelets__min"
+    },
+    {
+      "coefficient": 0.5557249755805875,
+      "feature": "numeric__pao2__count"
+    },
+    {
+      "coefficient": -0.553292833013829,
+      "feature": "numeric__non_invasive_map__last"
+    },
+    {
+      "coefficient": -0.481863953805102,
+      "feature": "numeric__weight__min"
+    },
+    {
+      "coefficient": 0.4731867448426118,
+      "feature": "numeric__platelets__mean"
+    },
+    {
+      "coefficient": 0.4648180199987717,
+      "feature": "numeric__non_invasive_map__mean"
+    },
+    {
+      "coefficient": 0.4528364177477278,
+      "feature": "numeric__non_invasive_diastolic_bp__max"
+    },
+    {
+      "coefficient": 0.4393574386174674,
+      "feature": "numeric__lactate__mean"
+    },
+    {
+      "coefficient": 0.435181345696492,
+      "feature": "numeric__non_invasive_map__count"
+    },
+    {
+      "coefficient": -0.43211652762533315,
+      "feature": "numeric__urine__count"
+    },
+    {
+      "coefficient": 0.43187487995427,
+      "feature": "numeric__ph__mean"
+    },
+    {
+      "coefficient": 0.40596121007890873,
+      "feature": "numeric__age"
+    },
+    {
+      "coefficient": -0.4049076096558234,
+      "feature": "numeric__bun__mean"
+    },
+    {
+      "coefficient": 0.3914733816864756,
+      "feature": "numeric__non_invasive_diastolic_bp__last"
+    },
+    {
+      "coefficient": -0.3874741554940675,
+      "feature": "numeric__non_invasive_systolic_bp__count"
+    },
+    {
+      "coefficient": 0.3873216861933748,
+      "feature": "numeric__gcs__min"
+    },
+    {
+      "coefficient": -0.37721820237712356,
+      "feature": "numeric__bun__count"
+    },
+    {
+      "coefficient": 0.36690181151242257,
+      "feature": "numeric__sodium__count"
+    }
+  ]
+}

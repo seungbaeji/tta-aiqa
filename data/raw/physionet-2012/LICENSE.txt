@@ -1,0 +1,16 @@
+PhysioNet Challenge 2012 file license notice
+
+The files in this directory originate from:
+
+Predicting Mortality of ICU Patients: The PhysioNet/Computing in
+Cardiology Challenge 2012, version 1.0.0
+https://physionet.org/content/challenge-2012/1.0.0/
+
+PhysioNet identifies the license for these files as the Open Data Commons
+Attribution License version 1.0 (ODC-By 1.0):
+
+https://physionet.org/content/challenge-2012/view-license/1.0.0/
+https://opendatacommons.org/licenses/by/1-0/
+
+This notice provides the license URI required by ODC-By 1.0. The complete
+license text is available at either URI above.

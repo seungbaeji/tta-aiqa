@@ -1,0 +1,7 @@
+schema_version: 1
+default: full
+feature_sets:
+  - name: full
+    description: Phase 0의 133개 available feature 전체
+    include: all
+    exclude: []

@@ -1,0 +1,103 @@
+{
+  "configuration": {
+    "development_benchmark_sha256": "08add9f60bb9d49ebc0e556339ab64fe868bf81048ed9b4ad19cd2a8849d910e",
+    "evaluation_sha256": "7947582514ab21edcdc8a503e69108de172ba25dfbf2efc0172dda4e75f478a0",
+    "feature_contract_sha256": "fbd02c6149682807d0f3a6d8f7a1c0b823fee96eccf0c13eb584e88a320aede3",
+    "profiles_sha256": "7fd51be5524d2ba0d17eb9323ba6952cd32437062fb9e75e5cb59f8b04261220",
+    "release_policy_sha256": "1610cdcfad39bffe2500b1fbfede672b22c55c99ce16cd6b649dd69e566c3ecd"
+  },
+  "decisions": [
+    {
+      "checks": {
+        "false_negative_reduction": false,
+        "pr_auc_vs_baseline": false,
+        "precision_floor": true,
+        "recall_guardrail": false,
+        "recall_uncertainty": false
+      },
+      "decision": "HOLD",
+      "profile": "candidate-a"
+    },
+    {
+      "checks": {
+        "false_negative_reduction": true,
+        "pr_auc_vs_baseline": false,
+        "precision_floor": true,
+        "recall_guardrail": true,
+        "recall_uncertainty": true
+      },
+      "decision": "HOLD",
+      "profile": "candidate-b"
+    }
+  ],
+  "deployment_allowed": false,
+  "profiles": [
+    {
+      "bootstrap_recall_lower": 0.19711463223787173,
+      "cross_validation": {},
+      "metrics": {
+        "f1": 0.384,
+        "false_negative": 59,
+        "false_positive": 18,
+        "pr_auc": 0.5103458331837137,
+        "precision": 0.5714285714285714,
+        "recall": 0.2891566265060241,
+        "roc_auc": 0.8515299107454964,
+        "true_negative": 499,
+        "true_positive": 24
+      },
+      "profile": "baseline",
+      "threshold": 0.5
+    },
+    {
+      "bootstrap_recall_lower": 0.09210526315789473,
+      "cross_validation": {},
+      "metrics": {
+        "f1": 0.26666666666666666,
+        "false_negative": 69,
+        "false_positive": 8,
+        "pr_auc": 0.4726239858879036,
+        "precision": 0.6363636363636364,
+        "recall": 0.1686746987951807,
+        "roc_auc": 0.8405070960825896,
+        "true_negative": 509,
+        "true_positive": 14
+      },
+      "profile": "candidate-a",
+      "threshold": 0.4
+    },
+    {
+      "bootstrap_recall_lower": 0.6395103670495937,
+      "cross_validation": {},
+      "metrics": {
+        "f1": 0.488,
+        "false_negative": 22,
+        "false_positive": 106,
+        "pr_auc": 0.4877532848909807,
+        "precision": 0.3652694610778443,
+        "recall": 0.7349397590361446,
+        "roc_auc": 0.8439094870779054,
+        "true_negative": 411,
+        "true_positive": 61
+      },
+      "profile": "candidate-b",
+      "threshold": 0.35
+    }
+  ],
+  "required_follow_up": "Do not deploy Candidate B and do not tune policy, features, threshold, or model profiles against the sealed test. Review the teaching scenario.",
+  "schema_version": 1,
+  "sealed_test": {
+    "accessed_roles": [
+      "train",
+      "valid",
+      "test"
+    ],
+    "artifact_sha256": "5a3c3c00aecc4ba29f1281e3d059435a6f9a77047c8b8410883dc1940aa3f3f1",
+    "freeze_manifest_path": "reference/evidence/model/release-freeze.json",
+    "freeze_manifest_persisted_before_test": true,
+    "freeze_manifest_sha256": "1d86daf10d097d9eb6fac19273afbc4e7ad661435994c176aad6250efa26e701",
+    "protocol_exception": null,
+    "status": "evaluated_once"
+  },
+  "status": "SCENARIO_REVIEW_REQUIRED"
+}

@@ -1,0 +1,33 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+components:
+  - ../../components/alloy
+configMapGenerator:
+  - name: model-identity
+    namespace: tta-aiqa
+    behavior: merge
+    literals:
+      - AIQA_KSERVE_EXPECTED_MODEL_SHA256=c712a8e52344c09a493629f8e6a0283c6c3139fb46cc53e293a44ee490a07c95
+patches:
+  - target:
+      group: serving.kserve.io
+      version: v1beta1
+      kind: InferenceService
+      name: mortality-risk
+    patch: |-
+      - op: replace
+        path: /spec/predictor/containers/0/volumeMounts/0/subPath
+        value: physionet-2012/v2/candidate-b-c712a8e52344
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: risk-api
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/volumeMounts/1/subPath
+        value: physionet-2012/v2/candidate-b-c712a8e52344
+commonAnnotations:
+  aiqa.tta/model-release: candidate-b-c712a8e52344

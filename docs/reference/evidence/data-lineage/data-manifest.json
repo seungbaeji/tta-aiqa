@@ -1,0 +1,76 @@
+{
+  "configuration": {
+    "aggregation_sha256": "688a4501eb293670305573d9f0262ca4e439830ad8a7d567dd8da888524de2ae",
+    "dvc_lock_sha256": "7a489161a04b4748ac964b68ba2a3df8c51cbbd60b6a913849d97b3f0153d4cf",
+    "params_sha256": "0681e45b58c00df3e12f19d8840ceceaf06c42c9ac314f2990c53692088a1aa4"
+  },
+  "patient_features": {
+    "deaths": 554,
+    "feature_count": 133,
+    "path": "data/processed/physionet-2012/patient-features.csv",
+    "rows": 4000,
+    "sha256": "d3e76f812e201ff875aad50b3f0632faf612daeac5a3bbbace319f90b8839017"
+  },
+  "phase0_equivalence": {
+    "feature_values": true,
+    "role_rename": {
+      "release_holdout": "operational"
+    },
+    "split_assignments": true
+  },
+  "role_datasets": {
+    "operational": {
+      "path": "data/splits/physionet-2012/datasets/operational.csv",
+      "rows": 400,
+      "sha256": "94cd1818f0fad1e7218c07834d388b2d32f7c68dd58488cb868dd679c0d9d91a",
+      "target_included": false
+    },
+    "test": {
+      "path": "data/splits/physionet-2012/datasets/test.csv",
+      "rows": 600,
+      "sha256": "1c64bdb68b9fc85472dd3116a04a500987e9517aa27be9f97e43198c2fea49fd",
+      "target_included": true
+    },
+    "train": {
+      "path": "data/splits/physionet-2012/datasets/train.csv",
+      "rows": 2400,
+      "sha256": "68e281449c900fe110d4a8b83d9124d4c39e1dd4f9425b727a27a8b509f904f5",
+      "target_included": true
+    },
+    "valid": {
+      "path": "data/splits/physionet-2012/datasets/valid.csv",
+      "rows": 600,
+      "sha256": "cdaf5426fa5deeb3d92f53a1340ba2a938ef1217633f42ff1f158a6d96cec8b3",
+      "target_included": true
+    }
+  },
+  "schema_version": 1,
+  "source": {
+    "archive_sha256": "1433638192fda622e8bb11a4559b8af2dbb1c69f0e1c3b5b606cc12aabd0a4c5",
+    "outcomes_sha256": "2613ea60ccda29f87571a7d6b09ad130858a8ccd66325bd073365925026883c2",
+    "source_manifest_sha256": "b80d4745fd4efdb011d1121b9526bda8f0c7ff488db9d29f1cfd08a06f309148"
+  },
+  "split_manifest": {
+    "path": "data/splits/physionet-2012/split-manifest.csv",
+    "roles": {
+      "operational": {
+        "deaths": 55,
+        "rows": 400
+      },
+      "test": {
+        "deaths": 83,
+        "rows": 600
+      },
+      "train": {
+        "deaths": 333,
+        "rows": 2400
+      },
+      "valid": {
+        "deaths": 83,
+        "rows": 600
+      }
+    },
+    "rows": 4000,
+    "sha256": "a2d7d73386f5f565b8c5ad8cb29954c6be63d5ccb1a5f5572cd252bfe68da064"
+  }
+}

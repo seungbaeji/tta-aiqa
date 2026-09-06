@@ -1,7 +1,0 @@
-events/
-models/
-.venv/
-.ruff_cache/
-__pycache__/
-*.py[cod]
-.ipynb_checkpoints/

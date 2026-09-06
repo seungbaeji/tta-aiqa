@@ -1,0 +1,20 @@
+[project]
+name = "aiqa-serving"
+version = "0.2.0"
+description = "Framework-independent prediction bounded context for AIQA V2"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+  "aiqa-core",
+  "httpx>=0.27",
+  "joblib>=1.4",
+  "pandas>=2.2",
+  "pydantic>=2.7",
+  "scikit-learn>=1.4",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/aiqa_serving"]

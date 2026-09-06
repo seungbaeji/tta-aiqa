@@ -1,9 +1,0 @@
-minimum_precision: 0.6
-minimum_recall: 0.6
-maximum_error_rate: 0.05
-maximum_latency_average_ms: 250
-required_contract_checks:
-  - required_columns
-  - allowed_labels
-  - threshold_matches
-  - feature_set_matches

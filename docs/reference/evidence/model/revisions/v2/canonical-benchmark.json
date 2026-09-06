@@ -1,0 +1,108 @@
+{
+  "configuration": {
+    "evaluation_sha256": "0c6b59571a47e6282d79034d95918e93cbbf12b580a9e4937bbf3bef397d28f1",
+    "feature_contract_sha256": "fbd02c6149682807d0f3a6d8f7a1c0b823fee96eccf0c13eb584e88a320aede3",
+    "profiles_sha256": "01730dc3b772f51cd6587d4708233a63e6349030c3ac085551c25dcd62de4ca8",
+    "release_policy_sha256": "b7128562b9add8848ebde0c6d5b57c5830792b70681333309d88c63b61db5d8e"
+  },
+  "decisions": [
+    {
+      "checks": {
+        "false_negative_reduction": false,
+        "pr_auc_vs_baseline": true,
+        "precision_floor": true,
+        "recall_guardrail": false,
+        "recall_uncertainty": false
+      },
+      "decision": "HOLD",
+      "profile": "candidate-a"
+    },
+    {
+      "checks": {
+        "false_negative_reduction": true,
+        "pr_auc_vs_baseline": true,
+        "precision_floor": true,
+        "recall_guardrail": true,
+        "recall_uncertainty": true
+      },
+      "decision": "APPROVE",
+      "profile": "candidate-b"
+    }
+  ],
+  "deployment_allowed": true,
+  "post_test_tuning_allowed": false,
+  "profiles": [
+    {
+      "bootstrap_recall_lower": 0.12962962962962962,
+      "cross_validation": {},
+      "metrics": {
+        "f1": 0.3333333333333333,
+        "false_negative": 42,
+        "false_positive": 10,
+        "pr_auc": 0.5243964482172888,
+        "precision": 0.5652173913043478,
+        "recall": 0.23636363636363636,
+        "roc_auc": 0.8792094861660079,
+        "true_negative": 335,
+        "true_positive": 13
+      },
+      "profile": "baseline",
+      "threshold": 0.5
+    },
+    {
+      "bootstrap_recall_lower": 0.18643082380764683,
+      "cross_validation": {},
+      "metrics": {
+        "f1": 0.44155844155844154,
+        "false_negative": 38,
+        "false_positive": 5,
+        "pr_auc": 0.5941658639910755,
+        "precision": 0.7727272727272727,
+        "recall": 0.3090909090909091,
+        "roc_auc": 0.8731488801054018,
+        "true_negative": 340,
+        "true_positive": 17
+      },
+      "profile": "candidate-a",
+      "threshold": 0.4
+    },
+    {
+      "bootstrap_recall_lower": 0.6956337509211495,
+      "cross_validation": {},
+      "metrics": {
+        "f1": 0.5146198830409356,
+        "false_negative": 11,
+        "false_positive": 72,
+        "pr_auc": 0.5743375957957177,
+        "precision": 0.3793103448275862,
+        "recall": 0.8,
+        "roc_auc": 0.8796837944664031,
+        "true_negative": 273,
+        "true_positive": 44
+      },
+      "profile": "candidate-b",
+      "threshold": 0.35
+    }
+  ],
+  "schema_version": 1,
+  "sealed_test": {
+    "accessed_roles": [
+      "train",
+      "valid",
+      "test"
+    ],
+    "artifact_sha256": "4afb8b4f172286c78282da3eaf0e0138501d93169385ce7f2e78aa49b4dfcf3a",
+    "dataset_sha256": "051491069cd385789047031d87ad92f3ebf86868f7b2da410307b639b906aa77",
+    "freeze_manifest_path": "reference/evidence/model/revisions/v2/release-freeze.json",
+    "freeze_manifest_sha256": "7763707dc690a8564acb07386e93d96c18e24667543b36c58f9eb64eff983c2f",
+    "protocol_exception": {
+      "feature_profile_threshold_or_policy_changed": false,
+      "metrics_changed": false,
+      "purpose": "verify existing serialized deployment bundles reproduce frozen metrics",
+      "reason": "serialized_bundle_contract_migration",
+      "test_reaccessed": true
+    },
+    "status": "evaluated_once"
+  },
+  "status": "APPROVED"
+}
