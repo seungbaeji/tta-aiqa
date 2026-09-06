@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "artifact_id": "RUNTIME-IMAGES-V2-20260727",
-  "recorded_at": "2026-07-27T07:00:27Z",
-  "source_commit": "8e5c14dd773dbfcbd0896a6edbd522e9a035abf6",
+  "artifact_id": "RUNTIME-IMAGES-V2-20260907",
+  "recorded_at": "2026-09-06T20:51:54Z",
+  "source_commit": "db0983c5220e9b93a06848f0b09a5594c202da38",
   "build": {
     "builder": "tta-aiqa-publish",
     "provenance": "mode=max",
@@ -10,12 +10,12 @@
   },
   "images": {
     "risk_api": {
-      "tag": "ghcr.io/seungbaeji/tta-aiqa-risk-api:v2-8e5c14dd773d",
-      "reference": "ghcr.io/seungbaeji/tta-aiqa-risk-api@sha256:20f47861095b23548d82d3270f01f8bc54b5aa1cd91eb6172f6919403ebd959c",
-      "oci_index_digest": "sha256:20f47861095b23548d82d3270f01f8bc54b5aa1cd91eb6172f6919403ebd959c",
+      "tag": "ghcr.io/seungbaeji/tta-aiqa-risk-api:v2-db0983c5220e",
+      "reference": "ghcr.io/seungbaeji/tta-aiqa-risk-api@sha256:69b35cbf2fd8c42a4a316f40d8b7ad89131275b4998931405c895ea48160b677",
+      "oci_index_digest": "sha256:69b35cbf2fd8c42a4a316f40d8b7ad89131275b4998931405c895ea48160b677",
       "platform_manifest_digests": {
-        "linux/amd64": "sha256:32a10ef051ac75553eb2b40be7173880a779c873436c66e69b587075bd17c401",
-        "linux/arm64": "sha256:bba8619794b4c5a15c305ca4ec509c4c02add02adb9b3135247184a5bfc013c1"
+        "linux/amd64": "sha256:aeca18cfb7bc2cd8262c798944bc0d1d0101b415971d2848878471fa1d78533d",
+        "linux/arm64": "sha256:e6467a4e1667c4eacf8977c9cadb006f9be8928964a7f90c81fa615b005dbab1"
       },
       "platforms": [
         "linux/amd64",
@@ -23,7 +23,7 @@
       ]
     },
     "kserve_predictor": {
-      "tag": "ghcr.io/seungbaeji/tta-aiqa-kserve-predictor:v2-8e5c14dd773d",
+      "tag": "ghcr.io/seungbaeji/tta-aiqa-kserve-predictor:v2-db0983c5220e",
       "reference": "ghcr.io/seungbaeji/tta-aiqa-kserve-predictor@sha256:63ff48ef33105181186919b777e3e60ac3bbc6c78f0f545154049701bbcd8fb0",
       "oci_index_digest": "sha256:63ff48ef33105181186919b777e3e60ac3bbc6c78f0f545154049701bbcd8fb0",
       "platform_manifest_digests": {
@@ -38,14 +38,13 @@
   },
   "local_verification": {
     "status": "verified",
-    "performed_at": "2026-07-27T07:02:28Z",
+    "performed_at": "2026-09-06T20:51:54Z",
     "platform": "linux/arm64",
     "checks": [
-      "Both pulled image configs label source revision 8e5c14dd773dbfcbd0896a6edbd522e9a035abf6.",
-      "The predictor readiness endpoint returned ready.",
-      "The Risk API readiness endpoint returned baseline-f2576f12512a.",
-      "The Risk API model endpoint returned the KServe baseline identity and 133 features.",
-      "One baseline request traversed Risk API to the predictor and returned HTTP 200."
+      "Pulled image config label source revision db0983c5220e9b93a06848f0b09a5594c202da38.",
+      "The Risk API image imported complete_feature_values and filled age__missing=false for age=68.0.",
+      "The KServe predictor index digest was unchanged and retagged to the same source revision.",
+      "Full in-cluster /v1/predict against KServe was not run on this builder host."
     ]
   },
   "target_verification": {
