@@ -14,6 +14,43 @@ from aiqa_serving.domain import (
 )
 from aiqa_serving.ports import PredictionEventRecorder, RiskScorer
 
+MISSING_INDICATOR_SUFFIX = "__missing"
+
+
+def complete_feature_values(
+    features: dict[str, FeatureValue],
+    feature_set: FeatureSet,
+) -> dict[str, FeatureValue]:
+    """Fill omitted public fields from the feature contract without dropping extras.
+
+    Nullable measurements default to null. A missing-indicator defaults to false
+    when a related value is present, otherwise true. Non-nullable fields that
+    are not missing-indicators stay omitted so later validation can reject them.
+    """
+    payload = dict(features)
+    for feature in feature_set.features:
+        if feature.name in payload:
+            continue
+        if feature.name.endswith(MISSING_INDICATOR_SUFFIX):
+            payload[feature.name] = _inferred_missing_flag(feature.name, payload)
+        elif feature.nullable:
+            payload[feature.name] = None
+    return payload
+
+
+def _inferred_missing_flag(
+    flag_name: str, payload: dict[str, FeatureValue]
+) -> bool:
+    prefix = flag_name[: -len(MISSING_INDICATOR_SUFFIX)]
+    for name, value in payload.items():
+        if name.endswith(MISSING_INDICATOR_SUFFIX):
+            continue
+        if value is None:
+            continue
+        if name == prefix or name.startswith(f"{prefix}__"):
+            return False
+    return True
+
 
 def validate_feature_values(
     features: tuple[tuple[str, FeatureValue], ...], feature_set: FeatureSet

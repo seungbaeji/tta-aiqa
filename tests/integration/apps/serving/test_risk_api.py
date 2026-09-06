@@ -104,6 +104,18 @@ def test_local_api_predicts_and_exposes_model_identity(tmp_path: Path) -> None:
     ]
     assert prediction_schema["properties"]["education_only"]["type"] == "boolean"
     assert "education_only" in prediction_schema["required"]
+    request_schema = api.get("/openapi.json").json()["components"]["schemas"][
+        "PredictionBody"
+    ]
+    assert request_schema["example"] == {
+        "features": {
+            "age": 68.0,
+            "gender": 1.0,
+            "height": 170.2,
+            "icu_type": 3.0,
+            "heart_rate__last": 88.0,
+        }
+    }
     model = api.get("/v1/model").json()
     assert model["feature_count"] == 2
     assert model["education_only"] is True
@@ -165,7 +177,7 @@ def test_local_api_rejects_contract_errors_without_a_reload_endpoint(
 ) -> None:
     api = client(tmp_path)
 
-    missing = api.post("/v1/predict", json={"features": {"age": 68.0}})
+    sparse = api.post("/v1/predict", json={"features": {"age": 68.0}})
     extra = api.post(
         "/v1/predict",
         json={
@@ -182,9 +194,8 @@ def test_local_api_rejects_contract_errors_without_a_reload_endpoint(
     )
     reload_attempt = api.post("/v1/model/reload")
 
-    assert missing.status_code == 422
-    assert missing.json()["detail"]["code"] == "MODEL_INPUT_INVALID"
-    assert missing.json()["detail"]["validation_category"] == "missing"
+    assert sparse.status_code == 200
+    assert sparse.json()["education_only"] is True
     assert extra.status_code == 422
     assert extra.json()["detail"]["validation_category"] == "extra"
     assert wrong_type.status_code == 422

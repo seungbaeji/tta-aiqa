@@ -4,7 +4,11 @@ from dataclasses import dataclass, field
 
 import pytest
 from aiqa_core.domain import FeatureDefinition, FeatureSet, FeatureType
-from aiqa_serving.application import predict_risk, score_risk
+from aiqa_serving.application import (
+    complete_feature_values,
+    predict_risk,
+    score_risk,
+)
 from aiqa_serving.domain import (
     FeatureValue,
     ModelIdentity,
@@ -65,6 +69,42 @@ def test_prediction_orders_features_and_records_model_aware_event() -> None:
     assert result.label == "high_risk"
     assert sink.events[0].model_profile == "candidate-b"
     assert sink.events[0].missing_feature_count == 1
+
+
+def physionet_like_contract() -> FeatureSet:
+    return FeatureSet(
+        schema_version=1,
+        name="public-dto",
+        target="target",
+        features=(
+            FeatureDefinition("age", FeatureType.FLOAT, True),
+            FeatureDefinition("age__missing", FeatureType.BOOLEAN, False),
+            FeatureDefinition("weight__min", FeatureType.FLOAT, True),
+            FeatureDefinition("weight__mean", FeatureType.FLOAT, True),
+            FeatureDefinition("weight__missing", FeatureType.BOOLEAN, False),
+        ),
+    )
+
+
+def test_complete_feature_values_fills_omitted_nullable_and_missing_flags() -> None:
+    completed = complete_feature_values({"age": 68.0}, physionet_like_contract())
+
+    assert completed["age"] == 68.0
+    assert completed["age__missing"] is False
+    assert completed["weight__min"] is None
+    assert completed["weight__mean"] is None
+    assert completed["weight__missing"] is True
+
+
+def test_complete_feature_values_keeps_extras_and_required_omissions() -> None:
+    completed = complete_feature_values(
+        {"heart_rate": 80.0, "unexpected": 1.0},
+        contract(),
+    )
+
+    assert completed["heart_rate"] == 80.0
+    assert completed["unexpected"] == 1.0
+    assert "age" not in completed
 
 
 def test_prediction_rejects_missing_extra_and_forbidden_null_features() -> None:

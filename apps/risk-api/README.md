@@ -23,7 +23,9 @@ curl http://127.0.0.1:8000/v1/model
 - `/health/live`: process 상태
 - `/health/ready`: model backend readiness
 - `/v1/model`: profile, version, threshold
-- `/v1/predict`: prediction과 `education_only` 사용 경계
+- `/v1/predict`: prediction과 `education_only` 사용 경계. 공개 본문은
+  측정한 특성만 보내도 됩니다. 생략한 nullable 측정값은 null로, 대응
+  `__missing` 표시는 값이 있으면 false, 없으면 true로 채웁니다.
 - `/metrics`: Prometheus exposition
 
 ### 3-2. 요청 경계

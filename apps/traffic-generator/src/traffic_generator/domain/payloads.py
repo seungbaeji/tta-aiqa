@@ -30,12 +30,22 @@ def apply_invalid_traffic_case(
     features: dict[str, object],
     case: InvalidTrafficCase,
 ) -> dict[str, object]:
-    """Return a copied payload containing exactly one intentional contract failure."""
+    """Return a copied payload containing exactly one intentional contract failure.
+
+    Missing-feature traffic nulls a required missing-indicator instead of
+    dropping a key, because the public DTO fills omitted measurements.
+    """
     invalid = dict(features)
     if case is InvalidTrafficCase.MISSING_FEATURE:
-        if not invalid:
-            raise ValueError("cannot remove a feature from an empty traffic payload")
-        invalid.pop(next(iter(invalid)))
+        flag_name = next(
+            (name for name in invalid if name.endswith(MISSING_INDICATOR_SUFFIX)),
+            None,
+        )
+        if flag_name is None:
+            raise ValueError(
+                "missing-feature scenario requires a missing-indicator feature"
+            )
+        invalid[flag_name] = None
         return invalid
     if case is InvalidTrafficCase.EXTRA_FEATURE:
         invalid[UNEXPECTED_FEATURE_NAME] = 1.0

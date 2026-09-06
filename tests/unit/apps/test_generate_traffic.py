@@ -253,7 +253,7 @@ def test_invalid_scenario_cycles_contract_failures_and_records_responses() -> No
 
     responses = generate(client, recorder, plan)
 
-    assert len(client.calls[0][0]) == 2
+    assert client.calls[0][0]["age__missing"] is None
     assert "unexpected_feature" in client.calls[1][0]
     assert client.calls[2][0]["age__missing"] == "not-a-boolean"
     assert tuple(recorder.responses) == responses

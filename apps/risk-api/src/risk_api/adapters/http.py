@@ -7,8 +7,10 @@ import uuid
 from collections.abc import Callable
 from typing import Any
 
+from aiqa_core.domain import FeatureSet
 from aiqa_observability import is_valid_correlation_id
 from aiqa_observability.adapters import telemetry_lifespan
+from aiqa_serving.application import complete_feature_values
 from aiqa_serving.domain import PredictionRequest, RiskPrediction
 from aiqa_serving.ports import RiskScorer
 from fastapi import FastAPI, HTTPException, Request, Response, status
@@ -105,12 +107,27 @@ def model_input_invalid_detail(validation_category: str) -> dict[str, str]:
     }
 
 
+PREDICTION_FEATURES_EXAMPLE = {
+    "age": 68.0,
+    "gender": 1.0,
+    "height": 170.2,
+    "icu_type": 3.0,
+    "heart_rate__last": 88.0,
+}
+
+
 class PredictionBody(BaseModel):
     """External REST request body for a mortality-risk prediction."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(
+        extra="forbid",
+        json_schema_extra={"example": {"features": PREDICTION_FEATURES_EXAMPLE}},
+    )
 
-    features: dict[str, Any] = Field(min_length=1)
+    features: dict[str, Any] = Field(
+        min_length=1,
+        json_schema_extra={"example": PREDICTION_FEATURES_EXAMPLE},
+    )
 
 
 class PredictionResponse(BaseModel):
@@ -133,6 +150,7 @@ def build_http_app(
     scorer: RiskScorer,
     backend: str,
     telemetry: RiskApiTelemetry,
+    feature_set: FeatureSet | None = None,
 ) -> FastAPI:
     """Build the REST delivery adapter around bound serving operations."""
     app = FastAPI(
@@ -269,10 +287,13 @@ def build_http_app(
         input_error_category: str | None = None
         with telemetry.prediction_scope():
             try:
+                features = dict(body.features)
+                if feature_set is not None:
+                    features = complete_feature_values(features, feature_set)
                 result = predict_operation(
                     PredictionRequest(
                         request_id=resolved_request_id,
-                        features=tuple(body.features.items()),
+                        features=tuple(features.items()),
                         scenario=request.state.scenario,
                     )
                 )

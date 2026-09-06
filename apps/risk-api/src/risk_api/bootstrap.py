@@ -91,6 +91,7 @@ def build_application(settings: RiskApiSettings) -> FastAPI:
         scorer=scorer,
         backend=settings.model_backend,
         telemetry=telemetry,
+        feature_set=feature_set,
     )
     instrument_fastapi(
         app,
