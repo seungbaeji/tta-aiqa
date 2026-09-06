@@ -31,12 +31,12 @@ STAGE_CHILDREN: dict[str, tuple[str, ...]] = {
         "baseline 관찰 결과가 데이터 품질 판단의 출발 근거인지 구분한다",
     ),
     "데이터": (
-        "train·valid·sealed test·operational의 역할을 누수 없이 구분한다",
-        "PhysioNet raw measurement의 결측·범위·join을 데이터 품질 근거로 해석한다",
+        "train, valid, sealed test, operational의 역할을 누수 없이 구분한다",
+        "PhysioNet raw measurement의 결측, 범위, join을 데이터 품질 근거로 해석한다",
         "GE summary가 데이터 품질 관찰을 재현 가능한 evidence로 닫는지 판단한다",
     ),
     "모델": (
-        "Precision·Recall·F1·FP/FN과 PR-AUC를 같은 release 질문으로 해석한다",
+        "Precision, Recall, F1, FP/FN과 PR-AUC를 같은 release 질문으로 해석한다",
         (
             "Candidate A는 HOLD이고 Candidate B는 APPROVE인지 "
             "canonical benchmark로 판정한다"
@@ -46,21 +46,24 @@ STAGE_CHILDREN: dict[str, tuple[str, ...]] = {
     "API": (
         "Compose Risk API가 정상 입력과 의도한 422를 같은 계약으로 처리하는지 확인한다",
         (
-            "API model metadata와 bundle·deployment 선언이 같은 digest "
+            "API model metadata와 bundle/deployment 선언이 같은 digest "
             "의미를 갖는지 판단한다"
         ),
     ),
     "Kubernetes/GitOps": (
-        "baseline·Candidate B·rollback overlay가 승인된 identity만 선택하는지 판단한다",
-        "Argo sync·KServe health·rollback 결과를 학습자 판단 범위와 분리한다",
+        (
+            "baseline, Candidate B, rollback overlay가 "
+            "승인된 identity만 선택하는지 판단한다"
+        ),
+        "Argo sync, KServe health, rollback 결과를 학습자 판단 범위와 분리한다",
     ),
     "관측": (
-        "LIVE·PREPARED 경로와 세 신호의 상관 조건을 실행 전에 정한다",
+        "LIVE/PREPARED 경로와 세 신호의 상관 조건을 실행 전에 정한다",
         "세 신호의 확인 범위와 상태를 traffic 실행 전에 기록 방식으로 고정한다",
     ),
     "traffic": (
-        "baseline·current-shift·invalid traffic의 의도와 상태 코드를 인계한다",
-        "선택한 대표 요청이 지표·로그·trace의 동일 사건으로 연결되는지 P6에 판정한다",
+        "baseline/current-shift/invalid traffic의 의도와 상태 코드를 인계한다",
+        "선택한 대표 요청이 지표, 로그, trace의 동일 사건으로 연결되는지 판정한다",
     ),
     "판단/rollback": (
         "Candidate B 모델 APPROVE와 운영 환경 확인 상태를 한 기록에서 분리한다",
@@ -68,7 +71,7 @@ STAGE_CHILDREN: dict[str, tuple[str, ...]] = {
         "현재 운영 권고가 모델 승인과 분리되는지 기록한다",
     ),
     "회고": (
-        "14교시 기록에서 판단 변화와 미확인 위험 인계를 복원한다",
+        "판단 기록에서 판단 변화와 미확인 위험 인계를 복원한다",
     ),
 }
 GENERIC_CHILD_HEADINGS = (
@@ -196,6 +199,22 @@ def test_chapter_guides_link_to_the_journey() -> None:
     assert Path("labs/ch01-data-quality/README.md").read_text(
         encoding="utf-8"
     ).count("배포된 baseline 관찰") >= 1
+    assert "(ch01-data-quality/README.md#2-남는-시간-실습)" in labs
+    assert "(ch02-model-quality/README.md#2-남는-시간-실습)" in labs
+
+
+def test_chapter_guides_use_numbered_h2_h3() -> None:
+    h2 = re.compile(r"^## \d+\. ")
+    h3 = re.compile(r"^### \d+-\d+\. ")
+    for path in CHAPTERS:
+        lines = path.read_text(encoding="utf-8").splitlines()
+        h2_headings = [line for line in lines if line.startswith("## ")]
+        h3_headings = [line for line in lines if line.startswith("### ")]
+        assert h2_headings, path
+        assert h3_headings, path
+        assert all(h2.match(line) for line in h2_headings), path
+        assert all(h3.match(line) for line in h3_headings), path
+        assert not any(line.startswith("#### ") for line in lines), path
 
 
 def test_changed_markdown_links_resolve() -> None:

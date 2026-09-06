@@ -1,34 +1,39 @@
 # 4장 운영 상태 확인
 
 이 장은 9단계 여정의 **관측**과 **traffic** 단계입니다. 관측 조건을 먼저
-고정하고 P5 traffic 수집, P6 개인 분석으로 이어갑니다. LIVE는 강사가 Alloy
+고정하고 관측 수집, 개인 분석으로 이어갑니다. LIVE는 강사가 Alloy
 secret과 대시보드를 준비했다고 확인한 경우에만 선택합니다.
 
-## 관측
+## 1. 관측
 
-### LIVE·PREPARED 경로와 세 신호의 상관 조건을 실행 전에 정한다
+요청을 보내기 전에 확인 경로와 신호 기록 방식을 고정합니다. 아직
+생성하지 않은 traffic의 결과를 관찰했다고 쓰지 않습니다.
 
-P5 traffic을 보내기 전에 LIVE 또는 PREPARED/OFFLINE 경로를 하나 선택합니다.
+### 1-1. LIVE/PREPARED 경로와 세 신호의 상관 조건을 실행 전에 정한다
+
+요청을 보내기 전에 LIVE 또는 PREPARED/OFFLINE 경로를 하나 선택합니다.
 강사가 Compose와 Grafana dashboard URL을 확인하지 않았다면 PREPARED/OFFLINE을
 사용합니다. environment, model, UTC window와 run/request/trace correlation
 조건을 먼저 기록하며, 아직 생성하지 않은 traffic의 결과를 관찰했다고 쓰지
 않습니다.
 
-### 세 신호의 확인 범위와 상태를 traffic 실행 전에 기록 방식으로 고정한다
+### 1-2. 세 신호의 확인 범위와 상태를 traffic 실행 전에 기록 방식으로 고정한다
 
-P5 뒤 collection manifest에 기록할 `not_checked`, `unavailable`, `available`
+수집 뒤 collection manifest에 기록할 `not_checked`, `unavailable`, `available`
 상태와 담당자를 실행 전에 정합니다. LIVE가 아니면
 `docs/reference/evidence/incident/prepared-observability-correlation.json`을
 `scope=static` reference fixture로 읽고, 미실행 경로는 `offline`으로 둡니다.
 secret과 token은 기록하지 않습니다. LIVE/PREPARED 선택이나 신호 확인이 막히면
-환경 복구를 수강생 범위로 넓히지 않고 `result=BLOCKED`와 사유·담당자를 P5
+환경 복구를 수강생 범위로 넓히지 않고 `result=BLOCKED`와 사유, 담당자를 수집
 기록에 남깁니다.
 
-## traffic
+## 2. traffic
 
-### baseline·current-shift·invalid traffic의 의도와 상태 코드를 인계한다
+관측 수집이 끝나도 개인 분석과 요청 연결 확인이 끝날 때까지 Compose를 내리지 않습니다.
 
-P5 팀은 실행·기록·완전성 확인 역할을 나눕니다. LIVE 경로에서는 다음 명령으로
+### 2-1. baseline/current-shift/invalid traffic의 의도와 상태 코드를 인계한다
+
+수집 팀은 실행, 기록, 완전성 확인 역할을 나눕니다. LIVE 경로에서는 다음 명령으로
 세 시나리오를 한 번씩 실행하며 `--fast`를 사용하지 않습니다.
 
 ```bash
@@ -75,11 +80,11 @@ uv run python -m json.tool \
   docs/reference/evidence/incident/prepared-observability-correlation.json
 ```
 
-P5 수집이 끝나도 P6와 P7이 끝날 때까지 Compose를 내리지 않습니다.
+관측 수집이 끝나도 개인 분석과 요청 연결 확인이 끝날 때까지 Compose를 내리지 않습니다.
 
-### 선택한 대표 요청이 지표·로그·trace의 동일 사건으로 연결되는지 P6에 판정한다
+### 2-2. 선택한 대표 요청이 지표, 로그, trace의 동일 사건으로 연결되는지 판정한다
 
-P6에서 P5 묶음의 normal·slow·invalid 중 하나를 골라 같은 run ID, request ID,
+개인 분석에서 수집 묶음의 normal/slow/invalid 중 하나를 골라 같은 run ID, request ID,
 trace ID를 연결합니다. LIVE에서는 collection manifest와 JSONL을 사용합니다.
 
 ```bash
@@ -113,17 +118,17 @@ LIVE에서는 같은 두 식별자가 붙은 Risk API 로그와 trace를 조회�
 { resource.service.name = "risk-api" && span."aiqa.run_id" = "<RUN_ID>" && span."aiqa.request_id" = "<REQUEST_ID>" }
 ```
 
-Loki와 Tempo에서 같은 식별자를 찾을 때 request ID는 log·trace 연결에만 쓰고
+Loki와 Tempo에서 같은 식별자를 찾을 때 request ID는 log/trace 연결에만 쓰고
 Prometheus metric label에는 넣지 않습니다. PREPARED/OFFLINE에서는 fixture의
 `representative_requests`와 `trace_path`를 읽되 실제 Loki/Tempo 검색으로 바꾸지
-않습니다. P6 결과는 관측·해석·한계·다음 확인 네 문장과 E-05로 남깁니다.
+않습니다. 개인 분석 결과는 관측, 해석, 한계, 다음 확인 네 문장과 운영 관측 칸에 남깁니다.
 
-## 단계 완료
+## 3. 단계 완료
 
-P5 인계 점검에서는 수집 묶음의 유형·ID와 environment·model·UTC 범위, 세 run ID,
-신호 상태와 누락 사유를 공유합니다. P6에서는 같은 묶음의 범위를 복원하고
-세 시나리오를 비교한 뒤 대표 요청을 선택해 log·metric·trace 연결을 분석하고,
-그 결과를 E-05에 인계합니다. 여기서 `result=BLOCKED`는 LIVE/PREPARED 선택이나
-신호 확인 작업의 사유·담당자를 나타내는 결과 필드입니다. 최종 운영 환경을
+수집 인계 점검에서는 수집 묶음의 유형/ID와 environment, model, UTC 범위, 세 run ID,
+신호 상태와 누락 사유를 공유합니다. 개인 분석에서는 같은 묶음의 범위를 복원하고
+세 시나리오를 비교한 뒤 대표 요청을 선택해 log, metric, trace 연결을 분석하고,
+그 결과를 운영 관측 칸에 인계합니다. 여기서 `result=BLOCKED`는 LIVE/PREPARED 선택이나
+신호 확인 작업의 사유, 담당자를 나타내는 결과 필드입니다. 최종 운영 환경을
 확인하지 못한 상태는 별도의 `operational scope=target_pending`으로 기록하며,
 두 판단을 하나의 선택지로 합치지 않습니다.

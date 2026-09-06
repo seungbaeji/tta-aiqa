@@ -124,22 +124,31 @@ def test_release_record_names_the_working_and_submission_path() -> None:
 
     assert "docs/reference/evidence/incident/initial-signal.json" in template
     assert "artifacts/reports/release-decision-record.md" in template
-    assert all(f"| D1-P{period} |" in template for period in range(1, 8))
-    assert all(f"| D2-P{period} |" in template for period in range(1, 8))
-    assert all(f"| E-0{evidence} |" in template for evidence in range(1, 6))
-    assert "P5 역할" in template
-    assert "P5 수집 경로: `live` / `offline`" in template
-    assert "증거 범위=`local` / `target` / `static`" in template
-    assert "묶음 ID= · 자료 경로=" in template
-    assert "P6 분석·P7 추적·T-01은 개인별로 작성" in template
+    assert all(f"| 1일차 {period} |" in template for period in range(1, 8))
+    assert all(f"| 2일차 {period} |" in template for period in range(1, 8))
+    assert "| 기준 모델 관찰 |" in template
+    assert "| 데이터 품질 |" in template
+    assert "| 모델 품질 |" in template
+    assert "| 서빙 확인 |" in template
+    assert "| 운영 관측 |" in template
+    assert "관측 수집 역할" in template
+    assert "수집 경로: `live` / `offline`" in template
+    assert "증거 범위: `local` / `target` / `static`" in template
+    assert "묶음 ID:" in template
+    assert "자료 경로:" in template
+    assert "개인 분석, 요청 연결 확인, 내일 넘길 항목은" in template
     assert (
         "| 교시 | 예상 → 관측 → 수정 "
-        "(근거 범위·경로, 미실행은 `BLOCKED`) | "
-        "근거 ID · 다음 확인 |"
+        "(근거 범위와 경로, 미실행은 `BLOCKED`) | "
+        "남긴 근거 / 다음 확인 |"
     ) in template
-    assert "| ID | 범위·확인한 사실 | 출처·UTC | 미확인 |" in template
-    assert "## 14교시 간결 기록" in template
-    assert "## E-01~E-05 근거 목록" in template
+    assert "| 근거 | 확인한 사실 | 출처와 시각 | 아직 모르는 것 |" in template
+    assert "## 교시별 기록" in template
+    assert "## 근거 목록" in template
+    assert "## 내일 넘길 항목" in template
+    assert "E-01" not in template
+    assert "D1-P1" not in template
+    assert "T-01" not in template
     assert "잘못 승인= / 지나치게 보류=" in template
     assert "운영 환경 확인 상태(`operational_deployment_scope`)=" in template
     assert (
@@ -166,8 +175,8 @@ def test_learner_guide_assigns_gitops_changes_to_platform_staff() -> None:
     guide = Path("labs/README.md").read_text(encoding="utf-8")
     normalized = _normalized(guide)
 
-    assert "후보 동기화와 되돌리기는 강사·플랫폼 책임" in normalized
-    assert "수강생은 강사가 제공한 결과의 범위·시간·identity만 기록" in normalized
+    assert "후보 동기화와 되돌리기는 강사와 플랫폼 책임" in normalized
+    assert "수강생은 강사가 제공한 결과의 범위, 시간, identity만 기록" in normalized
     assert "강사가 안내한 GitOps 절차 안에서만 수행" not in guide
 
 
@@ -175,7 +184,7 @@ def test_observability_guide_separates_blocked_result_from_target_state() -> Non
     guide = Path("labs/ch04-observability/README.md").read_text(encoding="utf-8")
     normalized = _normalized(guide)
 
-    assert "`result=BLOCKED`와 사유·담당자" in normalized
+    assert "`result=BLOCKED`와 사유, 담당자" in normalized
     assert "별도의 `operational scope=target_pending`" in normalized
     assert "`target_pending` 또는 `BLOCKED`" not in guide
 
@@ -246,7 +255,7 @@ def test_release_guide_separates_api_identity_from_deployment_digest() -> None:
     )
     normalized = _normalized(guide)
 
-    assert "대상 `/v1/model`의 프로필·버전·임계값" in normalized
+    assert "대상 `/v1/model`의 프로필, 버전, 임계값" in normalized
     assert "배포 선언의 예상 model SHA-256" in normalized
     assert "두 증거를 하나로 합치지 않고 각각 대조" in normalized
     assert "대상 `/v1/model`의 프로필, 해시값, 임계값" not in guide

@@ -18,6 +18,11 @@ STUDENT_NOTEBOOKS = (
     Path("labs/ch05-release-decision/00_compare_input_distributions.ipynb"),
     Path("labs/ch05-release-decision/01_review_release_decision.ipynb"),
 )
+LEFTOVER_NOTEBOOKS = (
+    Path("labs/ch01-data-quality/02_inspect_dvc_revision_practice.ipynb"),
+    Path("labs/ch02-model-quality/02_log_development_mlflow_run_practice.ipynb"),
+)
+CORE_AND_LEFTOVER_NOTEBOOKS = STUDENT_NOTEBOOKS + LEFTOVER_NOTEBOOKS
 APPENDIX_NOTEBOOKS = (
     Path("labs/appendix/01_python_basics.ipynb"),
     Path("labs/appendix/02_pandas_basics.ipynb"),
@@ -342,7 +347,7 @@ def test_distribution_notebook_marks_prepared_data_as_local_evidence() -> None:
     assert '"source_kind": "course_prepared_dataset"' in source
 
 
-@pytest.mark.parametrize("relative_path", STUDENT_NOTEBOOKS)
+@pytest.mark.parametrize("relative_path", CORE_AND_LEFTOVER_NOTEBOOKS)
 def test_student_notebook_is_checked_in_without_stale_outputs(
     relative_path: Path,
 ) -> None:
@@ -355,7 +360,7 @@ def test_student_notebook_is_checked_in_without_stale_outputs(
     assert all(not cell.outputs for cell in code_cells)
 
 
-@pytest.mark.parametrize("relative_path", STUDENT_NOTEBOOKS)
+@pytest.mark.parametrize("relative_path", CORE_AND_LEFTOVER_NOTEBOOKS)
 def test_student_notebook_follows_the_learning_activity_headings(
     relative_path: Path,
 ) -> None:
@@ -460,8 +465,64 @@ def test_appendix_notebook_is_a_scoped_api_walkthrough(relative_path: Path) -> N
     assert all(snippet in source for snippet in APPENDIX_API_SNIPPETS[relative_path])
 
 
+def test_leftover_dvc_notebook_hashes_development_files_only() -> None:
+    """Leftover DVC practice hashes train/valid and does not open sealed test."""
+    path = Path("labs/ch01-data-quality/02_inspect_dvc_revision_practice.ipynb")
+    source = "\n".join(
+        "".join(cell["source"])
+        for cell in json.loads(path.read_text(encoding="utf-8"))["cells"]
+    )
+
+    assert "시간이 남을 때 여는 선택 실습입니다" in source
+    assert "split-revision-v2.json" in source
+    assert "file_digest(" in source
+    assert 'shutil.which("dvc")' in source
+    assert 'train_info["path"]' in source
+    assert "pd.read_csv(manifest_path)" in source
+    assert "datasets/test.csv" not in source
+    assert "datasets/operational.csv" not in source
+    assert "E-02" not in source
+
+
+def test_leftover_mlflow_notebook_keeps_official_runs_read_only() -> None:
+    """Leftover MLflow practice logs a temp run and restores the caller tracking URI."""
+    path = Path("labs/ch02-model-quality/02_log_development_mlflow_run_practice.ipynb")
+    source = "\n".join(
+        "".join(cell["source"])
+        for cell in json.loads(path.read_text(encoding="utf-8"))["cells"]
+    )
+
+    assert "시간이 남을 때 여는 선택 실습입니다" in source
+    assert "previous_tracking_uri = mlflow.get_tracking_uri()" in source
+    assert "mlflow.set_tracking_uri(previous_tracking_uri)" in source
+    assert source.index("mlflow.set_tracking_uri(previous_tracking_uri)") > (
+        source.index('mlflow.set_experiment("practice-development-tracking")')
+    )
+    assert "model_mlflow_run_id" in source
+    assert "final_mlflow_run_id" in source
+    assert "release-manifest.json" in source
+    assert "mlflow.start_run(" in source
+    assert "mlflow.search_runs(" in source
+    assert "TemporaryDirectory(" in source
+    assert "artifacts/mlflow/" in source
+    assert "docs/reference/evidence/" in source
+    assert "E-03" not in source
+
+
+def test_chapter_guides_mark_leftover_notebooks_as_optional() -> None:
+    ch01 = Path("labs/ch01-data-quality/README.md").read_text(encoding="utf-8")
+    ch02 = Path("labs/ch02-model-quality/README.md").read_text(encoding="utf-8")
+
+    assert "## 2. 남는 시간 실습" in ch01
+    assert "### 2-1. " in ch01
+    assert "02_inspect_dvc_revision_practice.ipynb" in ch01
+    assert "## 2. 남는 시간 실습" in ch02
+    assert "### 2-1. " in ch02
+    assert "02_log_development_mlflow_run_practice.ipynb" in ch02
+
+
 @pytest.mark.integration
-@pytest.mark.parametrize("relative_path", STUDENT_NOTEBOOKS)
+@pytest.mark.parametrize("relative_path", CORE_AND_LEFTOVER_NOTEBOOKS)
 def test_student_notebook_executes_top_to_bottom(relative_path: Path) -> None:
     notebook = nbformat.read(ROOT / relative_path, as_version=4)
 
