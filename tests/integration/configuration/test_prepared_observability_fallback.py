@@ -211,17 +211,17 @@ def test_fallback_correlates_normal_slow_and_422_logs_with_trace_paths() -> None
 
 def test_guide_links_packet_and_separates_p5_p6_p7() -> None:
     guide = GUIDE_PATH.read_text(encoding="utf-8")
-    preparation = _heading_section(guide, 2, "관측")
-    traffic = _heading_section(guide, 2, "traffic")
+    preparation = _heading_section(guide, 2, "1. 관측")
+    traffic = _heading_section(guide, 2, "2. traffic")
     p5 = _heading_section(
         traffic,
         3,
-        "baseline·current-shift·invalid traffic의 의도와 상태 코드를 인계한다",
+        "2-1. baseline/current-shift/invalid traffic의 의도와 상태 코드를 인계한다",
     )
     p6 = _heading_section(
         traffic,
         3,
-        "선택한 대표 요청이 지표·로그·trace의 동일 사건으로 연결되는지 P6에 판정한다",
+        "2-2. 선택한 대표 요청이 지표, 로그, trace의 동일 사건으로 연결되는지 판정한다",
     )
 
     assert "PREPARED/OFFLINE" in guide
@@ -258,19 +258,22 @@ def test_guide_links_packet_and_separates_p5_p6_p7() -> None:
         'span."aiqa.run_id" = "<RUN_ID>" && '
         'span."aiqa.request_id" = "<REQUEST_ID>"'
     ) in p6
-    assert "P6에서 P5 묶음" in p6
+    assert "개인 분석에서 수집 묶음" in p6
     assert "실제 Loki/Tempo 검색으로 바꾸지" in p6
     normalized = _normalized(guide)
     for completion in (
-        "P5 인계 점검",
+        "수집 인계 점검",
         "범위를 복원",
         "세 시나리오를 비교",
         "대표 요청을 선택",
-        "E-05에 인계",
+        "운영 관측 칸에 인계",
     ):
         assert completion in normalized
     assert "span_id, parent_span_id" in p6
-    assert "P5 수집이 끝나도 P6와 P7이 끝날 때까지 Compose를 내리지" in normalized
+    assert (
+        "관측 수집이 끝나도 개인 분석과 요청 연결 확인이 끝날 때까지 "
+        "Compose를 내리지"
+    ) in normalized
 
 
 def test_learner_materials_use_completion_gates_instead_of_fixed_minutes() -> None:
@@ -298,7 +301,7 @@ def test_learner_materials_use_completion_gates_instead_of_fixed_minutes() -> No
         "범위를 복원",
         "세 시나리오를 비교",
         "대표 요청을 선택",
-        "E-05에 인계",
+        "운영 관측 칸에 인계",
     ):
         assert completion_gate in text
 
