@@ -1,8 +1,9 @@
 # 3장 서빙 환경 확인
 
 이 장은 9단계 여정의 **API**와 **Kubernetes/GitOps** 단계입니다. 로컬 Compose
-`http://127.0.0.1:8000`과 강사가 준 대상 URL(`AIQA_RISK_API_URL`)을 섞지
-않습니다. 대상 URL이 없으면 운영 scope를 `target_pending`으로 둡니다.
+`http://127.0.0.1:8000`과 개인 공개 HTTPS(`AIQA_RISK_API_URL`)를 섞지
+않습니다. 공개 주소는 가상 컴퓨터 이름에서 만들며 Proxmox 로그인 주소가
+아닙니다. 대상 URL이 없으면 운영 scope를 `target_pending`으로 둡니다.
 
 ## API
 

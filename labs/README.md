@@ -31,8 +31,13 @@ uv sync --all-packages --group dev --group notebook
 uv run python scripts/setup_course.py --data-only
 ```
 
-대상 URL이 없으면 대상 LIVE를 시도하지 않습니다. 사용할 수 있는 주소는 로컬
-Compose `http://127.0.0.1:8000` 또는 강사가 준 대상 URL이며, 대상 URL은
+대상 URL이 없으면 대상 LIVE를 시도하지 않습니다. 수업용 대상 주소는 가상
+컴퓨터 이름에서 만든 공개 HTTPS입니다. `ttaN-pve2-lab`은
+`https://ttaN-pve2.apps.learn.mrml.dev`, `ttaN-pve3-lab`은
+`https://ttaN-pve3.apps.learn.mrml.dev`입니다. Proxmox 로그인
+`https://pve2.homelab.mrml.dev/`와 `https://pve3.homelab.mrml.dev/`는 Risk API가
+아닙니다. 로컬 Compose는 `http://127.0.0.1:8000`이며 가상 컴퓨터 안에서만
+씁니다. 화면 IPv4의 80번은 수업 대상이 아닙니다. 대상 URL을 명령에 넣을 때는
 `AIQA_RISK_API_URL`로만 전달합니다. ClusterIP, port-forward와 tunnel을
 수강생이 만들지 않습니다.
 
