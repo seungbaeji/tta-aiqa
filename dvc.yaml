@@ -49,7 +49,6 @@ stages:
       - data.test_ratio
       - data.operational_ratio
     outs:
-      - data/splits-v1/split-manifest.csv
       - data/splits-v1
 
   revise-split-v2:
@@ -61,5 +60,4 @@ stages:
       - data/splits-v1/split-manifest.csv
       - packages/aiqa_data
     outs:
-      - data/splits-v2/split-manifest.csv
       - data/splits-v2
