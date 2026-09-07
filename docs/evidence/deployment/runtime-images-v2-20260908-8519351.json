@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "artifact_id": "RUNTIME-IMAGES-V2-20260908-8519351",
+  "recorded_at": "2026-09-07T21:09:37Z",
+  "source_commit": "851935176b19deb43533eb28bd51b43fc312ceeb",
+  "build": {
+    "builder": "tta-aiqa-publish",
+    "provenance": "mode=max",
+    "sbom": true
+  },
+  "images": {
+    "risk_api": {
+      "tag": "ghcr.io/seungbaeji/tta-aiqa-risk-api:v2-851935176b19",
+      "reference": "ghcr.io/seungbaeji/tta-aiqa-risk-api@sha256:e46c02f76e042a9e75e9ce6c4eaa782fb3edb583d7f1086403e952811edc6bfc",
+      "oci_index_digest": "sha256:e46c02f76e042a9e75e9ce6c4eaa782fb3edb583d7f1086403e952811edc6bfc",
+      "platform_manifest_digests": {
+        "linux/amd64": "sha256:401582b1c8ed2974393f83d5588322509055e7d13584cdfd007a867584cef13f",
+        "linux/arm64": "sha256:a3167620aa1a64015baf9447d041879fda023c3ea5eb85b2b34706afd39c5762"
+      },
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    },
+    "kserve_predictor": {
+      "tag": "ghcr.io/seungbaeji/tta-aiqa-kserve-predictor:v2-851935176b19",
+      "reference": "ghcr.io/seungbaeji/tta-aiqa-kserve-predictor@sha256:d6dfc6de1042cd50880f339094909440161a1e64d92c66d6f46701037423fba7",
+      "oci_index_digest": "sha256:d6dfc6de1042cd50880f339094909440161a1e64d92c66d6f46701037423fba7",
+      "platform_manifest_digests": {
+        "linux/amd64": "sha256:081adabcb6afa20a5bd3cc7c7d94f007ddcafdef815ec0ecf446069665171934",
+        "linux/arm64": "sha256:81366cdb59bab5210cfc7910cd9d02e0b38dcc09a83b9170ae84dc8d1ed0a19e"
+      },
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    }
+  },
+  "local_verification": {
+    "status": "verified",
+    "performed_at": "2026-09-07T21:10:02Z",
+    "platform": "linux/arm64",
+    "checks": [
+      "Both GHCR OCI indexes resolve to the recorded immutable digests.",
+      "Both indexes contain linux/amd64 and linux/arm64 manifests with provenance and SBOM attestations.",
+      "Both platform image configs label source revision 851935176b19deb43533eb28bd51b43fc312ceeb.",
+      "The native arm64 Risk API image imported risk_api.main:create_runtime_app.",
+      "The native arm64 predictor image imported kserve_predictor.main:create_runtime_app."
+    ]
+  },
+  "target_verification": {
+    "status": "pending",
+    "checked_context": "not-checked-in-this-revision",
+    "reason": "This revision did not have the approved course target context or its runtime inputs.",
+    "owner": "instructor_platform",
+    "required_inputs": [
+      "Approved course TARGET_CONTEXT",
+      "The ghcr-pull Secret in the tta-aiqa namespace",
+      "The static course-models volume with baseline and Candidate B bundles",
+      "Grafana Cloud credentials and the approved Alloy configuration"
+    ],
+    "completion_evidence": [
+      "The course node resolves both pinned OCI indexes and runs the recorded platform manifest digests.",
+      "Baseline, Candidate B, and rollback expose the expected model identity and readiness.",
+      "A valid request returns HTTP 200 through Risk API and the predictor.",
+      "Metrics, bounded logs, and the representative trace agree on model, environment, and UTC range."
+    ]
+  }
+}

@@ -99,9 +99,10 @@ uv run pytest -q labs/exercises/tests/test_ge_summary.py
 학습/검증 파일의 SHA-256을 직접 계산해 선언 파일과 대조합니다.
 공식 평가용 `test`와 `operational` 파일은 열지 않습니다.
 잠금 파일 지문이 달라도 값을 고치지 말고 계산 결과를 적습니다.
-이 학습/검증 지문 확인은 2장 본편
-`02_trace_model_lineage.ipynb`가 `labs/run/log_development.py`를 호출해
-Compose MLflow에 `data_roles=train,valid`만 남기기 전에 먼저 닫는 전제입니다.
+2장 본편의 `labs/run/log_development.py`는 이 선택 실습 여부와 관계없이
+`split-revision.json`의 revision, 경로, 행 수와 SHA-256을 실행 전에
+강제합니다. 이 노트북은 같은 invariant를 손으로 계산해 이해하려는 경우에만
+사용합니다.
 
 ## 3. 단계 완료
 

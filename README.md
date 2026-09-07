@@ -247,9 +247,12 @@ V2의 모델 준비 결과와 실행 ID는
 공개 URL을 `AIQA_MLFLOW_TRACKING_URI`로 설정합니다. 수강생은 ClusterIP를
 만들거나 port-forward, tunnel을 열지 않습니다. `http://127.0.0.1:5000`은
 닫힌망 기본 경로가 아닙니다.
+강의 전 image build, bind mount 초기화와 화면별 설명 순서는
+[`2장 강사용 모델 계보 가이드`](labs/chapters/ch02/INSTRUCTOR_GUIDE.md)를
+따릅니다.
 
 ```bash
-docker compose -f deploy/compose.yaml up -d --no-build mlflow
+docker compose -f deploy/compose.yaml up -d --no-build --wait mlflow
 curl "${AIQA_MLFLOW_TRACKING_URI%/}/health"
 uv run jupyter nbconvert --to notebook --execute \
   labs/chapters/ch02/02_trace_model_lineage.ipynb \
@@ -258,11 +261,12 @@ uv run jupyter nbconvert --to notebook --execute \
 ```
 
 값이 없거나 `/health`가 실패하면 화면 미확인을 따로 적고, 공식 실행 번호는
-JSON에서만 읽습니다. 노트북은 DVC, 공식 MLflow Run, model/metadata SHA-256과
-release manifest를 먼저 한 표로 연결한 뒤 `labs/run/log_development.py`를
-호출합니다. 학생 Candidate B Run은 dataset input, parameter, validation
-metric, bundle과 MLflow model을 함께 남기지만 공식 실행 번호를 대체하지
-않습니다. Kubernetes 매니페스트는
+JSON에서만 읽습니다. 노트북은 역사적 V2에서 reconciliation된 범위와 복원할 수
+없는 DVC/Git 상태를 먼저 구분한 뒤 model/metadata SHA-256과 release manifest를
+연결하고 `labs/run/log_development.py`를 호출합니다. 학생 Candidate B Run은
+검증된 동일 train/valid 파일을 학습과 dataset input에 사용하고 parameter,
+validation metric, bundle과 MLflow Logged Model을 함께 남기지만 공식 실행
+번호를 대체하지 않습니다. Kubernetes 매니페스트는
 `deploy/k8s/base/mlflow.yaml`에 참고용으로만 두며, `kustomization.yaml`
 resources에는 넣지 않습니다.
 

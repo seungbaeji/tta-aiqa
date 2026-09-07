@@ -441,6 +441,24 @@ def test_model_lineage_notebook_connects_the_complete_teaching_record() -> None:
     assert "feature_contract_sha256" in source
     assert "student-development-tracking" in source
     assert "공식 Run과 학생 Run은 서로 다른 실행" in source
+    assert "frozen_dvc_lock_snapshot_available" in source
+    assert "git_worktree_dirty" in source
+    assert "cross-document reconstruction" in source
+    assert "과거 DVC stage 전체" in source
+    assert "source_run_id" in source
+    assert "mlflow.log_input" in source
+    assert "mlflow.log_artifacts" in source
+    assert "mlflow.sklearn.log_model" in source
+    assert "MLflow digest" in source
+    assert "mlflow_dataset_digest" in source
+    assert "train_data_hash" in source
+    assert "saved_input_example_info" in source
+    assert "register_model()" in source
+    assert "Model Registry" in source
+    assert "apps/model_trainer/application/finalization.py::run_final" in source
+    assert "docs/evidence/model-v2/README.md" in source
+    assert "deterministic serialization" in source
+    assert "INSTRUCTOR_GUIDE.md" in source
     assert "test.csv" not in "\n".join(
         "".join(cell["source"])
         for cell in json.loads(path.read_text(encoding="utf-8"))["cells"]
