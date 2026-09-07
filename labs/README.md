@@ -138,9 +138,20 @@ Data Docs가 생성됩니다. GE 결과는 데이터 품질 근거이며 DVC 게
 
 ### Precision, Recall, F1, FP/FN과 PR-AUC를 같은 release 질문으로 해석한다
 
-canonical benchmark의 지표를 읽기 전에 accuracy 하나로 판단할 때 생길 오류를
-예측합니다. Precision, Recall, F1, FP/FN, AUROC, PR-AUC와 threshold가 어떤
-보호 질문에 답하는지 비교하고, 새 threshold나 release policy를 만들지 않습니다.
+`00_train_valid_model_walkthrough.ipynb`를 실행하기 전에 accuracy 하나로 판단할
+때 생길 오류를 예측합니다. 노트북은 로지스틱 회귀를 학습 2,900건과 검증 600건에서
+한 번만 맞춥니다. Precision, Recall, F1, FP/FN, AUROC, PR-AUC와 threshold가 어떤
+보호 질문에 답하는지 비교하고, 개발용 수치를 공식 평가와 섞거나 새 threshold,
+release policy를 만들지 않습니다.
+
+### 검증 시점 근거로 후보 선택 논리를 추적한다
+
+`00b_trace_valid_model_selection.ipynb`는 학습하지 않고
+`configs/model/revisions/v2/profiles.yaml`과
+`docs/reference/evidence/model/revisions/v2/development-benchmark.json`만
+읽습니다. 슬라이드의 선택은 GridSearch가 아니며 봉인 test로 고르는 것도
+아닙니다. 후보는 이미 프로필에 고정되어 있고, 이 검증 숫자는 공식 승인이
+아닙니다.
 
 ### Candidate A는 HOLD이고 Candidate B는 APPROVE인지 canonical benchmark로 판정한다
 
@@ -153,7 +164,8 @@ uv run python scripts/run_model.py status --revision v2
 `docs/reference/evidence/model/revisions/v2/canonical-benchmark.json`과
 `release-manifest.json`을 읽어 Candidate A `HOLD`, Candidate B `APPROVE`를
 모델 승인으로 기록합니다. B의 승인은 대상 배포 완료가 아니며, 공식 평가 결과에
-맞춰 특성, threshold, policy를 변경하지 않습니다.
+맞춰 특성, threshold, policy를 변경하지 않습니다. Candidate B 서빙 확인은
+[3장 서빙](ch03-serving/README.md)을 따릅니다.
 
 ### DVC revision과 MLflow run이 같은 model evidence lineage를 가리키는지 확인한다
 
@@ -161,6 +173,7 @@ uv run python scripts/run_model.py status --revision v2
 `release-manifest.json`의 생성 순서와 DVC revision, dataset digest, MLflow run을
 대조합니다. MLflow UI가 없으면 JSON evidence를 읽고 UI 미확인을 별도로 기록합니다.
 새 공식 실행이나 model bundle을 만들지 않고 모델 품질 칸에 연결 누락을 남깁니다.
+실행 순서와 화면 확인은 [2장 모델 품질](ch02-model-quality/README.md)을 따릅니다.
 본편 판단을 닫은 뒤 시간이 남으면 [2장 남는 시간 실습](ch02-model-quality/README.md#2-남는-시간-실습)에서
 임시 MLflow run만 연습합니다. 그 run은 공식 실행 번호를 대체하지 않습니다.
 

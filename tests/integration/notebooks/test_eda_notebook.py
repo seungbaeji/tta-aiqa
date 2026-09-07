@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[3]
 STUDENT_NOTEBOOKS = (
     Path("labs/ch01-data-quality/01_physionet_data_quality_eda.ipynb"),
     Path("labs/ch02-model-quality/00_train_valid_model_walkthrough.ipynb"),
+    Path("labs/ch02-model-quality/00b_trace_valid_model_selection.ipynb"),
     Path("labs/ch02-model-quality/01_compare_model_evidence.ipynb"),
     Path("labs/ch03-serving/01_verify_risk_api.ipynb"),
     Path("labs/ch04-observability/01_inspect_dashboard_contract.ipynb"),
@@ -365,6 +366,50 @@ def test_distribution_notebook_marks_prepared_data_as_local_evidence() -> None:
 
     assert '"scope": "local"' in source
     assert '"source_kind": "course_prepared_dataset"' in source
+
+
+def test_valid_selection_notebook_reads_development_evidence_only() -> None:
+    """Trace slide selection on valid evidence; do not train or open sealed test."""
+    path = Path("labs/ch02-model-quality/00b_trace_valid_model_selection.ipynb")
+    notebook = json.loads(path.read_text(encoding="utf-8"))
+    source = "\n".join("".join(cell["source"]) for cell in notebook["cells"])
+    code_source = "\n".join(
+        "".join(cell["source"])
+        for cell in notebook["cells"]
+        if cell["cell_type"] == "code"
+    )
+
+    assert "configs/model/revisions/v2/profiles.yaml" in source
+    assert (
+        "docs/reference/evidence/model/revisions/v2/development-benchmark.json"
+        in source
+    )
+    assert "class_weight" in source
+    assert "cv_recall_mean" in source
+    assert "이 숫자는 공식 승인이 아니며" in source
+    assert "datasets/test.csv" not in source
+    assert "canonical-benchmark.json" not in code_source
+    assert "mlflow" not in code_source.lower()
+    assert "LogisticRegression" not in source
+    assert ".fit(" not in code_source
+
+
+def test_compare_notebook_audits_canonical_hold_and_approve() -> None:
+    """Keep official compare on sealed JSON; profiles.yaml already chose candidates."""
+    path = Path("labs/ch02-model-quality/01_compare_model_evidence.ipynb")
+    source = "\n".join(
+        "".join(cell["source"])
+        for cell in json.loads(path.read_text(encoding="utf-8"))["cells"]
+    )
+
+    assert (
+        "docs/reference/evidence/model/revisions/v2/canonical-benchmark.json"
+        in source
+    )
+    assert "class_weight" in source
+    assert 'evidence["sealed_test"]["status"] == "evaluated_once"' in source
+    assert "HOLD" in source
+    assert "APPROVE" in source
 
 
 @pytest.mark.parametrize("relative_path", CORE_AND_LEFTOVER_NOTEBOOKS)

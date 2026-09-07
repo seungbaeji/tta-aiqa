@@ -15,7 +15,14 @@
 사용합니다. 개발용 정확도 0.8550, 재현율 0.2169, 미탐 65를 후보 공식 결과와
 섞지 않습니다. 각 지표가 어떤 보호 질문에 답하는지 기록합니다.
 
-### 1-2. Candidate A는 HOLD이고 Candidate B는 APPROVE인지 canonical benchmark로 판정한다
+### 1-2. 검증 시점 근거로 후보 선택 논리를 추적한다
+
+`00b_trace_valid_model_selection.ipynb`를 위에서 아래로 실행합니다. 학습하지
+않고 `profiles.yaml`과 `development-benchmark.json`만 읽습니다. 슬라이드의
+선택은 GridSearch가 아니며 봉인 test로 고르는 것도 아닙니다. 후보는 이미
+프로필에 고정되어 있고, 이 검증 숫자는 공식 승인이 아닙니다.
+
+### 1-3. Candidate A는 HOLD이고 Candidate B는 APPROVE인지 canonical benchmark로 판정한다
 
 다음 명령으로 고정된 모델 상태를 확인합니다.
 
@@ -32,7 +39,7 @@ uv run python scripts/run_model.py status --revision v2
 정책, PR-AUC, 정밀도, 재현율, 미탐과 보호 기준의 연결을 같은 범위에서 읽을
 수 있습니다.
 
-### 1-3. DVC revision과 MLflow run이 같은 model evidence lineage를 가리키는지 확인한다
+### 1-4. DVC revision과 MLflow run이 같은 model evidence lineage를 가리키는지 확인한다
 
 `model-bootstrap.json`, `release-freeze.json`, `canonical-benchmark.json`,
 `release-manifest.json`의 순서와 데이터 revision, 파일 지문, 실험 실행 번호를
