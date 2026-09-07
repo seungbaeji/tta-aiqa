@@ -69,6 +69,7 @@ def bootstrap(settings: DataQualitySettings) -> DataQualityRuntime:
         if paths.split_revision_config_path is not None
         else None
     )
+    # YAML이 있을 때만 GE validator를 붙입니다. 규칙 값은 bootstrap이 정하지 않습니다.
     validator = (
         GreatExpectationsQualityValidator(
             records=records,
@@ -116,6 +117,7 @@ def bootstrap(settings: DataQualitySettings) -> DataQualityRuntime:
             partitioner=SklearnRevisionPartitioner(),
             artifacts=artifacts,
         ),
+        # validate 단계는 GE checkpoint 두 개(raw / processed)를 돌립니다.
         validate=partial(
             validate_quality,
             paths,

@@ -32,7 +32,12 @@ class GreatExpectationsQualityValidator:
     rules: QualityRules
 
     def validate(self, patient_features_path: Path, artifact_dir: Path) -> bool:
-        """Write GE evidence and return whether raw and processed checks both passed."""
+        """Write GE evidence and return whether raw and processed checks both passed.
+
+        체크포인트는 두 개입니다. raw-ingestion은 기록 요약 표, processed-readiness는
+        133개 특성 표입니다. 둘 다 통과해도 모델 승인이나 DVC 게시를 대신하지 않습니다.
+        """
+        # 원본 txt를 한 표로 붙이지 않고, 기록별 행 수·결측 표식·시간 범위만 요약합니다.
         raw_frame = pd.DataFrame(
             asdict(item)
             for item in profile_raw_records(
@@ -75,6 +80,7 @@ class GreatExpectationsQualityValidator:
                     top_missing_rates=top_missing_rates(processed_frame),
                 ),
             ),
+            # False: GE 성공이 배포/게시 게이트가 아님을 근거 파일에 고정합니다.
             publish_blocking_gate=False,
         )
         write_validation_summary(document, artifact_dir / "validation-summary.json")

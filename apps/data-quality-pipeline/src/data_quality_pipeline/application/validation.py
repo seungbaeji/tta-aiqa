@@ -13,7 +13,11 @@ def validate_quality(
     *,
     validator: QualityValidator | None,
 ) -> DataPreparationResult:
-    """Run configured quality checks and return a non-blocking evidence outcome."""
+    """Run configured quality checks and return a non-blocking evidence outcome.
+
+    이 use case는 경로와 validator만 연결합니다. Expectation 내용, Data Docs 경로,
+    게시 여부는 adapter와 YAML이 담당합니다.
+    """
     if paths.quality_rules_path is None or paths.validation_artifact_dir is None:
         raise ValueError(
             "validate requires quality rules and validation artifact paths"
