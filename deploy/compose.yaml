@@ -38,7 +38,7 @@ services:
     restart: unless-stopped
 
   risk-api:
-    image: ghcr.io/seungbaeji/tta-aiqa-risk-api@sha256:ac59d0f8b768f53830551ac7ea5e30717372e09eeee79ae6bb6f00c34deb0d89
+    image: ghcr.io/seungbaeji/tta-aiqa-risk-api@sha256:08a493ac2771f7c3f0e772a8b085a8c3ef9b1b9fec149d00db2f4d26dbc2556f
     build:
       context: ..
       dockerfile: apps/risk_api/Dockerfile

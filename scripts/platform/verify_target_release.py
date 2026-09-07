@@ -21,7 +21,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[2]
 NAMESPACE = "tta-aiqa"
 DEFAULT_EVIDENCE = (
-    ROOT / "docs/evidence/deployment/runtime-images-v2-20260908-656f6ee.json"
+    ROOT / "docs/evidence/deployment/runtime-images-v2-20260908-7a1533f.json"
 )
 DEFAULT_CONTRACT = ROOT / "configs/contracts/model-input.yaml"
 DEFAULT_SAMPLE = (
