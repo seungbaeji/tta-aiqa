@@ -251,12 +251,18 @@ V2의 모델 준비 결과와 실행 ID는
 ```bash
 docker compose -f deploy/compose.yaml up -d --no-build mlflow
 curl "${AIQA_MLFLOW_TRACKING_URI%/}/health"
-uv run python labs/run/log_development.py
+uv run jupyter nbconvert --to notebook --execute \
+  labs/chapters/ch02/02_trace_model_lineage.ipynb \
+  --output /tmp/ch02-model-lineage.ipynb \
+  --ExecutePreprocessor.timeout=300
 ```
 
 값이 없거나 `/health`가 실패하면 화면 미확인을 따로 적고, 공식 실행 번호는
-JSON에서만 읽습니다. 학생 개발 run은 `labs/run/` 본편 모듈이 남기며 공식
-실행 번호를 대체하지 않습니다. Kubernetes 매니페스트는
+JSON에서만 읽습니다. 노트북은 DVC, 공식 MLflow Run, model/metadata SHA-256과
+release manifest를 먼저 한 표로 연결한 뒤 `labs/run/log_development.py`를
+호출합니다. 학생 Candidate B Run은 dataset input, parameter, validation
+metric, bundle과 MLflow model을 함께 남기지만 공식 실행 번호를 대체하지
+않습니다. Kubernetes 매니페스트는
 `deploy/k8s/base/mlflow.yaml`에 참고용으로만 두며, `kustomization.yaml`
 resources에는 넣지 않습니다.
 

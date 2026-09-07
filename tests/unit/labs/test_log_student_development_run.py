@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import importlib.util
 import json
 import sys
@@ -9,7 +10,9 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
+import pytest
 import yaml
+from mlflow import MlflowClient
 
 ROOT = Path(__file__).resolve().parents[3]
 MODULE_PATH = ROOT / "labs/run/log_development.py"
@@ -35,6 +38,9 @@ def write_fixture_tree(tmp_path: Path) -> Path:
     features = tmp_path / "data/features.csv"
     splits = tmp_path / "data/splits-v2/split-manifest.csv"
     profiles = tmp_path / "configs/model-v2/profiles.yaml"
+    evaluation = tmp_path / "configs/model-v2/evaluation.yaml"
+    feature_contract = tmp_path / "configs/contracts/model-input.yaml"
+    dvc_lock = tmp_path / "dvc.lock"
     manifest = (
         tmp_path
         / "docs/evidence/model-v2/release-manifest.json"
@@ -42,36 +48,78 @@ def write_fixture_tree(tmp_path: Path) -> Path:
     features.parent.mkdir(parents=True)
     splits.parent.mkdir(parents=True)
     profiles.parent.mkdir(parents=True)
+    evaluation.parent.mkdir(parents=True, exist_ok=True)
+    feature_contract.parent.mkdir(parents=True)
     manifest.parent.mkdir(parents=True)
-    pd.DataFrame(
+    feature_frame = pd.DataFrame(
         {
             "record_id": [1, 2, 3, 4, 5, 6],
             "feat": [0.1, 0.2, 0.8, 0.9, 0.15, 0.85],
             "target": [0, 0, 1, 1, 0, 1],
         }
-    ).to_csv(features, index=False)
-    pd.DataFrame(
+    )
+    feature_frame.to_csv(features, index=False)
+    split_frame = pd.DataFrame(
         {
             "record_id": [1, 2, 3, 4, 5, 6],
             "role": ["train", "train", "train", "train", "valid", "valid"],
         }
-    ).to_csv(splits, index=False)
+    )
+    split_frame.to_csv(splits, index=False)
+    joined = feature_frame.merge(split_frame, on="record_id")
+    joined.loc[joined["role"].eq("train")].drop(columns="role").to_csv(
+        splits.parent / "train.csv", index=False
+    )
+    joined.loc[joined["role"].eq("valid")].drop(columns="role").to_csv(
+        splits.parent / "valid.csv", index=False
+    )
     profiles.write_text(
         (
             "schema_version: 1\n"
             "random_seed: 43\n"
             "profiles:\n"
-            "  - name: baseline\n"
-            "    model_role: baseline\n"
-            "    kind: logistic_regression\n"
-            "    threshold: 0.50\n"
+            "  - name: candidate-b\n"
+            "    model_role: candidate\n"
+            "    candidate_id: candidate-b\n"
+            "    kind: random_forest\n"
+            "    threshold: 0.35\n"
             "    params:\n"
-            "      C: 1.0\n"
-            "      class_weight: null\n"
-            "      max_iter: 2000\n"
+            "      n_estimators: 10\n"
+            "      min_samples_leaf: 1\n"
+            "      max_features: sqrt\n"
+            "      class_weight: balanced_subsample\n"
+            "      n_jobs: 1\n"
         ),
         encoding="utf-8",
     )
+    evaluation.write_text(
+        (
+            "schema_version: 1\n"
+            "cross_validation:\n"
+            "  splits: 2\n"
+            "  repeats: 1\n"
+            "  random_seed: 43\n"
+            "bootstrap:\n"
+            "  iterations: 20\n"
+            "  confidence_level: 0.95\n"
+            "ranking_metrics: [pr_auc, roc_auc]\n"
+            "operating_metrics: [precision, recall, f1, confusion_matrix]\n"
+        ),
+        encoding="utf-8",
+    )
+    feature_contract.write_text(
+        (
+            "schema_version: 1\n"
+            "name: test-contract\n"
+            "target: target\n"
+            "features:\n"
+            "  - name: feat\n"
+            "    dtype: float\n"
+            "    nullable: false\n"
+        ),
+        encoding="utf-8",
+    )
+    dvc_lock.write_text("schema: '2.0'\nstages: {}\n", encoding="utf-8")
     manifest.write_text(
         json.dumps(
             {
@@ -93,7 +141,8 @@ def write_contract(tmp_path: Path) -> Path:
             {
                 "schema_version": 1,
                 "experiment_name": "student-development-tracking",
-                "profile_name": "baseline",
+                "profile_name": "candidate-b",
+                "data_revision": "v2",
                 "tracking_uri_environment_variable": "AIQA_MLFLOW_TRACKING_URI",
                 "run_name": "student-train-valid",
                 "data_roles": ["train", "valid"],
@@ -103,6 +152,9 @@ def write_contract(tmp_path: Path) -> Path:
                         "data/splits-v2/split-manifest.csv"
                     ),
                     "profiles": "configs/model-v2/profiles.yaml",
+                    "evaluation": "configs/model-v2/evaluation.yaml",
+                    "feature_contract": "configs/contracts/model-input.yaml",
+                    "dvc_lock": "dvc.lock",
                     "release_manifest": (
                         "docs/evidence/model-v2/"
                         "release-manifest.json"
@@ -125,7 +177,8 @@ def test_contract_owns_student_experiment_name() -> None:
 
     assert contract.experiment_name == "student-development-tracking"
     assert contract.experiment_name != OFFICIAL_EXPERIMENT
-    assert contract.profile_name == "baseline"
+    assert contract.profile_name == "candidate-b"
+    assert contract.data_revision == "v2"
     assert contract.data_roles == ("train", "valid")
     assert contract.tracking_uri_environment_variable == "AIQA_MLFLOW_TRACKING_URI"
 
@@ -134,7 +187,8 @@ def test_module_source_does_not_default_to_local_or_official_tracking() -> None:
     source = MODULE_PATH.read_text(encoding="utf-8")
 
     assert "sqlite:///" not in source
-    assert "TemporaryDirectory(" not in source
+    assert 'TemporaryDirectory(prefix="mlflow-' not in source
+    assert 'TemporaryDirectory(prefix="aiqa-student-bundle-")' in source
     assert "http://127.0.0.1:5000" not in source
     assert OFFICIAL_EXPERIMENT not in source
     assert "practice-development-tracking" not in source
@@ -199,12 +253,26 @@ def test_ready_tracking_logs_student_run_without_official_ids(tmp_path: Path) ->
     root = write_fixture_tree(tmp_path)
     recorded: list[dict[str, Any]] = []
 
+    def record(**kwargs: Any) -> str:
+        bundle_dir = Path(kwargs["bundle_dir"])
+        recorded.append(
+            {
+                **kwargs,
+                "bundle_files": sorted(path.name for path in bundle_dir.iterdir()),
+                "metadata": json.loads(
+                    (bundle_dir / "metadata.json").read_text(encoding="utf-8")
+                ),
+            }
+        )
+        return "student-run-id"
+
     result = student_run.run_student_development(
         root=root,
         environ={"AIQA_MLFLOW_TRACKING_URI": "https://mlflow.example.test"},
         contract_path=write_contract(tmp_path),
         health_probe=lambda uri: uri == "https://mlflow.example.test",
-        record_run=lambda **kwargs: recorded.append(kwargs) or "student-run-id",
+        record_run=record,
+        source_revision=lambda _root: "a" * 40,
     )
 
     assert result["status"] == "LOGGED"
@@ -213,11 +281,30 @@ def test_ready_tracking_logs_student_run_without_official_ids(tmp_path: Path) ->
     assert result["student_run_id"] != result["official_final_run"]
     assert recorded[0]["experiment_name"] == "student-development-tracking"
     assert recorded[0]["tracking_uri"] == "https://mlflow.example.test"
-    assert recorded[0]["tags"]["not_official_evidence"] == "true"
-    assert recorded[0]["tags"]["data_roles"] == "train,valid"
+    assert recorded[0]["profile"].name == "candidate-b"
+    assert recorded[0]["profile"].kind.value == "random_forest"
+    assert recorded[0]["profile"].threshold == 0.35
+    assert recorded[0]["evaluation"].profile == "candidate-b"
+    assert recorded[0]["bundle_files"] == ["metadata.json", "model.joblib"]
+    assert recorded[0]["metadata"]["profile"] == "candidate-b"
+    assert recorded[0]["metadata"]["provenance"]["git_commit"] == "a" * 40
+    assert recorded[0]["provenance"]["data_roles"] == "train,valid"
+    assert recorded[0]["provenance"]["data_revision"] == "v2"
+    assert recorded[0]["provenance"]["dvc_lock_sha256"] == hashlib.sha256(
+        (root / "dvc.lock").read_bytes()
+    ).hexdigest()
+    assert recorded[0]["provenance"]["train_data_hash"]
+    assert recorded[0]["provenance"]["valid_data_hash"]
+    assert recorded[0]["provenance"]["feature_contract_sha256"]
     assert "artifacts/mlflow" not in str(recorded[0])
     assert "docs/evidence" not in str(recorded[0].get("artifact_path", ""))
     assert recorded[0].get("artifact_path") is None
+    assert result["profile_name"] == "candidate-b"
+    assert result["model_kind"] == "random_forest"
+    assert result["threshold"] == 0.35
+    assert result["bundle_model_sha256"]
+    assert result["bundle_metadata_sha256"]
+    assert result["lineage"]["git_commit"] == "a" * 40
 
 
 def test_development_splits_exclude_sealed_roles(tmp_path: Path) -> None:
@@ -248,6 +335,43 @@ def test_development_splits_exclude_sealed_roles(tmp_path: Path) -> None:
     assert set(train["role"].unique()) == {"train"}
     assert set(valid["role"].unique()) == {"valid"}
     assert 7 not in set(train["record_id"]).union(set(valid["record_id"]))
+
+
+@pytest.mark.integration
+def test_student_run_records_inputs_metrics_bundle_and_model(tmp_path: Path) -> None:
+    root = write_fixture_tree(tmp_path)
+    tracking_uri = f"sqlite:///{tmp_path / 'student-mlflow.db'}"
+
+    result = student_run.run_student_development(
+        root=root,
+        environ={"AIQA_MLFLOW_TRACKING_URI": tracking_uri},
+        contract_path=write_contract(tmp_path),
+        health_probe=lambda _uri: True,
+        source_revision=lambda _root: "a" * 40,
+    )
+
+    client = MlflowClient(tracking_uri=tracking_uri)
+    run = client.get_run(result["student_run_id"])
+    artifact_paths = [item.path for item in client.list_artifacts(run.info.run_id)]
+    downloaded = client.download_artifacts(
+        run.info.run_id,
+        "bundle/metadata.json",
+        str(tmp_path / "downloaded"),
+    )
+    metadata = json.loads(Path(downloaded).read_text(encoding="utf-8"))
+
+    assert result["status"] == "LOGGED"
+    assert run.data.tags["aiqa.profile"] == "candidate-b"
+    assert run.data.tags["not_official_evidence"] == "true"
+    assert run.data.params["model_kind"] == "random_forest"
+    assert run.data.params["threshold"] == "0.35"
+    assert run.data.params["dvc_lock_sha256"] == result["lineage"]["dvc_lock_sha256"]
+    assert "valid.recall" in run.data.metrics
+    assert "valid.pr_auc" in run.data.metrics
+    assert len(run.inputs.dataset_inputs) == 2
+    assert "bundle" in artifact_paths
+    assert metadata["profile"] == "candidate-b"
+    assert metadata["model_sha256"] == result["bundle_model_sha256"]
 
 
 def test_health_probe_rejects_non_http_uris() -> None:

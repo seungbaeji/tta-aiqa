@@ -167,16 +167,18 @@ uv run python labs/run/model_status.py --revision v2
 
 ### DVC revision과 MLflow run이 같은 model evidence lineage를 가리키는지 확인한다
 
-`model-bootstrap.json`, `release-freeze.json`, `canonical-benchmark.json`,
-`release-manifest.json`의 생성 순서와 DVC revision, dataset digest, MLflow run을
-대조합니다. MLflow UI가 없으면 JSON evidence를 읽고 UI 미확인을 별도로 기록합니다.
-새 공식 실행이나 model bundle을 만들지 않고 모델 품질 칸에 연결 누락을 남깁니다.
-실행 순서와 화면 확인은 [2장 모델 품질](chapters/ch02/README.md)을 따릅니다.
-Compose MLflow가 준비되면 `uv run python labs/run/log_development.py`로
-학습/검증 개발 run을 학생 experiment에 남깁니다. 공식 실행 번호는 JSON에
-이미 있고, 이 명령은 그 번호를 새로 만들지 않습니다. 화면이 비어 있어도
-공식 판단은 JSON으로 가능합니다. 학생 실행 번호는 승인 근거가 되지
-않습니다.
+[2장 model lineage walkthrough](chapters/ch02/README.md) 하나에서
+**DVC → MLflow Run → 모델 묶음 → release manifest**를 순서대로 확인합니다.
+공식 Candidate B의 Git commit, DVC revision과 dataset SHA-256, 모델 Run과
+최종 Run, model/metadata/feature contract SHA-256을 한 표로 연결합니다.
+
+Compose MLflow가 준비되면 같은 노트북이
+`labs/run/log_development.py`를 호출해 train/valid Candidate B 학생 Run을
+만들고, dataset input, 설정, 지표, bundle과 MLflow model을 다시 조회합니다.
+공식 Run은 JSON evidence이고 학생 Run은 구조를 관찰하는 새 실행입니다. 두
+Run을 같은 실행 번호나 승인 근거로 취급하지 않습니다. MLflow가 없으면 공식
+연결 표와 구현 코드 읽기는 계속하고 학생 Run만 `MLFLOW_NOT_RUNNING`으로
+기록합니다.
 
 ## API
 

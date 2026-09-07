@@ -41,32 +41,39 @@ uv run python labs/run/model_status.py --revision v2
 
 ### 1-4. DVC revision과 MLflow run이 같은 model evidence lineage를 가리키는지 확인한다
 
-`model-bootstrap.json`, `release-freeze.json`, `canonical-benchmark.json`,
-`release-manifest.json`의 순서와 데이터 revision, 파일 지문, 실험 실행 번호를
-대조합니다. 닫힌망 수강생의 MLflow는 Compose입니다. 강사가 준 공개 URL을
+`02_trace_model_lineage.ipynb`를 위에서 아래로 실행합니다. 이 노트북 하나에서
+**DVC → MLflow Run → 모델 묶음 → release manifest** 순서로 Candidate B를
+추적합니다. Git commit, 데이터 revision과 역할별 SHA-256, 모델 Run과 최종 Run,
+`model.joblib`과 `metadata.json`, feature contract SHA-256을 한 표에서
+연결합니다.
+
+과거 공식 Run `31b50eb...`은 준비된 JSON으로 복원하고, 현재 학생 Run은 같은
+기록 구조를 직접 보기 위해 새로 만듭니다. 두 Run은 서로 다른 실행이며 학생
+Run으로 공식 승인이나 봉인 평가를 바꾸지 않습니다. 학생 Run은 Candidate B,
+train 2,900건, valid 600건, Random Forest와 임계값 0.35를 사용하고 dataset
+input, parameter, validation metric, bundle 두 파일과 MLflow model을 함께
+experiment `student-development-tracking`에 기록합니다.
+
+닫힌망 수강생의 MLflow는 Compose입니다. 강사가 준 공개 URL을
 `AIQA_MLFLOW_TRACKING_URI`로 설정합니다. 수강생은 ClusterIP, port-forward,
-tunnel을 만들지 않습니다. `http://127.0.0.1:5000`은 닫힌망 기본
-경로가 아닙니다. 값이 없거나 `/health`가 실패하면 JSON을 읽고 화면 미확인을
-따로 적습니다.
+tunnel을 만들지 않습니다. `http://127.0.0.1:5000`은 닫힌망 기본 경로가
+아닙니다.
 
 ```bash
 docker compose -f deploy/compose.yaml up -d --no-build mlflow
 curl "${AIQA_MLFLOW_TRACKING_URI%/}/health"
-uv run python labs/run/log_development.py
+uv run jupyter nbconvert --to notebook --execute \
+  labs/chapters/ch02/02_trace_model_lineage.ipynb \
+  --output /tmp/ch02-model-lineage.ipynb \
+  --ExecutePreprocessor.timeout=300
 ```
 
-이 명령은 [`labs/run/`](../../run/README.md)의 본편 모듈입니다. `scripts/`의 공식
-trainer가 아닙니다. 실행 전에 학생 실행 번호가 공식 Candidate B 실행 번호와
-같을 수 있는지, MLflow 화면이 비어 있어도 공식 판단이 가능한지 한 문장으로
-적습니다. 학습/검증만 사용하는 개발 학습을 experiment
-`student-development-tracking`에 남기고, 출력된 학생 실행 번호를
-`release-manifest.json`의 공식 실행 번호와 나란히 봅니다. 공식 실행 번호는
-JSON에 이미 있으며 여기서 새로 만들지 않습니다. 값이 없거나 `/health`가
-실패하면 `MLFLOW_NOT_RUNNING`만 남기고 실행을 만들지 않습니다. 화면이 비어
-있어도 공식 판단은 JSON으로 가능합니다. 학생 실행 번호는 공식 학습 실행이나
-공식 승인 실행을 대체하지 않으며, 공식 근거 폴더와 `artifacts/mlflow/`에도
-쓰지 않습니다. 판단 기록의 모델 품질 칸에는 공식 JSON 경로와 공식 실행 번호를
-유지합니다.
+노트북은 내부에서 [`labs/run/log_development.py`](../../run/log_development.py)를
+한 번 호출하고 방금 만든 Run을 API로 다시 조회합니다. 값이 없거나 `/health`가
+실패하면 `MLFLOW_NOT_RUNNING`으로 멈추되, 공식 JSON 연결 표와 코드 읽기 순서는
+끝까지 확인할 수 있습니다. 구현은 학생 실행 모듈에서 시작해 MLflow adapter,
+공식 bundle application, release provenance 순서로 읽습니다. DVC 또는 MLflow
+개별 API가 더 필요할 때만 Appendix 09와 13을 참고합니다.
 
 ## 2. 단계 완료
 

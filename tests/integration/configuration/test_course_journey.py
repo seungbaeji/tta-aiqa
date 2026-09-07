@@ -208,6 +208,9 @@ def test_chapter_guides_link_to_the_journey() -> None:
     assert Path("labs/run/log_development.py").is_file()
     assert Path("labs/run/development.yaml").is_file()
     assert Path("labs/run/README.md").is_file()
+    ch02 = Path("labs/chapters/ch02/README.md").read_text(encoding="utf-8")
+    assert "02_trace_model_lineage.ipynb" in ch02
+    assert "DVC → MLflow Run → 모델 묶음 → release manifest" in ch02
 
 
 def test_chapter_guides_use_numbered_h2_h3() -> None:

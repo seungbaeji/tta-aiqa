@@ -14,6 +14,7 @@ STUDENT_NOTEBOOKS = (
     Path("labs/chapters/ch02/00_train_valid_model_walkthrough.ipynb"),
     Path("labs/chapters/ch02/00b_trace_valid_model_selection.ipynb"),
     Path("labs/chapters/ch02/01_compare_model_evidence.ipynb"),
+    Path("labs/chapters/ch02/02_trace_model_lineage.ipynb"),
     Path("labs/chapters/ch03/01_verify_risk_api.ipynb"),
     Path("labs/chapters/ch04/01_inspect_dashboard_contract.ipynb"),
     Path("labs/chapters/ch05/00_compare_input_distributions.ipynb"),
@@ -409,6 +410,37 @@ def test_compare_notebook_audits_canonical_hold_and_approve() -> None:
     assert 'evidence["sealed_test"]["status"] == "evaluated_once"' in source
     assert "HOLD" in source
     assert "APPROVE" in source
+
+
+def test_model_lineage_notebook_connects_the_complete_teaching_record() -> None:
+    """Keep DVC, MLflow, bundle, and release identities in one core walkthrough."""
+    path = Path("labs/chapters/ch02/02_trace_model_lineage.ipynb")
+    source = "\n".join(
+        "".join(cell["source"])
+        for cell in json.loads(path.read_text(encoding="utf-8"))["cells"]
+    )
+
+    assert "docs/evidence/data-v2/split-revision.json" in source
+    assert "docs/evidence/model-v2/model-bootstrap.json" in source
+    assert "docs/evidence/model-v2/release-freeze.json" in source
+    assert "docs/evidence/model-v2/release-manifest.json" in source
+    assert "serialized-bundle-verification.json" in source
+    assert "labs/run/log_development.py" in source
+    assert "packages/aiqa_model/adapters/mlflow/model.py" in source
+    assert "apps/model_trainer/application/bundles.py" in source
+    assert "apps/model_trainer/adapters/release_provenance.py" in source
+    assert "official_model_run" in source
+    assert "official_final_run" in source
+    assert "bundle_model_sha256" in source
+    assert "bundle_metadata_sha256" in source
+    assert "feature_contract_sha256" in source
+    assert "student-development-tracking" in source
+    assert "공식 Run과 학생 Run은 서로 다른 실행" in source
+    assert "test.csv" not in "\n".join(
+        "".join(cell["source"])
+        for cell in json.loads(path.read_text(encoding="utf-8"))["cells"]
+        if cell["cell_type"] == "code"
+    )
 
 
 @pytest.mark.parametrize("relative_path", CORE_AND_LEFTOVER_NOTEBOOKS)
