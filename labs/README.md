@@ -96,7 +96,9 @@ evidence scope는 `static`으로 유지하면 데이터 역할과 품질 근거�
 ### PhysioNet raw measurement의 결측, 범위, join을 데이터 품질 근거로 해석한다
 
 `01_physionet_data_quality_eda.ipynb`를 위에서 아래로 실행해 raw measurement,
-`-1` 결측 표식, 48시간 범위, outcome join, 133개 특성과 결측률을 봅니다.
+`-1` 결측 표식, 48시간 관측 창, outcome join, 133개 특성과 결측률을 봅니다.
+측정 구조 요약과 원본 변수별 표는 4GiB VM을 위해 표본 파일만 읽고, 4,000행
+특성 표는 가공 CSV를 읽습니다.
 IQR 범위 밖 관측을 자동 삭제하지 않고, 결측 표식이 관측 근거인지 규약 위반인지
 구분해 판단 기록의 데이터 품질 칸에 기록합니다. 특성 선택과 모델 조정은 하지 않습니다.
 
