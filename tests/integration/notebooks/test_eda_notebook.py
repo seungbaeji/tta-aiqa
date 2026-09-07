@@ -271,6 +271,14 @@ def test_data_quality_notebook_is_runnable_and_scoped_to_eda() -> None:
     assert "특성 선택이나 모델 조정은 이 실습의 범위가 아닙니다." in source
     assert "parameter_coverage" in source
     assert "same_minute_duplicates" in source
+    assert "RAW_SAMPLE_SIZE" in source
+    assert "sample_paths" in source
+    assert "preferred_sample" in source
+    assert "setup_course.py --data-only" in source
+    assert (
+        'raw_measurements["record_id"].nunique() == source.expected_record_count'
+        not in source
+    )
     assert "split_target_summary" in source
     assert "이 탐색 결과는 현상을 설명하는 근거입니다." in source
     assert "히스토그램의 비시각 등가 자료" in source
