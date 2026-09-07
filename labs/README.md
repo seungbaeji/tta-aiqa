@@ -16,8 +16,9 @@ ProxyJump와 P0 네트워크 복구를 이 저장소에서 추측하지 않습�
 `--data-only` 정적 경로만 사용합니다. 개인 PC의 정적 결과를 Docker, Kubernetes나
 대상 환경의 실행 근거로 쓰지 않으며, Grafana의 LIVE 관측 결과로 바꾸지도 않습니다.
 
-KServe 설치, GHCR credential, Argo Application 생성/sync, WireGuard 복구는
-강사와 플랫폼 범위입니다.
+KServe 설치, GHCR credential, Argo Application 생성, WireGuard 복구는
+강사와 플랫폼 범위입니다. 이미 등록된 Application을 Candidate B overlay로
+바꾸는 절차는 [3장 서빙](ch03-serving/README.md)을 따릅니다.
 
 ```bash
 uv sync --all-packages --group dev --group notebook
@@ -142,16 +143,10 @@ Data Docs가 생성됩니다. GE 결과는 데이터 품질 근거이며 DVC 게
 때 생길 오류를 예측합니다. 노트북은 로지스틱 회귀를 학습 2,900건과 검증 600건에서
 한 번만 맞춥니다. Precision, Recall, F1, FP/FN, AUROC, PR-AUC와 threshold가 어떤
 보호 질문에 답하는지 비교하고, 개발용 수치를 공식 평가와 섞거나 새 threshold,
-release policy를 만들지 않습니다.
-
-### 검증 시점 근거로 후보 선택 논리를 추적한다
-
-`00b_trace_valid_model_selection.ipynb`는 학습하지 않고
-`configs/model/revisions/v2/profiles.yaml`과
-`docs/reference/evidence/model/revisions/v2/development-benchmark.json`만
-읽습니다. 슬라이드의 선택은 GridSearch가 아니며 봉인 test로 고르는 것도
-아닙니다. 후보는 이미 프로필에 고정되어 있고, 이 검증 숫자는 공식 승인이
-아닙니다.
+release policy를 만들지 않습니다. 공식 평가 JSON을 열기 전에
+`00b_trace_valid_model_selection.ipynb`에서 `profiles.yaml`과
+`development-benchmark.json`만 읽어 슬라이드 선택 논리를 추적합니다. 이 검증
+숫자는 공식 승인이 아닙니다.
 
 ### Candidate A는 HOLD이고 Candidate B는 APPROVE인지 canonical benchmark로 판정한다
 
@@ -175,7 +170,8 @@ uv run python scripts/run_model.py status --revision v2
 새 공식 실행이나 model bundle을 만들지 않고 모델 품질 칸에 연결 누락을 남깁니다.
 실행 순서와 화면 확인은 [2장 모델 품질](ch02-model-quality/README.md)을 따릅니다.
 본편 판단을 닫은 뒤 시간이 남으면 [2장 남는 시간 실습](ch02-model-quality/README.md#2-남는-시간-실습)에서
-임시 MLflow run만 연습합니다. 그 run은 공식 실행 번호를 대체하지 않습니다.
+`AIQA_MLFLOW_TRACKING_URI`의 클러스터 MLflow에 연습 run만 남깁니다. 그 run은
+공식 실행 번호를 대체하지 않습니다.
 
 ## API
 
@@ -220,7 +216,8 @@ Candidate B target verified로 확장하지 않습니다. 운영 관측 수집�
 ## Kubernetes/GitOps
 
 Kubernetes/GitOps 단계는 같은 [3장 서빙](ch03-serving/README.md)의 overlay와
-배포 선언을 읽습니다. 수강생은 Application 생성, sync, path switch를 하지 않습니다.
+배포 선언을 읽습니다. Application 생성은 플랫폼 범위이고, 이미 등록된
+Application의 Candidate B 전환은 3장 수강생 범위입니다.
 
 ### baseline, Candidate B, rollback overlay가 승인된 identity만 선택하는지 판단한다
 
@@ -237,12 +234,14 @@ Candidate A가 overlay에 없고 승인된 identity만 선택되는지 기록합
 
 ### Argo sync, KServe health, rollback 결과를 학습자 판단 범위와 분리한다
 
-Argo Application 생성, sync, KServe health와 rollback은 강사 Demo입니다. 후보
-동기화와 되돌리기는 강사와 플랫폼 책임입니다. 수강생은
-강사가 제공한 결과의 범위, 시간, identity만 기록하고 외부 인프라를 복구하지 않습니다.
-결과가 없으면 운영 scope는 `target_pending`으로 남기고, sync 실행이 막힌 경우에는
-별도 execution result인 `result=BLOCKED`와 사유, 담당자를 기록합니다. 정적 overlay는
-`scope=static`인 복구 의도이지 rollback 완료가 아닙니다.
+Argo Application 생성, KServe health와 rollback Demo는 강사와 플랫폼
+책임입니다. 이미 등록된 Application을 Candidate B overlay로 바꾸고
+`${AIQA_RISK_API_URL}/v1/model`을 확인하는 명령은
+[3장 서빙](ch03-serving/README.md)을 따릅니다. 수강생은 ClusterIP,
+port-forward, tunnel을 만들지 않습니다. 결과가 없으면 운영 scope는
+`target_pending`으로 남기고, 실행이 막힌 경우에는 별도 execution result인
+`result=BLOCKED`와 사유, 담당자를 기록합니다. 정적 overlay는 `scope=static`인
+복구 의도이지 rollback 완료가 아닙니다.
 
 ## 관측
 
@@ -331,7 +330,7 @@ docker compose \
 | 종류 | 값 | 수강생 |
 | --- | --- | --- |
 | 로컬 Compose | `http://127.0.0.1:8000` | 3장 명령으로 사용 |
-| 대상 | 강사가 준 URL → `AIQA_RISK_API_URL` | GET과 기록만 수행 |
+| 대상 | 강사가 준 URL → `AIQA_RISK_API_URL` | GET과 기록. Candidate B 전환은 3장 |
 | 없음 | — | 운영 scope=`target_pending`; evidence scope=`offline` |
 
 <a id="4gib-vm-메모리"></a>
