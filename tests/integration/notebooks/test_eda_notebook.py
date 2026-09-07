@@ -489,12 +489,14 @@ def test_leftover_dvc_notebook_hashes_development_files_only() -> None:
     assert "시간이 남을 때 여는 선택 실습입니다" in source
     assert "split-revision-v2.json" in source
     assert "file_digest(" in source
-    assert 'shutil.which("dvc")' in source
+    assert '"uv", "run", "dvc", "status"' in source
+    assert "cwd=ROOT" in source
     assert 'train_info["path"]' in source
     assert "pd.read_csv(manifest_path)" in source
     assert "datasets/test.csv" not in source
     assert "datasets/operational.csv" not in source
     assert "E-02" not in source
+    assert "setup_course.py --data-only" in source
 
 
 def test_leftover_mlflow_notebook_keeps_official_runs_read_only() -> None:
