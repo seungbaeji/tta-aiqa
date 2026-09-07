@@ -507,7 +507,7 @@ def test_leftover_dvc_notebook_hashes_development_files_only() -> None:
 
 
 def test_leftover_mlflow_notebook_keeps_official_runs_read_only() -> None:
-    """Leftover MLflow practice logs a temp run and restores the caller tracking URI."""
+    """Leftover MLflow practice logs to cluster tracking and restores the caller URI."""
     path = Path("labs/ch02-model-quality/02_log_development_mlflow_run_practice.ipynb")
     source = "\n".join(
         "".join(cell["source"])
@@ -525,7 +525,12 @@ def test_leftover_mlflow_notebook_keeps_official_runs_read_only() -> None:
     assert "release-manifest.json" in source
     assert "mlflow.start_run(" in source
     assert "mlflow.search_runs(" in source
-    assert "TemporaryDirectory(" in source
+    assert "AIQA_MLFLOW_TRACKING_URI" in source
+    assert "MLFLOW_NOT_RUNNING" in source
+    assert "sqlite:///" not in source
+    assert "TemporaryDirectory(" not in source
+    assert "tta-aiqa-physionet-2012-v2" not in source
+    assert "http://127.0.0.1:5000" not in source
     assert "artifacts/mlflow/" in source
     assert "docs/reference/evidence/" in source
     assert "E-03" not in source
