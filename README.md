@@ -34,12 +34,12 @@ tmp/        Git이 추적하지 않는 다운로드와 보관 공간
 ### 1-2. 패키지 역할
 
 ```text
-packages/aiqa-core/            공통 모델 입력 특성 규약
-packages/aiqa-data/            PhysioNet 정규화, 집계, 분할과 계보
-packages/aiqa-model/           특성 준비, 학습, 평가와 MLflow
-packages/aiqa-serving/         프레임워크와 분리된 예측 흐름
-packages/aiqa-observability/   Python 프로그램의 로그, trace와 지표 도구
-packages/aiqa-qa/              배포 근거와 판단
+packages/aiqa_core/            공통 모델 입력 특성 규약
+packages/aiqa_data/            PhysioNet 정규화, 집계, 분할과 계보
+packages/aiqa_model/           특성 준비, 학습, 평가와 MLflow
+packages/aiqa_serving/         프레임워크와 분리된 예측 흐름
+packages/aiqa_observability/   Python 프로그램의 로그, trace와 지표 도구
+packages/aiqa_qa/              배포 근거와 판단
 ```
 
 업무 패키지는 `domain -> application/ports -> adapters` 의존 방향을 지키며,
@@ -117,7 +117,7 @@ uv sync --all-packages --group dev --group notebook
 
 제공된 VM에서는 공식 데이터를 재현하고 GE 검증을 실행한 뒤 기준 모델의 준비
 상태를 확인합니다. 이 명령은 Git에서 제외된 로컬 데이터와 실행 결과만 만들며
-`docs/reference/evidence/`의 V2 공식 기록은 수정하지 않습니다.
+`docs/evidence/`의 V2 공식 기록은 수정하지 않습니다.
 
 ```bash
 uv run python scripts/setup_course.py
@@ -135,7 +135,7 @@ uv run python scripts/setup_course.py --data-only
 ### 3-1. 공식 원본
 
 PhysioNet Challenge 2012 Set A의 ODC-By 1.0 고지와 체크섬 목록은
-`data/raw/physionet-2012/`에서 관리합니다. 준비 명령은 공식 압축 파일과 결과
+`data/raw-physionet/`에서 관리합니다. 준비 명령은 공식 압축 파일과 결과
 파일을 내려받아 체크섬을 검증합니다. 원본과 생성 데이터는 Git이 아니라 로컬 DVC
 흐름으로 관리합니다.
 
@@ -144,16 +144,16 @@ PhysioNet Challenge 2012 Set A의 ODC-By 1.0 고지와 체크섬 목록은
 저장소 루트에서 다음 명령을 실행합니다.
 
 ```bash
-uv run python scripts/prepare_data.py
+uv run python labs/run/prepare_data.py
 ```
 
 생성 결과:
 
 ```text
-data/interim/physionet-2012/set-a/
-data/processed/physionet-2012/patient-features.csv
-data/splits/physionet-2012/split-manifest.csv
-data/splits/physionet-2012/datasets/{train,valid,test,operational}.csv
+data/interim/set-a/
+data/features.csv
+data/splits-v1/split-manifest.csv
+data/splits-v1/{train,valid,test,operational}.csv
 ```
 
 4,000개 개별 기록을 사용할 수 있는 특성 133개로 집계하고 고정된 난수로
@@ -163,7 +163,7 @@ data/splits/physionet-2012/datasets/{train,valid,test,operational}.csv
 승인된 V2 분할은 V1의 공식 평가 자료를 재사용하지 않고 역할을 다시 고정합니다.
 
 ```text
-data/splits/physionet-2012/revisions/v2/datasets/
+data/splits-v2/
   train.csv        2,900건
   valid.csv          600건
   test.csv           400건, 한 번만 여는 공식 평가 전용
@@ -171,7 +171,7 @@ data/splits/physionet-2012/revisions/v2/datasets/
 ```
 
 현재 `dvc.lock`은 데이터 처리 흐름의 재현 기준입니다. V2 배포 판단에서 사용한
-과거 데이터 계보는 `docs/reference/evidence/data-lineage/revisions/v2/`에 읽기
+과거 데이터 계보는 `docs/evidence/data-v2/`에 읽기
 전용으로 보존합니다. 수강생은 이 근거를 읽되 현재 데이터 재현 결과로 덮어쓰지
 않습니다.
 
@@ -179,7 +179,7 @@ data/splits/physionet-2012/revisions/v2/datasets/
 
 ### 4-1. 수동 EDA
 
-VS Code에서 `labs/ch01-data-quality/01_physionet_data_quality_eda.ipynb`를 열고
+VS Code에서 `labs/chapters/ch01/01_physionet_data_quality_eda.ipynb`를 열고
 위에서 아래로 실행합니다. 원본 측정 범위, `-1` 결측 표식, 입실 후 48시간 관측
 창, 정답 연결과 가공 뒤 결측률을 확인합니다. 원본 파싱은 표본 파일만 사용하고
 4,000행 특성 표는 가공 CSV를 읽습니다.
@@ -189,7 +189,7 @@ VS Code에서 `labs/ch01-data-quality/01_physionet_data_quality_eda.ipynb`를 �
 EDA에서 확인한 규칙을 자동 검증으로 실행합니다.
 
 ```bash
-uv run python scripts/validate_data.py
+uv run python labs/run/validate_data.py
 ```
 
 실행 검증 결과와 Data Docs는
@@ -206,7 +206,7 @@ uv run python scripts/validate_data.py
 공식 평가 자료를 한 번만 열었습니다.
 
 ```bash
-uv run python scripts/run_model.py status --revision v2
+uv run python labs/run/model_status.py --revision v2
 ```
 
 V1 evidence는 `HOLD/HOLD`로 보존되어 있습니다. 승인된 V2 revision은 Candidate A `HOLD`, Candidate B `APPROVE`이며 Candidate B 배포가 허용됩니다.
@@ -221,7 +221,7 @@ V2 공식 평가의 핵심 결과는 다음과 같습니다.
 
 ### 5-2. One-shot 규칙
 
-`docs/reference/evidence/model/revisions/v2/canonical-benchmark.json`에
+`docs/evidence/model-v2/canonical-benchmark.json`에
 `evaluated_once`가 기록되어 있으므로 공식 평가는 다시 실행할 수 없습니다. 결과에
 맞춰 특성, 임계값, 모델 프로필이나 배포 정책을 바꾸지 않습니다. 변경이 필요하면
 기존 근거를 덮지 않는 새 개정본을 만듭니다.
@@ -233,59 +233,70 @@ V2 공식 평가의 핵심 결과는 다음과 같습니다.
 끝난 과거 개정본이므로 모델 학습 흐름을 다시 실행하지 않습니다.
 
 ```bash
-uv run python scripts/run_model.py status --revision v2
+uv run python labs/run/model_status.py --revision v2
 ```
 
 V2의 모델 준비 결과와 실행 ID는
-`docs/reference/evidence/model/revisions/v2/model-bootstrap.json`에서 확인합니다.
+`docs/evidence/model-v2/model-bootstrap.json`에서 확인합니다.
 새 개정본에서는 개발 평가와 진단을 마치고 `release-freeze.json`을 커밋한 뒤에만
 공식 평가를 열 수 있습니다. 모델 게시와 기준 모델 복구는 수강생 활동이 아닙니다.
-강사 또는 플랫폼 담당자는 `scripts/publish_model.py`와 승인된 배포 절차를
+강사 또는 플랫폼 담당자는 `scripts/platform/publish_model.py`와 승인된 배포 절차를
 사용하고, 수강생은 준비된 `deployment.json`과 모델 근거를 읽습니다.
 
-Compose의 MLflow service만 시작합니다. 3장에서 같은 Compose stack을 확장하므로
-별도 `mlflow server`를 실행하지 않아 포트 `5000`이 충돌하지 않습니다.
-게시 포트는 기본적으로 `127.0.0.1`에만 연결됩니다.
+닫힌망 수강생의 MLflow는 Compose `mlflow`입니다. 강사 또는 플랫폼이 넣어 준
+공개 URL을 `AIQA_MLFLOW_TRACKING_URI`로 설정합니다. 수강생은 ClusterIP를
+만들거나 port-forward, tunnel을 열지 않습니다. `http://127.0.0.1:5000`은
+닫힌망 기본 경로가 아닙니다.
 
 ```bash
-docker compose -f deploy/compose/simple-mlops/compose.yaml up -d mlflow
-curl http://127.0.0.1:5000/health
+docker compose -f deploy/compose.yaml up -d --no-build mlflow
+curl "${AIQA_MLFLOW_TRACKING_URI%/}/health"
+uv run python labs/run/log_development.py
 ```
 
-VS Code 포트 전달 또는 강사가 제공한 주소로 MLflow 화면을 엽니다. 실행 기록에는
-평가와 데이터 역할, DVC 잠금 파일, 모델·데이터 설정의 SHA-256이 남습니다.
+값이 없거나 `/health`가 실패하면 화면 미확인을 따로 적고, 공식 실행 번호는
+JSON에서만 읽습니다. 학생 개발 run은 `labs/run/` 본편 모듈이 남기며 공식
+실행 번호를 대체하지 않습니다. Kubernetes 매니페스트는
+`deploy/k8s/base/mlflow.yaml`에 참고용으로만 두며, `kustomization.yaml`
+resources에는 넣지 않습니다.
+
+실행 기록에는 평가와 데이터 역할, DVC 잠금 파일, 모델·데이터 설정의 SHA-256이
+남습니다.
 
 Candidate B 게시 명령은 `release-manifest.json`의 평가 뒤 승인과 모델·메타데이터
 해시를 모두 검증합니다. V2 과거 근거의 대조 범위는
-`docs/reference/evidence/model/revisions/v2/README.md`에서 확인합니다.
+`docs/evidence/model-v2/README.md`에서 확인합니다.
 
 ## 6. Serving과 Traffic
 
 ### 6-1. Compose 실행
 
 Compose에서는 Risk API가 로컬 scikit-learn 어댑터를 사용합니다.
-MLflow와 Risk API, Alloy 관리 포트는 기본적으로 로컬 호스트에만 게시됩니다.
-통제된 원격 실습 환경에서 외부 인터페이스가 꼭 필요할 때만
-`AIQA_COMPOSE_BIND_HOST`를 명시합니다. 예를 들어
+MLflow는 `0.0.0.0:5000`에 게시합니다. Risk API와 Alloy 관리 포트는 기본적으로
+로컬 호스트에만 게시됩니다. 통제된 원격 실습 환경에서 Risk API를 외부
+인터페이스에 열 때만 `AIQA_COMPOSE_BIND_HOST`를 명시합니다. 예를 들어
 `AIQA_COMPOSE_BIND_HOST=0.0.0.0`은 인증되지 않은 실습 서비스를 네트워크에
 노출하므로 방화벽과 접근 제어가 준비된 환경에서만 사용합니다.
 
 수강생 실행 명령의 단일 원본은
-[`labs/ch03-serving/README.md`](labs/ch03-serving/README.md)입니다. 강사는
+[`labs/chapters/ch03/README.md`](labs/chapters/ch03/README.md)입니다. 강사는
 강의 시작 전에 이미지를 미리 빌드합니다.
 
-API contract probe는 [3장 서빙 README](labs/ch03-serving/README.md)의
+API contract probe는 [3장 서빙 README](labs/chapters/ch03/README.md)의
 Risk API 기동·health/model 확인과 `01_verify_risk_api.ipynb` 실행을 따릅니다.
 이 probe는 정상 200과 의도한 422를 한정 확인하며 P5 collection manifest를 만들지
-않습니다. P5 세 시나리오는 [4장 운영 관측](labs/ch04-observability/README.md)에서
-관측 조건을 먼저 고정한 뒤 실행합니다.
+않습니다. 로컬 Compose는 `http://127.0.0.1:8000`만 사용하고, Candidate B 대상
+확인은 `AIQA_RISK_API_URL`과 `02_release_candidate_b.ipynb`를 사용합니다. 두
+주소를 섞지 않습니다. P5 세 시나리오는
+[4장 운영 관측](labs/chapters/ch04/README.md)에서 관측 조건을 먼저 고정한
+뒤 실행합니다.
 
 ```bash
-docker compose -f deploy/compose/simple-mlops/compose.yaml up -d --no-build risk-api
+docker compose -f deploy/compose.yaml up -d --no-build risk-api
 curl http://127.0.0.1:8000/health/ready
 curl http://127.0.0.1:8000/v1/model
 uv run jupyter nbconvert --to notebook --execute \
-  labs/ch03-serving/01_verify_risk_api.ipynb \
+  labs/chapters/ch03/01_verify_risk_api.ipynb \
   --output /tmp/ch03-risk-api.ipynb \
   --ExecutePreprocessor.timeout=120
 ```
@@ -297,10 +308,10 @@ uv run jupyter nbconvert --to notebook --execute \
 
 Grafana 접속 정보, Alloy 설정, 대시보드 가져오기와 이미지 빌드는 강사 또는 환경
 담당자가 강의 시작 전에 준비합니다. 수강생은
-[`labs/ch04-observability/README.md`](labs/ch04-observability/README.md)에서
+[`labs/chapters/ch04/README.md`](labs/chapters/ch04/README.md)에서
 LIVE와 PREPARED/OFFLINE 가운데 하나를 고르고 선택한 경로의 품질 근거만
 확인합니다. 운영자용 Alloy 설정은
-[`deploy/compose/simple-mlops/secrets/alloy/README.md`](deploy/compose/simple-mlops/secrets/alloy/README.md)에 있습니다.
+[`deploy/secrets/alloy/README.md`](deploy/secrets/alloy/README.md)에 있습니다.
 
 ### 6-3. Trace 경계
 
@@ -334,17 +345,41 @@ Kubernetes에서는 외부 Risk API가 내부 KServe V2 예측기를 호출합�
 `kserve.infer` CLIENT span이 W3C 추적 정보와 요청 ID를 전달합니다. 기본 설정은
 기준 모델로 시작하고 Candidate B와 되돌리기는 별도 overlay로 둡니다.
 각 overlay는 PVC 하위 경로와 `model-identity` ConfigMap의 예상 모델 SHA-256을
-함께 고릅니다. 수강생은 로컬 렌더링과 계약 검사로 선언 파일을 읽고, 서버 측
-검사·모델 게시·Secret·실제 동기화는 플랫폼 담당자가 수행합니다.
+함께 고릅니다. 수강생은 로컬 렌더링과 계약 검사로 선언 파일을 읽고, 이미 등록된
+Application을 Candidate B overlay로 바꾼 뒤 `AIQA_RISK_API_URL`의 `/v1/model`이
+`candidate-b-c712a8e52344`인지 확인합니다. Application 생성, KServe 설치, GHCR
+pull secret은 플랫폼 담당자가 수행합니다.
 
 Private GHCR image와 `ghcr-pull` Secret의 준비 방식은
-[`deploy/kubernetes/README.md`](deploy/kubernetes/README.md)에 분리해 두었습니다.
+[`deploy/k8s/README.md`](deploy/k8s/README.md)에 분리해 두었습니다.
+
+### 7-2. 수강생 Candidate B 전환
+
+수강생은 Application을 만들지 않습니다. 클러스터 변경은
+[`scripts/platform/sync_student_release.py`](scripts/platform/sync_student_release.py)가
+`TARGET_CONTEXT`를 확인한 뒤에만 수행합니다. 로컬 Compose
+`http://127.0.0.1:8000`과 `AIQA_RISK_API_URL`을 섞지 않습니다. 대상 URL이
+없으면 `operational_deployment_scope=target_pending`으로 두고 identity를
+만들지 않습니다.
+
+```bash
+uv run python scripts/platform/publish_model.py candidate-b --revision v2 --target-root /mnt/course-models
+uv run python scripts/platform/sync_student_release.py \
+  --application-name "${AIQA_ARGOCD_APPLICATION_NAME:?already-registered Application name}"
+curl "${AIQA_RISK_API_URL:?Risk API base URL is required}/v1/model"
+```
+
+명령과 노트북 원본은
+[`labs/chapters/ch03/README.md`](labs/chapters/ch03/README.md)와
+[`deploy/argocd/README.md`](deploy/argocd/README.md)입니다. 실패하면
+`result=BLOCKED`와 사유를 기록하며, 성공은 공식 평가를 다시 실행한 것이
+아닙니다.
 
 ## 8. 구현 검증
 
 ### 8-1. 정적 검증과 테스트
 
-강의 시작 전 점검은 `uv run python scripts/course_preflight.py`로 수행합니다.
+강의 시작 전 점검은 `uv run python scripts/preflight.py`로 수행합니다.
 결과는 `artifacts/reports/course-preflight.json`에 남깁니다. 과정 설계와
 강사 runbook은 비공개 교육자료 저장소에서 관리합니다.
 
@@ -380,5 +415,5 @@ uv run pytest -q
 ## 10. 과정 설계
 
 과정 설계, ADR, 강사 runbook과 Lab이 열지 않는 과거 근거는 비공개 교육자료
-저장소에서 관리합니다. 이 저장소의 `docs/reference/evidence/`에는 수강생 Lab이
+저장소에서 관리합니다. 이 저장소의 `docs/evidence/`에는 수강생 Lab이
 여는 V2 JSON만 둡니다.

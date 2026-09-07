@@ -7,7 +7,10 @@ evidence scope이고, 실제 실행 범위는 `local` 또는 `target`으로 기�
 막힌 경우에는 scope와 별도로 `result=BLOCKED`와 사유, 담당자를 남깁니다.
 
 큰 단계는 H2, 한 번에 내려야 할 판단은 H3입니다. 다섯 장 폴더는 자료와 실행
-경계를 보존하고, 아래 9단계가 그 사이의 학습 순서를 소유합니다.
+경계를 보존하고, 아래 9단계가 그 사이의 학습 순서를 소유합니다. 여정 본편에서
+수강생이 실행하는 Python 모듈은 [`labs/run/`](run/README.md)에 둡니다.
+[`labs/exercises/`](exercises/README.md)는 코드를 채우는 작은 구현입니다.
+`scripts/`는 환경 준비, 공식 evidence 생성, 강사/플랫폼 도구입니다.
 
 **시작 전 확인**
 
@@ -16,8 +19,9 @@ ProxyJump와 P0 네트워크 복구를 이 저장소에서 추측하지 않습�
 `--data-only` 정적 경로만 사용합니다. 개인 PC의 정적 결과를 Docker, Kubernetes나
 대상 환경의 실행 근거로 쓰지 않으며, Grafana의 LIVE 관측 결과로 바꾸지도 않습니다.
 
-KServe 설치, GHCR credential, Argo Application 생성/sync, WireGuard 복구는
-강사와 플랫폼 범위입니다.
+KServe 설치, GHCR credential, Argo Application 생성, WireGuard 복구는
+강사와 플랫폼 범위입니다. 이미 등록된 Application을 Candidate B overlay로
+바꾸는 절차는 [3장 서빙](chapters/ch03/README.md)을 따릅니다.
 
 ```bash
 uv sync --all-packages --group dev --group notebook
@@ -46,11 +50,11 @@ uv run python scripts/setup_course.py --data-only
 ```bash
 mkdir -p artifacts/reports
 test -f artifacts/reports/release-decision-record.md || \
-  cp labs/release-decision-record.md \
+  cp labs/record.md \
     artifacts/reports/release-decision-record.md
 ```
 
-원본 양식은 [`labs/release-decision-record.md`](release-decision-record.md),
+원본 양식은 [`labs/record.md`](record.md),
 개인 작업본은 실행 후 생성되는 `artifacts/reports/release-decision-record.md`입니다.
 
 ## 배포된 baseline 관찰
@@ -62,7 +66,7 @@ test -f artifacts/reports/release-decision-record.md || \
 
 API가 응답해도 어떤 모델이 응답했는지는 별도 확인이 필요합니다. 대상 URL이
 있으면 `/health/ready`와 `/v1/model`을 GET하고, 없으면
-`docs/reference/evidence/incident/initial-signal.json`과 제공된 선언을 읽습니다.
+`docs/evidence/incident/initial-signal.json`과 제공된 선언을 읽습니다.
 실행 전에 profile, version, digest가 어떻게 대응할지 적은 뒤 결과를 확인합니다.
 
 health 200만으로 대상 배포나 Candidate B 승인을 증명할 수 없습니다. 확인 범위
@@ -82,12 +86,12 @@ evidence scope는 `static`으로 유지하면 데이터 역할과 품질 근거�
 
 ## 데이터
 
-데이터 단계는 [1장 데이터 품질](ch01-data-quality/README.md)의 노트북과 검증
+데이터 단계는 [1장 데이터 품질](chapters/ch01/README.md)의 노트북과 검증
 명령을 연결합니다. 공식 평가용 `test`를 학습 활동에서 열지 않습니다.
 
 ### train, valid, sealed test, operational의 역할을 누수 없이 구분한다
 
-`data/splits/physionet-2012/revisions/v2/split-manifest.csv`에서
+`data/splits-v2/split-manifest.csv`에서
 `train 2,900 / valid 600 / test 400 / operational 100`의 역할을 읽습니다.
 실행 전에 개발 평가, 공식 평가, 정답 없는 운영 표본의 용도를 예측하고 노트북과 분할
 선언을 대조합니다. 이전 분할 `2,400 / 600 / 600 / 400`을 현재 판단에 섞지
@@ -97,13 +101,14 @@ evidence scope는 `static`으로 유지하면 데이터 역할과 품질 근거�
 
 `01_physionet_data_quality_eda.ipynb`를 위에서 아래로 실행해 raw measurement,
 `-1` 결측 표식, 48시간 관측 창, outcome join, 133개 특성과 결측률을 봅니다.
+계약 YAML은 `yaml.safe_load`로 열고, 원본 txt는 `pd.read_csv`로 읽습니다.
 측정 구조 요약과 원본 변수별 표는 4GiB VM을 위해 표본 파일만 읽고, 4,000행
 특성 표는 가공 CSV를 읽습니다.
 IQR 범위 밖 관측을 자동 삭제하지 않고, 결측 표식이 관측 근거인지 규약 위반인지
 구분해 판단 기록의 데이터 품질 칸에 기록합니다. 특성 선택과 모델 조정은 하지 않습니다.
 
 ```bash
-uv run python scripts/prepare_data.py
+uv run python labs/run/prepare_data.py
 ```
 
 원본을 재현할 수 없는 환경에서는 준비된 reference evidence만 읽고 새 수치를
@@ -114,7 +119,7 @@ uv run python scripts/prepare_data.py
 EDA에서 확인한 raw/processed 규칙을 다음 명령으로 검증합니다.
 
 ```bash
-uv run python scripts/validate_data.py
+uv run python labs/run/validate_data.py
 ```
 
 실행 후 `artifacts/data-quality/great-expectations/validation-summary.json`과
@@ -126,33 +131,39 @@ Data Docs가 생성됩니다. GE 결과는 데이터 품질 근거이며 DVC 게
 담당할 수 있는지를 나타냅니다.
 
 이 판단을 작은 summary 해석 exercise로 직접 닫는 흐름과 명령은
-[1장 데이터 품질의 GE summary exercise](ch01-data-quality/README.md#1-3-ge-summary가-데이터-품질-관찰을-재현-가능한-evidence로-닫는지-판단한다)에 있습니다.
-데이터 품질 판단을 기록한 뒤 시간이 남으면 [1장 남는 시간 실습](ch01-data-quality/README.md#2-남는-시간-실습)에서
+[1장 데이터 품질의 GE summary exercise](chapters/ch01/README.md#1-3-ge-summary가-데이터-품질-관찰을-재현-가능한-evidence로-닫는지-판단한다)에 있습니다.
+데이터 품질 판단을 기록한 뒤 시간이 남으면 [1장 남는 시간 실습](chapters/ch01/README.md#2-남는-시간-실습)에서
 `train`/`valid` 지문을 직접 계산합니다. 이 선택 실습은 9단계 판단을 늘리지 않습니다.
 
 ## 모델
 
-모델 단계는 [2장 모델 품질](ch02-model-quality/README.md)로 연결합니다.
+모델 단계는 [2장 모델 품질](chapters/ch02/README.md)로 연결합니다.
 공식 평가 결과를 다시 튜닝하지 않습니다.
 
 ### Precision, Recall, F1, FP/FN과 PR-AUC를 같은 release 질문으로 해석한다
 
-canonical benchmark의 지표를 읽기 전에 accuracy 하나로 판단할 때 생길 오류를
-예측합니다. Precision, Recall, F1, FP/FN, AUROC, PR-AUC와 threshold가 어떤
-보호 질문에 답하는지 비교하고, 새 threshold나 release policy를 만들지 않습니다.
+`00_train_valid_model_walkthrough.ipynb`를 실행하기 전에 accuracy 하나로 판단할
+때 생길 오류를 예측합니다. 노트북은 로지스틱 회귀를 학습 2,900건과 검증 600건에서
+한 번만 맞춥니다. Precision, Recall, F1, FP/FN, AUROC, PR-AUC와 threshold가 어떤
+보호 질문에 답하는지 비교하고, 개발용 수치를 공식 평가와 섞거나 새 threshold,
+release policy를 만들지 않습니다. 공식 평가 JSON을 열기 전에
+`00b_trace_valid_model_selection.ipynb`에서 `profiles.yaml`과
+`development-benchmark.json`만 읽어 슬라이드 선택 논리를 추적합니다. 이 검증
+숫자는 공식 승인이 아닙니다.
 
 ### Candidate A는 HOLD이고 Candidate B는 APPROVE인지 canonical benchmark로 판정한다
 
 다음 명령으로 고정된 모델 상태를 확인합니다.
 
 ```bash
-uv run python scripts/run_model.py status --revision v2
+uv run python labs/run/model_status.py --revision v2
 ```
 
-`docs/reference/evidence/model/revisions/v2/canonical-benchmark.json`과
+`docs/evidence/model-v2/canonical-benchmark.json`과
 `release-manifest.json`을 읽어 Candidate A `HOLD`, Candidate B `APPROVE`를
 모델 승인으로 기록합니다. B의 승인은 대상 배포 완료가 아니며, 공식 평가 결과에
-맞춰 특성, threshold, policy를 변경하지 않습니다.
+맞춰 특성, threshold, policy를 변경하지 않습니다. Candidate B 서빙 확인은
+[3장 서빙](chapters/ch03/README.md)을 따릅니다.
 
 ### DVC revision과 MLflow run이 같은 model evidence lineage를 가리키는지 확인한다
 
@@ -160,12 +171,16 @@ uv run python scripts/run_model.py status --revision v2
 `release-manifest.json`의 생성 순서와 DVC revision, dataset digest, MLflow run을
 대조합니다. MLflow UI가 없으면 JSON evidence를 읽고 UI 미확인을 별도로 기록합니다.
 새 공식 실행이나 model bundle을 만들지 않고 모델 품질 칸에 연결 누락을 남깁니다.
-본편 판단을 닫은 뒤 시간이 남으면 [2장 남는 시간 실습](ch02-model-quality/README.md#2-남는-시간-실습)에서
-임시 MLflow run만 연습합니다. 그 run은 공식 실행 번호를 대체하지 않습니다.
+실행 순서와 화면 확인은 [2장 모델 품질](chapters/ch02/README.md)을 따릅니다.
+Compose MLflow가 준비되면 `uv run python labs/run/log_development.py`로
+학습/검증 개발 run을 학생 experiment에 남깁니다. 공식 실행 번호는 JSON에
+이미 있고, 이 명령은 그 번호를 새로 만들지 않습니다. 화면이 비어 있어도
+공식 판단은 JSON으로 가능합니다. 학생 실행 번호는 승인 근거가 되지
+않습니다.
 
 ## API
 
-API 단계는 [3장 서빙](ch03-serving/README.md)의 local Compose 계약을 사용합니다.
+API 단계는 [3장 서빙](chapters/ch03/README.md)의 local Compose 계약을 사용합니다.
 로컬 결과와 대상 결과를 섞지 않습니다.
 
 ### Compose Risk API가 정상 입력과 의도한 422를 같은 계약으로 처리하는지 확인한다
@@ -175,18 +190,22 @@ API 단계는 [3장 서빙](ch03-serving/README.md)의 local Compose 계약을 �
 고치지 않고 `API_NOT_RUNNING`과 `result=BLOCKED`로 기록합니다.
 
 ```bash
-docker compose -f deploy/compose/simple-mlops/compose.yaml up -d --no-build risk-api
+docker compose -f deploy/compose.yaml up -d --no-build risk-api
 curl http://127.0.0.1:8000/health/ready
 curl http://127.0.0.1:8000/v1/model
 uv run jupyter nbconvert --to notebook --execute \
-  labs/ch03-serving/01_verify_risk_api.ipynb \
+  labs/chapters/ch03/01_verify_risk_api.ipynb \
   --output /tmp/ch03-risk-api.ipynb \
   --ExecutePreprocessor.timeout=120
 ```
 
 노트북은 정상 200과 의도한 422를 각각 한정 확인하는 bounded contract probe입니다.
 실행된 `/tmp/ch03-risk-api.ipynb`에는 정상 응답의 `request_id`와
-`X-Request-ID`, 의도한 422 결과가 남습니다. 실제 응답을 확인한 이 probe의
+`X-Request-ID`, 의도한 422 결과가 남습니다. 이미지는 실행 환경, 컨테이너는
+실행 중인 인스턴스, 모델 파일은 예측 규칙입니다. 200은 이 요청이 규약을
+통과했다는 뜻이고, 422는 입력 규약 오류이며 모델 품질 오류가 아닙니다. 본문이
+너무 크면 413, 서버 처리 문제는 5xx입니다. 요청 ID는 나중에 로그와 처리 경로에서
+같은 요청을 찾는 연결값이며 인증 정보가 아닙니다. 실제 응답을 확인한 이 probe의
 baseline scope는 `local`이며 Candidate B target 검증이 아닙니다. 이는 운영 관측
 수집을 생성하는 단계가 아닙니다. API가 없으면 없는 응답을 만들지 말고
 `API_NOT_RUNNING`과 `result=BLOCKED`, 사유, 담당자를 기록합니다. 준비된 자료의
@@ -197,6 +216,11 @@ evidence scope는 `static` 또는 `offline`으로, 대상 운영 scope는
 ### API model metadata와 bundle/deployment 선언이 같은 digest 의미를 갖는지 판단한다
 
 `deployment.json`의 profile, version, SHA-256과 `/v1/model` 응답을 대조합니다.
+API 응답, 모델 묶음 정보, 배포 설정이 같은 식별값을 가리키는지 보고, 한 자료의
+이름만으로 실행 모델을 확정하지 않습니다. `profile`, `version`, `threshold`,
+특성 수, 해시 중 다른 항목이 있으면 그 항목이 가리키는 설정, 파일, 실행 상태를
+추가로 확인하고 자동 복구 결론을 내지 않습니다. 로컬 성공은 대상 배포 성공을
+대신하지 않습니다.
 이 API 단계에서는 운영 관측 수집 파일을 만들거나 읽지 않습니다. request ID와
 `X-Request-ID`, 의도한 422는 `/tmp/ch03-risk-api.ipynb`의 bounded probe 결과로
 확인하며, 대상 URL이 없으면 `scope=local` 또는 `scope=static` 대조만 하고
@@ -205,8 +229,9 @@ Candidate B target verified로 확장하지 않습니다. 운영 관측 수집�
 
 ## Kubernetes/GitOps
 
-Kubernetes/GitOps 단계는 같은 [3장 서빙](ch03-serving/README.md)의 overlay와
-배포 선언을 읽습니다. 수강생은 Application 생성, sync, path switch를 하지 않습니다.
+Kubernetes/GitOps 단계는 같은 [3장 서빙](chapters/ch03/README.md)의 overlay와
+배포 선언을 읽습니다. Application 생성은 플랫폼 범위이고, 이미 등록된
+Application의 Candidate B 전환은 3장 수강생 범위입니다.
 
 ### baseline, Candidate B, rollback overlay가 승인된 identity만 선택하는지 판단한다
 
@@ -218,21 +243,29 @@ uv run pytest -q tests/integration/deployment/test_kubernetes_contract.py \
   -k candidate_and_rollback_overlays_select_only_approved_models
 ```
 
-Candidate A가 overlay에 없고 승인된 identity만 선택되는지 기록합니다. 정적 검사
-결과를 target sync PASS로 쓰지 않습니다.
+Candidate A가 overlay에 없고 승인된 identity만 선택되는지 기록합니다. 이미지
+digest는 실행 코드와 환경을, 모델 SHA-256은 학습 결과 파일을 식별하므로 두
+지문을 하나로 합치지 않습니다. 정적 검사 결과를 target sync PASS로 쓰지
+않습니다.
 
 ### Argo sync, KServe health, rollback 결과를 학습자 판단 범위와 분리한다
 
-Argo Application 생성, sync, KServe health와 rollback은 강사 Demo입니다. 후보
-동기화와 되돌리기는 강사와 플랫폼 책임입니다. 수강생은
-강사가 제공한 결과의 범위, 시간, identity만 기록하고 외부 인프라를 복구하지 않습니다.
-결과가 없으면 운영 scope는 `target_pending`으로 남기고, sync 실행이 막힌 경우에는
-별도 execution result인 `result=BLOCKED`와 사유, 담당자를 기록합니다. 정적 overlay는
-`scope=static`인 복구 의도이지 rollback 완료가 아닙니다.
+후보 동기화와 되돌리기는 강사와 플랫폼 책임입니다. 수강생은 강사가 제공한
+결과의 범위, 시간, identity만 기록합니다. Argo Application 생성, KServe
+health와 rollback Demo도 같은 범위입니다. 이미 등록된 Application을
+Candidate B overlay로 바꾸고 `${AIQA_RISK_API_URL}/v1/model`을 확인하는
+명령은 [3장 서빙](chapters/ch03/README.md)을 따릅니다. 수강생은 ClusterIP,
+port-forward, tunnel을 만들지 않습니다. 강사 화면이 있으면 목표 상태, Git
+반영(`Synced`), 준비 상태(`Healthy`), 실제 요청 성공의 네 단계 가운데 확인한
+단계와 확인하지 못한 단계를 나눕니다. `Synced`만으로 요청 성공을 말하지
+않습니다. 결과가 없으면 운영 scope는
+`target_pending`으로 남기고, 실행이 막힌 경우에는 별도 execution result인
+`result=BLOCKED`와 사유, 담당자를 기록합니다. 정적 overlay는 `scope=static`인
+복구 의도이지 rollback 완료가 아닙니다.
 
 ## 관측
 
-관측 조건을 먼저 고정한 뒤 traffic을 실행합니다. [4장 운영 관측](ch04-observability/README.md)의
+관측 조건을 먼저 고정한 뒤 traffic을 실행합니다. [4장 운영 관측](chapters/ch04/README.md)의
 관측 수집 전에 LIVE 또는 PREPARED/OFFLINE 경로를 선택합니다.
 
 ### LIVE/PREPARED 경로와 세 신호의 상관 조건을 실행 전에 정한다
@@ -240,8 +273,11 @@ Argo Application 생성, sync, KServe health와 rollback은 강사 Demo입니다
 강사가 LIVE dashboard와 필요한 준비를 확인했을 때만 LIVE를 선택합니다. 그렇지
 않으면 reference fixture를 사용하는 PREPARED/OFFLINE 경로를 선택합니다. 실행 전
 environment, model, UTC window와 request/run/trace correlation 조건을 기록합니다.
-아직 traffic을 보내지 않았으므로 log, metric, trace 결과를 이미 관찰했다고 쓰지
-않습니다.
+서비스 상태, 입력과 예측 분포, 시스템 자원은 서로 다른 질문의 지표입니다.
+입력 변화는 성능 저하의 가능 원인이지 증명이 아닙니다. 첫째 날의 100건 비교와
+이 장의 세 시나리오는 표본과 시간이 달라 직접 증감으로 연결하지 않습니다.
+아직 traffic을 보내지 않았으므로 log, metric, trace 결과를 이미 관찰했다고
+쓰지 않습니다.
 
 ### 세 신호의 확인 범위와 상태를 traffic 실행 전에 기록 방식으로 고정한다
 
@@ -251,7 +287,7 @@ environment, model, UTC window와 request/run/trace correlation 조건을 기록
 
 ## traffic
 
-관측 조건을 고정한 다음 [4장 관측 수집](ch04-observability/README.md)을 실행합니다.
+관측 조건을 고정한 다음 [4장 관측 수집](chapters/ch04/README.md)을 실행합니다.
 수집이 끝나면 같은 묶음을 개인 분석으로 넘기고, 요청 연결 확인 전까지 Compose를 내리지 않습니다.
 
 ### baseline/current-shift/invalid traffic의 의도와 상태 코드를 인계한다
@@ -264,12 +300,14 @@ LIVE 경로에서는 4장 README의 `course-session --scope local`을 한 번 �
 ### 선택한 대표 요청이 지표, 로그, trace의 동일 사건으로 연결되는지 판정한다
 
 수집 묶음에서 normal/slow/invalid 중 하나를 고르고, 같은 run ID, request ID, trace ID를
-JSONL, log event와 trace path에서 찾습니다. 새 traffic을 보내지 않습니다. offline
+JSONL, log event와 trace path에서 찾습니다. 한 요청은 전체 현상의 증명이 아니라
+조사 시작점입니다. 함께 움직인 신호는 단서이고 원인 확정에는 추가 검증이
+필요합니다. 새 traffic을 보내지 않습니다. offline
 fixture ID는 실제 Loki/Tempo 검색으로 바꾸지 않고 `scope=static`을 유지합니다.
 
 ## 판단/rollback
 
-판단 단계는 [5장 배포 판단](ch05-release-decision/README.md)의 최종 기록을 채웁니다.
+판단 단계는 [5장 배포 판단](chapters/ch05/README.md)의 최종 기록을 채웁니다.
 
 ### Candidate B 모델 APPROVE와 운영 환경 확인 상태를 한 기록에서 분리한다
 
@@ -280,8 +318,10 @@ fixture ID는 실제 Loki/Tempo 검색으로 바꾸지 않고 `scope=static`을 
 ### rollback trigger와 baseline 복구 완료를 선언할 evidence가 있는지 판단한다
 
 rollback overlay, target model metadata, health와 강사 smoke 결과를 구분합니다.
-의도한 invalid 422나 credential 누락은 자동 rollback 조건이 아닙니다. 강사 Demo가
-없으면 실제 복구 완료를 선언하지 않고 필요한 확인과 담당자를 기록합니다.
+의도한 invalid 422나 credential 누락은 자동 rollback 조건이 아닙니다. 422는
+입력 규약, 인증 정보 누락은 접근 복구, 네트워크 시간 초과는 연결 층, 모델
+식별값 불일치는 배포 경로 조사로 대응이 다릅니다. 강사 Demo가 없으면 실제
+복구 완료를 선언하지 않고 필요한 확인과 담당자를 기록합니다.
 
 ### 현재 운영 권고가 모델 승인과 분리되는지 기록한다
 
@@ -293,7 +333,7 @@ rollback overlay, target model metadata, health와 강사 smoke 결과를 구분
 
 ### 판단 기록에서 판단 변화와 미확인 위험 인계를 복원한다
 
-`labs/release-decision-record.md`의 1일차 1부터 2일차 7까지 예상→관측→수정을 읽고
+`labs/record.md`의 1일차 1부터 2일차 7까지 예상→관측→수정을 읽고
 판단이 바뀐 이유를 복원합니다. 미확인 위험마다 운영 scope
 (`target_pending` 또는 확인된 `target`/`local`), evidence scope (`static`/`offline`),
 그리고 실행이 막힌 경우의 별도 execution result (`result=BLOCKED`, 사유, 담당자)를
@@ -306,8 +346,8 @@ rollback overlay, target model metadata, health와 강사 smoke 결과를 구분
 
 ```bash
 docker compose \
-  -f deploy/compose/simple-mlops/compose.yaml \
-  -f deploy/compose/simple-mlops/compose.grafana-cloud.yaml \
+  -f deploy/compose.yaml \
+  -f deploy/compose.grafana-cloud.yaml \
   down
 ```
 
@@ -317,7 +357,7 @@ docker compose \
 | 종류 | 값 | 수강생 |
 | --- | --- | --- |
 | 로컬 Compose | `http://127.0.0.1:8000` | 3장 명령으로 사용 |
-| 대상 | 강사가 준 URL → `AIQA_RISK_API_URL` | GET과 기록만 수행 |
+| 대상 | 강사가 준 URL → `AIQA_RISK_API_URL` | GET과 기록. Candidate B 전환은 3장 |
 | 없음 | — | 운영 scope=`target_pending`; evidence scope=`offline` |
 
 <a id="4gib-vm-메모리"></a>

@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
-from interpret import interpret_quality_summary
+from ge_summary import interpret_quality_summary
 
 
 def _summary(

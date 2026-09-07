@@ -10,7 +10,7 @@ spec:
     # The release renderer replaces placeholders. Do not apply this
     # template directly or point a course environment at a mutable branch.
     targetRevision: __TTA_AIQA_REVISION__
-    path: deploy/kubernetes/overlays/__TTA_AIQA_OVERLAY__
+    path: deploy/k8s/__TTA_AIQA_OVERLAY__
   destination:
     __TTA_AIQA_DEST_REF__
     namespace: __TTA_AIQA_DEST_NAMESPACE__

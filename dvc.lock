@@ -3,7 +3,7 @@ stages:
   verify-source:
     cmd: python -m data_quality_pipeline.dvc_stage verify-source
     deps:
-    - path: apps/data-quality-pipeline/src/data_quality_pipeline
+    - path: apps/data_quality_pipeline
       hash: md5
       md5: e91988dac8213b25ddc79bf935db8d59.dir
       size: 39831
@@ -12,23 +12,23 @@ stages:
       hash: md5
       md5: 618ebfe0ea187d7752be4df126aa7f8c
       size: 479
-    - path: data/raw/physionet-2012/LICENSE.txt
+    - path: data/raw-physionet/LICENSE.txt
       hash: md5
       md5: a7bccee3e124f213c6fca0a03fa85247
       size: 603
-    - path: data/raw/physionet-2012/Outcomes-a.txt
+    - path: data/raw-physionet/Outcomes-a.txt
       hash: md5
       md5: 69f10987a4684e86c5b6aa122f3b9df2
       size: 79219
-    - path: data/raw/physionet-2012/set-a.zip
+    - path: data/raw-physionet/set-a.zip
       hash: md5
       md5: 0056e8e09e8c3bdc6695d5e016481432
       size: 7938449
-    - path: data/raw/physionet-2012/source-manifest.yaml
+    - path: data/raw-physionet/source-manifest.yaml
       hash: md5
       md5: b57533962bc626cb3dd36bdae74768a0
       size: 1218
-    - path: packages/aiqa-data/src/aiqa_data
+    - path: packages/aiqa_data
       hash: md5
       md5: f72b4302941d463debe1cde532a1cb7b.dir
       size: 50930
@@ -41,7 +41,7 @@ stages:
   extract:
     cmd: python -m data_quality_pipeline.dvc_stage extract
     deps:
-    - path: apps/data-quality-pipeline/src/data_quality_pipeline
+    - path: apps/data_quality_pipeline
       hash: md5
       md5: e91988dac8213b25ddc79bf935db8d59.dir
       size: 39831
@@ -54,12 +54,12 @@ stages:
       hash: md5
       md5: 618ebfe0ea187d7752be4df126aa7f8c
       size: 479
-    - path: data/raw/physionet-2012/set-a.zip
+    - path: data/raw-physionet/set-a.zip
       hash: md5
       md5: 0056e8e09e8c3bdc6695d5e016481432
       size: 7938449
     outs:
-    - path: data/interim/physionet-2012/set-a
+    - path: data/interim/set-a
       hash: md5
       md5: 379ac80229bcac888bb3b2ea9489b747.dir
       size: 27594280
@@ -67,7 +67,7 @@ stages:
   aggregate:
     cmd: python -m data_quality_pipeline.dvc_stage aggregate
     deps:
-    - path: apps/data-quality-pipeline/src/data_quality_pipeline
+    - path: apps/data_quality_pipeline
       hash: md5
       md5: e91988dac8213b25ddc79bf935db8d59.dir
       size: 39831
@@ -84,38 +84,38 @@ stages:
       hash: md5
       md5: 058008e582f450f4da48f32e727972d9
       size: 2227
-    - path: data/interim/physionet-2012/set-a
+    - path: data/interim/set-a
       hash: md5
       md5: 379ac80229bcac888bb3b2ea9489b747.dir
       size: 27594280
       nfiles: 4000
-    - path: data/raw/physionet-2012/Outcomes-a.txt
+    - path: data/raw-physionet/Outcomes-a.txt
       hash: md5
       md5: 69f10987a4684e86c5b6aa122f3b9df2
       size: 79219
-    - path: packages/aiqa-data/src/aiqa_data
+    - path: packages/aiqa_data
       hash: md5
       md5: f72b4302941d463debe1cde532a1cb7b.dir
       size: 50930
       nfiles: 30
     outs:
-    - path: data/processed/physionet-2012/patient-features.csv
+    - path: data/features.csv
       hash: md5
       md5: 393494f21255654d54c438d230219bc7
       size: 2939058
   split:
     cmd: python -m data_quality_pipeline.dvc_stage split
     deps:
-    - path: apps/data-quality-pipeline/src/data_quality_pipeline
+    - path: apps/data_quality_pipeline
       hash: md5
       md5: e91988dac8213b25ddc79bf935db8d59.dir
       size: 39831
       nfiles: 21
-    - path: data/processed/physionet-2012/patient-features.csv
+    - path: data/features.csv
       hash: md5
       md5: 393494f21255654d54c438d230219bc7
       size: 2939058
-    - path: packages/aiqa-data/src/aiqa_data
+    - path: packages/aiqa_data
       hash: md5
       md5: f72b4302941d463debe1cde532a1cb7b.dir
       size: 50930
@@ -132,47 +132,47 @@ stages:
         data.train_ratio: 0.6
         data.valid_ratio: 0.15
     outs:
-    - path: data/splits/physionet-2012/datasets
+    - path: data/splits-v1
       hash: md5
       md5: 20064fca973ec67852905c64e6fe1b4d.dir
       size: 2944737
       nfiles: 4
-    - path: data/splits/physionet-2012/split-manifest.csv
+    - path: data/splits-v1/split-manifest.csv
       hash: md5
       md5: 9f1b1b86c6e84a185269f5eaacbe3a0c
       size: 57816
   revise-split-v2:
     cmd: python -m data_quality_pipeline.dvc_stage revise-split
     deps:
-    - path: apps/data-quality-pipeline/src/data_quality_pipeline
+    - path: apps/data_quality_pipeline
       hash: md5
       md5: e91988dac8213b25ddc79bf935db8d59.dir
       size: 39831
       nfiles: 21
-    - path: configs/data/split-revisions/v2.yaml
+    - path: configs/data/split-v2.yaml
       hash: md5
       md5: e7b4f1dd57ce18482534a1c005b9ce27
       size: 339
-    - path: data/processed/physionet-2012/patient-features.csv
+    - path: data/features.csv
       hash: md5
       md5: 393494f21255654d54c438d230219bc7
       size: 2939058
-    - path: data/splits/physionet-2012/split-manifest.csv
+    - path: data/splits-v1/split-manifest.csv
       hash: md5
       md5: 9f1b1b86c6e84a185269f5eaacbe3a0c
       size: 57816
-    - path: packages/aiqa-data/src/aiqa_data
+    - path: packages/aiqa_data
       hash: md5
       md5: f72b4302941d463debe1cde532a1cb7b.dir
       size: 50930
       nfiles: 30
     outs:
-    - path: data/splits/physionet-2012/revisions/v2/datasets
+    - path: data/splits-v2
       hash: md5
       md5: 3caac1de14823da422665a87584d393f.dir
       size: 2945337
       nfiles: 4
-    - path: data/splits/physionet-2012/revisions/v2/split-manifest.csv
+    - path: data/splits-v2/split-manifest.csv
       hash: md5
       md5: 5ffe5734d726105b68c02372c5c5ae7c
       size: 56216

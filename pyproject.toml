@@ -43,18 +43,18 @@ aiqa-serving = { workspace = true }
 
 [tool.uv.workspace]
 members = [
-  "apps/data-quality-pipeline",
-  "apps/grafana-dashboard-importer",
-  "apps/kserve-predictor",
-  "apps/model-trainer",
-  "apps/risk-api",
-  "apps/traffic-generator",
-  "packages/aiqa-core",
-  "packages/aiqa-data",
-  "packages/aiqa-model",
-  "packages/aiqa-observability",
-  "packages/aiqa-qa",
-  "packages/aiqa-serving",
+  "apps/data_quality_pipeline",
+  "apps/grafana_dashboard_importer",
+  "apps/kserve_predictor",
+  "apps/model_trainer",
+  "apps/risk_api",
+  "apps/traffic_generator",
+  "packages/aiqa_core",
+  "packages/aiqa_data",
+  "packages/aiqa_model",
+  "packages/aiqa_observability",
+  "packages/aiqa_qa",
+  "packages/aiqa_serving",
 ]
 
 [tool.ruff]

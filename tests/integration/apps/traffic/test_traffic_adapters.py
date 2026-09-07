@@ -89,7 +89,7 @@ def test_versioned_config_defines_all_four_course_scenarios() -> None:
 def test_v2_operational_pool_is_target_free_and_wire_compatible() -> None:
     contract = load_feature_contract(Path("configs/contracts/model-input.yaml"))
     pool = CsvPatientPool(
-        Path("data/splits/physionet-2012/revisions/v2/datasets/operational.csv"),
+        Path("data/splits-v2/operational.csv"),
         contract,
     )
 

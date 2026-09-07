@@ -9,8 +9,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 EXERCISE_TESTS = ROOT / "labs/exercises/tests/test_ge_summary.py"
-STARTER = ROOT / "labs/exercises/ge_summary"
-SOLUTION = ROOT / "labs/exercises/solutions/ge_summary"
+STARTER = ROOT / "labs/exercises"
+SOLUTION = ROOT / "labs/solutions"
 
 
 def _run_exercise(

@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from scripts.publish_model import publish, publish_immutable, sha256
+from scripts.platform.publish_model import publish, publish_immutable, sha256
 
 
 def digest(data: bytes) -> str:

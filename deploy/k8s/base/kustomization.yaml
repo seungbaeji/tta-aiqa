@@ -1,0 +1,32 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - resource-quota.yaml
+  - model-pvc.yaml
+  - risk-api.yaml
+  - risk-api-ingress.yaml
+  - inference-service.yaml
+  # 참고용. resources에 넣지 않는다. overlay는 이 목록 전체를 가져가므로
+  # 추가하면 Risk API와 같은 catch-all Ingress로 함께 적용된다.
+  # - mlflow-pvc.yaml
+  # - mlflow.yaml
+  # - mlflow-ingress.yaml
+configMapGenerator:
+  - name: risk-api-config
+    namespace: tta-aiqa
+    files:
+      - api.yaml=config/api.yaml
+      - model-input.yaml=config/model-input.yaml
+      - telemetry.yaml=config/telemetry.yaml
+  - name: model-contract
+    namespace: tta-aiqa
+    files:
+      - model-input.yaml=config/model-input.yaml
+      - telemetry.yaml=config/telemetry.yaml
+  - name: model-identity
+    namespace: tta-aiqa
+    envs:
+      - config/model-identity.env
+generatorOptions:
+  disableNameSuffixHash: true

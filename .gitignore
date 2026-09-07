@@ -12,9 +12,14 @@ __pycache__/
 .ipynb_checkpoints/
 
 # Local data and generated outputs
-data/raw/physionet-2012/*
-!data/raw/physionet-2012/LICENSE.txt
-!data/raw/physionet-2012/source-manifest.yaml
+data/raw-physionet/*
+!data/raw-physionet/LICENSE.txt
+!data/raw-physionet/source-manifest.yaml
+data/features.csv
+data/splits-v1/*
+!data/splits-v1/.gitignore
+data/splits-v2/*
+!data/splits-v2/.gitignore
 data/drift_requests.csv
 data/operational_baseline_events.jsonl
 data/operational_current_events.jsonl
@@ -41,7 +46,7 @@ artifacts/traffic/
 /artifacts/reports/
 /artifacts/security/
 set-a/
-data/interim/physionet-2012/
+data/interim/
 
 # Local scratch and archived workspace material
 tmp/

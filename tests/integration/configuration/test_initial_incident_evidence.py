@@ -10,7 +10,7 @@ from aiqa_serving.adapters import LocalSklearnRiskScorer, sha256_file
 from traffic_generator.adapters import CsvPatientPool, load_traffic_config
 from traffic_generator.domain import apply_feature_transforms
 
-EVIDENCE_PATH = Path("docs/reference/evidence/incident/initial-signal.json")
+EVIDENCE_PATH = Path("docs/evidence/incident/initial-signal.json")
 
 
 def _normalized(text: str) -> str:
@@ -61,7 +61,7 @@ def test_initial_signal_matches_the_frozen_sample_model_and_transforms() -> None
         "artifacts/models/revisions/v2/bundles/baseline/model.joblib"
     )
     data_path = Path(
-        "data/splits/physionet-2012/revisions/v2/datasets/operational.csv"
+        "data/splits-v2/operational.csv"
     )
     if not model_path.is_file() or not data_path.is_file():
         pytest.skip("run scripts/setup_course.py to recompute prepared E-01")
@@ -118,11 +118,11 @@ def test_initial_signal_matches_the_frozen_sample_model_and_transforms() -> None
 
 
 def test_release_record_names_the_working_and_submission_path() -> None:
-    template = Path("labs/release-decision-record.md").read_text(encoding="utf-8")
+    template = Path("labs/record.md").read_text(encoding="utf-8")
     lab_guide = Path("labs/README.md").read_text(encoding="utf-8")
     normalized_guide = _normalized(lab_guide)
 
-    assert "docs/reference/evidence/incident/initial-signal.json" in template
+    assert "docs/evidence/incident/initial-signal.json" in template
     assert "artifacts/reports/release-decision-record.md" in template
     assert all(f"| 1일차 {period} |" in template for period in range(1, 8))
     assert all(f"| 2일차 {period} |" in template for period in range(1, 8))
@@ -181,7 +181,7 @@ def test_learner_guide_assigns_gitops_changes_to_platform_staff() -> None:
 
 
 def test_observability_guide_separates_blocked_result_from_target_state() -> None:
-    guide = Path("labs/ch04-observability/README.md").read_text(encoding="utf-8")
+    guide = Path("labs/chapters/ch04/README.md").read_text(encoding="utf-8")
     normalized = _normalized(guide)
 
     assert "`result=BLOCKED`와 사유, 담당자" in normalized
@@ -190,8 +190,8 @@ def test_observability_guide_separates_blocked_result_from_target_state() -> Non
 
 
 def test_baseline_local_evidence_does_not_verify_candidate_b() -> None:
-    serving = Path("labs/ch03-serving/README.md").read_text(encoding="utf-8")
-    decision = Path("labs/ch05-release-decision/README.md").read_text(
+    serving = Path("labs/chapters/ch03/README.md").read_text(encoding="utf-8")
+    decision = Path("labs/chapters/ch05/README.md").read_text(
         encoding="utf-8"
     )
 
@@ -211,11 +211,11 @@ def test_baseline_local_evidence_does_not_verify_candidate_b() -> None:
 def test_learner_facing_labs_use_korean_handoff_terms() -> None:
     guides = (
         Path("labs/README.md"),
-        Path("labs/ch04-observability/README.md"),
-        Path("labs/ch05-release-decision/README.md"),
+        Path("labs/chapters/ch04/README.md"),
+        Path("labs/chapters/ch05/README.md"),
     )
 
-    for path in (*guides, Path("labs/release-decision-record.md")):
+    for path in (*guides, Path("labs/record.md")):
         guide = path.read_text(encoding="utf-8")
         prose_without_code_key = guide.replace("handoff_contract", "").replace(
             "publish_blocking_gate", ""
@@ -228,15 +228,15 @@ def test_learner_facing_labs_use_korean_handoff_terms() -> None:
 
 
 def test_observability_setup_preserves_an_existing_personal_environment() -> None:
-    guide = Path("labs/ch04-observability/README.md").read_text(encoding="utf-8")
+    guide = Path("labs/chapters/ch04/README.md").read_text(encoding="utf-8")
 
     assert "test -f .env.grafanacloud ||" not in guide
     assert "cp .env.grafanacloud.example .env.grafanacloud" not in guide
 
 
 def test_serving_guide_only_requests_correlation_evidence_that_is_persisted() -> None:
-    guide = Path("labs/ch03-serving/README.md").read_text(encoding="utf-8")
-    observability = Path("labs/ch04-observability/README.md").read_text(
+    guide = Path("labs/chapters/ch03/README.md").read_text(encoding="utf-8")
+    observability = Path("labs/chapters/ch04/README.md").read_text(
         encoding="utf-8"
     )
 
@@ -250,7 +250,7 @@ def test_serving_guide_only_requests_correlation_evidence_that_is_persisted() ->
 
 
 def test_release_guide_separates_api_identity_from_deployment_digest() -> None:
-    guide = Path("labs/ch05-release-decision/README.md").read_text(
+    guide = Path("labs/chapters/ch05/README.md").read_text(
         encoding="utf-8"
     )
     normalized = _normalized(guide)
@@ -266,8 +266,8 @@ def test_release_guide_separates_api_identity_from_deployment_digest() -> None:
 @pytest.mark.parametrize(
     "path",
     (
-        Path("labs/ch03-serving/README.md"),
-        Path("labs/ch05-release-decision/README.md"),
+        Path("labs/chapters/ch03/README.md"),
+        Path("labs/chapters/ch05/README.md"),
     ),
 )
 def test_learner_labs_do_not_send_server_side_kubernetes_requests(

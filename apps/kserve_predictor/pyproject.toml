@@ -1,0 +1,35 @@
+[project]
+name = "aiqa-kserve-predictor"
+version = "0.2.0"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+  "aiqa-core",
+  "aiqa-observability",
+  "aiqa-serving",
+  "fastapi>=0.110",
+  "pydantic>=2.7",
+  "pydantic-settings>=2.4",
+  "uvicorn[standard]>=0.29",
+]
+
+[project.scripts]
+aiqa-kserve-predictor = "kserve_predictor.main:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+dev-mode-dirs = [".."]
+
+[tool.hatch.build.targets.wheel]
+only-include = [
+  "__init__.py",
+  "adapters",
+  "bootstrap.py",
+  "main.py",
+  "settings.py",
+]
+
+[tool.hatch.build.targets.wheel.sources]
+"." = "kserve_predictor"

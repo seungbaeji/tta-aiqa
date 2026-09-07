@@ -1,0 +1,30 @@
+# Reference only. Do not add this file to kustomization.yaml resources.
+# Overlays include the whole resources list and would apply it with Risk API.
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: course-mlflow
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  hostPath:
+    path: /mnt/course-mlflow
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: course-mlflow
+  namespace: tta-aiqa
+spec:
+  volumeName: course-mlflow
+  storageClassName: ""
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

@@ -2,45 +2,45 @@ stages:
   verify-source:
     cmd: python -m data_quality_pipeline.dvc_stage verify-source
     deps:
-      - apps/data-quality-pipeline/src/data_quality_pipeline
+      - apps/data_quality_pipeline
       - configs/contracts/physionet-record.yaml
-      - data/raw/physionet-2012/LICENSE.txt
-      - data/raw/physionet-2012/Outcomes-a.txt
-      - data/raw/physionet-2012/set-a.zip
-      - data/raw/physionet-2012/source-manifest.yaml
-      - packages/aiqa-data/src/aiqa_data
+      - data/raw-physionet/LICENSE.txt
+      - data/raw-physionet/Outcomes-a.txt
+      - data/raw-physionet/set-a.zip
+      - data/raw-physionet/source-manifest.yaml
+      - packages/aiqa_data
     outs:
       - artifacts/data-quality/source-integrity.json
 
   extract:
     cmd: python -m data_quality_pipeline.dvc_stage extract
     deps:
-      - apps/data-quality-pipeline/src/data_quality_pipeline
+      - apps/data_quality_pipeline
       - artifacts/data-quality/source-integrity.json
       - configs/contracts/physionet-record.yaml
-      - data/raw/physionet-2012/set-a.zip
+      - data/raw-physionet/set-a.zip
     outs:
-      - data/interim/physionet-2012/set-a
+      - data/interim/set-a
 
   aggregate:
     cmd: python -m data_quality_pipeline.dvc_stage aggregate
     deps:
-      - apps/data-quality-pipeline/src/data_quality_pipeline
+      - apps/data_quality_pipeline
       - artifacts/data-quality/source-integrity.json
       - configs/contracts/physionet-record.yaml
       - configs/data/aggregation.yaml
-      - data/interim/physionet-2012/set-a
-      - data/raw/physionet-2012/Outcomes-a.txt
-      - packages/aiqa-data/src/aiqa_data
+      - data/interim/set-a
+      - data/raw-physionet/Outcomes-a.txt
+      - packages/aiqa_data
     outs:
-      - data/processed/physionet-2012/patient-features.csv
+      - data/features.csv
 
   split:
     cmd: python -m data_quality_pipeline.dvc_stage split
     deps:
-      - apps/data-quality-pipeline/src/data_quality_pipeline
-      - data/processed/physionet-2012/patient-features.csv
-      - packages/aiqa-data/src/aiqa_data
+      - apps/data_quality_pipeline
+      - data/features.csv
+      - packages/aiqa_data
       - params.yaml
     params:
       - data.random_seed
@@ -49,17 +49,17 @@ stages:
       - data.test_ratio
       - data.operational_ratio
     outs:
-      - data/splits/physionet-2012/split-manifest.csv
-      - data/splits/physionet-2012/datasets
+      - data/splits-v1/split-manifest.csv
+      - data/splits-v1
 
   revise-split-v2:
     cmd: python -m data_quality_pipeline.dvc_stage revise-split
     deps:
-      - apps/data-quality-pipeline/src/data_quality_pipeline
-      - configs/data/split-revisions/v2.yaml
-      - data/processed/physionet-2012/patient-features.csv
-      - data/splits/physionet-2012/split-manifest.csv
-      - packages/aiqa-data/src/aiqa_data
+      - apps/data_quality_pipeline
+      - configs/data/split-v2.yaml
+      - data/features.csv
+      - data/splits-v1/split-manifest.csv
+      - packages/aiqa_data
     outs:
-      - data/splits/physionet-2012/revisions/v2/split-manifest.csv
-      - data/splits/physionet-2012/revisions/v2/datasets
+      - data/splits-v2/split-manifest.csv
+      - data/splits-v2

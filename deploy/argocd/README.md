@@ -13,7 +13,7 @@
 ```bash
 REVISION="$(git rev-parse HEAD)"
 
-uv run python scripts/render_argocd_application.py \
+uv run python scripts/platform/render_argocd_application.py \
   --revision "${REVISION}" \
   --overlay baseline \
   --application-name tta-aiqa-student-201 \
@@ -24,7 +24,7 @@ uv run python scripts/render_argocd_application.py \
 로컬 Argo와 같은 클러스터에만 둘 때:
 
 ```bash
-uv run python scripts/render_argocd_application.py \
+uv run python scripts/platform/render_argocd_application.py \
   --revision "${REVISION}" \
   --overlay baseline \
   --application-name tta-aiqa \
@@ -45,17 +45,50 @@ uv run python scripts/render_argocd_application.py \
 - automated/prune/selfHeal이 없는가
 - 과정 릴리스 manifest의 `tta-aiqa` 커밋과 같은가
 
-수강생은 공동 환경에서 이 파일을 적용하지 않습니다. 강사 또는 플랫폼
-담당자가 승인 절차에 따라 등록·동기화하고, 실행 중인 모델 정보와 운영
-기록을 다시 확인합니다.
+수강생은 이 파일로 Application을 만들지 않습니다. Application 생성, KServe
+설치, GHCR pull secret은 플랫폼 담당자가 승인 절차에 따라 등록합니다. 이미
+등록된 Application을 `deploy/k8s/candidate-b`로 바꾸고 대상 `/v1/model`을
+확인하는 것은 수강생 범위입니다.
 
 모델 번들을 학생 VM hostPath `/mnt/course-models`에 둘 때는 디렉터리를
-`tta` 소유로 만듭니다. root로만 `mkdir` 하면 publish가 실패합니다.
+`tta` 소유로 만듭니다. root로만 `mkdir` 하면 publish가 실패합니다. 기준
+모델 게시는 플랫폼이 준비합니다.
 
 ```bash
 sudo mkdir -p /mnt/course-models
 sudo chown tta:tta /mnt/course-models
 # then as tta, no sudo:
-uv run python scripts/publish_model.py baseline --revision v2 --target-root /mnt/course-models
-uv run python scripts/publish_model.py candidate-b --revision v2 --target-root /mnt/course-models
+uv run python scripts/platform/publish_model.py baseline --revision v2 --target-root /mnt/course-models
 ```
+
+## 이미 등록된 Application을 Candidate B로 바꾸기
+
+클러스터를 바꾸기 전에 `TARGET_CONTEXT`가 승인된 컨텍스트와 같은지
+확인합니다. 값이 비어 있거나 현재 컨텍스트와 다르면 동기화 스크립트가
+거절합니다. 학생 VM destination은 `kubernetes.default.svc`가 아니어야
+하며, automated prune/selfHeal을 켜지 않습니다.
+
+```bash
+if [ -z "${TARGET_CONTEXT:-}" ]; then
+  echo "TARGET_CONTEXT is required; refusing to change a cluster." >&2
+  exit 1
+fi
+CURRENT_CONTEXT="$(kubectl config current-context)" || {
+  echo "Unable to read the current Kubernetes context; refusing to continue." >&2
+  exit 1
+}
+if [ "$CURRENT_CONTEXT" != "$TARGET_CONTEXT" ]; then
+  echo "Context mismatch: expected $TARGET_CONTEXT, got $CURRENT_CONTEXT" >&2
+  exit 1
+fi
+
+uv run python scripts/platform/publish_model.py candidate-b --revision v2 --target-root /mnt/course-models
+uv run python scripts/platform/sync_student_release.py \
+  --application-name "${AIQA_ARGOCD_APPLICATION_NAME:?already-registered Application name}"
+curl "${AIQA_RISK_API_URL:?Risk API base URL is required}/v1/model"
+```
+
+`/v1/model`의 `version`은 `candidate-b-c712a8e52344`와 같아야 합니다. 대상
+URL이 없으면 `operational_deployment_scope=target_pending`으로 두고
+identity를 만들지 않습니다. 실패하면 `result=BLOCKED`와 사유를 기록합니다.
+이 확인은 공식 평가나 sealed test를 다시 실행한 것이 아닙니다.

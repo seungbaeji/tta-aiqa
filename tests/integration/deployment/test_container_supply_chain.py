@@ -8,10 +8,10 @@ EXPECTED_BASE = (
     "db3ff2e1800a8581e2c48a27c3995339d47bdf046da21c7627accd3d51053a93"
 )
 DOCKERFILES = (
-    ROOT / "apps/model-trainer/Dockerfile",
-    ROOT / "apps/traffic-generator/Dockerfile",
-    ROOT / "apps/kserve-predictor/Dockerfile",
-    ROOT / "apps/risk-api/Dockerfile",
+    ROOT / "apps/model_trainer/Dockerfile",
+    ROOT / "apps/traffic_generator/Dockerfile",
+    ROOT / "apps/kserve_predictor/Dockerfile",
+    ROOT / "apps/risk_api/Dockerfile",
 )
 
 

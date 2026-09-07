@@ -173,7 +173,7 @@ def test_mlflow_model_tracker_records_inputs_bundle_and_model(tmp_path: Path) ->
 
 def test_prepared_bootstrap_evidence_deploys_only_baseline() -> None:
     evidence = json.loads(
-        Path("docs/reference/evidence/model/model-bootstrap.json").read_text(
+        Path("docs/evidence/model-v1/model-bootstrap.json").read_text(
             encoding="utf-8"
         )
     )

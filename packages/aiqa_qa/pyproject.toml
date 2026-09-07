@@ -1,0 +1,28 @@
+[project]
+name = "aiqa-qa"
+version = "0.2.0"
+description = "Release assurance bounded context for AIQA V2"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+  "aiqa-core",
+  "pydantic>=2.7",
+  "pyyaml>=6.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+dev-mode-dirs = [".."]
+
+[tool.hatch.build.targets.wheel]
+only-include = [
+  "__init__.py",
+  "adapters",
+  "application",
+  "domain",
+]
+
+[tool.hatch.build.targets.wheel.sources]
+"." = "aiqa_qa"

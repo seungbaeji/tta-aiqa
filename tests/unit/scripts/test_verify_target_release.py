@@ -11,7 +11,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT))
-verifier = import_module("scripts.verify_target_release")
+verifier = import_module("scripts.platform.verify_target_release")
 
 RISK_INDEX = "sha256:" + "1" * 64
 RISK_PLATFORM = "sha256:" + "2" * 64

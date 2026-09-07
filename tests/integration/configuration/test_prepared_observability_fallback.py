@@ -7,9 +7,9 @@ from pathlib import Path
 from typing import Any
 
 FALLBACK_PATH = Path(
-    "docs/reference/evidence/incident/prepared-observability-correlation.json"
+    "docs/evidence/incident/prepared-observability-correlation.json"
 )
-GUIDE_PATH = Path("labs/ch04-observability/README.md")
+GUIDE_PATH = Path("labs/chapters/ch04/README.md")
 HEX_TRACE_ID = re.compile(r"^[0-9a-f]{32}$")
 HEX_SPAN_ID = re.compile(r"^[0-9a-f]{16}$")
 EXPECTED_SCENARIOS = {"baseline", "current-shift", "invalid"}
@@ -279,8 +279,8 @@ def test_guide_links_packet_and_separates_p5_p6_p7() -> None:
 def test_learner_materials_use_completion_gates_instead_of_fixed_minutes() -> None:
     paths = (
         Path("labs/README.md"),
-        Path("labs/ch04-observability/README.md"),
-        Path("labs/ch05-release-decision/README.md"),
+        Path("labs/chapters/ch04/README.md"),
+        Path("labs/chapters/ch05/README.md"),
     )
     text = _normalized(
         "\n".join(path.read_text(encoding="utf-8") for path in paths)
@@ -309,7 +309,7 @@ def test_learner_materials_use_completion_gates_instead_of_fixed_minutes() -> No
 def test_all_learner_compose_traffic_commands_use_the_host_identity() -> None:
     paths = (
         Path("README.md"),
-        Path("apps/traffic-generator/README.md"),
+        Path("apps/traffic_generator/README.md"),
         *Path("labs").rglob("*.md"),
     )
     commands: list[tuple[Path, str]] = []
@@ -329,7 +329,7 @@ def test_all_learner_compose_traffic_commands_use_the_host_identity() -> None:
     for path, command in commands:
         assert '--user "$(id -u):$(id -g)"' in command, path
 
-    serving = Path("labs/ch03-serving/README.md").read_text(encoding="utf-8")
+    serving = Path("labs/chapters/ch03/README.md").read_text(encoding="utf-8")
     observability = GUIDE_PATH.read_text(encoding="utf-8")
     assert "traffic-generator" not in serving
     assert "course-session --scope local" in observability
