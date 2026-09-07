@@ -5,7 +5,7 @@
 
 ## 1. 본편 실습
 
-공식 봉인 결과를 다시 튜닝하지 않습니다. 개발용 수치와 후보 공식 평가를 한
+공식 평가 결과를 다시 튜닝하지 않습니다. 개발용 수치와 후보 공식 평가를 한
 표에 섞지 않습니다.
 
 ### 1-1. Precision, Recall, F1, FP/FN과 PR-AUC를 같은 release 질문으로 해석한다
@@ -25,7 +25,7 @@ uv run python scripts/run_model.py status --revision v2
 
 `docs/reference/evidence/model/revisions/v2/canonical-benchmark.json`과
 `release-manifest.json`에서 Candidate A는 보류, Candidate B는 승인으로
-기록합니다. B의 승인은 대상 배포 완료가 아닙니다. 봉인된 최종 평가에 맞춰
+기록합니다. B의 승인은 대상 배포 완료가 아닙니다. 공식 평가에 맞춰
 특성, 임계값, 배포 정책을 바꾸지 않습니다.
 
 `01_compare_model_evidence.ipynb`를 위에서 아래로 실행하면 특성, 프로필,

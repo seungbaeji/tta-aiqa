@@ -160,13 +160,13 @@ data/splits/physionet-2012/datasets/{train,valid,test,operational}.csv
 `train 2,400 / valid 600 / test 600 / operational 400`으로 나눕니다.
 `operational.csv`에는 정답인 `target` 열을 넣지 않습니다.
 
-승인된 V2 분할은 V1의 봉인 평가 자료를 재사용하지 않고 역할을 다시 고정합니다.
+승인된 V2 분할은 V1의 공식 평가 자료를 재사용하지 않고 역할을 다시 고정합니다.
 
 ```text
 data/splits/physionet-2012/revisions/v2/datasets/
   train.csv        2,900건
   valid.csv          600건
-  test.csv           400건, 한 번만 여는 봉인 평가 전용
+  test.csv           400건, 한 번만 여는 공식 평가 전용
   operational.csv    100건, target 미포함
 ```
 
@@ -202,7 +202,7 @@ uv run python scripts/validate_data.py
 ### 5-1. 현재 공식 결과
 
 모델 프로필, 임계값과 배포 정책을 학습·교차검증 자료와 검증 자료에서 고정한 뒤
-봉인 평가 자료를 한 번만 열었습니다.
+공식 평가 자료를 한 번만 열었습니다.
 
 ```bash
 uv run python scripts/run_model.py status --revision v2
@@ -210,7 +210,7 @@ uv run python scripts/run_model.py status --revision v2
 
 V1 evidence는 `HOLD/HOLD`로 보존되어 있습니다. 승인된 V2 revision은 Candidate A `HOLD`, Candidate B `APPROVE`이며 Candidate B 배포가 허용됩니다.
 
-V2 봉인 평가의 핵심 결과는 다음과 같습니다.
+V2 공식 평가의 핵심 결과는 다음과 같습니다.
 
 | Profile | Threshold | PR-AUC | Precision | Recall | FN | Decision |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
@@ -221,14 +221,14 @@ V2 봉인 평가의 핵심 결과는 다음과 같습니다.
 ### 5-2. One-shot 규칙
 
 `docs/reference/evidence/model/revisions/v2/canonical-benchmark.json`에
-`evaluated_once`가 기록되어 있으므로 봉인 평가는 다시 실행할 수 없습니다. 결과에
+`evaluated_once`가 기록되어 있으므로 공식 평가는 다시 실행할 수 없습니다. 결과에
 맞춰 특성, 임계값, 모델 프로필이나 배포 정책을 바꾸지 않습니다. 변경이 필요하면
 기존 근거를 덮지 않는 새 개정본을 만듭니다.
 
 ### 5-3. MLflow 확인
 
 강사용 환경 준비에서는 세 모델 묶음과 MLflow 실행을 만들고 기준 모델만 초기 배포
-경로에 게시합니다. 수강생 VM에는 이 상태가 미리 준비됩니다. V2는 봉인 평가가
+경로에 게시합니다. 수강생 VM에는 이 상태가 미리 준비됩니다. V2는 공식 평가가
 끝난 과거 개정본이므로 모델 학습 흐름을 다시 실행하지 않습니다.
 
 ```bash
@@ -238,7 +238,7 @@ uv run python scripts/run_model.py status --revision v2
 V2의 모델 준비 결과와 실행 ID는
 `docs/reference/evidence/model/revisions/v2/model-bootstrap.json`에서 확인합니다.
 새 개정본에서는 개발 평가와 진단을 마치고 `release-freeze.json`을 커밋한 뒤에만
-봉인 평가를 열 수 있습니다. 모델 게시와 기준 모델 복구는 수강생 활동이 아닙니다.
+공식 평가를 열 수 있습니다. 모델 게시와 기준 모델 복구는 수강생 활동이 아닙니다.
 강사 또는 플랫폼 담당자는 `scripts/publish_model.py`와 승인된 배포 절차를
 사용하고, 수강생은 준비된 `deployment.json`과 모델 근거를 읽습니다.
 

@@ -83,13 +83,13 @@ evidence scope는 `static`으로 유지하면 데이터 역할과 품질 근거�
 ## 데이터
 
 데이터 단계는 [1장 데이터 품질](ch01-data-quality/README.md)의 노트북과 검증
-명령을 연결합니다. sealed `test`를 학습 활동에서 열지 않습니다.
+명령을 연결합니다. 공식 평가용 `test`를 학습 활동에서 열지 않습니다.
 
 ### train, valid, sealed test, operational의 역할을 누수 없이 구분한다
 
 `data/splits/physionet-2012/revisions/v2/split-manifest.csv`에서
 `train 2,900 / valid 600 / test 400 / operational 100`의 역할을 읽습니다.
-실행 전에 개발, 봉인 평가, 정답 없는 운영 표본의 용도를 예측하고 노트북과 분할
+실행 전에 개발 평가, 공식 평가, 정답 없는 운영 표본의 용도를 예측하고 노트북과 분할
 선언을 대조합니다. 이전 분할 `2,400 / 600 / 600 / 400`을 현재 판단에 섞지
 않습니다.
 
@@ -130,8 +130,8 @@ Data Docs가 생성됩니다. GE 결과는 데이터 품질 근거이며 DVC 게
 
 ## 모델
 
-모델 단계는 [2장 모델 품질](ch02-model-quality/README.md)로 연결합니다. 공식
-봉인 결과를 다시 튜닝하지 않습니다.
+모델 단계는 [2장 모델 품질](ch02-model-quality/README.md)로 연결합니다.
+공식 평가 결과를 다시 튜닝하지 않습니다.
 
 ### Precision, Recall, F1, FP/FN과 PR-AUC를 같은 release 질문으로 해석한다
 
@@ -149,7 +149,7 @@ uv run python scripts/run_model.py status --revision v2
 
 `docs/reference/evidence/model/revisions/v2/canonical-benchmark.json`과
 `release-manifest.json`을 읽어 Candidate A `HOLD`, Candidate B `APPROVE`를
-모델 승인으로 기록합니다. B의 승인은 대상 배포 완료가 아니며, sealed test 결과에
+모델 승인으로 기록합니다. B의 승인은 대상 배포 완료가 아니며, 공식 평가 결과에
 맞춰 특성, threshold, policy를 변경하지 않습니다.
 
 ### DVC revision과 MLflow run이 같은 model evidence lineage를 가리키는지 확인한다
