@@ -47,12 +47,21 @@ uv run python labs/run/model_status.py --revision v2
 `model.joblib`과 `metadata.json`, feature contract SHA-256을 한 표에서
 연결합니다.
 
-과거 공식 Run `31b50eb...`은 준비된 JSON으로 복원하고, 현재 학생 Run은 같은
-기록 구조를 직접 보기 위해 새로 만듭니다. 두 Run은 서로 다른 실행이며 학생
-Run으로 공식 승인이나 봉인 평가를 바꾸지 않습니다. 학생 Run은 Candidate B,
-train 2,900건, valid 600건, Random Forest와 임계값 0.35를 사용하고 dataset
-input, parameter, validation metric, bundle 두 파일과 MLflow model을 함께
-experiment `student-development-tracking`에 기록합니다.
+과거 model Run `31b50eb...`은 실제 MLflow export가 아니라 준비된 여러 JSON을
+profile 이름으로 연결한 역사적 reconstruction입니다. 당시 frozen DVC lock
+원본과 clean worktree는 복원할 수 없으므로 완전 재현이라고 설명하지 않습니다.
+확인된 데이터·metric·bundle 지문과 복원 불가능한 범위는 노트북의 첫 표에서
+함께 봅니다.
+
+현재 학생 Run은 관찰 가능한 정상 개발 기록을 새로 만듭니다. 학생 Run은
+Candidate B, train 2,900건, valid 600건, Random Forest와 임계값 0.35를 사용하고
+dataset input, parameter, validation metric, bundle 두 파일과 MLflow Logged
+Model을 experiment `student-development-tracking`에 기록합니다. 같은
+train/valid 파일의 revision, 경로, 행 수와 SHA-256을 검증한 뒤 학습과 MLflow
+입력에 함께 사용하며, 공식 승인이나 봉인 평가를 바꾸지 않습니다.
+
+강의 전 이미지 build, bind mount 권한, 화면별 설명 순서와 Teach-back 질문은
+[`INSTRUCTOR_GUIDE.md`](INSTRUCTOR_GUIDE.md)를 먼저 확인합니다.
 
 닫힌망 수강생의 MLflow는 Compose입니다. 강사가 준 공개 URL을
 `AIQA_MLFLOW_TRACKING_URI`로 설정합니다. 수강생은 ClusterIP, port-forward,
@@ -60,7 +69,7 @@ tunnel을 만들지 않습니다. `http://127.0.0.1:5000`은 닫힌망 기본 �
 아닙니다.
 
 ```bash
-docker compose -f deploy/compose.yaml up -d --no-build mlflow
+docker compose -f deploy/compose.yaml up -d --no-build --wait mlflow
 curl "${AIQA_MLFLOW_TRACKING_URI%/}/health"
 uv run jupyter nbconvert --to notebook --execute \
   labs/chapters/ch02/02_trace_model_lineage.ipynb \
@@ -70,10 +79,12 @@ uv run jupyter nbconvert --to notebook --execute \
 
 노트북은 내부에서 [`labs/run/log_development.py`](../../run/log_development.py)를
 한 번 호출하고 방금 만든 Run을 API로 다시 조회합니다. 값이 없거나 `/health`가
-실패하면 `MLFLOW_NOT_RUNNING`으로 멈추되, 공식 JSON 연결 표와 코드 읽기 순서는
-끝까지 확인할 수 있습니다. 구현은 학생 실행 모듈에서 시작해 MLflow adapter,
-공식 bundle application, release provenance 순서로 읽습니다. DVC 또는 MLflow
-개별 API가 더 필요할 때만 Appendix 09와 13을 참고합니다.
+실패하면 `MLFLOW_NOT_RUNNING`으로 멈추되, 역사적 JSON 연결 표와 코드 읽기
+순서는 끝까지 확인할 수 있습니다. MLflow 화면의 Tags, Parameters, Metrics,
+Datasets, Artifacts와 Logged Models를 각각 실제 logging API와 연결합니다.
+학생 client는 `artifacts/mlflow/`에 직접 쓰지 않지만 Compose MLflow server는
+받은 Run과 artifact를 그 bind mount에 지속합니다. DVC 또는 MLflow 개별 API
+문법이 더 필요할 때만 Appendix 09와 13을 참고합니다.
 
 ## 2. 단계 완료
 

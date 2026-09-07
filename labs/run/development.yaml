@@ -8,8 +8,9 @@ data_roles:
   - train
   - valid
 paths:
-  features: data/features.csv
-  split_manifest: data/splits-v2/split-manifest.csv
+  train: data/splits-v2/train.csv
+  valid: data/splits-v2/valid.csv
+  data_lineage: docs/evidence/data-v2/split-revision.json
   profiles: configs/model-v2/profiles.yaml
   evaluation: configs/model-v2/evaluation.yaml
   feature_contract: configs/contracts/model-input.yaml

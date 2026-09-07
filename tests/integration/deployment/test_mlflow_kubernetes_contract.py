@@ -156,7 +156,7 @@ def test_classroom_mlflow_is_compose_and_k8s_yaml_is_unapplied_reference() -> No
     assert "student-development-tracking" in guide
     assert "labs/run/log_development.py" in guide
     assert "AIQA_MLFLOW_TRACKING_URI" in section
-    assert "0.0.0.0:5000:5000" in compose
+    assert "0.0.0.0:${AIQA_MLFLOW_BIND_PORT:-5000}:5000" in compose
     assert "--allowed-hosts" in compose
     assert "http://127.0.0.1:5000" in section
     assert "닫힌망 기본 경로가 아닙니다" in section

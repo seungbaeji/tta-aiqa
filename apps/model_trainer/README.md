@@ -34,13 +34,20 @@ CONFIRM-FROZEN-CANONICAL-TEST`을 실행합니다. final은 freeze를 수정하�
 
 V2는 이미 sealed test가 `evaluated_once`인 historical evidence입니다. V2에서는
 `status`와 pre-built artifact만 확인하며 development, diagnostics, bootstrap, final을
-다시 실행하지 않습니다.
+다시 실행하지 않습니다. V2의 `release-freeze.json`은 integrity contract를
+추가하기 위해 사후 이관된 schema 2 문서이고, 현재 application이 새 revision에
+쓰는 정상 freeze는 schema 3입니다. 역사적 V2를 현재 lifecycle이 처음부터 만든
+증거로 설명하지 않습니다.
 
 ## 3. 산출물
 
 ### 3-1. 경계
 
 - Generated bundle와 MLflow: `artifacts/`
-- Reviewable evidence: `docs/evidence/model-v1/revisions/<revision>`
+- Reviewable evidence: `docs/evidence/model-<revision>/`
 - Pre-test freeze: `release-freeze.json`
 - Post-test release decision: `release-manifest.json`
+
+강의에서 역사적 V2와 새 revision의 정상 lifecycle을 비교하는 순서는
+[`labs/chapters/ch02/INSTRUCTOR_GUIDE.md`](../../labs/chapters/ch02/INSTRUCTOR_GUIDE.md)를
+따릅니다.

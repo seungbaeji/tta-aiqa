@@ -15,7 +15,7 @@ spec:
     minReplicas: 1
     containers:
       - name: kserve-container
-        image: ghcr.io/seungbaeji/tta-aiqa-kserve-predictor@sha256:889c30dfc9b676364ba20b07f0e94a12449d9727522f9dcd2f9d805d9309998e
+        image: ghcr.io/seungbaeji/tta-aiqa-kserve-predictor@sha256:d6dfc6de1042cd50880f339094909440161a1e64d92c66d6f46701037423fba7
         imagePullPolicy: IfNotPresent
         command: ["aiqa-kserve-predictor"]
         ports:

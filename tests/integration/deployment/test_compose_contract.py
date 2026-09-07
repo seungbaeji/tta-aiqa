@@ -18,7 +18,7 @@ def test_compose_runs_same_local_risk_api_and_independent_traffic_app() -> None:
     services = compose()["services"]
     images = json.loads(
         Path(
-            "docs/evidence/deployment/runtime-images-v2-20260908.json"
+            "docs/evidence/deployment/runtime-images-v2-20260908-8519351.json"
         ).read_text(
             encoding="utf-8"
         )
@@ -78,7 +78,9 @@ def test_compose_published_ports_default_to_loopback_with_explicit_override() ->
         )
     )
 
-    assert services["mlflow"]["ports"] == ["0.0.0.0:5000:5000"]
+    assert services["mlflow"]["ports"] == [
+        "0.0.0.0:${AIQA_MLFLOW_BIND_PORT:-5000}:5000"
+    ]
     assert services["mlflow"]["command"] == [
         "mlflow",
         "server",

@@ -211,6 +211,14 @@ def test_chapter_guides_link_to_the_journey() -> None:
     ch02 = Path("labs/chapters/ch02/README.md").read_text(encoding="utf-8")
     assert "02_trace_model_lineage.ipynb" in ch02
     assert "DVC → MLflow Run → 모델 묶음 → release manifest" in ch02
+    instructor_guide = Path(
+        "labs/chapters/ch02/INSTRUCTOR_GUIDE.md"
+    ).read_text(encoding="utf-8")
+    assert "강의 전 준비" in instructor_guide
+    assert "역사적 V2와 정상 lifecycle" in instructor_guide
+    assert "MLflow 화면과 코드" in instructor_guide
+    assert "Teach-back" in instructor_guide
+    assert "도입 체크리스트" in instructor_guide
 
 
 def test_chapter_guides_use_numbered_h2_h3() -> None:

@@ -29,6 +29,10 @@ from aiqa_model.adapters.sklearn.evaluation import SklearnProfileEvaluator
 from aiqa_model.adapters.sklearn.pipeline import build_model_pipeline
 from aiqa_model.adapters.sklearn.selection import select_profile
 from aiqa_model.domain import EvaluationPlan, ModelProfile, ProfileEvaluation
+from mlflow.environment_variables import (
+    MLFLOW_PRINT_MODEL_URLS_ON_CREATION,
+    MLFLOW_SUPPRESS_PRINTING_URL_TO_STDOUT,
+)
 from sklearn.pipeline import Pipeline
 
 # Classroom tracking URI comes from AIQA_MLFLOW_TRACKING_URI. No sqlite or
@@ -51,6 +55,16 @@ class StudentTrackingContract:
     data_roles: tuple[str, ...]
     paths: dict[str, str]
     tags: dict[str, str]
+
+
+@dataclass(frozen=True)
+class DevelopmentInput:
+    """One verified train/valid file declared by the V2 lineage evidence."""
+
+    role: str
+    path: Path
+    rows: int
+    sha256: str
 
 
 def find_repository_root(start: Path | None = None) -> Path:
@@ -77,6 +91,22 @@ def load_contract(path: Path) -> StudentTrackingContract:
     data_roles = tuple(str(role) for role in document["data_roles"])
     if data_roles != ("train", "valid"):
         raise ValueError("student tracking may access only train and valid roles")
+    paths = {str(key): str(value) for key, value in dict(document["paths"]).items()}
+    required_paths = {
+        "train",
+        "valid",
+        "data_lineage",
+        "profiles",
+        "evaluation",
+        "feature_contract",
+        "dvc_lock",
+        "release_manifest",
+    }
+    missing_paths = sorted(required_paths - paths.keys())
+    if missing_paths:
+        raise ValueError(
+            f"student tracking contract is missing paths: {', '.join(missing_paths)}"
+        )
     tags = {
         str(key): str(value) for key, value in dict(document["tags"]).items()
     }
@@ -89,7 +119,7 @@ def load_contract(path: Path) -> StudentTrackingContract:
         ).strip(),
         run_name=str(document["run_name"]).strip(),
         data_roles=data_roles,
-        paths={str(key): str(value) for key, value in dict(document["paths"]).items()},
+        paths=paths,
         tags=tags,
     )
 
@@ -105,20 +135,71 @@ def read_official_run_ids(manifest_path: Path) -> tuple[str, str]:
 
 
 def load_development_splits(
-    features_path: Path,
-    split_manifest_path: Path,
+    train_path: Path,
+    valid_path: Path,
     data_roles: Sequence[str],
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Join features to split roles and keep only the contracted development roles."""
-    features = pd.read_csv(features_path)
-    splits = pd.read_csv(split_manifest_path)
-    joined = features.merge(splits, on="record_id", validate="one_to_one")
-    development = joined.loc[joined["role"].isin(list(data_roles))].copy()
-    train = development.loc[development["role"].eq("train")].copy()
-    valid = development.loc[development["role"].eq("valid")].copy()
+    """Read exactly the train and valid CSV files that will be logged to MLflow."""
+    if tuple(data_roles) != ("train", "valid"):
+        raise ValueError("development splits may read only train and valid")
+    train = pd.read_csv(train_path)
+    valid = pd.read_csv(valid_path)
+    required_columns = {"record_id", "target"}
+    if not required_columns.issubset(train.columns) or not required_columns.issubset(
+        valid.columns
+    ):
+        raise ValueError("development inputs must contain record_id and target")
     if train.empty or valid.empty:
         raise ValueError("development splits must include both train and valid rows")
+    if set(train["record_id"]).intersection(valid["record_id"]):
+        raise ValueError("train and valid record IDs must be disjoint")
     return train, valid
+
+
+def verify_development_lineage(
+    root: Path,
+    contract: StudentTrackingContract,
+) -> tuple[DevelopmentInput, DevelopmentInput]:
+    """Verify revision, path, row count, and digest before opening model inputs."""
+    lineage_path = root / contract.paths["data_lineage"]
+    document = json.loads(lineage_path.read_text(encoding="utf-8"))
+    if str(document.get("revision")) != contract.data_revision:
+        raise ValueError(
+            "student data revision does not match data-lineage evidence"
+        )
+
+    verified: list[DevelopmentInput] = []
+    role_documents = document.get("role_datasets", {})
+    for role in contract.data_roles:
+        try:
+            role_document = role_documents[role]
+        except KeyError:
+            raise ValueError(
+                f"data-lineage evidence does not define the {role} role"
+            ) from None
+        relative_path = contract.paths[role]
+        if str(role_document.get("path")) != relative_path:
+            raise ValueError(
+                f"{role} path does not match data-lineage evidence"
+            )
+        path = root / relative_path
+        actual_sha256 = file_sha256(path)
+        expected_sha256 = str(role_document.get("sha256"))
+        if actual_sha256 != expected_sha256:
+            raise RuntimeError(
+                f"{role} dataset digest does not match data-lineage evidence"
+            )
+        if role_document.get("target_included") is not True:
+            raise ValueError(f"{role} lineage must include the target")
+        verified.append(
+            DevelopmentInput(
+                role=role,
+                path=path,
+                rows=int(role_document["rows"]),
+                sha256=actual_sha256,
+            )
+        )
+    return verified[0], verified[1]
 
 
 def probe_tracking_health(uri: str, timeout_seconds: float = 3.0) -> bool:
@@ -185,6 +266,7 @@ def build_student_provenance(
     root: Path,
     contract: StudentTrackingContract,
     source_revision: str,
+    data_lineage_path: Path,
     train_path: Path,
     valid_path: Path,
 ) -> dict[str, str]:
@@ -194,6 +276,7 @@ def build_student_provenance(
         "data_revision": contract.data_revision,
         "data_roles": ",".join(contract.data_roles),
         "dvc_lock_sha256": file_sha256(root / contract.paths["dvc_lock"]),
+        "data_lineage_sha256": file_sha256(data_lineage_path),
         "train_data_hash": file_sha256(train_path),
         "valid_data_hash": file_sha256(valid_path),
         "feature_contract_sha256": file_sha256(
@@ -259,11 +342,16 @@ def run_student_development(
     official_train_run, official_final_run = read_official_run_ids(
         root / contract.paths["release_manifest"]
     )
+    train_input, valid_input = verify_development_lineage(root, contract)
     train, valid = load_development_splits(
-        root / contract.paths["features"],
-        root / contract.paths["split_manifest"],
+        train_input.path,
+        valid_input.path,
         contract.data_roles,
     )
+    if len(train) != train_input.rows or len(valid) != valid_input.rows:
+        raise RuntimeError(
+            "development input row count does not match data-lineage evidence"
+        )
     tracking_uri = str(
         environ.get(contract.tracking_uri_environment_variable, "")
     ).strip()
@@ -300,9 +388,8 @@ def run_student_development(
         evaluation_plan,
         catalog.random_seed,
     )
-    dataset_dir = (root / contract.paths["split_manifest"]).parent
-    train_path = dataset_dir / "train.csv"
-    valid_path = dataset_dir / "valid.csv"
+    train_path = train_input.path
+    valid_path = valid_input.path
     resolve_revision = (
         source_revision if source_revision is not None else capture_source_revision
     )
@@ -310,6 +397,7 @@ def run_student_development(
         root=root,
         contract=contract,
         source_revision=resolve_revision(root),
+        data_lineage_path=root / contract.paths["data_lineage"],
         train_path=train_path,
         valid_path=valid_path,
     )
@@ -362,6 +450,9 @@ def run_student_development(
 def main() -> int:
     """Render one student tracking result as JSON for the course journey."""
     argparse.ArgumentParser(description=__doc__).parse_args()
+    # Keep stdout machine-readable for the notebook; the Run URI is in the result.
+    MLFLOW_SUPPRESS_PRINTING_URL_TO_STDOUT.set(True)
+    MLFLOW_PRINT_MODEL_URLS_ON_CREATION.set(False)
     result = run_student_development(
         root=find_repository_root(),
         environ=os.environ,

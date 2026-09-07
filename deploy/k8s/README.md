@@ -48,7 +48,7 @@ predictor verifies the expected model SHA-256 before it becomes ready.
 
 The latest runtime build-input commit, multi-architecture OCI index digests, and
 local image smoke results are recorded in
-[`runtime-images-v2-20260908.json`](../../docs/evidence/deployment/runtime-images-v2-20260908.json).
+[`runtime-images-v2-20260908-8519351.json`](../../docs/evidence/deployment/runtime-images-v2-20260908-8519351.json).
 The deployment contract test rejects manifests that drift from this record or
 runtime build inputs that changed after the recorded source commit.
 

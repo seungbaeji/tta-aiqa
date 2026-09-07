@@ -35,8 +35,8 @@ student_run = load_module()
 
 
 def write_fixture_tree(tmp_path: Path) -> Path:
-    features = tmp_path / "data/features.csv"
-    splits = tmp_path / "data/splits-v2/split-manifest.csv"
+    splits = tmp_path / "data/splits-v2"
+    lineage = tmp_path / "docs/evidence/data-v2/split-revision.json"
     profiles = tmp_path / "configs/model-v2/profiles.yaml"
     evaluation = tmp_path / "configs/model-v2/evaluation.yaml"
     feature_contract = tmp_path / "configs/contracts/model-input.yaml"
@@ -45,8 +45,8 @@ def write_fixture_tree(tmp_path: Path) -> Path:
         tmp_path
         / "docs/evidence/model-v2/release-manifest.json"
     )
-    features.parent.mkdir(parents=True)
-    splits.parent.mkdir(parents=True)
+    splits.mkdir(parents=True)
+    lineage.parent.mkdir(parents=True)
     profiles.parent.mkdir(parents=True)
     evaluation.parent.mkdir(parents=True, exist_ok=True)
     feature_contract.parent.mkdir(parents=True)
@@ -58,20 +58,32 @@ def write_fixture_tree(tmp_path: Path) -> Path:
             "target": [0, 0, 1, 1, 0, 1],
         }
     )
-    feature_frame.to_csv(features, index=False)
-    split_frame = pd.DataFrame(
-        {
-            "record_id": [1, 2, 3, 4, 5, 6],
-            "role": ["train", "train", "train", "train", "valid", "valid"],
-        }
-    )
-    split_frame.to_csv(splits, index=False)
-    joined = feature_frame.merge(split_frame, on="record_id")
-    joined.loc[joined["role"].eq("train")].drop(columns="role").to_csv(
-        splits.parent / "train.csv", index=False
-    )
-    joined.loc[joined["role"].eq("valid")].drop(columns="role").to_csv(
-        splits.parent / "valid.csv", index=False
+    train_path = splits / "train.csv"
+    valid_path = splits / "valid.csv"
+    feature_frame.iloc[:4].to_csv(train_path, index=False)
+    feature_frame.iloc[4:].to_csv(valid_path, index=False)
+    lineage.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "revision": "v2",
+                "role_datasets": {
+                    "train": {
+                        "path": "data/splits-v2/train.csv",
+                        "rows": 4,
+                        "sha256": hashlib.sha256(train_path.read_bytes()).hexdigest(),
+                        "target_included": True,
+                    },
+                    "valid": {
+                        "path": "data/splits-v2/valid.csv",
+                        "rows": 2,
+                        "sha256": hashlib.sha256(valid_path.read_bytes()).hexdigest(),
+                        "target_included": True,
+                    },
+                },
+            }
+        ),
+        encoding="utf-8",
     )
     profiles.write_text(
         (
@@ -147,9 +159,10 @@ def write_contract(tmp_path: Path) -> Path:
                 "run_name": "student-train-valid",
                 "data_roles": ["train", "valid"],
                 "paths": {
-                    "features": "data/features.csv",
-                    "split_manifest": (
-                        "data/splits-v2/split-manifest.csv"
+                    "train": "data/splits-v2/train.csv",
+                    "valid": "data/splits-v2/valid.csv",
+                    "data_lineage": (
+                        "docs/evidence/data-v2/split-revision.json"
                     ),
                     "profiles": "configs/model-v2/profiles.yaml",
                     "evaluation": "configs/model-v2/evaluation.yaml",
@@ -295,6 +308,7 @@ def test_ready_tracking_logs_student_run_without_official_ids(tmp_path: Path) ->
     ).hexdigest()
     assert recorded[0]["provenance"]["train_data_hash"]
     assert recorded[0]["provenance"]["valid_data_hash"]
+    assert recorded[0]["provenance"]["data_lineage_sha256"]
     assert recorded[0]["provenance"]["feature_contract_sha256"]
     assert "artifacts/mlflow" not in str(recorded[0])
     assert "docs/evidence" not in str(recorded[0].get("artifact_path", ""))
@@ -307,34 +321,53 @@ def test_ready_tracking_logs_student_run_without_official_ids(tmp_path: Path) ->
     assert result["lineage"]["git_commit"] == "a" * 40
 
 
-def test_development_splits_exclude_sealed_roles(tmp_path: Path) -> None:
+def test_development_splits_read_only_declared_role_files(tmp_path: Path) -> None:
     root = write_fixture_tree(tmp_path)
-    extra = pd.read_csv(
-        root / "data/splits-v2/split-manifest.csv"
-    )
-    extra.loc[len(extra)] = {"record_id": 7, "role": "test"}
-    extra.to_csv(
-        root / "data/splits-v2/split-manifest.csv",
-        index=False,
-    )
-    features = pd.read_csv(
-        root / "data/features.csv"
-    )
-    features.loc[len(features)] = {"record_id": 7, "feat": 0.5, "target": 0}
-    features.to_csv(
-        root / "data/features.csv",
-        index=False,
+    (root / "data/splits-v2/test.csv").write_text(
+        "record_id,feat,target\n7,0.5,0\n",
+        encoding="utf-8",
     )
 
     train, valid = student_run.load_development_splits(
-        root / "data/features.csv",
-        root / "data/splits-v2/split-manifest.csv",
+        root / "data/splits-v2/train.csv",
+        root / "data/splits-v2/valid.csv",
         ("train", "valid"),
     )
 
-    assert set(train["role"].unique()) == {"train"}
-    assert set(valid["role"].unique()) == {"valid"}
+    assert set(train["record_id"]) == {1, 2, 3, 4}
+    assert set(valid["record_id"]) == {5, 6}
     assert 7 not in set(train["record_id"]).union(set(valid["record_id"]))
+
+
+def test_declared_data_revision_must_match_lineage_evidence(tmp_path: Path) -> None:
+    root = write_fixture_tree(tmp_path)
+    lineage_path = root / "docs/evidence/data-v2/split-revision.json"
+    lineage = json.loads(lineage_path.read_text(encoding="utf-8"))
+    lineage["revision"] = "v3"
+    lineage_path.write_text(json.dumps(lineage), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="data revision"):
+        student_run.run_student_development(
+            root=root,
+            environ={},
+            contract_path=write_contract(tmp_path),
+        )
+
+
+def test_modified_role_file_is_rejected_before_tracking(tmp_path: Path) -> None:
+    root = write_fixture_tree(tmp_path)
+    train_path = root / "data/splits-v2/train.csv"
+    train_path.write_text(
+        f"{train_path.read_text(encoding='utf-8')}7,0.5,0\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(RuntimeError, match="train dataset digest"):
+        student_run.run_student_development(
+            root=root,
+            environ={},
+            contract_path=write_contract(tmp_path),
+        )
 
 
 @pytest.mark.integration
@@ -353,6 +386,12 @@ def test_student_run_records_inputs_metrics_bundle_and_model(tmp_path: Path) -> 
     client = MlflowClient(tracking_uri=tracking_uri)
     run = client.get_run(result["student_run_id"])
     artifact_paths = [item.path for item in client.list_artifacts(run.info.run_id)]
+    logged_models = list(
+        client.search_logged_models(
+            experiment_ids=[run.info.experiment_id],
+            filter_string=f"source_run_id = '{run.info.run_id}'",
+        )
+    )
     downloaded = client.download_artifacts(
         run.info.run_id,
         "bundle/metadata.json",
@@ -369,7 +408,12 @@ def test_student_run_records_inputs_metrics_bundle_and_model(tmp_path: Path) -> 
     assert "valid.recall" in run.data.metrics
     assert "valid.pr_auc" in run.data.metrics
     assert len(run.inputs.dataset_inputs) == 2
+    assert {
+        item.dataset.name for item in run.inputs.dataset_inputs
+    } == {"train", "valid"}
     assert "bundle" in artifact_paths
+    assert len(logged_models) == 1
+    assert logged_models[0].source_run_id == run.info.run_id
     assert metadata["profile"] == "candidate-b"
     assert metadata["model_sha256"] == result["bundle_model_sha256"]
 
