@@ -27,6 +27,7 @@ def test_compose_runs_same_local_risk_api_and_independent_traffic_app() -> None:
     assert set(services) == {"mlflow", "risk-api", "traffic-generator"}
     assert services["risk-api"]["image"] == images["risk_api"]["reference"]
     assert services["risk-api"]["build"]["dockerfile"] == "apps/risk_api/Dockerfile"
+    assert services["risk-api"]["build"]["target"] == "release"
     assert services["risk-api"]["environment"]["AIQA_API_MODEL_BACKEND"] == "local"
     assert services["traffic-generator"]["profiles"] == ["traffic"]
     assert services["traffic-generator"]["environment"]["AIQA_TRAFFIC_API_URL"] == (
@@ -56,6 +57,13 @@ def test_compose_runs_same_local_risk_api_and_independent_traffic_app() -> None:
         ]
         == "artifacts/traffic/collection-session.json"
     )
+
+
+def test_compose_builds_the_release_stage() -> None:
+    services = compose()["services"]
+
+    for name in ("mlflow", "risk-api", "traffic-generator"):
+        assert services[name]["build"]["target"] == "release", name
 
 
 def test_compose_excludes_monitoring_servers_and_mounts_secrets_read_only() -> None:
