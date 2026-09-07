@@ -1,27 +1,28 @@
-"""Kubernetes MLflow tracking server contract for closed-network learners."""
+"""Kubernetes MLflow YAML stays in base but out of overlay apply."""
 
 import subprocess
 from pathlib import Path
 
 import yaml
 
-ROOT = Path("deploy/kubernetes/base")
-KUBERNETES_GUIDE = Path("deploy/kubernetes/README.md")
+BASE = Path("deploy/k8s/base")
+KUBERNETES_GUIDE = Path("deploy/k8s/README.md")
 ROOT_README = Path("README.md")
 OFFICIAL_EXPERIMENT = "tta-aiqa-physionet-2012-v2"
+MLFLOW_RESOURCES = ("mlflow.yaml", "mlflow-pvc.yaml", "mlflow-ingress.yaml")
 
 
-def documents(path: str) -> list[dict[str, object]]:
+def documents(path: str, root: Path = BASE) -> list[dict[str, object]]:
     return [
         item
-        for item in yaml.safe_load_all((ROOT / path).read_text(encoding="utf-8"))
+        for item in yaml.safe_load_all((root / path).read_text(encoding="utf-8"))
         if item
     ]
 
 
 def overlay_documents(name: str) -> list[dict[str, object]]:
     result = subprocess.run(
-        ("kustomize", "build", f"deploy/kubernetes/overlays/{name}"),
+        ("kustomize", "build", f"deploy/k8s/{name}"),
         check=True,
         capture_output=True,
         text=True,
@@ -31,18 +32,18 @@ def overlay_documents(name: str) -> list[dict[str, object]]:
 
 def named_kind(
     rendered: list[dict[str, object]], kind: str, name: str
-) -> dict[str, object]:
+) -> dict[str, object] | None:
     matches = [
         item
         for item in rendered
         if item.get("kind") == kind and item.get("metadata", {}).get("name") == name
     ]
-    assert matches, f"expected {kind} {name} in render"
-    return matches[0]
+    return matches[0] if matches else None
 
 
-def test_kustomization_appends_mlflow_resources_only() -> None:
-    kustomization = yaml.safe_load((ROOT / "kustomization.yaml").read_text())
+def test_base_kustomization_does_not_include_mlflow() -> None:
+    kustomization_text = (BASE / "kustomization.yaml").read_text(encoding="utf-8")
+    kustomization = yaml.safe_load(kustomization_text)
 
     assert kustomization["resources"] == [
         "namespace.yaml",
@@ -51,15 +52,12 @@ def test_kustomization_appends_mlflow_resources_only() -> None:
         "risk-api.yaml",
         "risk-api-ingress.yaml",
         "inference-service.yaml",
-        "mlflow-pvc.yaml",
-        "mlflow.yaml",
-        "mlflow-ingress.yaml",
     ]
-    assert [item["name"] for item in kustomization["configMapGenerator"]] == [
-        "risk-api-config",
-        "model-contract",
-        "model-identity",
-    ]
+    for name in MLFLOW_RESOURCES:
+        assert (BASE / name).is_file()
+        assert name not in kustomization["resources"]
+        assert name in kustomization_text
+        assert f"# - {name}" in kustomization_text
 
 
 def test_mlflow_ingress_routes_clusterip_without_hostname() -> None:
@@ -112,6 +110,7 @@ def test_mlflow_deployment_reuses_model_trainer_image_without_fake_digest() -> N
     assert "sqlite:////runtime/mlflow/mlflow.db" in command
     assert "--artifacts-destination" in command
     assert "/runtime/mlflow/artifacts" in command
+    assert "--allowed-hosts" in command
     assert OFFICIAL_EXPERIMENT not in yaml.safe_dump(deployment)
     assert environment.get("MLFLOW_EXPERIMENT_NAME") != OFFICIAL_EXPERIMENT
     assert "tta-aiqa-physionet-2012-v2" not in yaml.safe_dump(container)
@@ -142,46 +141,34 @@ def test_mlflow_pvc_stores_sqlite_and_artifacts() -> None:
     assert volume_source["persistentVolumeClaim"]["claimName"] == "course-mlflow"
 
 
-def test_mlflow_image_and_cluster_verification_are_recorded_as_pending() -> None:
+def test_classroom_mlflow_is_compose_and_k8s_yaml_is_unapplied_reference() -> None:
     guide = KUBERNETES_GUIDE.read_text(encoding="utf-8")
     readme = ROOT_README.read_text(encoding="utf-8")
     mlflow_section = readme.split("### 5-3. MLflow 확인", maxsplit=1)[1]
     section = mlflow_section.split("## ", maxsplit=1)[0]
+    compose = Path("deploy/compose.yaml").read_text(
+        encoding="utf-8"
+    )
 
+    assert "mlflow.yaml" in guide
+    assert "kustomization.yaml" in guide
     assert "AIQA_MLFLOW_TRACKING_URI" in guide
+    assert "student-development-tracking" in guide
+    assert "labs/run/log_development.py" in guide
     assert "AIQA_MLFLOW_TRACKING_URI" in section
-    assert "pending" in guide.lower()
-    assert "pending" in section.lower()
-    assert "oracle/k3s" in guide
-    assert "tta-aiqa" in guide
-    assert "ghcr.io/seungbaeji/tta-aiqa-model-trainer" in guide
-    assert "apps/model-trainer/Dockerfile" in guide
+    assert "0.0.0.0:5000:5000" in compose
+    assert "--allowed-hosts" in compose
     assert "http://127.0.0.1:5000" in section
     assert "닫힌망 기본 경로가 아닙니다" in section
+    assert "deploy/k8s/base/mlflow.yaml" in section
     assert 'if [ -z "${TARGET_CONTEXT:-}" ]' in guide
     assert 'CURRENT_CONTEXT="$(kubectl config current-context)"' in guide
 
 
-def test_baseline_overlay_renders_mlflow_ingress_without_hostname() -> None:
-    ingress = named_kind(overlay_documents("baseline"), "Ingress", "mlflow")
-    rule = ingress["spec"]["rules"][0]
-    backend = rule["http"]["paths"][0]["backend"]["service"]
-
-    assert ingress["spec"]["ingressClassName"] == "traefik"
-    assert "host" not in rule
-    assert rule["http"]["paths"][0]["path"] == "/"
-    assert backend["name"] == "mlflow"
-    assert backend["port"]["name"] == "http"
-
-
-def test_candidate_and_rollback_overlays_inherit_mlflow_ingress() -> None:
-    for name in ("candidate-b", "rollback"):
-        ingress = named_kind(overlay_documents(name), "Ingress", "mlflow")
-        rule = ingress["spec"]["rules"][0]
-        backend = rule["http"]["paths"][0]["backend"]["service"]
-
-        assert ingress["metadata"]["namespace"] == "tta-aiqa"
-        assert ingress["spec"]["ingressClassName"] == "traefik"
-        assert "host" not in rule
-        assert backend["name"] == "mlflow"
-        assert backend["port"]["name"] == "http"
+def test_course_overlays_do_not_render_mlflow() -> None:
+    for name in ("baseline", "candidate-b", "rollback"):
+        rendered = overlay_documents(name)
+        assert named_kind(rendered, "Ingress", "mlflow") is None
+        assert named_kind(rendered, "Deployment", "mlflow") is None
+        assert named_kind(rendered, "Service", "mlflow") is None
+        assert named_kind(rendered, "PersistentVolumeClaim", "course-mlflow") is None

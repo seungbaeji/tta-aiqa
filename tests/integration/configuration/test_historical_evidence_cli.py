@@ -12,9 +12,9 @@ def test_builder_rejects_historical_output_before_reading_runtime_data() -> None
     result = subprocess.run(
         (
             sys.executable,
-            "scripts/build_data_evidence.py",
+            "scripts/evidence/build_data_evidence.py",
             "--output",
-            "docs/reference/evidence/data-lineage/accidental-rewrite.json",
+            "docs/evidence/data-v2/accidental-rewrite.json",
         ),
         cwd=ROOT,
         check=False,
@@ -26,6 +26,6 @@ def test_builder_rejects_historical_output_before_reading_runtime_data() -> None
     assert "refusing to overwrite historical evidence" in result.stderr
     assert "Traceback" not in result.stderr
     accidental_output = (
-        ROOT / "docs/reference/evidence/data-lineage/accidental-rewrite.json"
+        ROOT / "docs/evidence/data-v2/accidental-rewrite.json"
     )
     assert not accidental_output.exists()

@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-NOTEBOOK = Path("labs/ch03-serving/02_release_candidate_b.ipynb")
+NOTEBOOK = Path("labs/chapters/ch03/02_release_candidate_b.ipynb")
 REQUIRED_HEADINGS = (
     "## 이번 질문",
     "## 먼저 예상",
@@ -79,7 +79,7 @@ def test_candidate_b_notebook_forbids_cluster_shortcuts_and_compose_url() -> Non
     assert "API_NOT_RUNNING" in source
     assert "target_pending" in source
     assert "candidate-b-c712a8e52344" in source
-    assert "scripts/sync_student_release.py" in source
+    assert "scripts/platform/sync_student_release.py" in source
     assert "candidate-a" in source
     assert "result" in source and "BLOCKED" in source
     assert "operational_deployment_scope" in source

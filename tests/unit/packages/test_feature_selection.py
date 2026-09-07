@@ -18,8 +18,8 @@ def test_v1_and_v2_feature_set_documents_resolve_the_canonical_contract() -> Non
     contract = load_feature_contract(Path("configs/contracts/model-input.yaml"))
 
     for path in (
-        Path("configs/model/feature-sets.yaml"),
-        Path("configs/model/revisions/v2/feature-sets.yaml"),
+        Path("configs/model-v1/feature-sets.yaml"),
+        Path("configs/model-v2/feature-sets.yaml"),
     ):
         catalog = load_feature_set_catalog(path)
         selected = resolve_feature_set(feature_contract=contract, catalog=catalog)

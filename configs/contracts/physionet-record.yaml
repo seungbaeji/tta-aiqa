@@ -1,8 +1,8 @@
 schema_version: 1
 dataset: physionet-challenge-2012-set-a
-source_manifest_path: data/raw/physionet-2012/source-manifest.yaml
-records_dir: data/interim/physionet-2012/set-a
-outcomes_path: data/raw/physionet-2012/Outcomes-a.txt
+source_manifest_path: data/raw-physionet/source-manifest.yaml
+records_dir: data/interim/set-a
+outcomes_path: data/raw-physionet/Outcomes-a.txt
 expected_record_count: 4000
 expected_death_count: 554
 record_columns: [Time, Parameter, Value]

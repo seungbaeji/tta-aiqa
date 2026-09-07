@@ -11,7 +11,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT))
-renderer = import_module("scripts.render_argocd_application")
+renderer = import_module("scripts.platform.render_argocd_application")
 
 STUDENT_APP = "tta-aiqa-student-201"
 STUDENT_SERVER = "https://10.99.0.201:6443"
@@ -36,7 +36,7 @@ def test_argocd_release_uses_a_full_commit_and_selected_overlay() -> None:
     destination = application["spec"]["destination"]
     assert application["metadata"]["name"] == STUDENT_APP
     assert source["targetRevision"] == revision
-    assert source["path"] == "deploy/kubernetes/overlays/candidate-b"
+    assert source["path"] == "deploy/k8s/candidate-b"
     assert destination["server"] == STUDENT_SERVER
     assert destination["namespace"] == "tta-aiqa"
     assert "name" not in destination

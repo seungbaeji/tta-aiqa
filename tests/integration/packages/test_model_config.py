@@ -20,7 +20,7 @@ def test_canonical_contract_uses_all_133_available_features() -> None:
 
 
 def test_three_profiles_are_frozen_to_phase0_operating_points() -> None:
-    catalog = load_model_profiles(Path("configs/model/profiles.yaml"))
+    catalog = load_model_profiles(Path("configs/model-v1/profiles.yaml"))
 
     assert catalog.random_seed == 42
     assert [
@@ -33,7 +33,7 @@ def test_three_profiles_are_frozen_to_phase0_operating_points() -> None:
 
 
 def test_evaluation_plan_preserves_repeated_cv_and_bootstrap() -> None:
-    plan = load_evaluation_plan(Path("configs/model/evaluation.yaml"))
+    plan = load_evaluation_plan(Path("configs/model-v1/evaluation.yaml"))
 
     assert (plan.cv_splits, plan.cv_repeats) == (5, 3)
     assert plan.bootstrap_iterations == 1000

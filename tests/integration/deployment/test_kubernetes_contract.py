@@ -6,10 +6,10 @@ from pathlib import Path
 
 import yaml
 
-ROOT = Path("deploy/kubernetes/base")
-ALLOY = Path("deploy/kubernetes/components/alloy")
+ROOT = Path("deploy/k8s/base")
+ALLOY = Path("deploy/k8s/alloy")
 RUNTIME_IMAGE_EVIDENCE = Path(
-    "docs/reference/evidence/deployment/runtime-images-v2.json"
+    "docs/evidence/deployment/runtime-images-v2.json"
 )
 BASELINE_MODEL_SHA256 = (
     "f2576f12512a490c9814e5238c3f0d2a421a21637a4b03c882df6ff25a637edc"
@@ -30,7 +30,7 @@ def documents(path: str, root: Path = ROOT) -> list[dict[str, object]]:
 
 def overlay_documents(name: str) -> list[dict[str, object]]:
     result = subprocess.run(
-        ("kustomize", "build", f"deploy/kubernetes/overlays/{name}"),
+        ("kustomize", "build", f"deploy/k8s/{name}"),
         check=True,
         capture_output=True,
         text=True,
@@ -193,7 +193,7 @@ def test_kubernetes_deploys_alloy_but_no_monitoring_backend() -> None:
 
 
 def test_alloy_collects_all_aiqa_workload_logs_and_otlp_traces() -> None:
-    config = (ALLOY / "config/config.alloy").read_text(encoding="utf-8")
+    config = (ALLOY / "config.alloy").read_text(encoding="utf-8")
 
     assert 'discovery.relabel "aiqa_logs"' in config
     assert "__meta_kubernetes_pod_label_app_kubernetes_io_part_of" in config
@@ -235,10 +235,10 @@ def test_shared_cluster_bounds_namespace_objects_and_alloy_ingress() -> None:
 
 def test_candidate_and_rollback_overlays_select_only_approved_models() -> None:
     candidate = Path(
-        "deploy/kubernetes/overlays/candidate-b/kustomization.yaml"
+        "deploy/k8s/candidate-b/kustomization.yaml"
     ).read_text(encoding="utf-8")
     rollback = Path(
-        "deploy/kubernetes/overlays/rollback/kustomization.yaml"
+        "deploy/k8s/rollback/kustomization.yaml"
     ).read_text(encoding="utf-8")
 
     assert "candidate-b-c712a8e52344" in candidate
@@ -278,8 +278,8 @@ def test_deployment_config_copies_match_canonical_config() -> None:
 
 def test_secret_creation_guides_fail_closed_on_kubernetes_context() -> None:
     guides = (
-        Path("deploy/kubernetes/README.md"),
-        Path("deploy/compose/simple-mlops/secrets/alloy/README.md"),
+        Path("deploy/k8s/README.md"),
+        Path("deploy/secrets/alloy/README.md"),
     )
 
     for path in guides:

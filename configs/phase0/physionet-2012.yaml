@@ -1,9 +1,9 @@
 schema_version: 1
 
 source:
-  records_dir: data/interim/physionet-2012/set-a
-  archive_path: data/raw/physionet-2012/set-a.zip
-  outcomes_path: data/raw/physionet-2012/Outcomes-a.txt
+  records_dir: data/interim/set-a
+  archive_path: data/raw-physionet/set-a.zip
+  outcomes_path: data/raw-physionet/Outcomes-a.txt
   expected_record_count: 4000
   expected_death_count: 554
   archive_sha256: 1433638192fda622e8bb11a4559b8af2dbb1c69f0e1c3b5b606cc12aabd0a4c5

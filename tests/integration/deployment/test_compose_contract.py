@@ -10,21 +10,21 @@ from traffic_generator.adapters import load_traffic_config
 
 def compose() -> dict[str, object]:
     return yaml.safe_load(
-        Path("deploy/compose/simple-mlops/compose.yaml").read_text(encoding="utf-8")
+        Path("deploy/compose.yaml").read_text(encoding="utf-8")
     )
 
 
 def test_compose_runs_same_local_risk_api_and_independent_traffic_app() -> None:
     services = compose()["services"]
     images = json.loads(
-        Path("docs/reference/evidence/deployment/runtime-images-v2.json").read_text(
+        Path("docs/evidence/deployment/runtime-images-v2.json").read_text(
             encoding="utf-8"
         )
     )["images"]
 
     assert set(services) == {"mlflow", "risk-api", "traffic-generator"}
     assert services["risk-api"]["image"] == images["risk_api"]["reference"]
-    assert services["risk-api"]["build"]["dockerfile"] == "apps/risk-api/Dockerfile"
+    assert services["risk-api"]["build"]["dockerfile"] == "apps/risk_api/Dockerfile"
     assert services["risk-api"]["environment"]["AIQA_API_MODEL_BACKEND"] == "local"
     assert services["traffic-generator"]["profiles"] == ["traffic"]
     assert services["traffic-generator"]["environment"]["AIQA_TRAFFIC_API_URL"] == (
@@ -71,13 +71,27 @@ def test_compose_excludes_monitoring_servers_and_mounts_secrets_read_only() -> N
 def test_compose_published_ports_default_to_loopback_with_explicit_override() -> None:
     services = compose()["services"]
     override = yaml.safe_load(
-        Path("deploy/compose/simple-mlops/compose.grafana-cloud.yaml").read_text(
+        Path("deploy/compose.grafana-cloud.yaml").read_text(
             encoding="utf-8"
         )
     )
 
-    assert services["mlflow"]["ports"] == [
-        "${AIQA_COMPOSE_BIND_HOST:-127.0.0.1}:5000:5000"
+    assert services["mlflow"]["ports"] == ["0.0.0.0:5000:5000"]
+    assert services["mlflow"]["command"] == [
+        "mlflow",
+        "server",
+        "--backend-store-uri",
+        "sqlite:////runtime/mlflow/mlflow.db",
+        "--artifacts-destination",
+        "/runtime/mlflow/artifacts",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "5000",
+        "--allowed-hosts",
+        "*",
+        "--workers",
+        "1",
     ]
     assert services["risk-api"]["ports"] == [
         "${AIQA_COMPOSE_BIND_HOST:-127.0.0.1}:8000:8000"
@@ -87,9 +101,20 @@ def test_compose_published_ports_default_to_loopback_with_explicit_override() ->
     ]
 
 
+def test_compose_mlflow_documents_npm_public_host() -> None:
+    text = Path("deploy/compose.yaml").read_text(encoding="utf-8")
+    mlflow_block = text.split("  risk-api:", maxsplit=1)[0]
+
+    assert "Nginx Proxy Manager" in mlflow_block
+    assert "mlflow-ttaN-pveX.apps.learn.mrml.dev" in mlflow_block
+    assert ":5000" in mlflow_block
+    assert "AIQA_MLFLOW_TRACKING_URI" in mlflow_block
+    assert "http://127.0.0.1:5000" in mlflow_block
+
+
 def test_grafana_cloud_override_adds_only_alloy_collector() -> None:
     override = yaml.safe_load(
-        Path("deploy/compose/simple-mlops/compose.grafana-cloud.yaml").read_text(
+        Path("deploy/compose.grafana-cloud.yaml").read_text(
             encoding="utf-8"
         )
     )
@@ -113,11 +138,11 @@ def test_grafana_cloud_override_adds_only_alloy_collector() -> None:
 
 def test_grafana_cloud_override_routes_both_apps_through_alloy_otlp() -> None:
     override = yaml.safe_load(
-        Path("deploy/compose/simple-mlops/compose.grafana-cloud.yaml").read_text(
+        Path("deploy/compose.grafana-cloud.yaml").read_text(
             encoding="utf-8"
         )
     )
-    alloy = Path("deploy/compose/simple-mlops/alloy/config.alloy").read_text(
+    alloy = Path("deploy/alloy/config.alloy").read_text(
         encoding="utf-8"
     )
 
@@ -139,7 +164,7 @@ def test_grafana_cloud_override_routes_both_apps_through_alloy_otlp() -> None:
 
 def test_course_traffic_spans_two_scrapes_and_waits_for_collection() -> None:
     """Each scenario must yield two metric samples learners can compare."""
-    alloy = Path("deploy/compose/simple-mlops/alloy/config.alloy").read_text(
+    alloy = Path("deploy/alloy/config.alloy").read_text(
         encoding="utf-8"
     )
     match = re.search(r'scrape_interval = "([0-9]+)s"', alloy)

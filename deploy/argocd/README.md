@@ -13,7 +13,7 @@
 ```bash
 REVISION="$(git rev-parse HEAD)"
 
-uv run python scripts/render_argocd_application.py \
+uv run python scripts/platform/render_argocd_application.py \
   --revision "${REVISION}" \
   --overlay baseline \
   --application-name tta-aiqa-student-201 \
@@ -24,7 +24,7 @@ uv run python scripts/render_argocd_application.py \
 로컬 Argo와 같은 클러스터에만 둘 때:
 
 ```bash
-uv run python scripts/render_argocd_application.py \
+uv run python scripts/platform/render_argocd_application.py \
   --revision "${REVISION}" \
   --overlay baseline \
   --application-name tta-aiqa \
@@ -47,7 +47,7 @@ uv run python scripts/render_argocd_application.py \
 
 수강생은 이 파일로 Application을 만들지 않습니다. Application 생성, KServe
 설치, GHCR pull secret은 플랫폼 담당자가 승인 절차에 따라 등록합니다. 이미
-등록된 Application을 `overlays/candidate-b`로 바꾸고 대상 `/v1/model`을
+등록된 Application을 `deploy/k8s/candidate-b`로 바꾸고 대상 `/v1/model`을
 확인하는 것은 수강생 범위입니다.
 
 모델 번들을 학생 VM hostPath `/mnt/course-models`에 둘 때는 디렉터리를
@@ -58,7 +58,7 @@ uv run python scripts/render_argocd_application.py \
 sudo mkdir -p /mnt/course-models
 sudo chown tta:tta /mnt/course-models
 # then as tta, no sudo:
-uv run python scripts/publish_model.py baseline --revision v2 --target-root /mnt/course-models
+uv run python scripts/platform/publish_model.py baseline --revision v2 --target-root /mnt/course-models
 ```
 
 ## 이미 등록된 Application을 Candidate B로 바꾸기
@@ -82,8 +82,8 @@ if [ "$CURRENT_CONTEXT" != "$TARGET_CONTEXT" ]; then
   exit 1
 fi
 
-uv run python scripts/publish_model.py candidate-b --revision v2 --target-root /mnt/course-models
-uv run python scripts/sync_student_release.py \
+uv run python scripts/platform/publish_model.py candidate-b --revision v2 --target-root /mnt/course-models
+uv run python scripts/platform/sync_student_release.py \
   --application-name "${AIQA_ARGOCD_APPLICATION_NAME:?already-registered Application name}"
 curl "${AIQA_RISK_API_URL:?Risk API base URL is required}/v1/model"
 ```

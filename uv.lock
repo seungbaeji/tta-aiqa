@@ -97,7 +97,7 @@ wheels = [
 [[package]]
 name = "aiqa-core"
 version = "0.2.0"
-source = { editable = "packages/aiqa-core" }
+source = { editable = "packages/aiqa_core" }
 dependencies = [
     { name = "pydantic" },
     { name = "pyyaml" },
@@ -112,7 +112,7 @@ requires-dist = [
 [[package]]
 name = "aiqa-data"
 version = "0.2.0"
-source = { editable = "packages/aiqa-data" }
+source = { editable = "packages/aiqa_data" }
 dependencies = [
     { name = "aiqa-core" },
     { name = "numpy" },
@@ -124,7 +124,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aiqa-core", editable = "packages/aiqa-core" },
+    { name = "aiqa-core", editable = "packages/aiqa_core" },
     { name = "numpy", specifier = ">=1.26,<2.3" },
     { name = "pandas", specifier = ">=2.2" },
     { name = "pydantic", specifier = ">=2.7" },
@@ -135,7 +135,7 @@ requires-dist = [
 [[package]]
 name = "aiqa-data-quality-pipeline"
 version = "0.2.0"
-source = { editable = "apps/data-quality-pipeline" }
+source = { editable = "apps/data_quality_pipeline" }
 dependencies = [
     { name = "aiqa-core" },
     { name = "aiqa-data" },
@@ -148,9 +148,9 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aiqa-core", editable = "packages/aiqa-core" },
-    { name = "aiqa-data", editable = "packages/aiqa-data" },
-    { name = "aiqa-observability", editable = "packages/aiqa-observability" },
+    { name = "aiqa-core", editable = "packages/aiqa_core" },
+    { name = "aiqa-data", editable = "packages/aiqa_data" },
+    { name = "aiqa-observability", editable = "packages/aiqa_observability" },
     { name = "great-expectations", specifier = ">=1.5,<2" },
     { name = "pandas", specifier = ">=2.2" },
     { name = "pydantic", specifier = ">=2.7" },
@@ -160,7 +160,7 @@ requires-dist = [
 [[package]]
 name = "aiqa-grafana-dashboard-importer"
 version = "0.2.0"
-source = { editable = "apps/grafana-dashboard-importer" }
+source = { editable = "apps/grafana_dashboard_importer" }
 dependencies = [
     { name = "aiqa-observability" },
     { name = "pydantic" },
@@ -170,7 +170,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aiqa-observability", editable = "packages/aiqa-observability" },
+    { name = "aiqa-observability", editable = "packages/aiqa_observability" },
     { name = "pydantic", specifier = ">=2.7" },
     { name = "pydantic-settings", specifier = ">=2.4" },
     { name = "requests", specifier = ">=2.32" },
@@ -179,7 +179,7 @@ requires-dist = [
 [[package]]
 name = "aiqa-kserve-predictor"
 version = "0.2.0"
-source = { editable = "apps/kserve-predictor" }
+source = { editable = "apps/kserve_predictor" }
 dependencies = [
     { name = "aiqa-core" },
     { name = "aiqa-observability" },
@@ -192,9 +192,9 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aiqa-core", editable = "packages/aiqa-core" },
-    { name = "aiqa-observability", editable = "packages/aiqa-observability" },
-    { name = "aiqa-serving", editable = "packages/aiqa-serving" },
+    { name = "aiqa-core", editable = "packages/aiqa_core" },
+    { name = "aiqa-observability", editable = "packages/aiqa_observability" },
+    { name = "aiqa-serving", editable = "packages/aiqa_serving" },
     { name = "fastapi", specifier = ">=0.110" },
     { name = "pydantic", specifier = ">=2.7" },
     { name = "pydantic-settings", specifier = ">=2.4" },
@@ -204,7 +204,7 @@ requires-dist = [
 [[package]]
 name = "aiqa-model"
 version = "0.2.0"
-source = { editable = "packages/aiqa-model" }
+source = { editable = "packages/aiqa_model" }
 dependencies = [
     { name = "aiqa-core" },
     { name = "joblib" },
@@ -218,7 +218,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aiqa-core", editable = "packages/aiqa-core" },
+    { name = "aiqa-core", editable = "packages/aiqa_core" },
     { name = "joblib", specifier = ">=1.4" },
     { name = "mlflow", specifier = ">=3.1,<4" },
     { name = "numpy", specifier = ">=1.26,<2.3" },
@@ -231,7 +231,7 @@ requires-dist = [
 [[package]]
 name = "aiqa-model-trainer"
 version = "0.2.0"
-source = { editable = "apps/model-trainer" }
+source = { editable = "apps/model_trainer" }
 dependencies = [
     { name = "aiqa-core" },
     { name = "aiqa-data" },
@@ -244,11 +244,11 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aiqa-core", editable = "packages/aiqa-core" },
-    { name = "aiqa-data", editable = "packages/aiqa-data" },
-    { name = "aiqa-model", editable = "packages/aiqa-model" },
-    { name = "aiqa-observability", editable = "packages/aiqa-observability" },
-    { name = "aiqa-qa", editable = "packages/aiqa-qa" },
+    { name = "aiqa-core", editable = "packages/aiqa_core" },
+    { name = "aiqa-data", editable = "packages/aiqa_data" },
+    { name = "aiqa-model", editable = "packages/aiqa_model" },
+    { name = "aiqa-observability", editable = "packages/aiqa_observability" },
+    { name = "aiqa-qa", editable = "packages/aiqa_qa" },
     { name = "pydantic", specifier = ">=2.7" },
     { name = "pydantic-settings", specifier = ">=2.4" },
 ]
@@ -256,7 +256,7 @@ requires-dist = [
 [[package]]
 name = "aiqa-observability"
 version = "0.3.0"
-source = { editable = "packages/aiqa-observability" }
+source = { editable = "packages/aiqa_observability" }
 dependencies = [
     { name = "fastapi" },
     { name = "opentelemetry-exporter-otlp-proto-http" },
@@ -281,7 +281,7 @@ requires-dist = [
 [[package]]
 name = "aiqa-qa"
 version = "0.2.0"
-source = { editable = "packages/aiqa-qa" }
+source = { editable = "packages/aiqa_qa" }
 dependencies = [
     { name = "aiqa-core" },
     { name = "pydantic" },
@@ -290,7 +290,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aiqa-core", editable = "packages/aiqa-core" },
+    { name = "aiqa-core", editable = "packages/aiqa_core" },
     { name = "pydantic", specifier = ">=2.7" },
     { name = "pyyaml", specifier = ">=6.0" },
 ]
@@ -298,7 +298,7 @@ requires-dist = [
 [[package]]
 name = "aiqa-risk-api"
 version = "0.2.0"
-source = { editable = "apps/risk-api" }
+source = { editable = "apps/risk_api" }
 dependencies = [
     { name = "aiqa-core" },
     { name = "aiqa-observability" },
@@ -311,9 +311,9 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aiqa-core", editable = "packages/aiqa-core" },
-    { name = "aiqa-observability", editable = "packages/aiqa-observability" },
-    { name = "aiqa-serving", editable = "packages/aiqa-serving" },
+    { name = "aiqa-core", editable = "packages/aiqa_core" },
+    { name = "aiqa-observability", editable = "packages/aiqa_observability" },
+    { name = "aiqa-serving", editable = "packages/aiqa_serving" },
     { name = "fastapi", specifier = ">=0.110" },
     { name = "pydantic", specifier = ">=2.7" },
     { name = "pydantic-settings", specifier = ">=2.4" },
@@ -323,7 +323,7 @@ requires-dist = [
 [[package]]
 name = "aiqa-serving"
 version = "0.2.0"
-source = { editable = "packages/aiqa-serving" }
+source = { editable = "packages/aiqa_serving" }
 dependencies = [
     { name = "aiqa-core" },
     { name = "httpx" },
@@ -335,7 +335,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aiqa-core", editable = "packages/aiqa-core" },
+    { name = "aiqa-core", editable = "packages/aiqa_core" },
     { name = "httpx", specifier = ">=0.27" },
     { name = "joblib", specifier = ">=1.4" },
     { name = "pandas", specifier = ">=2.2" },
@@ -346,7 +346,7 @@ requires-dist = [
 [[package]]
 name = "aiqa-traffic-generator"
 version = "0.2.0"
-source = { editable = "apps/traffic-generator" }
+source = { editable = "apps/traffic_generator" }
 dependencies = [
     { name = "aiqa-core" },
     { name = "aiqa-observability" },
@@ -358,8 +358,8 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aiqa-core", editable = "packages/aiqa-core" },
-    { name = "aiqa-observability", editable = "packages/aiqa-observability" },
+    { name = "aiqa-core", editable = "packages/aiqa_core" },
+    { name = "aiqa-observability", editable = "packages/aiqa_observability" },
     { name = "pandas", specifier = ">=2.2" },
     { name = "pydantic", specifier = ">=2.7" },
     { name = "pydantic-settings", specifier = ">=2.4" },
@@ -3630,12 +3630,12 @@ notebook = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aiqa-core", editable = "packages/aiqa-core" },
-    { name = "aiqa-data", editable = "packages/aiqa-data" },
-    { name = "aiqa-model", editable = "packages/aiqa-model" },
-    { name = "aiqa-observability", editable = "packages/aiqa-observability" },
-    { name = "aiqa-qa", editable = "packages/aiqa-qa" },
-    { name = "aiqa-serving", editable = "packages/aiqa-serving" },
+    { name = "aiqa-core", editable = "packages/aiqa_core" },
+    { name = "aiqa-data", editable = "packages/aiqa_data" },
+    { name = "aiqa-model", editable = "packages/aiqa_model" },
+    { name = "aiqa-observability", editable = "packages/aiqa_observability" },
+    { name = "aiqa-qa", editable = "packages/aiqa_qa" },
+    { name = "aiqa-serving", editable = "packages/aiqa_serving" },
     { name = "pydantic", specifier = ">=2.7" },
     { name = "pyyaml", specifier = ">=6.0" },
 ]

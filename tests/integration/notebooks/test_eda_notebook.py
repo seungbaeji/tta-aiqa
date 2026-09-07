@@ -10,18 +10,17 @@ from nbclient import NotebookClient
 
 ROOT = Path(__file__).resolve().parents[3]
 STUDENT_NOTEBOOKS = (
-    Path("labs/ch01-data-quality/01_physionet_data_quality_eda.ipynb"),
-    Path("labs/ch02-model-quality/00_train_valid_model_walkthrough.ipynb"),
-    Path("labs/ch02-model-quality/00b_trace_valid_model_selection.ipynb"),
-    Path("labs/ch02-model-quality/01_compare_model_evidence.ipynb"),
-    Path("labs/ch03-serving/01_verify_risk_api.ipynb"),
-    Path("labs/ch04-observability/01_inspect_dashboard_contract.ipynb"),
-    Path("labs/ch05-release-decision/00_compare_input_distributions.ipynb"),
-    Path("labs/ch05-release-decision/01_review_release_decision.ipynb"),
+    Path("labs/chapters/ch01/01_physionet_data_quality_eda.ipynb"),
+    Path("labs/chapters/ch02/00_train_valid_model_walkthrough.ipynb"),
+    Path("labs/chapters/ch02/00b_trace_valid_model_selection.ipynb"),
+    Path("labs/chapters/ch02/01_compare_model_evidence.ipynb"),
+    Path("labs/chapters/ch03/01_verify_risk_api.ipynb"),
+    Path("labs/chapters/ch04/01_inspect_dashboard_contract.ipynb"),
+    Path("labs/chapters/ch05/00_compare_input_distributions.ipynb"),
+    Path("labs/chapters/ch05/01_review_release_decision.ipynb"),
 )
 LEFTOVER_NOTEBOOKS = (
-    Path("labs/ch01-data-quality/02_inspect_dvc_revision_practice.ipynb"),
-    Path("labs/ch02-model-quality/02_log_development_mlflow_run_practice.ipynb"),
+    Path("labs/chapters/ch01/02_inspect_dvc_revision_practice.ipynb"),
 )
 CORE_AND_LEFTOVER_NOTEBOOKS = STUDENT_NOTEBOOKS + LEFTOVER_NOTEBOOKS
 APPENDIX_NOTEBOOKS = (
@@ -257,7 +256,7 @@ APPENDIX_API_SNIPPETS = {
 }
 
 def test_data_quality_notebook_is_runnable_and_scoped_to_eda() -> None:
-    path = Path("labs/ch01-data-quality/01_physionet_data_quality_eda.ipynb")
+    path = Path("labs/chapters/ch01/01_physionet_data_quality_eda.ipynb")
     notebook = json.loads(path.read_text(encoding="utf-8"))
     code_cells = [cell for cell in notebook["cells"] if cell["cell_type"] == "code"]
     source = "\n".join("".join(cell["source"]) for cell in notebook["cells"])
@@ -298,13 +297,13 @@ def test_data_quality_notebook_is_runnable_and_scoped_to_eda() -> None:
     assert "distribution_summary" in source
     assert "비시각 관찰" in source
     assert (
-        "data/splits/physionet-2012/revisions/v2/split-manifest.csv" in source
+        "data/splits-v2/split-manifest.csv" in source
     )
 
 
 def test_observability_notebook_reads_panel_level_datasources() -> None:
     """Keep dashboard inspection aligned with the Grafana JSON document shape."""
-    path = Path("labs/ch04-observability/01_inspect_dashboard_contract.ipynb")
+    path = Path("labs/chapters/ch04/01_inspect_dashboard_contract.ipynb")
     source = "\n".join(
         "".join(cell["source"])
         for cell in json.loads(path.read_text(encoding="utf-8"))["cells"]
@@ -322,7 +321,7 @@ def test_observability_notebook_reads_panel_level_datasources() -> None:
 
 def test_serving_notebook_checks_the_bounded_public_api_contract() -> None:
     """Keep the live exercise aligned with the safe Risk API response contract."""
-    path = Path("labs/ch03-serving/01_verify_risk_api.ipynb")
+    path = Path("labs/chapters/ch03/01_verify_risk_api.ipynb")
     source = "\n".join(
         "".join(cell["source"])
         for cell in json.loads(path.read_text(encoding="utf-8"))["cells"]
@@ -343,7 +342,7 @@ def test_serving_notebook_checks_the_bounded_public_api_contract() -> None:
 
 def test_release_decision_notebook_keeps_model_and_operational_gates_separate() -> None:
     """Keep a missing target observation from silently changing model approval."""
-    path = Path("labs/ch05-release-decision/01_review_release_decision.ipynb")
+    path = Path("labs/chapters/ch05/01_review_release_decision.ipynb")
     source = "\n".join(
         "".join(cell["source"])
         for cell in json.loads(path.read_text(encoding="utf-8"))["cells"]
@@ -358,7 +357,7 @@ def test_release_decision_notebook_keeps_model_and_operational_gates_separate() 
 
 def test_distribution_notebook_marks_prepared_data_as_local_evidence() -> None:
     """Prepared input data must not be mistaken for target telemetry."""
-    path = Path("labs/ch05-release-decision/00_compare_input_distributions.ipynb")
+    path = Path("labs/chapters/ch05/00_compare_input_distributions.ipynb")
     source = "\n".join(
         "".join(cell["source"])
         for cell in json.loads(path.read_text(encoding="utf-8"))["cells"]
@@ -370,7 +369,7 @@ def test_distribution_notebook_marks_prepared_data_as_local_evidence() -> None:
 
 def test_valid_selection_notebook_reads_development_evidence_only() -> None:
     """Trace slide selection on valid evidence; do not train or open sealed test."""
-    path = Path("labs/ch02-model-quality/00b_trace_valid_model_selection.ipynb")
+    path = Path("labs/chapters/ch02/00b_trace_valid_model_selection.ipynb")
     notebook = json.loads(path.read_text(encoding="utf-8"))
     source = "\n".join("".join(cell["source"]) for cell in notebook["cells"])
     code_source = "\n".join(
@@ -379,9 +378,9 @@ def test_valid_selection_notebook_reads_development_evidence_only() -> None:
         if cell["cell_type"] == "code"
     )
 
-    assert "configs/model/revisions/v2/profiles.yaml" in source
+    assert "configs/model-v2/profiles.yaml" in source
     assert (
-        "docs/reference/evidence/model/revisions/v2/development-benchmark.json"
+        "docs/evidence/model-v2/development-benchmark.json"
         in source
     )
     assert "class_weight" in source
@@ -396,14 +395,14 @@ def test_valid_selection_notebook_reads_development_evidence_only() -> None:
 
 def test_compare_notebook_audits_canonical_hold_and_approve() -> None:
     """Keep official compare on sealed JSON; profiles.yaml already chose candidates."""
-    path = Path("labs/ch02-model-quality/01_compare_model_evidence.ipynb")
+    path = Path("labs/chapters/ch02/01_compare_model_evidence.ipynb")
     source = "\n".join(
         "".join(cell["source"])
         for cell in json.loads(path.read_text(encoding="utf-8"))["cells"]
     )
 
     assert (
-        "docs/reference/evidence/model/revisions/v2/canonical-benchmark.json"
+        "docs/evidence/model-v2/canonical-benchmark.json"
         in source
     )
     assert "class_weight" in source
@@ -532,14 +531,15 @@ def test_appendix_notebook_is_a_scoped_api_walkthrough(relative_path: Path) -> N
 
 def test_leftover_dvc_notebook_hashes_development_files_only() -> None:
     """Leftover DVC practice hashes train/valid and does not open sealed test."""
-    path = Path("labs/ch01-data-quality/02_inspect_dvc_revision_practice.ipynb")
+    path = Path("labs/chapters/ch01/02_inspect_dvc_revision_practice.ipynb")
     source = "\n".join(
         "".join(cell["source"])
         for cell in json.loads(path.read_text(encoding="utf-8"))["cells"]
     )
 
     assert "시간이 남을 때 여는 선택 실습입니다" in source
-    assert "split-revision-v2.json" in source
+    assert "split-revision.json" in source
+    assert "docs/evidence/data-v2/split-revision.json" in source
     assert "file_digest(" in source
     assert '"uv", "run", "dvc", "status"' in source
     assert "cwd=ROOT" in source
@@ -551,46 +551,18 @@ def test_leftover_dvc_notebook_hashes_development_files_only() -> None:
     assert "setup_course.py --data-only" in source
 
 
-def test_leftover_mlflow_notebook_keeps_official_runs_read_only() -> None:
-    """Leftover MLflow practice logs to cluster tracking and restores the caller URI."""
-    path = Path("labs/ch02-model-quality/02_log_development_mlflow_run_practice.ipynb")
-    source = "\n".join(
-        "".join(cell["source"])
-        for cell in json.loads(path.read_text(encoding="utf-8"))["cells"]
-    )
-
-    assert "시간이 남을 때 여는 선택 실습입니다" in source
-    assert "previous_tracking_uri = mlflow.get_tracking_uri()" in source
-    assert "mlflow.set_tracking_uri(previous_tracking_uri)" in source
-    assert source.index("mlflow.set_tracking_uri(previous_tracking_uri)") > (
-        source.index('mlflow.set_experiment("practice-development-tracking")')
-    )
-    assert "model_mlflow_run_id" in source
-    assert "final_mlflow_run_id" in source
-    assert "release-manifest.json" in source
-    assert "mlflow.start_run(" in source
-    assert "mlflow.search_runs(" in source
-    assert "AIQA_MLFLOW_TRACKING_URI" in source
-    assert "MLFLOW_NOT_RUNNING" in source
-    assert "sqlite:///" not in source
-    assert "TemporaryDirectory(" not in source
-    assert "tta-aiqa-physionet-2012-v2" not in source
-    assert "http://127.0.0.1:5000" not in source
-    assert "artifacts/mlflow/" in source
-    assert "docs/reference/evidence/" in source
-    assert "E-03" not in source
-
-
 def test_chapter_guides_mark_leftover_notebooks_as_optional() -> None:
-    ch01 = Path("labs/ch01-data-quality/README.md").read_text(encoding="utf-8")
-    ch02 = Path("labs/ch02-model-quality/README.md").read_text(encoding="utf-8")
+    ch01 = Path("labs/chapters/ch01/README.md").read_text(encoding="utf-8")
+    ch02 = Path("labs/chapters/ch02/README.md").read_text(encoding="utf-8")
 
     assert "## 2. 남는 시간 실습" in ch01
     assert "### 2-1. " in ch01
     assert "02_inspect_dvc_revision_practice.ipynb" in ch01
-    assert "## 2. 남는 시간 실습" in ch02
-    assert "### 2-1. " in ch02
-    assert "02_log_development_mlflow_run_practice.ipynb" in ch02
+    assert "labs/run/log_development.py" in ch01
+    assert "## 2. 남는 시간 실습" not in ch02
+    assert "02_log_development_mlflow_run_practice.ipynb" not in ch02
+    assert "labs/run/log_development.py" in ch02
+    assert "student-development-tracking" in ch02
 
 
 @pytest.mark.integration

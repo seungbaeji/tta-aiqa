@@ -32,7 +32,7 @@ def test_revision_promotes_parent_test_and_seals_parent_operational() -> None:
             for index, role in enumerate(parent_roles, start=1)
         )
     )
-    revision = load_split_revision(Path("configs/data/split-revisions/v2.yaml"))
+    revision = load_split_revision(Path("configs/data/split-v2.yaml"))
     revision = type(revision)(
         revision="test-v2",
         parent_revision="test-v1",
@@ -60,7 +60,7 @@ def test_revision_promotes_parent_test_and_seals_parent_operational() -> None:
 
 
 def test_v2_revision_contract_is_explicit_and_versioned() -> None:
-    revision = load_split_revision(Path("configs/data/split-revisions/v2.yaml"))
+    revision = load_split_revision(Path("configs/data/split-v2.yaml"))
 
     assert revision.revision == "v2"
     assert revision.parent_revision == "v1"

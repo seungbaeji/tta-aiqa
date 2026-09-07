@@ -9,8 +9,8 @@ from typing import Any
 
 import pytest
 
-from scripts.publish_model import assert_candidate_b_is_released
-from scripts.sync_student_release import (
+from scripts.platform.publish_model import assert_candidate_b_is_released
+from scripts.platform.sync_student_release import (
     CANDIDATE_B_PATH,
     CANDIDATE_B_VERSION,
     SyncBlocked,
@@ -18,10 +18,10 @@ from scripts.sync_student_release import (
 )
 
 STUDENT_COMMAND_FILES = (
-    Path("labs/ch03-serving/README.md"),
-    Path("labs/ch05-release-decision/README.md"),
-    Path("labs/ch03-serving/02_release_candidate_b.ipynb"),
-    Path("scripts/sync_student_release.py"),
+    Path("labs/chapters/ch03/README.md"),
+    Path("labs/chapters/ch05/README.md"),
+    Path("labs/chapters/ch03/02_release_candidate_b.ipynb"),
+    Path("scripts/platform/sync_student_release.py"),
 )
 FORBIDDEN_CREATE_COMMANDS = (
     "argocd app create",
@@ -29,11 +29,11 @@ FORBIDDEN_CREATE_COMMANDS = (
     "kubectl apply",
     "render_argocd_application.py",
 )
-OVERLAY = Path("deploy/kubernetes/overlays/candidate-b/kustomization.yaml")
-SCRIPT = Path("scripts/sync_student_release.py")
-PUBLISH = Path("scripts/publish_model.py")
-CH03 = Path("labs/ch03-serving/README.md")
-CH05 = Path("labs/ch05-release-decision/README.md")
+OVERLAY = Path("deploy/k8s/candidate-b/kustomization.yaml")
+SCRIPT = Path("scripts/platform/sync_student_release.py")
+PUBLISH = Path("scripts/platform/publish_model.py")
+CH03 = Path("labs/chapters/ch03/README.md")
+CH05 = Path("labs/chapters/ch05/README.md")
 ARGOCD = Path("deploy/argocd/README.md")
 ROOT_README = Path("README.md")
 
@@ -45,7 +45,7 @@ def _combined(paths: tuple[Path, ...]) -> str:
 def application_document(
     *,
     destination_server: str = "https://student.example.test:6443",
-    path: str = "deploy/kubernetes/overlays/baseline",
+    path: str = "deploy/k8s/baseline",
     sync_policy: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     destination: dict[str, str] = {"namespace": "tta-aiqa"}
@@ -89,7 +89,7 @@ def test_student_sync_script_guards_target_context_before_cluster_changes(
             stderr="",
         )
 
-    monkeypatch.setattr("scripts.sync_student_release._command", command)
+    monkeypatch.setattr("scripts.platform.sync_student_release._command", command)
 
     with pytest.raises(SyncBlocked, match="TARGET_CONTEXT is required"):
         sync_existing_release(
@@ -127,7 +127,7 @@ def test_student_sync_refuses_context_mismatch_before_get_or_patch(
             stderr="",
         )
 
-    monkeypatch.setattr("scripts.sync_student_release._command", command)
+    monkeypatch.setattr("scripts.platform.sync_student_release._command", command)
 
     with pytest.raises(SyncBlocked, match="Context mismatch"):
         sync_existing_release(
@@ -159,7 +159,7 @@ def test_student_sync_does_not_create_a_missing_application(
             ),
         )
 
-    monkeypatch.setattr("scripts.sync_student_release._command", command)
+    monkeypatch.setattr("scripts.platform.sync_student_release._command", command)
 
     with pytest.raises(SyncBlocked, match="refusing to create"):
         sync_existing_release(
@@ -193,7 +193,7 @@ def test_student_sync_refuses_in_cluster_destination(
             )
         raise AssertionError(f"unexpected command: {arguments}")
 
-    monkeypatch.setattr("scripts.sync_student_release._command", command)
+    monkeypatch.setattr("scripts.platform.sync_student_release._command", command)
 
     with pytest.raises(SyncBlocked, match="kubernetes.default.svc"):
         sync_existing_release(
@@ -226,7 +226,7 @@ def test_student_sync_refuses_automated_prune_or_self_heal(
             )
         raise AssertionError(f"unexpected command: {arguments}")
 
-    monkeypatch.setattr("scripts.sync_student_release._command", command)
+    monkeypatch.setattr("scripts.platform.sync_student_release._command", command)
 
     with pytest.raises(SyncBlocked, match="automated prune/selfHeal"):
         sync_existing_release(
@@ -260,7 +260,7 @@ def test_student_sync_patches_existing_app_to_candidate_b(
             )
         raise AssertionError(f"unexpected command: {arguments}")
 
-    monkeypatch.setattr("scripts.sync_student_release._command", command)
+    monkeypatch.setattr("scripts.platform.sync_student_release._command", command)
 
     result = sync_existing_release(
         application_name="tta-aiqa-student-201",
@@ -310,10 +310,10 @@ def test_ch03_documents_student_publish_sync_and_target_model_get() -> None:
     guide = CH03.read_text(encoding="utf-8")
 
     assert (
-        "scripts/publish_model.py candidate-b --revision v2 "
+        "scripts/platform/publish_model.py candidate-b --revision v2 "
         "--target-root /mnt/course-models"
     ) in guide
-    assert "scripts/sync_student_release.py" in guide
+    assert "scripts/platform/sync_student_release.py" in guide
     assert "AIQA_RISK_API_URL" in guide
     assert "/v1/model" in guide
     assert "candidate-b-c712a8e52344" in guide
@@ -338,7 +338,7 @@ def test_student_docs_do_not_treat_compose_url_as_target_identity() -> None:
     assert "섞지" in ch03
     assert "http://127.0.0.1:8000" in kubernetes
     assert "AIQA_RISK_API_URL" in kubernetes
-    assert "scripts/sync_student_release.py" in kubernetes
+    assert "scripts/platform/sync_student_release.py" in kubernetes
     assert "실제 동기화는 플랫폼 담당자가 수행합니다" not in kubernetes
 
 
@@ -347,8 +347,8 @@ def test_argocd_readme_keeps_create_as_platform_and_switch_as_student() -> None:
 
     assert "TARGET_CONTEXT" in guide
     assert 'if [ -z "${TARGET_CONTEXT:-}" ]' in guide
-    assert "scripts/sync_student_release.py" in guide
-    assert "scripts/publish_model.py candidate-b" in guide
+    assert "scripts/platform/sync_student_release.py" in guide
+    assert "scripts/platform/publish_model.py candidate-b" in guide
     assert "수강생은 공동 환경에서 이 파일을 적용하지 않습니다" not in guide
     assert "Application을 만들지 않습니다" in guide
     assert "kubernetes.default.svc" in guide
@@ -357,7 +357,7 @@ def test_argocd_readme_keeps_create_as_platform_and_switch_as_student() -> None:
 def test_ch05_keeps_rollback_out_of_student_scope() -> None:
     guide = CH05.read_text(encoding="utf-8")
 
-    assert "ch03-serving/README.md" in guide
+    assert "../ch03/README.md" in guide
     assert "rollback 명령" in guide
     assert "Application 생성" in guide
     assert "cluster sync나 rollback 명령을" not in guide

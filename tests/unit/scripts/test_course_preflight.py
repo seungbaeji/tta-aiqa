@@ -13,7 +13,7 @@ from urllib.error import URLError
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT))
-preflight = import_module("scripts.course_preflight")
+preflight = import_module("scripts.preflight")
 
 
 def test_secret_check_reports_metadata_without_values(tmp_path: Path) -> None:

@@ -18,7 +18,6 @@ PACKAGE_NAMES = {
     "aiqa_qa",
     "aiqa_serving",
 }
-PLATFORM_PACKAGES = {"aiqa-observability"}
 APP_NAMES = {
     "data_quality_pipeline",
     "grafana_dashboard_importer",
@@ -28,15 +27,15 @@ APP_NAMES = {
     "traffic_generator",
 }
 APP_FOLDERS = {
-    "data-quality-pipeline": "data_quality_pipeline",
-    "grafana-dashboard-importer": "grafana_dashboard_importer",
-    "kserve-predictor": "kserve_predictor",
-    "model-trainer": "model_trainer",
-    "risk-api": "risk_api",
-    "traffic-generator": "traffic_generator",
+    "data_quality_pipeline": "data_quality_pipeline",
+    "grafana_dashboard_importer": "grafana_dashboard_importer",
+    "kserve_predictor": "kserve_predictor",
+    "model_trainer": "model_trainer",
+    "risk_api": "risk_api",
+    "traffic_generator": "traffic_generator",
 }
 CLEAN_ARCHITECTURE_APPS = {
-    "data-quality-pipeline": {
+    "data_quality_pipeline": {
         "module": "data_quality_pipeline",
         "root_files": {
             "__init__.py",
@@ -46,26 +45,26 @@ CLEAN_ARCHITECTURE_APPS = {
             "settings.py",
         },
     },
-    "grafana-dashboard-importer": {
+    "grafana_dashboard_importer": {
         "module": "grafana_dashboard_importer",
         "root_files": {"__init__.py", "bootstrap.py", "main.py", "settings.py"},
     },
-    "model-trainer": {
+    "model_trainer": {
         "module": "model_trainer",
         "root_files": {"__init__.py", "bootstrap.py", "main.py", "settings.py"},
     },
-    "traffic-generator": {
+    "traffic_generator": {
         "module": "traffic_generator",
         "root_files": {"__init__.py", "bootstrap.py", "main.py", "settings.py"},
     },
 }
 DELIVERY_ONLY_APPS = {
-    "kserve-predictor": {
+    "kserve_predictor": {
         "module": "kserve_predictor",
         "root_files": {"__init__.py", "bootstrap.py", "main.py", "settings.py"},
         "adapter_files": {"__init__.py", "http.py", "kserve_v2.py"},
     },
-    "risk-api": {
+    "risk_api": {
         "module": "risk_api",
         "root_files": {"__init__.py", "bootstrap.py", "main.py", "settings.py"},
         "adapter_files": {
@@ -129,25 +128,25 @@ def project_dependencies(path: Path) -> set[str]:
 def test_workspace_contains_only_v2_members() -> None:
     document = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     assert set(document["tool"]["uv"]["workspace"]["members"]) == {
-        "apps/data-quality-pipeline",
-        "apps/grafana-dashboard-importer",
-        "apps/kserve-predictor",
-        "apps/model-trainer",
-        "apps/risk-api",
-        "apps/traffic-generator",
-        "packages/aiqa-core",
-        "packages/aiqa-data",
-        "packages/aiqa-model",
-        "packages/aiqa-observability",
-        "packages/aiqa-qa",
-        "packages/aiqa-serving",
+        "apps/data_quality_pipeline",
+        "apps/grafana_dashboard_importer",
+        "apps/kserve_predictor",
+        "apps/model_trainer",
+        "apps/risk_api",
+        "apps/traffic_generator",
+        "packages/aiqa_core",
+        "packages/aiqa_data",
+        "packages/aiqa_model",
+        "packages/aiqa_observability",
+        "packages/aiqa_qa",
+        "packages/aiqa_serving",
     }
 
 
 @pytest.mark.architecture
 def test_packages_have_only_non_empty_declared_layers() -> None:
     for package, expected_layers in sorted(PACKAGE_LAYERS.items()):
-        source = ROOT / "packages" / package.replace("_", "-") / "src" / package
+        source = ROOT / "packages" / package
         assert source.is_dir()
         actual_layers = {
             layer
@@ -169,7 +168,7 @@ def test_bounded_contexts_depend_only_on_aiqa_core() -> None:
         }
         expected = (
             set()
-            if pyproject.parent.name in {"aiqa-core", *PLATFORM_PACKAGES}
+            if pyproject.parent.name in {"aiqa_core", "aiqa_observability"}
             else {"aiqa-core"}
         )
         assert aiqa_dependencies == expected, pyproject
@@ -187,7 +186,7 @@ def test_domain_and_application_layers_do_not_import_frameworks_or_adapters() ->
     failures: list[str] = []
     source_roots = (ROOT / "packages", ROOT / "apps")
     for source_root in source_roots:
-        for path in sorted(source_root.glob("*/src/*/**/*.py")):
+        for path in sorted(source_root.glob("*/**/*.py")):
             if not ({"domain", "application"} & set(path.parts)):
                 continue
             imports = python_imports(path)
@@ -226,7 +225,7 @@ def test_active_code_never_imports_legacy_or_another_app() -> None:
 
 @pytest.mark.architecture
 def test_shared_kernel_exposes_only_feature_contract_values() -> None:
-    core = ROOT / "packages/aiqa-core/src/aiqa_core"
+    core = ROOT / "packages/aiqa_core"
 
     assert not (core / "domain/model.py").exists()
     assert "ModelRole" not in (core / "domain/__init__.py").read_text(
@@ -237,7 +236,7 @@ def test_shared_kernel_exposes_only_feature_contract_values() -> None:
 @pytest.mark.architecture
 def test_observability_hides_context_and_prometheus_clients_from_apps() -> None:
     failures: list[str] = []
-    platform_root = ROOT / "packages/aiqa-observability/src/aiqa_observability"
+    platform_root = ROOT / "packages/aiqa_observability"
     prometheus_adapter = platform_root / "adapters/prometheus"
     for base in (ROOT / "apps", ROOT / "packages"):
         for path in sorted(base.glob("**/*.py")):
@@ -270,7 +269,7 @@ def test_clean_architecture_apps_keep_explicit_layers(
     """Keep application orchestration independent from concrete app adapters."""
     module = str(contract["module"])
     root_files = set(contract["root_files"])
-    source = ROOT / "apps" / folder / "src" / module
+    source = ROOT / "apps" / folder
     assert {
         path.name for path in source.iterdir() if path.is_dir()
     } >= {"adapters", "application", "domain", "ports"}
@@ -310,10 +309,9 @@ def test_delivery_only_apps_keep_protocol_logic_under_adapters(
     contract: dict[str, object],
 ) -> None:
     """Do not create empty layers when an app only translates a delivery protocol."""
-    module = str(contract["module"])
     root_files = set(contract["root_files"])
     adapter_files = set(contract["adapter_files"])
-    source = ROOT / "apps" / folder / "src" / module
+    source = ROOT / "apps" / folder
 
     assert {path.name for path in source.glob("*.py")} == root_files
     assert {path.name for path in (source / "adapters").glob("*.py")} == adapter_files

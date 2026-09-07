@@ -8,11 +8,11 @@ from pathlib import Path
 LABS = Path("labs/README.md")
 ROOT = Path("README.md")
 CHAPTERS = (
-    Path("labs/ch01-data-quality/README.md"),
-    Path("labs/ch02-model-quality/README.md"),
-    Path("labs/ch03-serving/README.md"),
-    Path("labs/ch04-observability/README.md"),
-    Path("labs/ch05-release-decision/README.md"),
+    Path("labs/chapters/ch01/README.md"),
+    Path("labs/chapters/ch02/README.md"),
+    Path("labs/chapters/ch03/README.md"),
+    Path("labs/chapters/ch04/README.md"),
+    Path("labs/chapters/ch05/README.md"),
 )
 STAGE_HEADINGS = (
     "배포된 baseline 관찰",
@@ -168,10 +168,10 @@ def test_journey_names_instructor_only_external_changes() -> None:
 
 def test_learner_api_start_does_not_build_images() -> None:
     labs = LABS.read_text(encoding="utf-8")
-    serving = Path("labs/ch03-serving/README.md").read_text(encoding="utf-8")
+    serving = Path("labs/chapters/ch03/README.md").read_text(encoding="utf-8")
     root = ROOT.read_text(encoding="utf-8")
     command = (
-        "docker compose -f deploy/compose/simple-mlops/compose.yaml "
+        "docker compose -f deploy/compose.yaml "
         "up -d --no-build risk-api"
     )
     assert command in labs
@@ -182,25 +182,32 @@ def test_learner_api_start_does_not_build_images() -> None:
 
 
 def test_ge_summary_exercise_files_are_in_the_learner_tree() -> None:
-    assert Path("labs/exercises/ge_summary/interpret.py").is_file()
+    assert Path("labs/exercises/ge_summary.py").is_file()
     assert Path("labs/exercises/tests/test_ge_summary.py").is_file()
-    assert Path("labs/exercises/solutions/ge_summary/interpret.py").is_file()
-    ch01 = Path("labs/ch01-data-quality/README.md").read_text(encoding="utf-8")
-    assert "labs/exercises/ge_summary/interpret.py" in ch01
+    assert Path("labs/solutions/ge_summary.py").is_file()
+    ch01 = Path("labs/chapters/ch01/README.md").read_text(encoding="utf-8")
+    assert "labs/exercises/ge_summary.py" in ch01
     assert "labs/exercises/tests/test_ge_summary.py" in ch01
 
 
 def test_chapter_guides_link_to_the_journey() -> None:
     labs = LABS.read_text(encoding="utf-8")
-    assert "(ch01-data-quality/README.md)" in labs
-    assert "(ch03-serving/README.md)" in labs
-    assert "(ch04-observability/README.md)" in labs
-    assert "(ch05-release-decision/README.md)" in labs
-    assert Path("labs/ch01-data-quality/README.md").read_text(
+    assert "(chapters/ch01/README.md)" in labs
+    assert "(chapters/ch03/README.md)" in labs
+    assert "(chapters/ch04/README.md)" in labs
+    assert "(chapters/ch05/README.md)" in labs
+    assert Path("labs/chapters/ch01/README.md").read_text(
         encoding="utf-8"
     ).count("배포된 baseline 관찰") >= 1
-    assert "(ch01-data-quality/README.md#2-남는-시간-실습)" in labs
-    assert "(ch02-model-quality/README.md#2-남는-시간-실습)" in labs
+    assert "(chapters/ch01/README.md#2-남는-시간-실습)" in labs
+    assert "labs/run/" in labs
+    assert "labs/exercises/" in labs
+    assert "`scripts/`는 환경 준비" in labs
+    assert "labs/run/log_development.py" in labs
+    assert "(chapters/ch02/README.md#2-남는-시간-실습)" not in labs
+    assert Path("labs/run/log_development.py").is_file()
+    assert Path("labs/run/development.yaml").is_file()
+    assert Path("labs/run/README.md").is_file()
 
 
 def test_chapter_guides_use_numbered_h2_h3() -> None:

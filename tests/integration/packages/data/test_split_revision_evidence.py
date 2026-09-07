@@ -6,7 +6,7 @@ from pathlib import Path
 
 def test_v2_split_evidence_preserves_unseen_test_ancestry() -> None:
     evidence = json.loads(
-        Path("docs/reference/evidence/data-lineage/split-revision-v2.json").read_text(
+        Path("docs/evidence/data-v2/split-revision.json").read_text(
             encoding="utf-8"
         )
     )

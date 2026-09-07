@@ -27,9 +27,9 @@ MISSING_BASELINE_MODEL_MESSAGE = (
 
 
 def run_script(name: str) -> None:
-    """Run one course preparation script from the repository root."""
+    """Run one course preparation module from labs/run."""
     subprocess.run(
-        [sys.executable, str(ROOT / "scripts" / name)],
+        [sys.executable, str(ROOT / "labs" / "run" / name)],
         cwd=ROOT,
         check=True,
     )
@@ -83,7 +83,7 @@ def ensure_traffic_artifact_directory(
 def verify_course_state(*, require_model: bool) -> dict[str, object]:
     """Verify the prepared data, evidence, and optionally provisioned baseline model."""
     canonical_path = (
-        ROOT / "docs/reference/evidence/model/revisions/v2/canonical-benchmark.json"
+        ROOT / "docs/evidence/model-v2/canonical-benchmark.json"
     )
     canonical = json.loads(canonical_path.read_text(encoding="utf-8"))
     decisions = {

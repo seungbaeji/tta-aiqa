@@ -1,0 +1,38 @@
+[project]
+name = "aiqa-model-trainer"
+version = "0.2.0"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+  "aiqa-core",
+  "aiqa-data",
+  "aiqa-model",
+  "aiqa-observability",
+  "aiqa-qa",
+  "pydantic>=2.7",
+  "pydantic-settings>=2.4",
+]
+
+[project.scripts]
+aiqa-model-trainer = "model_trainer.main:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+dev-mode-dirs = [".."]
+
+[tool.hatch.build.targets.wheel]
+only-include = [
+  "__init__.py",
+  "adapters",
+  "application",
+  "bootstrap.py",
+  "domain",
+  "main.py",
+  "ports",
+  "settings.py",
+]
+
+[tool.hatch.build.targets.wheel.sources]
+"." = "model_trainer"
