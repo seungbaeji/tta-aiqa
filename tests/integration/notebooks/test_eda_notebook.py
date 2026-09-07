@@ -317,6 +317,8 @@ def test_observability_notebook_reads_panel_level_datasources() -> None:
     assert "dashboard_observation" in source
     assert "target_observation" not in source
     assert "접속 정보, Alloy와 대시보드는 강사 또는 환경 담당자가 준비" in source
+    assert 'LOCAL_API_URL = "http://127.0.0.1:8000"' in source
+    assert "AIQA_RISK_API_URL" not in source
 
 
 def test_serving_notebook_checks_the_bounded_public_api_contract() -> None:

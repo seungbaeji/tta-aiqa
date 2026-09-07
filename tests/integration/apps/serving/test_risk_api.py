@@ -228,7 +228,11 @@ def test_api_exposes_prediction_metrics_without_request_id_label(
     api = client(tmp_path)
     api.post(
         "/v1/predict",
-        headers={"X-Request-ID": "private-request", "X-AIQA-Scenario": "baseline"},
+        headers={
+            "X-Request-ID": "private-request",
+            "X-AIQA-Scenario": "baseline",
+            "X-AIQA-Record-ID": "132648",
+        },
         json={"features": {"age": 68.0, "age__missing": False}},
     )
 
@@ -242,6 +246,7 @@ def test_api_exposes_prediction_metrics_without_request_id_label(
         'status_code="200"}' in metrics
     )
     assert "private-request" not in metrics
+    assert "132648" not in metrics
 
 
 def test_api_excludes_probe_and_scrape_endpoints_from_business_metrics(

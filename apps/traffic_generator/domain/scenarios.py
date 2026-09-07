@@ -84,3 +84,4 @@ class TrafficResponse:
     status_code: int
     elapsed_seconds: float
     body: dict[str, object]
+    record_id: str | None = None

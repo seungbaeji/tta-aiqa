@@ -110,10 +110,8 @@ otelcol.processor.batch "aiqa" {
 }
 
 otelcol.auth.basic "grafana_cloud" {
-  client_auth {
-    username = string.trim_space(local.file.otlp_username.content)
-    password = local.file.api_key.content
-  }
+  username = string.trim_space(local.file.otlp_username.content)
+  password = local.file.api_key.content
 }
 
 otelcol.exporter.otlphttp "grafana_cloud" {

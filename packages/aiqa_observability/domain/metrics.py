@@ -12,7 +12,13 @@ from aiqa_observability.domain.attributes import MetricLabels
 
 _METRIC_NAME = re.compile(r"^[a-zA-Z_:][a-zA-Z0-9_:]*$")
 _METRIC_LABEL = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
-_FORBIDDEN_METRIC_LABELS = {"request_id", "run_id", "span_id", "trace_id"}
+_FORBIDDEN_METRIC_LABELS = {
+    "record_id",
+    "request_id",
+    "run_id",
+    "span_id",
+    "trace_id",
+}
 
 
 class MetricKind(StrEnum):

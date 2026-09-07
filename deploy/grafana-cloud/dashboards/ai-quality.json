@@ -65,7 +65,7 @@
       "gridPos": {"h": 10, "w": 16, "x": 0, "y": 16},
       "id": 7,
       "options": {"showLabels": false, "showTime": true, "wrapLogMessage": true},
-      "targets": [{"expr": "{service_name=\"risk-api\", environment=~\"$environment\"} | json | scenario=~\"${scenario:regex}\"", "refId": "A"}],
+      "targets": [{"expr": "{service_name=\"risk-api\", environment=~\"$environment\"} | json | scenario=~\"${scenario:regex}\" | request_id=~\"${request_id}\" | run_id=~\"${run_id}\" | trace_id=~\"${trace_id}\"", "refId": "A"}],
       "title": "Recent Risk API logs",
       "type": "logs"
     },
@@ -73,7 +73,7 @@
       "datasource": {"type": "tempo", "uid": "__AIQA_TRACES_UID__"},
       "gridPos": {"h": 10, "w": 8, "x": 16, "y": 16},
       "id": 8,
-      "targets": [{"query": "{ resource.service.name = \"risk-api\" && span.\"aiqa.scenario\" =~ \"${scenario:regex}\" }", "queryType": "traceql", "refId": "A"}],
+      "targets": [{"query": "{ resource.service.name = \"risk-api\" && span.\"aiqa.scenario\" =~ \"${scenario:regex}\" && span.\"aiqa.request_id\" =~ \"${request_id}\" && span.\"aiqa.run_id\" =~ \"${run_id}\" }", "queryType": "traceql", "refId": "A"}],
       "title": "Risk API traces",
       "type": "traces"
     }
@@ -84,7 +84,10 @@
   "templating": {
     "list": [
       {"current": {"text": "compose|kubernetes", "value": "compose|kubernetes"}, "hide": 0, "label": "Environment", "name": "environment", "options": [], "query": "compose|kubernetes", "type": "textbox"},
-      {"allValue": ".*", "current": {"text": "All", "value": "$__all"}, "hide": 0, "includeAll": true, "label": "Scenario", "multi": true, "name": "scenario", "options": [], "query": "baseline,approved-candidate,current-shift,invalid,unspecified,other", "type": "custom"}
+      {"allValue": ".*", "current": {"text": "All", "value": "$__all"}, "hide": 0, "includeAll": true, "label": "Scenario", "multi": true, "name": "scenario", "options": [], "query": "baseline,approved-candidate,current-shift,invalid,unspecified,other", "type": "custom"},
+      {"current": {"text": ".*", "value": ".*"}, "hide": 0, "label": "Request ID", "name": "request_id", "options": [], "query": ".*", "type": "textbox"},
+      {"current": {"text": ".*", "value": ".*"}, "hide": 0, "label": "Run ID", "name": "run_id", "options": [], "query": ".*", "type": "textbox"},
+      {"current": {"text": ".*", "value": ".*"}, "hide": 0, "label": "Trace ID", "name": "trace_id", "options": [], "query": ".*", "type": "textbox"}
     ]
   },
   "time": {"from": "now-2h", "to": "now"},

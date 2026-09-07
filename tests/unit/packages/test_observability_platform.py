@@ -74,6 +74,13 @@ def test_metric_spec_rejects_correlation_identifiers_as_labels() -> None:
             kind=MetricKind.COUNTER,
             labels=("service_name", "trace_id"),
         )
+    with pytest.raises(ValueError, match="forbidden metric labels"):
+        MetricSpec(
+            name="aiqa_bad_total",
+            description="invalid metric",
+            kind=MetricKind.COUNTER,
+            labels=("service_name", "record_id"),
+        )
 
 
 @pytest.mark.parametrize(

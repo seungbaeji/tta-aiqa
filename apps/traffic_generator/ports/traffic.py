@@ -17,6 +17,10 @@ class PatientPool(Protocol):
         """Return a defensive payload copy for the requested pool index."""
         ...
 
+    def record_id(self, index: int) -> str:
+        """Return the CSV record identity for the requested pool index."""
+        ...
+
 
 class PredictionClient(Protocol):
     """Send one generated payload to the public prediction API."""
@@ -28,6 +32,7 @@ class PredictionClient(Protocol):
         request_id: str,
         run_id: str,
         scenario: str,
+        record_id: str,
         timeout_seconds: float,
     ) -> TrafficResponse:
         """Return response evidence for one submitted traffic request."""

@@ -86,13 +86,16 @@ class RiskApiTelemetry:
         request_id: str,
         run_id: str | None,
         scenario: str,
+        record_id: str | None = None,
     ) -> Iterator[str]:
         """Bind one normalized request context around a FastAPI request."""
         normalized_scenario = self.normalize_scenario(scenario)
+        attributes = None if record_id is None else {"record_id": record_id}
         with self._platform.request_scope(
             request_id=request_id,
             run_id=run_id,
             scenario=normalized_scenario,
+            attributes=attributes,
         ):
             yield normalized_scenario
 

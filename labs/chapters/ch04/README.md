@@ -17,7 +17,7 @@ secret과 대시보드를 준비했다고 확인한 경우에만 선택합니다
 조건을 먼저 기록하며, 아직 생성하지 않은 traffic의 결과를 관찰했다고 쓰지
 않습니다. 서비스 상태, 입력과 예측 분포, 시스템 자원은 서로 다른 질문의
 지표입니다. 입력 변화는 성능 저하의 가능 원인이지 증명이 아닙니다. 첫째 날의
-100건 비교와 이 장의 세 시나리오(60+60+3)는 표본과 시간이 달라 직접 증감으로
+100건 비교와 이 장의 세 시나리오(20+20+3)는 표본과 시간이 달라 직접 증감으로
 연결하지 않습니다.
 
 ### 1-2. 세 신호의 확인 범위와 상태를 traffic 실행 전에 기록 방식으로 고정한다
@@ -96,7 +96,7 @@ collection manifest와 JSONL을 사용합니다.
 jq '{environment, scenarios: [.scenarios[] | {name, run_id}]}' \
   artifacts/traffic/collection-session.json
 jq -c 'select(.run_id == "<RUN_ID>") |
-  {scenario, run_id, request_id, status_code}' \
+  {scenario, run_id, request_id, record_id, status_code}' \
   artifacts/traffic/compose.jsonl
 ```
 
@@ -113,7 +113,10 @@ jq '.representative_requests[] |
   docs/evidence/incident/prepared-observability-correlation.json
 ```
 
-LIVE에서는 같은 두 식별자가 붙은 Risk API 로그와 trace를 조회합니다.
+LIVE에서는 Grafana 대시보드의 Request ID, Run ID, Trace ID 필터나 Explore에서
+같은 식별자가 붙은 Risk API 로그와 trace를 조회합니다. record_id는 JSONL과
+`data/splits-v2/operational.csv`를 잇는 키이며, 원본 feature는 Cloud에 올리지
+않습니다.
 
 ```logql
 {service_name="risk-api", environment="<ENVIRONMENT>"} | json | run_id="<RUN_ID>" | request_id="<REQUEST_ID>"

@@ -76,9 +76,16 @@ def test_dashboard_filters_and_names_every_metric_series_by_bounded_scenario() -
         if panel["datasource"]["type"] == "tempo"
     )
     assert 'scenario=~"${scenario:regex}"' in logs_target["expr"]
+    assert 'request_id=~"${request_id}"' in logs_target["expr"]
+    assert 'run_id=~"${run_id}"' in logs_target["expr"]
+    assert 'trace_id=~"${trace_id}"' in logs_target["expr"]
+    assert 'record_id=~"${record_id}"' not in logs_target["expr"]
     assert (
         'span."aiqa.scenario" =~ "${scenario:regex}"' in traces_target["query"]
     )
+    assert 'span."aiqa.request_id" =~ "${request_id}"' in traces_target["query"]
+    assert 'span."aiqa.run_id" =~ "${run_id}"' in traces_target["query"]
+    assert 'span."aiqa.record_id"' not in traces_target["query"]
 
 
 def test_dashboard_uses_the_learner_facing_high_risk_panel_name() -> None:
@@ -97,3 +104,31 @@ def test_dashboard_keeps_p5_collection_visible_during_p6_analysis() -> None:
     )
 
     assert dashboard["time"] == {"from": "now-2h", "to": "now"}
+
+
+def test_dashboard_lets_learners_filter_logs_and_traces_by_correlation_ids() -> None:
+    dashboard = json.loads(
+        Path("deploy/grafana-cloud/dashboards/ai-quality.json").read_text()
+    )
+    variables = {
+        variable["name"]: variable for variable in dashboard["templating"]["list"]
+    }
+
+    for name in ("request_id", "run_id", "trace_id"):
+        assert variables[name]["type"] == "textbox"
+        assert variables[name]["query"] == ".*"
+    assert "record_id" not in variables
+    metric_queries = [
+        target["expr"]
+        for panel in dashboard["panels"]
+        if panel["datasource"]["type"] == "prometheus"
+        for target in panel.get("targets", [])
+    ]
+    assert metric_queries
+    assert all(
+        "request_id" not in query
+        and "run_id" not in query
+        and "trace_id" not in query
+        and "record_id" not in query
+        for query in metric_queries
+    )

@@ -201,6 +201,9 @@ def test_alloy_collects_all_aiqa_workload_logs_and_otlp_traces() -> None:
     assert 'regex         = "alloy"' in config
     assert 'otelcol.receiver.otlp "aiqa"' in config
     assert 'otelcol.processor.batch "aiqa"' in config
+    assert "username = string.trim_space(local.file.otlp_username.content)" in config
+    assert "password = local.file.api_key.content" in config
+    assert "client_auth" not in config
 
 
 def test_shared_cluster_bounds_namespace_objects_and_alloy_ingress() -> None:

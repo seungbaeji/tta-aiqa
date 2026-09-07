@@ -173,6 +173,7 @@ def test_trace_topology_links_traffic_client_to_risk_api_prediction() -> None:
                 request_id="baseline-trace-run-0001",
                 run_id="trace-run",
                 scenario="baseline",
+                record_id="132648",
                 timeout_seconds=1.0,
             )
     finally:
@@ -240,6 +241,7 @@ def test_max_run_id_stays_correlated_across_client_jsonl_and_server_logs(
                 request_id=request_id,
                 run_id=run_id,
                 scenario="baseline",
+                record_id="132648",
                 timeout_seconds=1.0,
             )
             recorder.record(response)
@@ -263,11 +265,15 @@ def test_max_run_id_stays_correlated_across_client_jsonl_and_server_logs(
     assert response.status_code == 200
     assert len(request_id) == 64
     assert evidence["request_id"] == request_id
+    assert evidence["record_id"] == "132648"
     assert evidence["body"]["request_id"] == request_id
     assert completion["request_id"] == request_id
     assert completion["run_id"] == run_id
+    assert completion["record_id"] == "132648"
     assert server_span.attributes["aiqa.request_id"] == request_id
     assert prediction_span.attributes["aiqa.request_id"] == request_id
+    assert server_span.attributes["aiqa.record_id"] == "132648"
+    assert prediction_span.attributes["aiqa.record_id"] == "132648"
 
 
 def test_risk_api_excludes_probe_and_scrape_spans() -> None:
