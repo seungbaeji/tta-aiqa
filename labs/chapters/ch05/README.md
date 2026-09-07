@@ -1,9 +1,9 @@
 # 5장 배포 판단
 
 이 장은 9단계 여정의 **판단/rollback**과 **회고** 단계입니다. 관측 수집 묶음은
-팀이 공유하고 개인 분석과 최종 판단은 개인이 작성합니다. Application 생성과
-rollback Demo는 강사와 플랫폼 범위입니다. 승인된 Candidate B overlay 전환은
-[3장 서빙](../ch03/README.md)의 수강생 절차입니다.
+팀이 공유하고 개인 분석과 최종 판단은 개인이 작성합니다. rollback Demo는
+강사와 플랫폼 범위입니다. git 저장소 연결과 Application 생성, 승인된
+Candidate B overlay 전환은 [3장 서빙](../ch03/README.md)의 수강생 절차입니다.
 
 ## 1. 판단/rollback
 
@@ -42,9 +42,9 @@ offline fixture입니다. Candidate B `APPROVE`는 공식 모델 판단으로 �
 모델 식별값 불일치는 배포 경로 조사로 대응이 다릅니다.
 
 Candidate B overlay 전환은 [3장 서빙](../ch03/README.md)의 수강생
-절차입니다. 이 장에서는 rollback 명령을 실행하지 않으며, Application 생성은
-플랫폼 범위입니다. 수강생은 다음 정적 검사와 3장에서 확인한 대상 결과를
-사용합니다.
+절차입니다. 이 장에서는 rollback 명령을 실행하지 않으며, Application 생성도
+3장에서 공유 Argo의 `tta` 계정으로 진행합니다. 수강생은 다음 정적 검사와
+3장에서 확인한 대상 결과를 사용합니다.
 
 ```bash
 uv run python labs/run/model_status.py --revision v2

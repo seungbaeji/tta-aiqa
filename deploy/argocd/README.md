@@ -45,10 +45,13 @@ uv run python scripts/platform/render_argocd_application.py \
 - automated/prune/selfHeal이 없는가
 - 과정 릴리스 manifest의 `tta-aiqa` 커밋과 같은가
 
-수강생은 이 파일로 Application을 만들지 않습니다. Application 생성, KServe
-설치, GHCR pull secret은 플랫폼 담당자가 승인 절차에 따라 등록합니다. 이미
-등록된 Application을 `deploy/k8s/candidate-b`로 바꾸고 대상 `/v1/model`을
-확인하는 것은 수강생 범위입니다.
+수강생은 이 YAML을 `kubectl apply`로 적용하지 않습니다. 공유 Argo
+(`https://gitops.lab.mrml.dev`)에 강사가 알려 준 `tta` 계정으로 접속해 같은
+필드(저장소, 커밋 40자리, overlay 경로, Application 이름, 학생 클러스터
+destination)로 git 저장소를 연결하고 Application을 만들어 동기화합니다.
+KServe 설치와 GHCR pull secret은 플랫폼 담당자가 승인 절차에 따라 준비합니다.
+이미 만든 Application을 `deploy/k8s/candidate-b`로 바꾸고 대상 `/v1/model`을
+확인하는 것도 수강생 범위입니다.
 
 모델 번들을 학생 VM hostPath `/mnt/course-models`에 둘 때는 디렉터리를
 `tta` 소유로 만듭니다. root로만 `mkdir` 하면 publish가 실패합니다. 기준

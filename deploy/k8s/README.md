@@ -53,7 +53,8 @@ The deployment contract test rejects manifests that drift from this record or
 runtime build inputs that changed after the recorded source commit.
 
 Candidate B and rollback are Kustomize overlays. Students inspect rendered
-manifests; the instructor's Argo CD workflow performs the actual sync.
+manifests, then connect the course git repository and sync from the shared
+Argo CD UI with the `tta` account. The instructor still provisions `ghcr-pull`.
 
 ## 3. Shared-cluster guardrails
 
@@ -75,9 +76,11 @@ Service to the cluster HTTP entrypoint. The manifest does not set a hostname.
 
 ## 4. Read-only release verification
 
-After the platform workflow synchronizes an overlay, verify that stage without
-applying or patching any resource. Use `baseline-observed` when the baseline
-stage must emit live telemetry, then synchronize `candidate-b` and `rollback`.
+After an overlay is synchronized, verify that stage without applying or
+patching any resource. Students sync Candidate B from the shared Argo UI or
+`scripts/platform/sync_student_release.py`; rollback Demo stays with the
+instructor. Use `baseline-observed` when the baseline stage must emit live
+telemetry, then synchronize `candidate-b` and `rollback`.
 Run the verifier with release names `baseline`, `candidate-b`, and `rollback`,
 using a different output file each time.
 

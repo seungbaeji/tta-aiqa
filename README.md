@@ -357,17 +357,21 @@ Kubernetes에서는 외부 Risk API가 내부 KServe V2 예측기를 호출합�
 `kserve.infer` CLIENT span이 W3C 추적 정보와 요청 ID를 전달합니다. 기본 설정은
 기준 모델로 시작하고 Candidate B와 되돌리기는 별도 overlay로 둡니다.
 각 overlay는 PVC 하위 경로와 `model-identity` ConfigMap의 예상 모델 SHA-256을
-함께 고릅니다. 수강생은 로컬 렌더링과 계약 검사로 선언 파일을 읽고, 이미 등록된
-Application을 Candidate B overlay로 바꾼 뒤 `AIQA_RISK_API_URL`의 `/v1/model`이
-`candidate-b-c712a8e52344`인지 확인합니다. Application 생성, KServe 설치, GHCR
+함께 고릅니다. 수강생은 로컬 렌더링과 계약 검사로 선언 파일을 읽고, 공유
+Argo에 `tta` 계정으로 접속해 git 저장소를 연결한 뒤 Application을 배포합니다.
+이미 만든 Application을 Candidate B overlay로 바꾼 다음 `AIQA_RISK_API_URL`의
+`/v1/model`이 `candidate-b-c712a8e52344`인지 확인합니다. KServe 설치와 GHCR
 pull secret은 플랫폼 담당자가 수행합니다.
 
 Private GHCR image와 `ghcr-pull` Secret의 준비 방식은
 [`deploy/k8s/README.md`](deploy/k8s/README.md)에 분리해 두었습니다.
 
-### 7-2. 수강생 Candidate B 전환
+### 7-2. 수강생 git 연결과 Candidate B 전환
 
-수강생은 Application을 만들지 않습니다. 클러스터 변경은
+수강생은 공유 Argo(`https://gitops.lab.mrml.dev`)에 강사가 알려 준 `tta`
+계정으로 접속해 과정 git 저장소를 연결하고 Application을 만듭니다.
+렌더한 YAML을 `kubectl apply`로 적용하지 않습니다. Candidate B로 바꾸는
+클러스터 변경은
 [`scripts/platform/sync_student_release.py`](scripts/platform/sync_student_release.py)가
 `TARGET_CONTEXT`를 확인한 뒤에만 수행합니다. 로컬 Compose
 `http://127.0.0.1:8000`과 `AIQA_RISK_API_URL`을 섞지 않습니다. 대상 URL이

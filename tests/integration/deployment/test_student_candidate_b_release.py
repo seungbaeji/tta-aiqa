@@ -1,4 +1,4 @@
-"""Student Candidate B release: sync an existing Argo app, never create one."""
+"""Student Candidate B release: patch an existing Argo app, never kubectl-create one."""
 
 from __future__ import annotations
 
@@ -71,8 +71,10 @@ def test_student_docs_and_script_do_not_include_application_create() -> None:
 
     for command in FORBIDDEN_CREATE_COMMANDS:
         assert command not in combined
+    assert "tta" in CH03.read_text(encoding="utf-8")
+    assert "gitops.lab.mrml.dev" in CH03.read_text(encoding="utf-8")
     assert "Application 생성" in CH03.read_text(encoding="utf-8")
-    assert "플랫폼" in CH03.read_text(encoding="utf-8")
+    assert "KServe 설치" in CH03.read_text(encoding="utf-8")
 
 
 def test_student_sync_script_guards_target_context_before_cluster_changes(
@@ -342,7 +344,7 @@ def test_student_docs_do_not_treat_compose_url_as_target_identity() -> None:
     assert "실제 동기화는 플랫폼 담당자가 수행합니다" not in kubernetes
 
 
-def test_argocd_readme_keeps_create_as_platform_and_switch_as_student() -> None:
+def test_argocd_readme_documents_tta_ui_create_and_candidate_b_switch() -> None:
     guide = ARGOCD.read_text(encoding="utf-8")
 
     assert "TARGET_CONTEXT" in guide
@@ -350,7 +352,10 @@ def test_argocd_readme_keeps_create_as_platform_and_switch_as_student() -> None:
     assert "scripts/platform/sync_student_release.py" in guide
     assert "scripts/platform/publish_model.py candidate-b" in guide
     assert "수강생은 공동 환경에서 이 파일을 적용하지 않습니다" not in guide
-    assert "Application을 만들지 않습니다" in guide
+    assert "Application을 만들지 않습니다" not in guide
+    assert "gitops.lab.mrml.dev" in guide
+    assert "tta" in guide
+    assert "kubectl apply" in guide
     assert "kubernetes.default.svc" in guide
 
 

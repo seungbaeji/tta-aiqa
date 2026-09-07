@@ -171,13 +171,16 @@ def test_release_record_names_the_working_and_submission_path() -> None:
     assert "대상 환경의 실행 근거로 쓰지 않으며" in normalized_guide
 
 
-def test_learner_guide_assigns_gitops_changes_to_platform_staff() -> None:
+def test_learner_guide_separates_student_argo_from_platform_rollback() -> None:
     guide = Path("labs/README.md").read_text(encoding="utf-8")
     normalized = _normalized(guide)
 
-    assert "후보 동기화와 되돌리기는 강사와 플랫폼 책임" in normalized
-    assert "수강생은 강사가 제공한 결과의 범위, 시간, identity만 기록" in normalized
+    assert "KServe health와 rollback Demo는 강사와 플랫폼 책임" in normalized
+    assert "수강생은 확인한 결과의 범위, 시간, identity만 기록" in normalized
+    assert "gitops.lab.mrml.dev" in guide
+    assert "tta" in guide
     assert "강사가 안내한 GitOps 절차 안에서만 수행" not in guide
+    assert "후보 동기화와 되돌리기는 강사와 플랫폼 책임" not in normalized
 
 
 def test_observability_guide_separates_blocked_result_from_target_state() -> None:

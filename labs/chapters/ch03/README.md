@@ -6,9 +6,11 @@
 아닙니다. 대상 URL이 없으면 운영 scope를 `target_pending`으로 두고 identity를
 만들지 않습니다.
 
-Application 생성, KServe 설치, GHCR pull secret은 플랫폼이 이미 준비합니다.
-이미 등록된 Application을 `deploy/k8s/candidate-b`로 바꾸고
-`${AIQA_RISK_API_URL}/v1/model`이 Candidate B digest인지 확인하는 것은 수강생
+KServe 설치와 GHCR pull secret은 플랫폼이 준비합니다. 수강생은 공유 Argo
+(`https://gitops.lab.mrml.dev`)에 강사가 알려 준 `tta` 계정으로 접속해 과정
+git 저장소를 연결하고, 자기 VM을 destination으로 하는 Application을 만들어
+동기화합니다. 이미 만든 Application을 `deploy/k8s/candidate-b`로 바꾸고
+`${AIQA_RISK_API_URL}/v1/model`이 Candidate B digest인지 확인하는 것도 수강생
 범위입니다.
 
 ## 1. API
@@ -87,10 +89,11 @@ digest는 실행 코드와 환경을, 모델 SHA-256은 학습 결과 파일을 
 ### 2-2. 이미 등록된 Application을 Candidate B로 바꾸고 대상 `/v1/model`을 확인한다
 
 수강생 VM의 hostPath `/mnt/course-models`에 승인된 Candidate B 묶음을 게시하고,
-플랫폼이 이미 등록한 Application만 Candidate B overlay로 동기화합니다.
-Application을 만들지 않으며 automated prune/selfHeal을 켜지 않습니다. 학생 VM
-destination은 `kubernetes.default.svc`가 아니어야 합니다. 클러스터를 바꾸는
-명령은 문서화된 스크립트가 승인된 컨텍스트를 확인한 뒤에만 실행합니다. 가드
+공유 Argo에서 `tta`로 연결해 둔 Application을 Candidate B overlay로
+동기화합니다. 이 전환 스크립트는 Application을 새로 만들지 않으며 automated
+prune/selfHeal을 켜지 않습니다. 학생 VM destination은
+`kubernetes.default.svc`가 아니어야 합니다. 클러스터를 바꾸는 명령은
+문서화된 스크립트가 승인된 컨텍스트를 확인한 뒤에만 실행합니다. 가드
 문구는 [`deploy/argocd/README.md`](../../../deploy/argocd/README.md)를 따릅니다.
 
 ```bash
@@ -117,12 +120,13 @@ VM에서 기존 Application 동기화 결과가 없으면 대상 운영 scope는
 `operational_deployment_scope=target_pending`으로 남기고, 실행이 막힌 경우에는
 `result=BLOCKED`와 사유, 담당자를 기록합니다.
 
-### 2-3. Application 생성, KServe 설치, rollback Demo는 플랫폼 범위로 남긴다
+### 2-3. KServe 설치와 rollback Demo는 플랫폼 범위로 남긴다
 
-KServe 설치, GHCR pull secret, Argo Application 생성은 강사와 플랫폼
-책임입니다. rollback overlay 전환과 KServe health Demo도 플랫폼 범위입니다.
-결과가 없으면 운영 scope는 `target_pending`으로 남기고, 실행이 막힌 경우에는
-별도 execution result인 `result=BLOCKED`와 사유, 담당자를 기록합니다. 정적
+KServe 설치와 GHCR pull secret은 강사와 플랫폼 책임입니다. rollback overlay
+전환과 KServe health Demo도 플랫폼 범위입니다. git 저장소 연결과 Application 생성,
+동기화는 공유 Argo의 `tta` 계정으로 수강생이 진행합니다. 결과가 없으면
+운영 scope는 `target_pending`으로 남기고, 실행이 막힌 경우에는 별도
+execution result인 `result=BLOCKED`와 사유, 담당자를 기록합니다. 정적
 overlay는 `scope=static`인 복구 의도이지 rollback 완료가 아닙니다.
 
 ## 3. 단계 완료

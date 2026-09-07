@@ -19,9 +19,10 @@ ProxyJump와 P0 네트워크 복구를 이 저장소에서 추측하지 않습�
 `--data-only` 정적 경로만 사용합니다. 개인 PC의 정적 결과를 Docker, Kubernetes나
 대상 환경의 실행 근거로 쓰지 않으며, Grafana의 LIVE 관측 결과로 바꾸지도 않습니다.
 
-KServe 설치, GHCR credential, Argo Application 생성, WireGuard 복구는
-강사와 플랫폼 범위입니다. 이미 등록된 Application을 Candidate B overlay로
-바꾸는 절차는 [3장 서빙](chapters/ch03/README.md)을 따릅니다.
+KServe 설치, GHCR credential, WireGuard 복구는 강사와 플랫폼 범위입니다.
+공유 Argo에 `tta` 계정으로 접속해 git 저장소를 연결하고 Application을
+배포하는 절차와, 이미 만든 Application을 Candidate B overlay로 바꾸는
+절차는 [3장 서빙](chapters/ch03/README.md)을 따릅니다.
 
 ```bash
 uv sync --all-packages --group dev --group notebook
@@ -236,8 +237,8 @@ Candidate B target verified로 확장하지 않습니다. 운영 관측 수집�
 ## Kubernetes/GitOps
 
 Kubernetes/GitOps 단계는 같은 [3장 서빙](chapters/ch03/README.md)의 overlay와
-배포 선언을 읽습니다. Application 생성은 플랫폼 범위이고, 이미 등록된
-Application의 Candidate B 전환은 3장 수강생 범위입니다.
+배포 선언을 읽습니다. 공유 Argo에서 git 저장소 연결과 Application 배포는
+수강생 범위이고, Candidate B overlay 전환도 3장 수강생 범위입니다.
 
 ### baseline, Candidate B, rollback overlay가 승인된 identity만 선택하는지 판단한다
 
@@ -256,11 +257,13 @@ digest는 실행 코드와 환경을, 모델 SHA-256은 학습 결과 파일을 
 
 ### Argo sync, KServe health, rollback 결과를 학습자 판단 범위와 분리한다
 
-후보 동기화와 되돌리기는 강사와 플랫폼 책임입니다. 수강생은 강사가 제공한
-결과의 범위, 시간, identity만 기록합니다. Argo Application 생성, KServe
-health와 rollback Demo도 같은 범위입니다. 이미 등록된 Application을
-Candidate B overlay로 바꾸고 `${AIQA_RISK_API_URL}/v1/model`을 확인하는
-명령은 [3장 서빙](chapters/ch03/README.md)을 따릅니다. 수강생은 ClusterIP,
+수강생은 공유 Argo(`https://gitops.lab.mrml.dev`)에 강사가 알려 준 `tta`
+계정으로 접속해 과정 git 저장소를 연결하고, 자기 VM을 대상으로 Application을
+만들어 동기화합니다. KServe health와 rollback Demo는 강사와 플랫폼
+책임입니다. 수강생은 확인한 결과의 범위, 시간, identity만 기록합니다.
+이미 만든 Application을 Candidate B overlay로 바꾸고
+`${AIQA_RISK_API_URL}/v1/model`을 확인하는 명령은
+[3장 서빙](chapters/ch03/README.md)을 따릅니다. 수강생은 ClusterIP,
 port-forward, tunnel을 만들지 않습니다. 강사 화면이 있으면 목표 상태, Git
 반영(`Synced`), 준비 상태(`Healthy`), 실제 요청 성공의 네 단계 가운데 확인한
 단계와 확인하지 못한 단계를 나눕니다. `Synced`만으로 요청 성공을 말하지

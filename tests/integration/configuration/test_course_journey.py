@@ -85,7 +85,6 @@ GENERIC_CHILD_HEADINGS = (
 INSTRUCTOR_ONLY = (
     "KServe 설치",
     "GHCR credential",
-    "Argo Application 생성",
     "WireGuard",
 )
 
