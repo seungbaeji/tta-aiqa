@@ -94,8 +94,9 @@ uv run pytest -q labs/exercises/tests/test_ge_summary.py
 ### 2-1. train/valid 파일 지문이 revision v2 선언과 같은지 계산한다
 
 선택 노트북 `02_inspect_dvc_revision_practice.ipynb`를 위에서 아래로
-실행합니다. `dvc status`를 보고, 학습/검증 파일의 SHA-256을 직접 계산해
-선언 파일과 대조합니다. 공식 평가용 `test`와 `operational` 파일은 열지 않습니다.
+실행합니다. 노트북은 저장소 루트를 찾아 `uv run dvc status`를 보고,
+학습/검증 파일의 SHA-256을 직접 계산해 선언 파일과 대조합니다.
+공식 평가용 `test`와 `operational` 파일은 열지 않습니다.
 잠금 파일 지문이 달라도 값을 고치지 말고 계산 결과를 적습니다.
 
 ## 3. 단계 완료
