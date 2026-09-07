@@ -23,7 +23,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: risk-api
-          image: ghcr.io/seungbaeji/tta-aiqa-risk-api@sha256:e46c02f76e042a9e75e9ce6c4eaa782fb3edb583d7f1086403e952811edc6bfc
+          image: ghcr.io/seungbaeji/tta-aiqa-risk-api@sha256:ac59d0f8b768f53830551ac7ea5e30717372e09eeee79ae6bb6f00c34deb0d89
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

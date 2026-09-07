@@ -18,7 +18,7 @@ def test_compose_runs_same_local_risk_api_and_independent_traffic_app() -> None:
     services = compose()["services"]
     images = json.loads(
         Path(
-            "docs/evidence/deployment/runtime-images-v2-20260908-8519351.json"
+            "docs/evidence/deployment/runtime-images-v2-20260908-656f6ee.json"
         ).read_text(
             encoding="utf-8"
         )

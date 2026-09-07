@@ -9,7 +9,7 @@ import yaml
 ROOT = Path("deploy/k8s/base")
 ALLOY = Path("deploy/k8s/alloy")
 RUNTIME_IMAGE_EVIDENCE = Path(
-    "docs/evidence/deployment/runtime-images-v2-20260908-8519351.json"
+    "docs/evidence/deployment/runtime-images-v2-20260908-656f6ee.json"
 )
 BASELINE_MODEL_SHA256 = (
     "f2576f12512a490c9814e5238c3f0d2a421a21637a4b03c882df6ff25a637edc"
