@@ -170,13 +170,19 @@ def build_http_app(
             request.headers.get(config.run_id_header),
             fallback=None,
         )
+        record_id = normalize_external_correlation_id(
+            request.headers.get(config.record_id_header),
+            fallback=None,
+        )
         scenario = request.headers.get(config.scenario_header, UNSPECIFIED_SCENARIO)
         with telemetry.request_scope(
             request_id=request_id,
             run_id=run_id,
             scenario=scenario,
+            record_id=record_id,
         ) as normalized:
             request.state.request_id = request_id
+            request.state.record_id = record_id
             request.state.scenario = normalized
             started = time.perf_counter()
             status_code = 500
@@ -207,6 +213,8 @@ def build_http_app(
                     response = await call_next(request)
                 status_code = response.status_code
                 response.headers[config.request_id_header] = request_id
+                if record_id is not None:
+                    response.headers[config.record_id_header] = record_id
                 return response
             finally:
                 matched_route = getattr(request.scope.get("route"), "path", None)
@@ -266,6 +274,9 @@ def build_http_app(
         """Translate, validate, and score one public mortality-risk request."""
         resolved_request_id = request.state.request_id
         response.headers[config.request_id_header] = resolved_request_id
+        resolved_record_id = getattr(request.state, "record_id", None)
+        if resolved_record_id is not None:
+            response.headers[config.record_id_header] = resolved_record_id
         input_error_category: str | None = None
         with telemetry.prediction_scope():
             try:

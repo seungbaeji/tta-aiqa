@@ -34,6 +34,9 @@ class Pool:
     def patient(self, index: int) -> dict[str, object]:
         return dict(self.patients[index])
 
+    def record_id(self, index: int) -> str:
+        return f"pool-{index}"
+
 
 @dataclass
 class Client:
@@ -46,6 +49,7 @@ class Client:
         request_id: str,
         run_id: str,
         scenario: str,
+        record_id: str,
         timeout_seconds: float,
     ) -> TrafficResponse:
         self.calls.append((features, request_id, run_id, scenario))
@@ -53,6 +57,7 @@ class Client:
             request_id=request_id,
             run_id=run_id,
             scenario=scenario,
+            record_id=record_id,
             status_code=200,
             elapsed_seconds=0.01,
             body={"ok": True},
@@ -159,6 +164,13 @@ def test_scenarios_share_samples_while_run_ids_keep_reruns_distinct() -> None:
     ]
     assert {response.run_id for response in baseline_responses} == {"run-baseline"}
     assert {response.run_id for response in shifted_responses} == {"run-shifted"}
+    assert {response.record_id for response in baseline_responses} <= {
+        "pool-0",
+        "pool-1",
+    }
+    assert [response.record_id for response in baseline_responses] == [
+        response.record_id for response in shifted_responses
+    ]
 
 
 def test_same_scenario_rerun_preserves_samples_but_not_request_ids() -> None:

@@ -162,6 +162,9 @@ def test_grafana_cloud_override_routes_both_apps_through_alloy_otlp() -> None:
     assert 'endpoint = "0.0.0.0:4318"' in alloy
     assert "traces = [otelcol.processor.batch.aiqa.input]" in alloy
     assert "traces = [otelcol.exporter.otlphttp.grafana_cloud.input]" in alloy
+    assert "username = string.trim_space(local.file.otlp_username.content)" in alloy
+    assert "password = local.file.api_key.content" in alloy
+    assert "client_auth" not in alloy
 
 
 def test_course_traffic_spans_two_scrapes_and_waits_for_collection() -> None:

@@ -69,24 +69,27 @@ def generate_traffic(
         raise ValueError("traffic run ID must match the correlation ID contract")
     rng = random.Random(random_seed)
     responses: list[TrafficResponse] = []
-    for index in range(count):
-        features = pool.patient(rng.randrange(pool.size))
+    for sequence in range(count):
+        pool_index = rng.randrange(pool.size)
+        features = pool.patient(pool_index)
+        record_id = pool.record_id(pool_index)
         if plan.mode is ScenarioMode.SHIFT:
             features = apply_feature_transforms(features, plan.transforms)
         elif plan.mode is ScenarioMode.INVALID:
             features = apply_invalid_traffic_case(
-                features, plan.invalid_cases[index % len(plan.invalid_cases)]
+                features, plan.invalid_cases[sequence % len(plan.invalid_cases)]
             )
         request_id = build_request_id(
             scenario=plan.name,
             run_id=run_id,
-            sequence=index + 1,
+            sequence=sequence + 1,
         )
         response = client.predict(
             features=features,
             request_id=request_id,
             run_id=run_id,
             scenario=plan.name,
+            record_id=record_id,
             timeout_seconds=plan.timeout_seconds,
         )
         recorder.record(response)

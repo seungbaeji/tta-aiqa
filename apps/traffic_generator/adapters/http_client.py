@@ -32,6 +32,7 @@ class RequestsPredictionClient:
         request_id: str,
         run_id: str,
         scenario: str,
+        record_id: str,
         timeout_seconds: float,
     ) -> TrafficResponse:
         """Send one request and preserve any JSON or text response as evidence."""
@@ -42,6 +43,7 @@ class RequestsPredictionClient:
             scenario=scenario,
             attributes={
                 "http_method": "POST",
+                "record_id": record_id,
                 "route": "/v1/predict",
                 "target_service": "risk-api",
             },
@@ -52,6 +54,7 @@ class RequestsPredictionClient:
                 {
                     "X-Request-ID": request_id,
                     "X-AIQA-Run-ID": run_id,
+                    "X-AIQA-Record-ID": record_id,
                     "X-AIQA-Scenario": scenario,
                 }
             )
@@ -72,6 +75,7 @@ class RequestsPredictionClient:
                 request_id=request_id,
                 run_id=run_id,
                 scenario=scenario,
+                record_id=record_id,
                 status_code=response.status_code,
                 elapsed_seconds=elapsed,
                 body=body,

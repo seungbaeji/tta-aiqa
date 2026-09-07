@@ -2,7 +2,12 @@
 
 이 장은 9단계 여정의 **관측**과 **traffic** 단계입니다. 관측 조건을 먼저
 고정하고 관측 수집, 개인 분석으로 이어갑니다. LIVE는 강사가 Alloy
-secret과 대시보드를 준비했다고 확인한 경우에만 선택합니다.
+secret과 대시보드를 준비했다고 확인한 경우에만 선택합니다. 화면만 열려면 강사가
+알려 준 Grafana 대시보드 URL이면 됩니다. Cloud에서 instance ID, datasource UID,
+token을 복사하는 위치는 운영 문서
+[`deploy/secrets/alloy/README.md`](../../../deploy/secrets/alloy/README.md)와
+[`apps/grafana_dashboard_importer/README.md`](../../../apps/grafana_dashboard_importer/README.md)에
+있습니다. secret과 token은 실습 기록에 남기지 않습니다.
 
 ## 1. 관측
 
@@ -17,7 +22,7 @@ secret과 대시보드를 준비했다고 확인한 경우에만 선택합니다
 조건을 먼저 기록하며, 아직 생성하지 않은 traffic의 결과를 관찰했다고 쓰지
 않습니다. 서비스 상태, 입력과 예측 분포, 시스템 자원은 서로 다른 질문의
 지표입니다. 입력 변화는 성능 저하의 가능 원인이지 증명이 아닙니다. 첫째 날의
-100건 비교와 이 장의 세 시나리오(60+60+3)는 표본과 시간이 달라 직접 증감으로
+100건 비교와 이 장의 세 시나리오(20+20+3)는 표본과 시간이 달라 직접 증감으로
 연결하지 않습니다.
 
 ### 1-2. 세 신호의 확인 범위와 상태를 traffic 실행 전에 기록 방식으로 고정한다
@@ -96,7 +101,7 @@ collection manifest와 JSONL을 사용합니다.
 jq '{environment, scenarios: [.scenarios[] | {name, run_id}]}' \
   artifacts/traffic/collection-session.json
 jq -c 'select(.run_id == "<RUN_ID>") |
-  {scenario, run_id, request_id, status_code}' \
+  {scenario, run_id, request_id, record_id, status_code}' \
   artifacts/traffic/compose.jsonl
 ```
 
@@ -113,7 +118,35 @@ jq '.representative_requests[] |
   docs/evidence/incident/prepared-observability-correlation.json
 ```
 
-LIVE에서는 같은 두 식별자가 붙은 Risk API 로그와 trace를 조회합니다.
+LIVE에서는 Grafana 대시보드의 Request ID, Run ID, Trace ID 필터나 Explore에서
+같은 식별자가 붙은 Risk API 로그와 trace를 조회합니다. 대시보드는 Service,
+Prediction quality, 조사 세 줄입니다. Service에는 `Request rate`,
+`5xx rate`, `P95 latency`, `Latency heatmap`이 있습니다. Prediction quality에는
+`High-risk prediction rate`, `Risk score P95`, `Missing features P95`,
+`Risk score heatmap`, `Missing features heatmap`이 있습니다. 조사 줄에는
+`Recent Risk API logs`와 `Risk API traces`가 있습니다.
+
+`5xx rate`가 비어 있으면 서버 실패가 없었다는 뜻입니다. 422는 서버 실패가
+아니므로 이 패널에 나타나지 않습니다. 422는 `Request rate`의 상태 코드와
+검증 실패 로그에서 봅니다.
+
+`P95 latency`, `Risk score P95`, `Missing features P95`는 한 숫자입니다. 값이
+어디에 퍼져 있는지는 heatmap에서 봅니다. Grafana에는 원본 입력 feature가
+없습니다. 원본 값을 보려면 JSONL의 `record_id`로 5장의
+`data/splits-v2/operational.csv`를 잇습니다. 원본 feature는 Cloud에 올리지
+않습니다.
+
+`--fast`나 요청 2건 확인은 Grafana `rate()` 수업 표본이 아닙니다.
+`course-session` 시간 창을 쓰고, Scenario를 `baseline`, `current-shift`,
+`invalid`로 나눠 비교합니다.
+
+로그에 health나 metrics만 보이면 시간 범위를 traffic 구간으로 맞춥니다.
+대시보드의 `Recent Risk API logs`는 예측 관련 `event`만 남깁니다.
+`http.request.completed`, `risk.prediction.completed`,
+`model.input.validation.failed`입니다.
+
+같은 요청을 Explore에서 찾을 때 아래 LogQL과 TraceQL을 사용합니다. 자리 표시
+값은 collection manifest와 JSONL에서 가져온 값으로 바꿉니다.
 
 ```logql
 {service_name="risk-api", environment="<ENVIRONMENT>"} | json | run_id="<RUN_ID>" | request_id="<REQUEST_ID>"
@@ -122,6 +155,9 @@ LIVE에서는 같은 두 식별자가 붙은 Risk API 로그와 trace를 조회�
 ```traceql
 { resource.service.name = "risk-api" && span."aiqa.run_id" = "<RUN_ID>" && span."aiqa.request_id" = "<REQUEST_ID>" }
 ```
+
+`Risk API traces` 패널은 표입니다. 표에서 request ID를 고른 뒤 Explore
+waterfall에서 부모 span과 자식 span이 어떻게 이어지는지 봅니다.
 
 Loki와 Tempo에서 같은 식별자를 찾을 때 request ID는 log/trace 연결에만 쓰고
 Prometheus metric label에는 넣지 않습니다. PREPARED/OFFLINE에서는 fixture의

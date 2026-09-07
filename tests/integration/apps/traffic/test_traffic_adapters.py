@@ -95,7 +95,9 @@ def test_v2_operational_pool_is_target_free_and_wire_compatible() -> None:
 
     patient = pool.patient(0)
     assert pool.size == 100
+    assert pool.record_id(0) == "132648"
     assert set(patient) == set(contract.feature_names)
+    assert "record_id" not in patient
     assert isinstance(patient["age__missing"], bool)
     assert "target" not in patient
 
@@ -123,6 +125,7 @@ def test_prediction_client_propagates_trace_context_with_course_headers() -> Non
                 request_id="baseline-course-run-0001",
                 run_id="course-run",
                 scenario="baseline",
+                record_id="132648",
                 timeout_seconds=1.0,
             )
     finally:
@@ -135,6 +138,7 @@ def test_prediction_client_propagates_trace_context_with_course_headers() -> Non
     } == {
         "X-Request-ID": "baseline-course-run-0001",
         "X-AIQA-Run-ID": "course-run",
+        "X-AIQA-Record-ID": "132648",
         "X-AIQA-Scenario": "baseline",
     }
     assert response.run_id == "course-run"

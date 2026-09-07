@@ -273,7 +273,11 @@ port-forward, tunnel을 만들지 않습니다. 강사 화면이 있으면 목�
 ### LIVE/PREPARED 경로와 세 신호의 상관 조건을 실행 전에 정한다
 
 강사가 LIVE dashboard와 필요한 준비를 확인했을 때만 LIVE를 선택합니다. 그렇지
-않으면 reference fixture를 사용하는 PREPARED/OFFLINE 경로를 선택합니다. 실행 전
+않으면 reference fixture를 사용하는 PREPARED/OFFLINE 경로를 선택합니다.
+수강생이 직접 채우는 값은 강사가 알려 준 대시보드 URL뿐이며 token은 기록하지
+않습니다. Grafana Cloud에서 URL·UID·token을 복사하는 화면은
+[Alloy secret 안내](../deploy/secrets/alloy/README.md)와
+[Dashboard importer 안내](../apps/grafana_dashboard_importer/README.md)에 있습니다. 실행 전
 environment, model, UTC window와 request/run/trace correlation 조건을 기록합니다.
 서비스 상태, 입력과 예측 분포, 시스템 자원은 서로 다른 질문의 지표입니다.
 입력 변화는 성능 저하의 가능 원인이지 증명이 아닙니다. 첫째 날의 100건 비교와

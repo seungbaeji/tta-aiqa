@@ -80,7 +80,7 @@ class RiskApiObservabilityConfig(BaseModel):
             raise ValueError("Risk API allowed methods must be unique")
         if self.fallback_method not in self.allowed_methods:
             raise ValueError("Risk API fallback method must be allowed")
-        forbidden = {"request_id", "run_id", "span_id", "trace_id"}
+        forbidden = {"record_id", "request_id", "run_id", "span_id", "trace_id"}
         for labels in (self.request_metric_labels, self.prediction_metric_labels):
             if not labels or len(labels) != len(set(labels)):
                 raise ValueError("Risk API metric labels must be non-empty and unique")
@@ -119,6 +119,7 @@ class ApiConfig(BaseModel):
     api_version: str = Field(pattern=r"^v[1-9][0-9]*$")
     request_id_header: str = Field(min_length=1)
     run_id_header: str = Field(min_length=1)
+    record_id_header: str = Field(default="X-AIQA-Record-ID", min_length=1)
     scenario_header: str = Field(min_length=1)
     max_request_body_bytes: int = Field(gt=0, le=1_048_576)
     positive_label: str = Field(min_length=1)
