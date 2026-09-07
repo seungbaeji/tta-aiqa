@@ -274,6 +274,11 @@ def test_data_quality_notebook_is_runnable_and_scoped_to_eda() -> None:
     assert "RAW_SAMPLE_SIZE" in source
     assert "sample_paths" in source
     assert "preferred_sample" in source
+    assert "PhysioNetRecordRepository" not in source
+    assert "profile_raw_records" not in source
+    assert "assert len(raw_profile) == 4000" not in source
+    assert "len(raw_profile) == len(sample_paths)" in source
+    assert "48시간은 한 행으로 집계할 관측 창" in source
     assert "setup_course.py --data-only" in source
     assert (
         'raw_measurements["record_id"].nunique() == source.expected_record_count'

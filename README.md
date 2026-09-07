@@ -180,8 +180,9 @@ data/splits/physionet-2012/revisions/v2/datasets/
 ### 4-1. 수동 EDA
 
 VS Code에서 `labs/ch01-data-quality/01_physionet_data_quality_eda.ipynb`를 열고
-위에서 아래로 실행합니다. 원본 측정 범위, `-1` 결측 표식, 48시간 범위, 정답
-연결과 가공 뒤 결측률을 확인합니다.
+위에서 아래로 실행합니다. 원본 측정 범위, `-1` 결측 표식, 입실 후 48시간 관측
+창, 정답 연결과 가공 뒤 결측률을 확인합니다. 원본 파싱은 표본 파일만 사용하고
+4,000행 특성 표는 가공 CSV를 읽습니다.
 
 ### 4-2. Great Expectations
 
