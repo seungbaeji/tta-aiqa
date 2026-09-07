@@ -6,7 +6,8 @@ services:
   #   https://mlflow-ttaN-pveX.apps.learn.mrml.dev → 게스트 :5000
   # 수강생은 그 URL을 AIQA_MLFLOW_TRACKING_URI로 쓴다.
   # Risk API용 ttaN-pveX(:80)이나 http://127.0.0.1:5000은 기록 경로가 아니다.
-  # NPM이 공개 Host로 붙으므로 0.0.0.0:5000과 --allowed-hosts *가 필요하다.
+  # NPM이 공개 Host로 붙으므로 0.0.0.0:5000, --allowed-hosts *,
+  # --cors-allowed-origins *가 필요하다. Host만 열면 브라우저 POST가 403이 된다.
   mlflow:
     build:
       context: ..
@@ -24,6 +25,8 @@ services:
       - "5000"
       - --allowed-hosts
       - "*"
+      - --cors-allowed-origins
+      - "*"
       - --workers
       - "1"
     ports:
@@ -38,7 +41,7 @@ services:
     restart: unless-stopped
 
   risk-api:
-    image: ghcr.io/seungbaeji/tta-aiqa-risk-api@sha256:08a493ac2771f7c3f0e772a8b085a8c3ef9b1b9fec149d00db2f4d26dbc2556f
+    image: ghcr.io/seungbaeji/tta-aiqa-risk-api@sha256:7d2cc40f88c914c64ca53727531f8bab7210f928cb40fa2227807031e1eb825f
     build:
       context: ..
       dockerfile: apps/risk_api/Dockerfile

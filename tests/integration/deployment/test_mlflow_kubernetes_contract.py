@@ -111,6 +111,7 @@ def test_mlflow_deployment_reuses_model_trainer_image_without_fake_digest() -> N
     assert "--artifacts-destination" in command
     assert "/runtime/mlflow/artifacts" in command
     assert "--allowed-hosts" in command
+    assert "--cors-allowed-origins" in command
     assert OFFICIAL_EXPERIMENT not in yaml.safe_dump(deployment)
     assert environment.get("MLFLOW_EXPERIMENT_NAME") != OFFICIAL_EXPERIMENT
     assert "tta-aiqa-physionet-2012-v2" not in yaml.safe_dump(container)
@@ -158,6 +159,7 @@ def test_classroom_mlflow_is_compose_and_k8s_yaml_is_unapplied_reference() -> No
     assert "AIQA_MLFLOW_TRACKING_URI" in section
     assert "0.0.0.0:${AIQA_MLFLOW_BIND_PORT:-5000}:5000" in compose
     assert "--allowed-hosts" in compose
+    assert "--cors-allowed-origins" in compose
     assert "http://127.0.0.1:5000" in section
     assert "닫힌망 기본 경로가 아닙니다" in section
     assert "deploy/k8s/base/mlflow.yaml" in section

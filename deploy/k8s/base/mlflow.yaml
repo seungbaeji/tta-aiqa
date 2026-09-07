@@ -45,6 +45,8 @@ spec:
             - "5000"
             - --allowed-hosts
             - "*"
+            - --cors-allowed-origins
+            - "*"
             - --workers
             - "1"
           ports:

@@ -18,7 +18,7 @@ def test_compose_runs_same_local_risk_api_and_independent_traffic_app() -> None:
     services = compose()["services"]
     images = json.loads(
         Path(
-            "docs/evidence/deployment/runtime-images-v2-20260908-7a1533f.json"
+            "docs/evidence/deployment/runtime-images-v2-20260908-23fbb5d.json"
         ).read_text(
             encoding="utf-8"
         )
@@ -93,6 +93,8 @@ def test_compose_published_ports_default_to_loopback_with_explicit_override() ->
         "--port",
         "5000",
         "--allowed-hosts",
+        "*",
+        "--cors-allowed-origins",
         "*",
         "--workers",
         "1",
