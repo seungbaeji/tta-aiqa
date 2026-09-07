@@ -12,6 +12,7 @@ services:
     build:
       context: ..
       dockerfile: apps/model_trainer/Dockerfile
+      target: release
     command:
       - mlflow
       - server
@@ -45,6 +46,7 @@ services:
     build:
       context: ..
       dockerfile: apps/risk_api/Dockerfile
+      target: release
     environment:
       AIQA_API_ENVIRONMENT: compose
       AIQA_API_MODEL_BACKEND: local
@@ -70,6 +72,7 @@ services:
     build:
       context: ..
       dockerfile: apps/traffic_generator/Dockerfile
+      target: release
     environment:
       AIQA_TRAFFIC_ENVIRONMENT: compose
       AIQA_TRAFFIC_API_URL: http://risk-api:8000
