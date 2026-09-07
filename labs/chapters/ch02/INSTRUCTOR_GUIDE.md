@@ -172,7 +172,9 @@ V2 historical evidence를 다시 실행하는 대신 새 revision 번호로 이 
 
 ### 6-1. 화면을 읽는 순서
 
-1. Experiment가 `student-development-tracking`인지 확인합니다.
+1. Experiment가 `student-development-tracking`인지 확인합니다. MLflow 3 UI
+   왼쪽의 `GenAI`가 켜져 있으면 `Model training`으로 바꿉니다. `Default`
+   experiment의 Overview/Models는 학생 학습 Run이 아닙니다.
 2. Run tag의 `not_official_evidence=true`와 `aiqa.profile=candidate-b`를 봅니다.
 3. Parameters에서 model 설정과 Git/DVC/data/config 지문을 확인합니다.
 4. Metrics에서 `valid.*`만 기록됐는지 확인합니다.
@@ -230,6 +232,8 @@ revision의 freeze, sealed evaluation과 manifest lifecycle을 설명합니다.
 | `DATA_NOT_PREPARED` | 역할별 입력 파일 없음 | `prepare_data.py` 실행 후 `dvc status` |
 | dataset digest mismatch | 입력이 V2 evidence와 달라짐 | 파일을 임의 수정하지 말고 DVC 재현 상태 확인 |
 | `MLFLOW_NOT_RUNNING` | URI 없음 또는 `/health` 실패 | 환경 변수, DNS/TLS, proxy와 server health |
+| UI가 permission 또는 Failed to load chart data | 공개 HTTPS Origin의 POST가 CORS 403 | server log의 `Blocked cross-origin request`, `--cors-allowed-origins *` |
+| `Default` Overview/Models만 보임 | GenAI 화면이거나 잘못된 experiment | `Model training`과 `student-development-tracking` |
 | SQLite permission error | server bind mount 쓰기 불가 | 강의 전 `chown` 초기화 재실행 |
 | Run은 있으나 bundle 없음 | logging이 중간 실패했을 가능성 | Run status와 server log 확인 |
 | bundle은 있으나 Logged Model 없음 | `log_model()` 단계 실패 가능성 | Run log와 Logged Models 화면 확인 |

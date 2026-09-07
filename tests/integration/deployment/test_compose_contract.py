@@ -94,6 +94,8 @@ def test_compose_published_ports_default_to_loopback_with_explicit_override() ->
         "5000",
         "--allowed-hosts",
         "*",
+        "--cors-allowed-origins",
+        "*",
         "--workers",
         "1",
     ]

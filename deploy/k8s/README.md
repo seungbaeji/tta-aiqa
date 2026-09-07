@@ -108,7 +108,10 @@ and set `AIQA_MLFLOW_TRACKING_URI` to that URL. They do not create a ClusterIP
 Service, port-forward, or tunnel, and they do not use
 `http://127.0.0.1:5000` as the recorded classroom path.
 
-Compose publishes `0.0.0.0:5000` and passes `--allowed-hosts *`. Kubernetes
+Compose publishes `0.0.0.0:5000` and passes `--allowed-hosts *` with
+`--cors-allowed-origins *`. Host allowlist alone still blocks browser POST
+from the public HTTPS origin, and the UI shows that 403 as a permission
+error. Kubernetes
 manifests for a tracking server stay in `deploy/k8s/base/` as
 `mlflow.yaml`, `mlflow-ingress.yaml`, and `mlflow-pvc.yaml`. They are not
 listed in `kustomization.yaml` resources, so course overlays do not apply
