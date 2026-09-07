@@ -99,6 +99,9 @@ uv run pytest -q labs/exercises/tests/test_ge_summary.py
 학습/검증 파일의 SHA-256을 직접 계산해 선언 파일과 대조합니다.
 공식 평가용 `test`와 `operational` 파일은 열지 않습니다.
 잠금 파일 지문이 달라도 값을 고치지 말고 계산 결과를 적습니다.
+이 학습/검증 지문 확인은 2장 선택 노트북
+`02_log_development_mlflow_run_practice.ipynb`에서 클러스터 MLflow에
+`data_roles=train,valid`만 남기기 전에 먼저 닫는 전제입니다.
 
 ## 3. 단계 완료
 

@@ -243,17 +243,23 @@ V2의 모델 준비 결과와 실행 ID는
 강사 또는 플랫폼 담당자는 `scripts/publish_model.py`와 승인된 배포 절차를
 사용하고, 수강생은 준비된 `deployment.json`과 모델 근거를 읽습니다.
 
-Compose의 MLflow service만 시작합니다. 3장에서 같은 Compose stack을 확장하므로
-별도 `mlflow server`를 실행하지 않아 포트 `5000`이 충돌하지 않습니다.
-게시 포트는 기본적으로 `127.0.0.1`에만 연결됩니다.
+닫힌망 수강생의 MLflow는 클러스터 Traefik Ingress입니다. 강사 또는 플랫폼이
+넣어 준 URL을 `AIQA_MLFLOW_TRACKING_URI`로 설정합니다. 수강생은 ClusterIP를
+만들거나 port-forward, tunnel을 열지 않습니다. Compose의
+`http://127.0.0.1:5000`은 닫힌망 기본 경로가 아닙니다.
 
 ```bash
-docker compose -f deploy/compose/simple-mlops/compose.yaml up -d mlflow
-curl http://127.0.0.1:5000/health
+curl "${AIQA_MLFLOW_TRACKING_URI%/}/health"
 ```
 
-VS Code 포트 전달 또는 강사가 제공한 주소로 MLflow 화면을 엽니다. 실행 기록에는
-평가와 데이터 역할, DVC 잠금 파일, 모델·데이터 설정의 SHA-256이 남습니다.
+값이 없거나 `/health`가 실패하면 화면 미확인을 따로 적고, 공식 실행 번호는
+JSON에서만 읽습니다. 클러스터 게시와 대상 환경 확인은 pending입니다. 구성된
+컨텍스트 `oracle/k3s`에는 과정 `tta-aiqa` 네임스페이스가 없고, `mlflow server`용
+model-trainer GHCR 이미지도 digest로 게시되지 않았습니다. 미검증 runtime을
+완료로 쓰지 않습니다.
+
+실행 기록에는 평가와 데이터 역할, DVC 잠금 파일, 모델·데이터 설정의 SHA-256이
+남습니다.
 
 Candidate B 게시 명령은 `release-manifest.json`의 평가 뒤 승인과 모델·메타데이터
 해시를 모두 검증합니다. V2 과거 근거의 대조 범위는

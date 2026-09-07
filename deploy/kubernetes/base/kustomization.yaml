@@ -7,6 +7,9 @@ resources:
   - risk-api.yaml
   - risk-api-ingress.yaml
   - inference-service.yaml
+  - mlflow-pvc.yaml
+  - mlflow.yaml
+  - mlflow-ingress.yaml
 configMapGenerator:
   - name: risk-api-config
     namespace: tta-aiqa

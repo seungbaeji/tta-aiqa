@@ -43,12 +43,14 @@ uv run python scripts/run_model.py status --revision v2
 
 `model-bootstrap.json`, `release-freeze.json`, `canonical-benchmark.json`,
 `release-manifest.json`의 순서와 데이터 revision, 파일 지문, 실험 실행 번호를
-대조합니다. MLflow 화면이 없으면 JSON을 읽고 화면 미확인을 따로 적습니다.
-필요할 때만 같은 Compose의 MLflow를 시작합니다.
+대조합니다. 닫힌망 수강생의 MLflow는 클러스터 Ingress입니다. 강사가 준 URL을
+`AIQA_MLFLOW_TRACKING_URI`로 설정합니다. 수강생은 ClusterIP, port-forward,
+tunnel을 만들지 않습니다. Compose `http://127.0.0.1:5000`은 닫힌망 기본
+경로가 아닙니다. 값이 없거나 `/health`가 실패하면 JSON을 읽고 화면 미확인을
+따로 적습니다.
 
 ```bash
-docker compose -f deploy/compose/simple-mlops/compose.yaml up -d mlflow
-curl http://127.0.0.1:5000/health
+curl "${AIQA_MLFLOW_TRACKING_URI%/}/health"
 ```
 
 ## 2. 남는 시간 실습
@@ -56,12 +58,16 @@ curl http://127.0.0.1:5000/health
 판단 기록의 모델 품질 칸에 공식 실행 번호를 적은 뒤에만 엽니다. 화면이 비어
 있어도 공식 판단은 JSON으로 이미 닫혀 있습니다.
 
-### 2-1. 개발용 학습을 임시 MLflow run으로 남겨 공식 실행과 구분한다
+### 2-1. 개발용 학습을 클러스터 MLflow run으로 남겨 공식 실행과 구분한다
 
-선택 노트북 `02_log_development_mlflow_run_practice.ipynb`를 위에서 아래로
-실행합니다. 학습/검증만 사용하는 개발용 학습을 임시 폴더 MLflow에 남깁니다.
+1장 선택 노트북 `02_inspect_dvc_revision_practice.ipynb`에서 학습/검증 지문을
+확인한 뒤에만 엽니다. 선택 노트북
+`02_log_development_mlflow_run_practice.ipynb`를 위에서 아래로 실행합니다.
+학습/검증만 사용하는 개발용 학습을 `AIQA_MLFLOW_TRACKING_URI`의 클러스터
+MLflow experiment `practice-development-tracking`에 남깁니다. 값이 없거나
+`/health`가 실패하면 `MLFLOW_NOT_RUNNING`만 남기고 실행을 만들지 않습니다.
 이 실행 번호는 공식 학습 실행이나 공식 승인 실행을 대체하지 않으며, 공식
-근거 폴더와 Compose 화면에도 쓰지 않습니다.
+근거 폴더와 `artifacts/mlflow/`에도 쓰지 않습니다.
 
 ## 3. 단계 완료
 

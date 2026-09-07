@@ -100,3 +100,36 @@ report.
 A passing release report does not claim that Grafana received live data. Keep
 `live_telemetry_status=not_checked` until metrics, bounded logs, and the
 representative trace are confirmed for the same model and UTC range.
+
+## 5. Course MLflow
+
+Closed-network learners connect to the cluster MLflow tracking server through
+the platform-injected Ingress URL. They set `AIQA_MLFLOW_TRACKING_URI` to that
+URL. They do not create a ClusterIP Service, port-forward, or tunnel, and they
+do not use Compose `http://127.0.0.1:5000` as the classroom path.
+
+The base includes a Traefik Ingress that connects the ClusterIP `mlflow`
+Service to the cluster HTTP entrypoint. The manifest does not set a hostname.
+The platform injects the hostname the same way it does for Risk API. A PVC
+holds the server sqlite store and artifacts under `/mnt/course-mlflow`. The
+object-count ResourceQuota already covers the extra Pod, Service, and PVC, so
+this change does not raise the quota.
+
+The server reuses `apps/model-trainer/Dockerfile`, the same image Compose uses
+to run `mlflow server`. A digest-pinned GHCR image has not been published, so
+the Deployment names `ghcr.io/seungbaeji/tta-aiqa-model-trainer` without an
+OCI digest. Do not treat that image reference as a verified runtime.
+
+Cluster publish and `/health` verification are pending. The configured context
+`oracle/k3s` does not contain the course `tta-aiqa` namespace, so this
+workstream did not apply or probe the tracking server. After the instructor
+publishes the image by digest and the platform injects the Ingress host, set
+`AIQA_MLFLOW_TRACKING_URI` and confirm:
+
+```bash
+curl "${AIQA_MLFLOW_TRACKING_URI%/}/health"
+```
+
+The leftover practice experiment is `practice-development-tracking`. The
+server does not default the official experiment name
+`tta-aiqa-physionet-2012-v2`.
