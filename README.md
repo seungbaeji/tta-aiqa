@@ -257,7 +257,7 @@ curl "${AIQA_MLFLOW_TRACKING_URI%/}/health"
 uv run jupyter nbconvert --to notebook --execute \
   labs/chapters/ch02/02_trace_model_lineage.ipynb \
   --output /tmp/ch02-model-lineage.ipynb \
-  --ExecutePreprocessor.timeout=300
+  --ExecutePreprocessor.timeout=600
 ```
 
 값이 없거나 `/health`가 실패하면 화면 미확인을 따로 적고, 공식 실행 번호는

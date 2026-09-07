@@ -11,13 +11,15 @@ uv run python labs/run/model_status.py
 uv run python labs/run/log_development.py
 ```
 
-`log_development.py`는 학습/검증만 사용하는 Candidate B 개발 학습을 교실
-Compose MLflow의 experiment `student-development-tracking`에 남깁니다.
+`log_development.py`는 학습/검증만 사용하는 학생 MLP(`candidate-c`) 개발 학습을
+교실 Compose MLflow의 experiment `student-development-tracking`에 남깁니다.
 `split-revision.json`의 revision, 경로, 행 수와 SHA-256을 먼저 확인하고, 검증된
 `train.csv`와 `valid.csv`를 학습과 MLflow dataset input에 동일하게 사용합니다.
-Random Forest 설정과 임계값, 검증 지표, `model.joblib`, `metadata.json`과 MLflow
-Logged Model을 한 Run에 기록합니다. Git commit, DVC lock, data-lineage,
-train/valid와 feature contract SHA-256도 같은 Run의 provenance로 남깁니다.
+sklearn `MLPClassifier` 설정과 임계값, iteration별 `train.loss`/`valid.*`,
+`model.joblib`, `metadata.json`과 MLflow Logged Model을 한 Run에 기록합니다.
+공식 승인 모델은 Candidate B Random Forest이며, 이 명령이 그 승인을 바꾸지
+않습니다. Git commit, DVC lock, data-lineage, train/valid와 feature contract
+SHA-256도 같은 Run의 provenance로 남깁니다.
 
 공식 실행 번호는 `docs/evidence/model-v2/release-manifest.json`에 이미
 있습니다. 이 명령은 그 번호를 새로 만들지 않으며 봉인 평가와 operational

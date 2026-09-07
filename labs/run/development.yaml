@@ -1,6 +1,6 @@
 schema_version: 1
 experiment_name: student-development-tracking
-profile_name: candidate-b
+profile_name: candidate-c
 data_revision: v2
 tracking_uri_environment_variable: AIQA_MLFLOW_TRACKING_URI
 run_name: student-train-valid
@@ -11,7 +11,7 @@ paths:
   train: data/splits-v2/train.csv
   valid: data/splits-v2/valid.csv
   data_lineage: docs/evidence/data-v2/split-revision.json
-  profiles: configs/model-v2/profiles.yaml
+  profiles: configs/model-v2/student-profiles.yaml
   evaluation: configs/model-v2/evaluation.yaml
   feature_contract: configs/contracts/model-input.yaml
   dvc_lock: dvc.lock

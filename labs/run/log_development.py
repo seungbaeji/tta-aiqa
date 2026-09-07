@@ -26,9 +26,15 @@ from aiqa_model.adapters import (
     persist_model_bundle,
 )
 from aiqa_model.adapters.sklearn.evaluation import SklearnProfileEvaluator
+from aiqa_model.adapters.sklearn.fitting import fit_pipeline_with_history
 from aiqa_model.adapters.sklearn.pipeline import build_model_pipeline
 from aiqa_model.adapters.sklearn.selection import select_profile
-from aiqa_model.domain import EvaluationPlan, ModelProfile, ProfileEvaluation
+from aiqa_model.domain import (
+    EvaluationPlan,
+    MetricAtStep,
+    ModelProfile,
+    ProfileEvaluation,
+)
 from mlflow.environment_variables import (
     MLFLOW_PRINT_MODEL_URLS_ON_CREATION,
     MLFLOW_SUPPRESS_PRINTING_URL_TO_STDOUT,
@@ -222,7 +228,7 @@ def fit_and_evaluate(
     feature_set: FeatureSet,
     evaluation_plan: EvaluationPlan,
     random_seed: int,
-) -> tuple[Pipeline, ProfileEvaluation]:
+) -> tuple[Pipeline, ProfileEvaluation, tuple[MetricAtStep, ...]]:
     """Fit one configured model on train and evaluate that artifact on valid."""
     def pipeline_builder(selected: ModelProfile) -> Pipeline:
         return build_model_pipeline(
@@ -231,10 +237,12 @@ def fit_and_evaluate(
             random_seed=random_seed,
         )
 
-    pipeline = pipeline_builder(profile)
-    pipeline.fit(
-        train[list(feature_set.feature_names)],
-        train["target"].to_numpy(dtype=int),
+    pipeline, metric_history = fit_pipeline_with_history(
+        pipeline=pipeline_builder(profile),
+        profile=profile,
+        train=train,
+        valid=valid,
+        feature_names=feature_set.feature_names,
     )
     evaluator = SklearnProfileEvaluator(
         feature_names=feature_set.feature_names,
@@ -242,7 +250,7 @@ def fit_and_evaluate(
         random_seed=random_seed,
         pipeline_builder=pipeline_builder,
     )
-    return pipeline, evaluator.evaluate_fitted(profile, pipeline, valid)
+    return pipeline, evaluator.evaluate_fitted(profile, pipeline, valid), metric_history
 
 
 def file_sha256(path: Path) -> str:
@@ -302,6 +310,7 @@ def record_student_mlflow_run(
     tags: Mapping[str, str],
     artifact_root: Path,
     run_name: str,
+    metric_history: tuple[MetricAtStep, ...] = (),
 ) -> str:
     """Record the same dataset, metric, bundle, and model views used in production."""
     import mlflow
@@ -323,6 +332,7 @@ def record_student_mlflow_run(
             provenance=provenance,
             extra_tags=dict(tags),
             run_name=run_name,
+            metric_history=metric_history,
         )
     finally:
         mlflow.set_tracking_uri(previous_tracking_uri)
@@ -380,7 +390,7 @@ def run_student_development(
     profile = select_profile(catalog.profiles, contract.profile_name)
     feature_set = load_feature_contract(root / contract.paths["feature_contract"])
     evaluation_plan = load_evaluation_plan(root / contract.paths["evaluation"])
-    pipeline, evaluation = fit_and_evaluate(
+    pipeline, evaluation, metric_history = fit_and_evaluate(
         train,
         valid,
         profile,
@@ -425,6 +435,7 @@ def run_student_development(
             tags=contract.tags,
             artifact_root=root / "artifacts/mlruns",
             run_name=contract.run_name,
+            metric_history=metric_history,
         )
         bundle_model_sha256 = file_sha256(model_path)
         bundle_metadata_sha256 = file_sha256(metadata_path)
@@ -434,6 +445,7 @@ def run_student_development(
             "student_run_id": student_run_id,
             "model_kind": profile.kind.value,
             "threshold": profile.threshold,
+            "iteration_count": len({item.step for item in metric_history}),
             "metrics": {
                 f"valid_{name}": value
                 for name, value in asdict(evaluation.metrics).items()

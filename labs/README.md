@@ -176,9 +176,9 @@ uv run python labs/run/model_status.py --revision v2
 완전 재현으로 설명하지 않습니다.
 
 Compose MLflow가 준비되면 같은 노트북이
-`labs/run/log_development.py`를 호출해 train/valid Candidate B 학생 Run을
-만들고, dataset input, 설정, 지표, bundle과 MLflow Logged Model을 다시
-조회합니다. 학생 Run은 `split-revision.json`과 일치하는 동일 train/valid
+`labs/run/log_development.py`를 호출해 train/valid 학생 MLP Run
+(`candidate-c`)을 만들고, dataset input, 설정, iteration 지표, bundle과
+MLflow Logged Model을 다시 조회합니다. 공식 승인 모델은 Candidate B입니다. 학생 Run은 `split-revision.json`과 일치하는 동일 train/valid
 파일을 학습과 기록에 사용합니다. 역사적 Run ID는 JSON evidence이고 학생 Run은
 구조를 관찰하는 새 실행입니다. 두 Run을 같은 실행 번호나 승인 근거로 취급하지
 않습니다. MLflow가 없으면 역사적 연결 표와 구현 코드 읽기는 계속하고 학생

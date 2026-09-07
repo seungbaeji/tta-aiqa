@@ -115,7 +115,7 @@ tunnel이나 `http://127.0.0.1:5000`을 수강생 기본 경로로 안내하지 
 uv run jupyter nbconvert --to notebook --execute \
   labs/chapters/ch02/02_trace_model_lineage.ipynb \
   --output /tmp/ch02-model-lineage.ipynb \
-  --ExecutePreprocessor.timeout=300
+  --ExecutePreprocessor.timeout=600
 ```
 
 노트북을 대화형으로 열 때도 셀 순서를 바꾸지 않습니다. 실행 결과가
@@ -175,9 +175,9 @@ V2 historical evidence를 다시 실행하는 대신 새 revision 번호로 이 
 1. Experiment가 `student-development-tracking`인지 확인합니다. MLflow 3 UI
    왼쪽의 `GenAI`가 켜져 있으면 `Model training`으로 바꿉니다. `Default`
    experiment의 Overview/Models는 학생 학습 Run이 아닙니다.
-2. Run tag의 `not_official_evidence=true`와 `aiqa.profile=candidate-b`를 봅니다.
-3. Parameters에서 model 설정과 Git/DVC/data/config 지문을 확인합니다.
-4. Metrics에서 `valid.*`만 기록됐는지 확인합니다.
+2. Run tag의 `not_official_evidence=true`와 `aiqa.profile=candidate-c`를 봅니다.
+3. Parameters에서 `model_kind=mlp_classifier`와 Git/DVC/data/config 지문을 확인합니다.
+4. Metrics에서 `train.loss`와 `valid.*`가 iteration `step`으로 보이는지 확인합니다.
 5. Datasets에서 train/valid 두 입력의 name, context, source와 MLflow digest를 봅니다.
 6. Artifacts의 `bundle/model.joblib`, `bundle/metadata.json`을 확인합니다.
 7. Logged Models에서 model ID, URI, signature, input example과 sklearn flavor를 봅니다.
@@ -194,7 +194,7 @@ byte의 64자리 SHA-256은 Parameters의 `train_data_hash`, `valid_data_hash`�
 | Experiment와 artifact destination | `packages/aiqa_model/adapters/mlflow/runtime.py::configure_tracking` | remote server는 server-side artifact 기본값을 사용 |
 | Tags | `MlflowModelTracker.record()`의 `mlflow.set_tags()` | Run 검색과 역할 구분 |
 | Parameters | `mlflow.log_params()` | 모델 조건과 provenance |
-| Metrics | `mlflow.log_metrics()` | valid 측정 결과 |
+| Metrics | `mlflow.log_metric(..., step=iteration)` | MLP iteration 곡선과 최종 FN/CI |
 | Datasets | `mlflow_dataset_digest()`, `from_pandas()`, `log_input()` | 원본 SHA-256과 연결된 축약 dataset identity |
 | Artifacts | `mlflow.log_artifacts()` | 외부 runtime용 bundle 파일 |
 | Logged Models | `mlflow.sklearn.log_model()` | MLflow load용 signature와 flavor |

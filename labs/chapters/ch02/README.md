@@ -74,7 +74,7 @@ curl "${AIQA_MLFLOW_TRACKING_URI%/}/health"
 uv run jupyter nbconvert --to notebook --execute \
   labs/chapters/ch02/02_trace_model_lineage.ipynb \
   --output /tmp/ch02-model-lineage.ipynb \
-  --ExecutePreprocessor.timeout=300
+  --ExecutePreprocessor.timeout=600
 ```
 
 노트북은 내부에서 [`labs/run/log_development.py`](../../run/log_development.py)를

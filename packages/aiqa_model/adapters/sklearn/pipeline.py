@@ -9,6 +9,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
+from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
@@ -83,4 +84,11 @@ def build_estimator(profile: ModelProfile, random_seed: int) -> object:
         return LogisticRegression(random_state=random_seed, **params)
     if profile.kind is ModelKind.RANDOM_FOREST:
         return RandomForestClassifier(random_state=random_seed, **params)
+    if profile.kind is ModelKind.MLP_CLASSIFIER:
+        if params.get("early_stopping"):
+            raise ValueError(
+                "mlp_classifier must not use sklearn early_stopping; "
+                "the course valid split is scored outside the estimator"
+            )
+        return MLPClassifier(random_state=random_seed, **params)
     raise ValueError(f"unsupported model kind: {profile.kind}")

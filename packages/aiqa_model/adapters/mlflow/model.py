@@ -23,7 +23,7 @@ from aiqa_model.adapters.mlflow.datasets import (
 )
 from aiqa_model.adapters.mlflow.models import sklearn_model_destination
 from aiqa_model.adapters.mlflow.runtime import configure_tracking
-from aiqa_model.domain import ModelProfile, ProfileEvaluation
+from aiqa_model.domain import MetricAtStep, ModelProfile, ProfileEvaluation
 
 
 class MlflowModelTracker:
@@ -52,6 +52,7 @@ class MlflowModelTracker:
         provenance: dict[str, str],
         extra_tags: Mapping[str, str] | None = None,
         run_name: str | None = None,
+        metric_history: tuple[MetricAtStep, ...] = (),
     ) -> str:
         """Log one model, its train/valid inputs, metrics, and external bundle files."""
         configure_tracking(
@@ -81,21 +82,31 @@ class MlflowModelTracker:
                 {
                     "model_kind": profile.kind.value,
                     "threshold": profile.threshold,
-                    **{f"model.{key}": value for key, value in profile.params},
+                    **{
+                        f"model.{key}": tracking_param_value(value)
+                        for key, value in profile.params
+                    },
                     **provenance,
                 }
             )
-            mlflow.log_metrics(
-                {
-                    "valid.precision": evaluation.metrics.precision,
-                    "valid.recall": evaluation.metrics.recall,
-                    "valid.f1": evaluation.metrics.f1,
-                    "valid.roc_auc": evaluation.metrics.roc_auc,
-                    "valid.pr_auc": evaluation.metrics.pr_auc,
-                    "valid.false_negative": evaluation.metrics.false_negative,
-                    "valid.recall_ci_lower": evaluation.bootstrap_recall_lower,
-                }
-            )
+            scalar_metrics = {
+                "valid.precision": evaluation.metrics.precision,
+                "valid.recall": evaluation.metrics.recall,
+                "valid.f1": evaluation.metrics.f1,
+                "valid.roc_auc": evaluation.metrics.roc_auc,
+                "valid.pr_auc": evaluation.metrics.pr_auc,
+                "valid.false_negative": evaluation.metrics.false_negative,
+                "valid.recall_ci_lower": evaluation.bootstrap_recall_lower,
+            }
+            history_names = {item.name for item in metric_history}
+            if metric_history:
+                for item in metric_history:
+                    mlflow.log_metric(item.name, item.value, step=item.step)
+                for name, value in scalar_metrics.items():
+                    if name not in history_names:
+                        mlflow.log_metric(name, value)
+            else:
+                mlflow.log_metrics(scalar_metrics)
             mlflow.log_input(
                 mlflow.data.from_pandas(
                     train.drop(columns=["record_id"]).astype(float),
@@ -128,3 +139,12 @@ class MlflowModelTracker:
                 **sklearn_model_destination(MODEL_ARTIFACT_NAME),
             )
             return run.info.run_id
+
+
+def tracking_param_value(value: object) -> str | int | float:
+    """Convert profile parameters into MLflow-supported scalar param values."""
+    if isinstance(value, bool) or value is None:
+        return str(value)
+    if isinstance(value, (int, float, str)):
+        return value
+    return str(value)

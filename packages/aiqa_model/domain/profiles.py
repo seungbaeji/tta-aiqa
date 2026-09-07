@@ -16,6 +16,7 @@ class ModelKind(StrEnum):
 
     LOGISTIC_REGRESSION = "logistic_regression"
     RANDOM_FOREST = "random_forest"
+    MLP_CLASSIFIER = "mlp_classifier"
 
 
 class ModelRole(StrEnum):
@@ -193,6 +194,31 @@ class ProfileEvaluation:
     metrics: BinaryMetrics
     bootstrap_recall_lower: float
     cross_validation: tuple[tuple[str, MetricDistribution], ...]
+
+
+@dataclass(frozen=True)
+class MetricAtStep:
+    """One named metric recorded at a single training iteration."""
+
+    name: str
+    value: float
+    step: int
+
+    def __post_init__(self) -> None:
+        if (
+            not isinstance(self.name, str)
+            or not self.name
+            or self.name != self.name.strip()
+        ):
+            raise ValueError("metric name must be a non-empty trimmed string")
+        if not isinstance(self.value, float) or isinstance(self.value, bool):
+            raise ValueError("metric value must be a float")
+        if (
+            not isinstance(self.step, int)
+            or isinstance(self.step, bool)
+            or self.step < 1
+        ):
+            raise ValueError("metric step must be a positive integer")
 
 
 class FeatureSelection(StrEnum):
