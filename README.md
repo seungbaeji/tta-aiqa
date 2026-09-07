@@ -307,11 +307,13 @@ uv run jupyter nbconvert --to notebook --execute \
 ### 6-2. 관측 환경
 
 Grafana 접속 정보, Alloy 설정, 대시보드 가져오기와 이미지 빌드는 강사 또는 환경
-담당자가 강의 시작 전에 준비합니다. 수강생은
+담당자가 강의 시작 전에 준비합니다. 각 값의 복사 위치는
+[`deploy/secrets/alloy/README.md`](deploy/secrets/alloy/README.md)와
+[`apps/grafana_dashboard_importer/README.md`](apps/grafana_dashboard_importer/README.md)를
+따릅니다. 수강생은
 [`labs/chapters/ch04/README.md`](labs/chapters/ch04/README.md)에서
 LIVE와 PREPARED/OFFLINE 가운데 하나를 고르고 선택한 경로의 품질 근거만
-확인합니다. 운영자용 Alloy 설정은
-[`deploy/secrets/alloy/README.md`](deploy/secrets/alloy/README.md)에 있습니다.
+확인합니다.
 
 ### 6-3. Trace 경계
 

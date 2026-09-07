@@ -1,5 +1,8 @@
 {
-  "annotations": {"list": []},
+  "annotations": {
+    "list": []
+  },
+  "description": "Risk API가 받은 예측 요청을 얼마나, 얼마나 빨리, 어떤 점수로 다루었는지 보는 화면입니다. 위는 요청과 지연, 가운데는 모델이 내보낸 점수, 아래는 한 건을 로그와 추적으로 찾아가는 자리입니다. 선을 보기 전에 시간 범위와 Scenario를 맞추고, 각 그래프 제목 옆 i에서 해설을 읽습니다.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -7,90 +10,453 @@
   "links": [],
   "panels": [
     {
-      "datasource": {"type": "prometheus", "uid": "__AIQA_METRICS_UID__"},
-      "fieldConfig": {"defaults": {"unit": "reqps"}, "overrides": []},
-      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 0},
+      "gridPos": {
+        "h": 16,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 16,
+      "options": {
+        "code": {
+          "language": "markdown",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "이 화면은 질문 세 개로 나뉩니다.\n- `Service`: 요청을 받고 있나, 서버가 죽었나, 얼마나 걸리냐\n- `Prediction quality`: 모델이 고위험을 얼마나 내고, 점수와 결측이 어떻게 퍼졌나\n- `Investigate`: 이상해 보이는 한 건이 같은 사건인가\n\n각 그래프 제목 옆 **i**를 누르면 그 그래프만의 해설이 있습니다.\n\n예측 요청이 실제로 들어간 구간을 고릅니다. 이 환경의 부하 세션 이름은 `course-session`입니다. 요청이 거의 없는 창에서는 선이 비거나 흔들릴 수 있습니다. 그때는 고장보다 표본이 부족한 경우가 많습니다.\n\n같은 서비스를 어떤 입력으로 두드렸는지 Scenario로 나눕니다.\n- `baseline`: 평소와 가까운 입력\n- `current-shift`: 입력이 평소와 다르게 움직인 구간\n- `invalid`: 형식이 맞지 않아 예측 전에 거절된 요청\n한 선으로 모두 보면 원인이 섞입니다.\n\n다른 패널에서 요청과 텔레메트리가 보이는데 `5xx rate`만 비어 있다면, 관측된 5xx가 없다는 뜻입니다. 빈 패널만으로 서비스가 건강하다고 판단할 수는 없습니다. 입력 오류(422)는 `5xx rate`에 없고 `Request rate`에 있습니다.\nP95는 각 시점에 요청의 약 95%가 그 이하였던 요약값입니다. 값이 어디에 퍼져 있는지는 heatmap에서 봅니다.\n원본 입력값은 Cloud 대시보드에 없습니다. 로그 또는 운영 JSONL에서 `record_id`를 확인한 뒤, 같은 값으로 운영 CSV를 조인해 원본 레코드를 찾습니다.\n아래 traces는 목록입니다. 누가 누구를 호출했는지는 한 줄을 고른 뒤 Explore waterfall에서 봅니다.\nRequest ID, Run ID, Trace ID는 로그와 추적을 찾는 검색어입니다. 위쪽 숫자 그래프의 라벨이 아닙니다.",
+        "mode": "markdown"
+      },
+      "title": "가이드라인",
+      "transparent": true,
+      "type": "text",
+      "description": "질문 세 개(Service, Prediction quality, Investigate)와 조회 전에 맞출 시간 범위·Scenario를 안내합니다. 각 그래프의 자세한 해설은 해당 패널 제목 옆 i에 있습니다."
+    },
+    {
+      "collapsed": false,
+      "description": "예측 API가 요청을 얼마나 받았고, 얼마나 빨리 답했는지를 보는 줄입니다. 상태 코드(200, 422, 5xx)와 지연의 퍼진 모양을 같이 봐야 합니다. `Request rate`에 요청이 보이는데 `5xx rate`가 비어 있어도, 422가 많거나 지연 꼬리가 있을 수 있습니다.",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "id": 10,
+      "panels": [],
+      "title": "Service",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "__AIQA_METRICS_UID__"
+      },
+      "description": "이 그래프는 예측 API(`/v1/predict`)가 받은 요청의 초당 건수를 상태 코드별로 보여줍니다. 헬스 체크(`/health`, `/metrics`)는 여기에 들어가지 않습니다.\n\n범례는 Scenario와 HTTP 상태 코드입니다.\n- 200: 입력이 통과되어 예측까지 간 요청입니다.\n- 422: 입력이 규칙에 맞지 않아, 모델을 돌리기 전에 거절된 요청입니다. 서버가 죽은 것이 아닙니다. `invalid`에서 자주 보입니다.\n- 5xx: 서버가 처리하다 실패한 요청입니다. 5xx만 따로 보려면 옆의 `5xx rate`를 봅니다.\n\n선이 없으면 이 시간 범위에 예측 요청이 거의 없거나, 아직 지표가 보이지 않는 구간입니다. 시간 범위를 부하가 있던 구간으로 옮겨 보세요.\n422가 보이면 아래 로그의 `model.input.validation.failed`에서 거절 이유를 봅니다.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 17
+      },
       "id": 1,
-      "targets": [{"expr": "sum by (scenario, status_code) (rate(aiqa_risk_requests_total{environment=~\"$environment\",scenario=~\"${scenario:regex}\",route=\"/v1/predict\"}[$__rate_interval]))", "legendFormat": "{{scenario}} HTTP {{status_code}}", "refId": "A"}],
+      "targets": [
+        {
+          "expr": "sum by (scenario, status_code) (rate(aiqa_risk_requests_total{environment=~\"$environment\",scenario=~\"${scenario:regex}\",route=\"/v1/predict\"}[$__rate_interval]))",
+          "legendFormat": "{{scenario}} HTTP {{status_code}}",
+          "refId": "A"
+        }
+      ],
       "title": "Request rate",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "prometheus", "uid": "__AIQA_METRICS_UID__"},
-      "fieldConfig": {"defaults": {"unit": "percentunit"}, "overrides": []},
-      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 0},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "__AIQA_METRICS_UID__"
+      },
+      "description": "이 그래프는 서버가 5xx로 실패한 예측 요청만 모아, 1초당 몇 건인지 그린 것입니다. 200(성공)과 422(입력 거절)는 일부러 빼 두었습니다.\n\n같은 시간대에 `Request rate`가 보이고 텔레메트리도 수집되는데 이 선만 없다면, 관측된 5xx 요청이 없다는 뜻입니다. 이 패널이 비었다는 사실만으로 서비스가 건강하다고 판단할 수는 없습니다. 입력이 거절되었거나 응답만 느린 문제는 여기에 나타나지 않습니다.\n\n422를 장애로 보고 이 그래프가 비어 있어 안심하면 안 됩니다. 입력 오류는 왼쪽 `Request rate`의 422 선과, 아래 로그의 `model.input.validation.failed`에서 봅니다.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 6,
+        "y": 17
+      },
       "id": 2,
-      "targets": [{"expr": "sum by (scenario) (rate(aiqa_risk_requests_total{environment=~\"$environment\",scenario=~\"${scenario:regex}\",route=\"/v1/predict\",status_code=~\"5..\"}[$__rate_interval])) / clamp_min(sum by (scenario) (rate(aiqa_risk_requests_total{environment=~\"$environment\",scenario=~\"${scenario:regex}\",route=\"/v1/predict\"}[$__rate_interval])), 1e-9)", "legendFormat": "{{scenario}} 5xx", "refId": "A"}],
-      "title": "Error rate",
+      "targets": [
+        {
+          "expr": "sum by (scenario) (rate(aiqa_risk_requests_total{environment=~\"$environment\",scenario=~\"${scenario:regex}\",route=\"/v1/predict\",status_code=~\"5..\"}[$__rate_interval]))",
+          "legendFormat": "{{scenario}} 5xx",
+          "refId": "A"
+        }
+      ],
+      "title": "5xx rate",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "prometheus", "uid": "__AIQA_METRICS_UID__"},
-      "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []},
-      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 0},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "__AIQA_METRICS_UID__"
+      },
+      "description": "이 그래프는 각 집계 구간에서 요청 지연의 약 95%가 그 이하였던 값을 보여줍니다. 단위는 초입니다. 예를 들어 P95가 0.05초라면 요청의 약 95%가 0.05초 이내에 끝났다는 뜻입니다.\n\n각 시점에는 하나의 요약값만 표시되므로 전체 분포와 최대 지연은 오른쪽 `Latency heatmap`에서 확인합니다. 가장 느린 한 건의 값이 아닙니다.\n\n요청이 거의 없는 창에서는 표본이 적어 선이 끊기거나 크게 흔들릴 수 있습니다. 고장보다 데이터가 부족한 경우가 많습니다.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 17
+      },
       "id": 3,
-      "targets": [{"expr": "histogram_quantile(0.95, sum by (le, scenario) (rate(aiqa_risk_request_duration_seconds_bucket{environment=~\"$environment\",scenario=~\"${scenario:regex}\",route=\"/v1/predict\"}[$__rate_interval])))", "legendFormat": "{{scenario}} P95", "refId": "A"}],
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, scenario) (rate(aiqa_risk_request_duration_seconds_bucket{environment=~\"$environment\",scenario=~\"${scenario:regex}\",route=\"/v1/predict\"}[$__rate_interval])))",
+          "legendFormat": "{{scenario}} P95",
+          "refId": "A"
+        }
+      ],
       "title": "P95 latency",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "prometheus", "uid": "__AIQA_METRICS_UID__"},
-      "fieldConfig": {"defaults": {"unit": "percentunit"}, "overrides": []},
-      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 8},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "__AIQA_METRICS_UID__"
+      },
+      "description": "이 그래프는 같은 지연 시간을 “어디에 얼마나 몰렸는지” 색으로 보여줍니다. 가로축은 시간이고, 세로축은 지연 구간입니다. 아래쪽은 빠른 요청, 위쪽은 느린 요청이며, 색이 진할수록 그 구간에 요청이 많았습니다.\n\n왼쪽 P95가 낮아 보여도, heatmap 위쪽(느린 구간)에 색이 있으면 일부 요청은 많이 느린 것입니다. P95 숫자만 보고 괜찮다고 단정하지 마세요.\n\n이 시간 범위에 예측 요청이 거의 없으면 색도 거의 없습니다. 먼저 `Request rate`에 선이 있는지 확인합니다.",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 17
+      },
+      "id": 11,
+      "options": {
+        "calculate": false,
+        "yAxis": {
+          "unit": "s"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (le, scenario) (rate(aiqa_risk_request_duration_seconds_bucket{environment=~\"$environment\",scenario=~\"${scenario:regex}\",route=\"/v1/predict\"}[$__rate_interval]))",
+          "format": "heatmap",
+          "refId": "A"
+        }
+      ],
+      "title": "Latency heatmap",
+      "type": "heatmap"
+    },
+    {
+      "collapsed": false,
+      "description": "모델이 내보낸 결과만 보는 줄입니다. 고위험으로 판정한 건수, 점수, 비어 있던 입력 개수를 봅니다. 점수와 결측이 같이 움직이면 입력 쪽을 의심합니다. 원본 입력값은 Cloud 대시보드에 없습니다. 로그 또는 운영 JSONL에서 `record_id`를 확인한 뒤, 같은 값으로 운영 CSV를 조인해 원본 레코드를 찾습니다.",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 25
+      },
+      "id": 12,
+      "panels": [],
+      "title": "Prediction quality",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "__AIQA_METRICS_UID__"
+      },
+      "description": "이 그래프는 모델이 `high_risk`(고위험)로 판정한 예측이 1초당 몇 건인지 보여줍니다. 단위는 초당 건수입니다.\n\n전체 요청 중 몇 %가 고위험인지는 이 그래프가 말하지 않습니다. 건수가 늘어 보이는지, 그냥 요청 자체가 늘어난 것인지는 위 `Request rate`의 200 선과 비교해야 합니다.\n\n422로 거절된 요청은 모델이 점수를 내지 않으므로 이 선에 들어가지 않습니다. `invalid`에서 이 그래프가 비는 것은 자연스럽습니다.\n\n`current-shift`에서 이 선이 올라가면, 점수가 정말로 높아졌는지 아래 `Risk score heatmap`을 같이 봅니다.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 26
+      },
       "id": 4,
-      "targets": [{"expr": "sum by (model_profile, model_version, scenario) (rate(aiqa_risk_predictions_total{environment=~\"$environment\",scenario=~\"${scenario:regex}\",prediction=\"high_risk\"}[$__rate_interval])) / clamp_min(sum by (model_profile, model_version, scenario) (rate(aiqa_risk_predictions_total{environment=~\"$environment\",scenario=~\"${scenario:regex}\"}[$__rate_interval])), 1e-9)", "legendFormat": "{{scenario}} {{model_profile}} {{model_version}}", "refId": "A"}],
+      "targets": [
+        {
+          "expr": "sum by (model_profile, model_version, scenario) (rate(aiqa_risk_predictions_total{environment=~\"$environment\",scenario=~\"${scenario:regex}\",prediction=\"high_risk\"}[$__rate_interval]))",
+          "legendFormat": "{{scenario}} {{model_profile}} {{model_version}}",
+          "refId": "A"
+        }
+      ],
       "title": "High-risk prediction rate",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "prometheus", "uid": "__AIQA_METRICS_UID__"},
-      "fieldConfig": {"defaults": {"min": 0, "max": 1}, "overrides": []},
-      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 8},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "__AIQA_METRICS_UID__"
+      },
+      "description": "이 그래프는 각 집계 구간에서 위험 점수의 약 95%가 그 이하였던 값을 보여줍니다. 고위험 요청의 비율이나 최대 점수를 뜻하지 않습니다.\n\n점수가 0.7이라는 것과, 요청의 70%가 고위험이라는 것은 다른 이야기입니다. 고위험 건수는 왼쪽 `High-risk prediction rate`를 보고, 점수 분포는 아래 `Risk score heatmap`에서 확인합니다. 나이·검사값 같은 원본 입력은 이 그래프에 없습니다.",
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 1
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 26
+      },
       "id": 5,
-      "targets": [{"expr": "histogram_quantile(0.95, sum by (le, model_profile, model_version, scenario) (rate(aiqa_risk_score_bucket{environment=~\"$environment\",scenario=~\"${scenario:regex}\"}[$__rate_interval])))", "legendFormat": "{{scenario}} {{model_profile}} {{model_version}}", "refId": "A"}],
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, model_profile, model_version, scenario) (rate(aiqa_risk_score_bucket{environment=~\"$environment\",scenario=~\"${scenario:regex}\"}[$__rate_interval])))",
+          "legendFormat": "{{scenario}} {{model_profile}} {{model_version}}",
+          "refId": "A"
+        }
+      ],
       "title": "Risk score P95",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "prometheus", "uid": "__AIQA_METRICS_UID__"},
-      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
-      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 8},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "__AIQA_METRICS_UID__"
+      },
+      "description": "이 그래프는 각 집계 구간에서 요청의 약 95%가 이 값 이하의 입력 항목을 누락했다는 추정치를 보여줍니다. 히스토그램에서 계산한 값이라 소수로 표시될 수 있으며, 어떤 항목이 누락됐는지는 알 수 없습니다.\n\n개수가 가운데 몰렸는지, 일부 요청만 결측이 많은지는 아래 `Missing features heatmap`에서 봅니다. 원본 입력값은 Cloud 대시보드에 없습니다. 로그 또는 운영 JSONL에서 `record_id`를 확인한 뒤, 같은 값으로 운영 CSV를 조인해 원본 레코드를 찾습니다.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 26
+      },
       "id": 6,
-      "targets": [{"expr": "histogram_quantile(0.95, sum by (le, model_profile, model_version, scenario) (rate(aiqa_risk_missing_features_bucket{environment=~\"$environment\",scenario=~\"${scenario:regex}\"}[$__rate_interval])))", "legendFormat": "{{scenario}} {{model_profile}} {{model_version}}", "refId": "A"}],
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, model_profile, model_version, scenario) (rate(aiqa_risk_missing_features_bucket{environment=~\"$environment\",scenario=~\"${scenario:regex}\"}[$__rate_interval])))",
+          "legendFormat": "{{scenario}} {{model_profile}} {{model_version}}",
+          "refId": "A"
+        }
+      ],
       "title": "Missing features P95",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "loki", "uid": "__AIQA_LOGS_UID__"},
-      "gridPos": {"h": 10, "w": 16, "x": 0, "y": 16},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "__AIQA_METRICS_UID__"
+      },
+      "description": "이 그래프는 가로축의 시간에 따라 위험 점수가 어느 구간에 몰렸는지를 색으로 보여줍니다. 아래쪽은 낮은 점수, 위쪽은 높은 점수이며, 색이 진할수록 해당 구간의 요청이 많습니다. 위 `Risk score P95`가 비슷해도 봉우리 위치는 이 그림에서만 구분됩니다.\n\n색이 이동했다고 해서 어떤 검사값이 바뀌었는지는 알 수 없습니다. 원본 입력값은 Cloud 대시보드에 없습니다. 로그 또는 운영 JSONL에서 `record_id`를 확인한 뒤, 같은 값으로 운영 CSV를 조인해 원본 레코드를 찾습니다.",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 34
+      },
+      "id": 13,
+      "options": {
+        "calculate": false
+      },
+      "targets": [
+        {
+          "expr": "sum by (le, scenario) (rate(aiqa_risk_score_bucket{environment=~\"$environment\",scenario=~\"${scenario:regex}\"}[$__rate_interval]))",
+          "format": "heatmap",
+          "refId": "A"
+        }
+      ],
+      "title": "Risk score heatmap",
+      "type": "heatmap"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "__AIQA_METRICS_UID__"
+      },
+      "description": "이 그래프는 가로축의 시간에 따라, 요청마다 빠진 입력 개수가 어디에 퍼져 있는지를 색으로 보여줍니다. 아래쪽은 결측이 적은 요청, 위쪽은 결측이 많은 요청입니다.\n\n위 P95가 낮아도 세로축 위쪽(결측 개수가 큰 구간)에 색이 보이면, 일부 요청에는 누락된 입력 항목이 많았다는 뜻입니다. 그런 꼬리는 이 heatmap에서만 보입니다. 원본 입력값은 Cloud 대시보드에 없습니다. 로그 또는 운영 JSONL에서 `record_id`를 확인한 뒤, 같은 값으로 운영 CSV를 조인해 원본 레코드를 찾습니다.",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 34
+      },
+      "id": 14,
+      "options": {
+        "calculate": false
+      },
+      "targets": [
+        {
+          "expr": "sum by (le, scenario) (rate(aiqa_risk_missing_features_bucket{environment=~\"$environment\",scenario=~\"${scenario:regex}\"}[$__rate_interval]))",
+          "format": "heatmap",
+          "refId": "A"
+        }
+      ],
+      "title": "Missing features heatmap",
+      "type": "heatmap"
+    },
+    {
+      "collapsed": false,
+      "description": "위에서 이상해 보이는 구간을 한 건으로 좁히는 줄입니다. 왼쪽은 예측 관련 로그, 오른쪽은 추적(trace) 목록입니다. 누가 누구를 호출했는지는 목록이 아니라, 한 줄을 고른 뒤 Explore에서 봅니다. Request ID 같은 값은 숫자 그래프의 라벨이 아니라 여기서 쓰는 검색어입니다.",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 42
+      },
+      "id": 15,
+      "panels": [],
+      "title": "Investigate",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "__AIQA_LOGS_UID__"
+      },
+      "description": "이 그래프는 Risk API가 예측과 관련해 남긴 기록만 보여줍니다. 예측과 상관없는 줄은 숨기므로 `/health/ready`나 `/metrics` 로그는 여기에 나타나지 않습니다.\n\n- `http.request.completed`: 예측 HTTP 요청이 막 끝난 시점\n- `risk.prediction.completed`: 모델이 점수를 낸 시점\n- `model.input.validation.failed`: 입력이 규칙에 맞지 않아 거절된 시점\n\n로그가 보이지 않으면 선택한 시간 범위에 예측 이벤트가 있었는지 확인하고, Request ID / Run ID / Trace ID 필터를 `.*`로 넓혀 다시 조회합니다.\n\n나이·검사값 같은 원본 입력은 로그에 없습니다. 한 건을 고르면 그 줄의 ID로 오른쪽 traces와 이어 볼 수 있습니다. 원본 입력값은 Cloud 대시보드에 없습니다. 로그 또는 운영 JSONL에서 `record_id`를 확인한 뒤, 같은 값으로 운영 CSV를 조인해 원본 레코드를 찾습니다.",
+      "gridPos": {
+        "h": 10,
+        "w": 16,
+        "x": 0,
+        "y": 43
+      },
       "id": 7,
-      "options": {"showLabels": false, "showTime": true, "wrapLogMessage": true},
-      "targets": [{"expr": "{service_name=\"risk-api\", environment=~\"$environment\"} | json | scenario=~\"${scenario:regex}\" | request_id=~\"${request_id}\" | run_id=~\"${run_id}\" | trace_id=~\"${trace_id}\"", "refId": "A"}],
+      "options": {
+        "showLabels": false,
+        "showTime": true,
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "expr": "{service_name=\"risk-api\", environment=~\"$environment\"} | json | event=~\"http.request.completed|risk.prediction.completed|model.input.validation.failed\" | scenario=~\"${scenario:regex}\" | request_id=~\"${request_id}\" | run_id=~\"${run_id}\" | trace_id=~\"${trace_id}\"",
+          "refId": "A"
+        }
+      ],
       "title": "Recent Risk API logs",
       "type": "logs"
     },
     {
-      "datasource": {"type": "tempo", "uid": "__AIQA_TRACES_UID__"},
-      "gridPos": {"h": 10, "w": 8, "x": 16, "y": 16},
+      "datasource": {
+        "type": "tempo",
+        "uid": "__AIQA_TRACES_UID__"
+      },
+      "description": "이 그래프는 한 줄이 한 번의 추적(trace)인 목록(표)입니다. 호출이 위에서 아래로 이어지는 그림(waterfall)이 아닙니다.\n\n관심 있는 한 줄을 고른 뒤 Grafana Explore에서 엽니다. 그러면 `traffic-generator`가 `risk-api`를 호출하고, 그 안에서 `POST /v1/predict`와 실제 예측(`risk.predict`)이 이어진 모습을 볼 수 있습니다.\n\n서비스가 어떻게 연결되었는지는 이 목록이 아니라 Explore waterfall에서 판단합니다. 줄을 못 찾으면 위쪽 Request ID, Run ID 필터와 시간 범위를 확인합니다.",
+      "gridPos": {
+        "h": 10,
+        "w": 8,
+        "x": 16,
+        "y": 43
+      },
       "id": 8,
-      "targets": [{"query": "{ resource.service.name = \"risk-api\" && span.\"aiqa.scenario\" =~ \"${scenario:regex}\" && span.\"aiqa.request_id\" =~ \"${request_id}\" && span.\"aiqa.run_id\" =~ \"${run_id}\" }", "queryType": "traceql", "refId": "A"}],
+      "targets": [
+        {
+          "query": "{ resource.service.name = \"risk-api\" && span.\"aiqa.scenario\" =~ \"${scenario:regex}\" && span.\"aiqa.request_id\" =~ \"${request_id}\" && span.\"aiqa.run_id\" =~ \"${run_id}\" }",
+          "queryType": "traceql",
+          "refId": "A"
+        }
+      ],
       "title": "Risk API traces",
-      "type": "traces"
+      "type": "table"
     }
   ],
   "refresh": "10s",
   "schemaVersion": 41,
-  "tags": ["tta-aiqa", "education"],
+  "tags": [
+    "tta-aiqa",
+    "education"
+  ],
   "templating": {
     "list": [
-      {"current": {"text": "compose|kubernetes", "value": "compose|kubernetes"}, "hide": 0, "label": "Environment", "name": "environment", "options": [], "query": "compose|kubernetes", "type": "textbox"},
-      {"allValue": ".*", "current": {"text": "All", "value": "$__all"}, "hide": 0, "includeAll": true, "label": "Scenario", "multi": true, "name": "scenario", "options": [], "query": "baseline,approved-candidate,current-shift,invalid,unspecified,other", "type": "custom"},
-      {"current": {"text": ".*", "value": ".*"}, "hide": 0, "label": "Request ID", "name": "request_id", "options": [], "query": ".*", "type": "textbox"},
-      {"current": {"text": ".*", "value": ".*"}, "hide": 0, "label": "Run ID", "name": "run_id", "options": [], "query": ".*", "type": "textbox"},
-      {"current": {"text": ".*", "value": ".*"}, "hide": 0, "label": "Trace ID", "name": "trace_id", "options": [], "query": ".*", "type": "textbox"}
+      {
+        "current": {
+          "text": "compose|kubernetes",
+          "value": "compose|kubernetes"
+        },
+        "hide": 0,
+        "label": "Environment",
+        "name": "environment",
+        "options": [],
+        "query": "compose|kubernetes",
+        "type": "textbox"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "hide": 0,
+        "includeAll": true,
+        "label": "Scenario",
+        "multi": true,
+        "name": "scenario",
+        "options": [],
+        "query": "baseline,approved-candidate,current-shift,invalid,unspecified,other",
+        "type": "custom"
+      },
+      {
+        "current": {
+          "text": ".*",
+          "value": ".*"
+        },
+        "hide": 0,
+        "label": "Request ID",
+        "name": "request_id",
+        "options": [],
+        "query": ".*",
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "text": ".*",
+          "value": ".*"
+        },
+        "hide": 0,
+        "label": "Run ID",
+        "name": "run_id",
+        "options": [],
+        "query": ".*",
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "text": ".*",
+          "value": ".*"
+        },
+        "hide": 0,
+        "label": "Trace ID",
+        "name": "trace_id",
+        "options": [],
+        "query": ".*",
+        "type": "textbox"
+      }
     ]
   },
-  "time": {"from": "now-2h", "to": "now"},
+  "time": {
+    "from": "now-2h",
+    "to": "now"
+  },
   "timezone": "browser",
   "title": "TTA AIQA Service Quality",
   "uid": "tta-aiqa-quality",
