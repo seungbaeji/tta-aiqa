@@ -276,6 +276,13 @@ def test_data_quality_notebook_is_runnable_and_scoped_to_eda() -> None:
     assert "preferred_sample" in source
     assert "PhysioNetRecordRepository" not in source
     assert "profile_raw_records" not in source
+    code_source = "\n".join("".join(cell["source"]) for cell in code_cells)
+    assert "parse_record(" not in code_source
+    assert "load_source_contract(" not in code_source
+    assert "load_aggregation_plan(" not in code_source
+    assert "yaml.safe_load(" in code_source
+    assert "MISSING_SENTINEL" in code_source
+    assert "WINDOW_MINUTES" in code_source
     assert "assert len(raw_profile) == 4000" not in source
     assert "len(raw_profile) == len(sample_paths)" in source
     assert "48시간은 한 행으로 집계할 관측 창" in source

@@ -97,6 +97,7 @@ evidence scope는 `static`으로 유지하면 데이터 역할과 품질 근거�
 
 `01_physionet_data_quality_eda.ipynb`를 위에서 아래로 실행해 raw measurement,
 `-1` 결측 표식, 48시간 관측 창, outcome join, 133개 특성과 결측률을 봅니다.
+계약 YAML은 `yaml.safe_load`로 열고, 원본 txt는 `pd.read_csv`로 읽습니다.
 측정 구조 요약과 원본 변수별 표는 4GiB VM을 위해 표본 파일만 읽고, 4,000행
 특성 표는 가공 CSV를 읽습니다.
 IQR 범위 밖 관측을 자동 삭제하지 않고, 결측 표식이 관측 근거인지 규약 위반인지

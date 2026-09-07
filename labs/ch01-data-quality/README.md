@@ -26,6 +26,7 @@ uv run dvc status
 
 `01_physionet_data_quality_eda.ipynb`를 위에서 아래로 실행해 기록별 측정 행,
 `-1` 결측 표식, 48시간 관측 창, 4,000개 결과 연결, 133개 특성과 결측률을 봅니다.
+계약 YAML은 `yaml.safe_load`로 열고, 원본 txt는 `pd.read_csv`로 읽습니다.
 측정 구조 요약과 원본 변수별 표는 4GiB VM 메모리를 위해 고른 표본 파일만 읽습니다.
 4,000행 특성 표는 가공 CSV입니다.
 IQR 범위 밖 기록을 자동 삭제하지 않고, 관측 근거와 규약 위반을 구분해 판단
