@@ -173,8 +173,10 @@ uv run python labs/run/model_status.py --revision v2
 새 공식 실행이나 model bundle을 만들지 않고 모델 품질 칸에 연결 누락을 남깁니다.
 실행 순서와 화면 확인은 [2장 모델 품질](chapters/ch02/README.md)을 따릅니다.
 Compose MLflow가 준비되면 `uv run python labs/run/log_development.py`로
-학습/검증 개발 run을 학생 experiment에 남깁니다. 그 run은 공식 실행 번호를
-대체하지 않습니다.
+학습/검증 개발 run을 학생 experiment에 남깁니다. 공식 실행 번호는 JSON에
+이미 있고, 이 명령은 그 번호를 새로 만들지 않습니다. 화면이 비어 있어도
+공식 판단은 JSON으로 가능합니다. 학생 실행 번호는 승인 근거가 되지
+않습니다.
 
 ## API
 
@@ -199,7 +201,11 @@ uv run jupyter nbconvert --to notebook --execute \
 
 노트북은 정상 200과 의도한 422를 각각 한정 확인하는 bounded contract probe입니다.
 실행된 `/tmp/ch03-risk-api.ipynb`에는 정상 응답의 `request_id`와
-`X-Request-ID`, 의도한 422 결과가 남습니다. 실제 응답을 확인한 이 probe의
+`X-Request-ID`, 의도한 422 결과가 남습니다. 이미지는 실행 환경, 컨테이너는
+실행 중인 인스턴스, 모델 파일은 예측 규칙입니다. 200은 이 요청이 규약을
+통과했다는 뜻이고, 422는 입력 규약 오류이며 모델 품질 오류가 아닙니다. 본문이
+너무 크면 413, 서버 처리 문제는 5xx입니다. 요청 ID는 나중에 로그와 처리 경로에서
+같은 요청을 찾는 연결값이며 인증 정보가 아닙니다. 실제 응답을 확인한 이 probe의
 baseline scope는 `local`이며 Candidate B target 검증이 아닙니다. 이는 운영 관측
 수집을 생성하는 단계가 아닙니다. API가 없으면 없는 응답을 만들지 말고
 `API_NOT_RUNNING`과 `result=BLOCKED`, 사유, 담당자를 기록합니다. 준비된 자료의
@@ -210,6 +216,11 @@ evidence scope는 `static` 또는 `offline`으로, 대상 운영 scope는
 ### API model metadata와 bundle/deployment 선언이 같은 digest 의미를 갖는지 판단한다
 
 `deployment.json`의 profile, version, SHA-256과 `/v1/model` 응답을 대조합니다.
+API 응답, 모델 묶음 정보, 배포 설정이 같은 식별값을 가리키는지 보고, 한 자료의
+이름만으로 실행 모델을 확정하지 않습니다. `profile`, `version`, `threshold`,
+특성 수, 해시 중 다른 항목이 있으면 그 항목이 가리키는 설정, 파일, 실행 상태를
+추가로 확인하고 자동 복구 결론을 내지 않습니다. 로컬 성공은 대상 배포 성공을
+대신하지 않습니다.
 이 API 단계에서는 운영 관측 수집 파일을 만들거나 읽지 않습니다. request ID와
 `X-Request-ID`, 의도한 422는 `/tmp/ch03-risk-api.ipynb`의 bounded probe 결과로
 확인하며, 대상 URL이 없으면 `scope=local` 또는 `scope=static` 대조만 하고
@@ -232,8 +243,10 @@ uv run pytest -q tests/integration/deployment/test_kubernetes_contract.py \
   -k candidate_and_rollback_overlays_select_only_approved_models
 ```
 
-Candidate A가 overlay에 없고 승인된 identity만 선택되는지 기록합니다. 정적 검사
-결과를 target sync PASS로 쓰지 않습니다.
+Candidate A가 overlay에 없고 승인된 identity만 선택되는지 기록합니다. 이미지
+digest는 실행 코드와 환경을, 모델 SHA-256은 학습 결과 파일을 식별하므로 두
+지문을 하나로 합치지 않습니다. 정적 검사 결과를 target sync PASS로 쓰지
+않습니다.
 
 ### Argo sync, KServe health, rollback 결과를 학습자 판단 범위와 분리한다
 
@@ -242,7 +255,10 @@ Candidate A가 overlay에 없고 승인된 identity만 선택되는지 기록합
 health와 rollback Demo도 같은 범위입니다. 이미 등록된 Application을
 Candidate B overlay로 바꾸고 `${AIQA_RISK_API_URL}/v1/model`을 확인하는
 명령은 [3장 서빙](chapters/ch03/README.md)을 따릅니다. 수강생은 ClusterIP,
-port-forward, tunnel을 만들지 않습니다. 결과가 없으면 운영 scope는
+port-forward, tunnel을 만들지 않습니다. 강사 화면이 있으면 목표 상태, Git
+반영(`Synced`), 준비 상태(`Healthy`), 실제 요청 성공의 네 단계 가운데 확인한
+단계와 확인하지 못한 단계를 나눕니다. `Synced`만으로 요청 성공을 말하지
+않습니다. 결과가 없으면 운영 scope는
 `target_pending`으로 남기고, 실행이 막힌 경우에는 별도 execution result인
 `result=BLOCKED`와 사유, 담당자를 기록합니다. 정적 overlay는 `scope=static`인
 복구 의도이지 rollback 완료가 아닙니다.
@@ -257,8 +273,11 @@ port-forward, tunnel을 만들지 않습니다. 결과가 없으면 운영 scope
 강사가 LIVE dashboard와 필요한 준비를 확인했을 때만 LIVE를 선택합니다. 그렇지
 않으면 reference fixture를 사용하는 PREPARED/OFFLINE 경로를 선택합니다. 실행 전
 environment, model, UTC window와 request/run/trace correlation 조건을 기록합니다.
-아직 traffic을 보내지 않았으므로 log, metric, trace 결과를 이미 관찰했다고 쓰지
-않습니다.
+서비스 상태, 입력과 예측 분포, 시스템 자원은 서로 다른 질문의 지표입니다.
+입력 변화는 성능 저하의 가능 원인이지 증명이 아닙니다. 첫째 날의 100건 비교와
+이 장의 세 시나리오는 표본과 시간이 달라 직접 증감으로 연결하지 않습니다.
+아직 traffic을 보내지 않았으므로 log, metric, trace 결과를 이미 관찰했다고
+쓰지 않습니다.
 
 ### 세 신호의 확인 범위와 상태를 traffic 실행 전에 기록 방식으로 고정한다
 
@@ -281,7 +300,9 @@ LIVE 경로에서는 4장 README의 `course-session --scope local`을 한 번 �
 ### 선택한 대표 요청이 지표, 로그, trace의 동일 사건으로 연결되는지 판정한다
 
 수집 묶음에서 normal/slow/invalid 중 하나를 고르고, 같은 run ID, request ID, trace ID를
-JSONL, log event와 trace path에서 찾습니다. 새 traffic을 보내지 않습니다. offline
+JSONL, log event와 trace path에서 찾습니다. 한 요청은 전체 현상의 증명이 아니라
+조사 시작점입니다. 함께 움직인 신호는 단서이고 원인 확정에는 추가 검증이
+필요합니다. 새 traffic을 보내지 않습니다. offline
 fixture ID는 실제 Loki/Tempo 검색으로 바꾸지 않고 `scope=static`을 유지합니다.
 
 ## 판단/rollback
@@ -297,8 +318,10 @@ fixture ID는 실제 Loki/Tempo 검색으로 바꾸지 않고 `scope=static`을 
 ### rollback trigger와 baseline 복구 완료를 선언할 evidence가 있는지 판단한다
 
 rollback overlay, target model metadata, health와 강사 smoke 결과를 구분합니다.
-의도한 invalid 422나 credential 누락은 자동 rollback 조건이 아닙니다. 강사 Demo가
-없으면 실제 복구 완료를 선언하지 않고 필요한 확인과 담당자를 기록합니다.
+의도한 invalid 422나 credential 누락은 자동 rollback 조건이 아닙니다. 422는
+입력 규약, 인증 정보 누락은 접근 복구, 네트워크 시간 초과는 연결 층, 모델
+식별값 불일치는 배포 경로 조사로 대응이 다릅니다. 강사 Demo가 없으면 실제
+복구 완료를 선언하지 않고 필요한 확인과 담당자를 기록합니다.
 
 ### 현재 운영 권고가 모델 승인과 분리되는지 기록한다
 

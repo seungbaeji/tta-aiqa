@@ -38,6 +38,8 @@ offline fixture입니다. Candidate B `APPROVE`는 공식 모델 판단으로 �
 복구 완료를 증명하지 않습니다. 대상 model metadata, health, 같은 모델의 운영
 신호와 강사 smoke 결과가 모두 확인되어야 실제 복구를 말할 수 있습니다.
 의도한 invalid 422와 credential 누락은 자동 rollback 조건이 아닙니다.
+422는 입력 규약, 인증 정보 누락은 접근 복구, 네트워크 시간 초과는 연결 층,
+모델 식별값 불일치는 배포 경로 조사로 대응이 다릅니다.
 
 Candidate B overlay 전환은 [3장 서빙](../ch03/README.md)의 수강생
 절차입니다. 이 장에서는 rollback 명령을 실행하지 않으며, Application 생성은

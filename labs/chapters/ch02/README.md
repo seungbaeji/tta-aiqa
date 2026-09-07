@@ -56,13 +56,17 @@ uv run python labs/run/log_development.py
 ```
 
 이 명령은 [`labs/run/`](../../run/README.md)의 본편 모듈입니다. `scripts/`의 공식
-trainer가 아닙니다. 학습/검증만 사용하는 개발 학습을 experiment
+trainer가 아닙니다. 실행 전에 학생 실행 번호가 공식 Candidate B 실행 번호와
+같을 수 있는지, MLflow 화면이 비어 있어도 공식 판단이 가능한지 한 문장으로
+적습니다. 학습/검증만 사용하는 개발 학습을 experiment
 `student-development-tracking`에 남기고, 출력된 학생 실행 번호를
-`release-manifest.json`의 공식 실행 번호와 나란히 봅니다. 값이 없거나
-`/health`가 실패하면 `MLFLOW_NOT_RUNNING`만 남기고 실행을 만들지 않습니다.
-학생 실행 번호는 공식 학습 실행이나 공식 승인 실행을 대체하지 않으며, 공식
-근거 폴더와 `artifacts/mlflow/`에도 쓰지 않습니다. 판단 기록의 모델 품질 칸에는
-공식 JSON 경로와 공식 실행 번호를 유지합니다.
+`release-manifest.json`의 공식 실행 번호와 나란히 봅니다. 공식 실행 번호는
+JSON에 이미 있으며 여기서 새로 만들지 않습니다. 값이 없거나 `/health`가
+실패하면 `MLFLOW_NOT_RUNNING`만 남기고 실행을 만들지 않습니다. 화면이 비어
+있어도 공식 판단은 JSON으로 가능합니다. 학생 실행 번호는 공식 학습 실행이나
+공식 승인 실행을 대체하지 않으며, 공식 근거 폴더와 `artifacts/mlflow/`에도
+쓰지 않습니다. 판단 기록의 모델 품질 칸에는 공식 JSON 경로와 공식 실행 번호를
+유지합니다.
 
 ## 2. 단계 완료
 

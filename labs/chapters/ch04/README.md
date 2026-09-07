@@ -15,7 +15,10 @@ secret과 대시보드를 준비했다고 확인한 경우에만 선택합니다
 강사가 Compose와 Grafana dashboard URL을 확인하지 않았다면 PREPARED/OFFLINE을
 사용합니다. environment, model, UTC window와 run/request/trace correlation
 조건을 먼저 기록하며, 아직 생성하지 않은 traffic의 결과를 관찰했다고 쓰지
-않습니다.
+않습니다. 서비스 상태, 입력과 예측 분포, 시스템 자원은 서로 다른 질문의
+지표입니다. 입력 변화는 성능 저하의 가능 원인이지 증명이 아닙니다. 첫째 날의
+100건 비교와 이 장의 세 시나리오(60+60+3)는 표본과 시간이 달라 직접 증감으로
+연결하지 않습니다.
 
 ### 1-2. 세 신호의 확인 범위와 상태를 traffic 실행 전에 기록 방식으로 고정한다
 
@@ -85,7 +88,9 @@ uv run python -m json.tool \
 ### 2-2. 선택한 대표 요청이 지표, 로그, trace의 동일 사건으로 연결되는지 판정한다
 
 개인 분석에서 수집 묶음의 normal/slow/invalid 중 하나를 골라 같은 run ID, request ID,
-trace ID를 연결합니다. LIVE에서는 collection manifest와 JSONL을 사용합니다.
+trace ID를 연결합니다. 한 요청은 전체 현상의 증명이 아니라 조사 시작점입니다.
+함께 움직인 신호는 단서이고, 원인 확정에는 추가 검증이 필요합니다. LIVE에서는
+collection manifest와 JSONL을 사용합니다.
 
 ```bash
 jq '{environment, scenarios: [.scenarios[] | {name, run_id}]}' \
