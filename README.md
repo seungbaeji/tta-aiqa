@@ -277,8 +277,11 @@ MLflow와 Risk API, Alloy 관리 포트는 기본적으로 로컬 호스트에�
 API contract probe는 [3장 서빙 README](labs/ch03-serving/README.md)의
 Risk API 기동·health/model 확인과 `01_verify_risk_api.ipynb` 실행을 따릅니다.
 이 probe는 정상 200과 의도한 422를 한정 확인하며 P5 collection manifest를 만들지
-않습니다. P5 세 시나리오는 [4장 운영 관측](labs/ch04-observability/README.md)에서
-관측 조건을 먼저 고정한 뒤 실행합니다.
+않습니다. 로컬 Compose는 `http://127.0.0.1:8000`만 사용하고, Candidate B 대상
+확인은 `AIQA_RISK_API_URL`과 `02_release_candidate_b.ipynb`를 사용합니다. 두
+주소를 섞지 않습니다. P5 세 시나리오는
+[4장 운영 관측](labs/ch04-observability/README.md)에서 관측 조건을 먼저 고정한
+뒤 실행합니다.
 
 ```bash
 docker compose -f deploy/compose/simple-mlops/compose.yaml up -d --no-build risk-api
@@ -334,11 +337,35 @@ Kubernetes에서는 외부 Risk API가 내부 KServe V2 예측기를 호출합�
 `kserve.infer` CLIENT span이 W3C 추적 정보와 요청 ID를 전달합니다. 기본 설정은
 기준 모델로 시작하고 Candidate B와 되돌리기는 별도 overlay로 둡니다.
 각 overlay는 PVC 하위 경로와 `model-identity` ConfigMap의 예상 모델 SHA-256을
-함께 고릅니다. 수강생은 로컬 렌더링과 계약 검사로 선언 파일을 읽고, 서버 측
-검사·모델 게시·Secret·실제 동기화는 플랫폼 담당자가 수행합니다.
+함께 고릅니다. 수강생은 로컬 렌더링과 계약 검사로 선언 파일을 읽고, 이미 등록된
+Application을 Candidate B overlay로 바꾼 뒤 `AIQA_RISK_API_URL`의 `/v1/model`이
+`candidate-b-c712a8e52344`인지 확인합니다. Application 생성, KServe 설치, GHCR
+pull secret은 플랫폼 담당자가 수행합니다.
 
 Private GHCR image와 `ghcr-pull` Secret의 준비 방식은
 [`deploy/kubernetes/README.md`](deploy/kubernetes/README.md)에 분리해 두었습니다.
+
+### 7-2. 수강생 Candidate B 전환
+
+수강생은 Application을 만들지 않습니다. 클러스터 변경은
+[`scripts/sync_student_release.py`](scripts/sync_student_release.py)가
+`TARGET_CONTEXT`를 확인한 뒤에만 수행합니다. 로컬 Compose
+`http://127.0.0.1:8000`과 `AIQA_RISK_API_URL`을 섞지 않습니다. 대상 URL이
+없으면 `operational_deployment_scope=target_pending`으로 두고 identity를
+만들지 않습니다.
+
+```bash
+uv run python scripts/publish_model.py candidate-b --revision v2 --target-root /mnt/course-models
+uv run python scripts/sync_student_release.py \
+  --application-name "${AIQA_ARGOCD_APPLICATION_NAME:?already-registered Application name}"
+curl "${AIQA_RISK_API_URL:?Risk API base URL is required}/v1/model"
+```
+
+명령과 노트북 원본은
+[`labs/ch03-serving/README.md`](labs/ch03-serving/README.md)와
+[`deploy/argocd/README.md`](deploy/argocd/README.md)입니다. 실패하면
+`result=BLOCKED`와 사유를 기록하며, 성공은 공식 평가를 다시 실행한 것이
+아닙니다.
 
 ## 8. 구현 검증
 
