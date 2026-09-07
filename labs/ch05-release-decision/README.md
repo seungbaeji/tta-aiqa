@@ -1,8 +1,9 @@
 # 5장 배포 판단
 
 이 장은 9단계 여정의 **판단/rollback**과 **회고** 단계입니다. 관측 수집 묶음은
-팀이 공유하고 개인 분석과 최종 판단은 개인이 작성합니다. 실제 overlay 전환과
-rollback Demo는 강사와 플랫폼 범위입니다.
+팀이 공유하고 개인 분석과 최종 판단은 개인이 작성합니다. Application 생성과
+rollback Demo는 강사와 플랫폼 범위입니다. 승인된 Candidate B overlay 전환은
+[3장 서빙](../ch03-serving/README.md)의 수강생 절차입니다.
 
 ## 1. 판단/rollback
 
@@ -38,8 +39,10 @@ offline fixture입니다. Candidate B `APPROVE`는 공식 모델 판단으로 �
 신호와 강사 smoke 결과가 모두 확인되어야 실제 복구를 말할 수 있습니다.
 의도한 invalid 422와 credential 누락은 자동 rollback 조건이 아닙니다.
 
-수강생은 다음 정적 검사와 제공된 결과만 사용하며, cluster sync나 rollback 명령을
-실행하지 않습니다.
+Candidate B overlay 전환은 [3장 서빙](../ch03-serving/README.md)의 수강생
+절차입니다. 이 장에서는 rollback 명령을 실행하지 않으며, Application 생성은
+플랫폼 범위입니다. 수강생은 다음 정적 검사와 3장에서 확인한 대상 결과를
+사용합니다.
 
 ```bash
 uv run python scripts/run_model.py status --revision v2
