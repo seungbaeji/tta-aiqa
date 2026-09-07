@@ -1,6 +1,7 @@
 schema_version: 1
 experiment_name: student-development-tracking
-profile_name: baseline
+profile_name: candidate-b
+data_revision: v2
 tracking_uri_environment_variable: AIQA_MLFLOW_TRACKING_URI
 run_name: student-train-valid
 data_roles:
@@ -10,6 +11,9 @@ paths:
   features: data/features.csv
   split_manifest: data/splits-v2/split-manifest.csv
   profiles: configs/model-v2/profiles.yaml
+  evaluation: configs/model-v2/evaluation.yaml
+  feature_contract: configs/contracts/model-input.yaml
+  dvc_lock: dvc.lock
   release_manifest: docs/evidence/model-v2/release-manifest.json
 tags:
   purpose: student-development-tracking

@@ -1,5 +1,6 @@
 """MLflow tracking adapter for serialized sklearn model bundles."""
 
+from collections.abc import Mapping
 from pathlib import Path
 
 import mlflow
@@ -49,6 +50,8 @@ class MlflowModelTracker:
         train_path: Path,
         valid_path: Path,
         provenance: dict[str, str],
+        extra_tags: Mapping[str, str] | None = None,
+        run_name: str | None = None,
     ) -> str:
         """Log one model, its train/valid inputs, metrics, and external bundle files."""
         configure_tracking(
@@ -61,7 +64,9 @@ class MlflowModelTracker:
         feature_columns = [
             column for column in valid.columns if column not in {"record_id", "target"}
         ]
-        with mlflow.start_run(run_name=f"model-{profile.name}") as run:
+        with mlflow.start_run(
+            run_name=run_name or f"model-{profile.name}"
+        ) as run:
             mlflow.set_tags(
                 {
                     "aiqa.profile": profile.name,
@@ -69,6 +74,7 @@ class MlflowModelTracker:
                     "aiqa.candidate_id": profile.candidate_id or "",
                     "aiqa.evaluation_role": "valid",
                     "aiqa.dataset": PHYSIONET_2012_DATASET_NAME,
+                    **dict(extra_tags or {}),
                 }
             )
             mlflow.log_params(

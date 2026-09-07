@@ -100,8 +100,8 @@ uv run pytest -q labs/exercises/tests/test_ge_summary.py
 공식 평가용 `test`와 `operational` 파일은 열지 않습니다.
 잠금 파일 지문이 달라도 값을 고치지 말고 계산 결과를 적습니다.
 이 학습/검증 지문 확인은 2장 본편
-`uv run python labs/run/log_development.py`에서 Compose MLflow에
-`data_roles=train,valid`만 남기기 전에 먼저 닫는 전제입니다.
+`02_trace_model_lineage.ipynb`가 `labs/run/log_development.py`를 호출해
+Compose MLflow에 `data_roles=train,valid`만 남기기 전에 먼저 닫는 전제입니다.
 
 ## 3. 단계 완료
 

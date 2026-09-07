@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from functools import partial
 from pathlib import Path
 
 from aiqa_core.domain import FeatureSet
+from sklearn.pipeline import Pipeline
 
 from aiqa_model.adapters.sklearn.datasets import CsvModelDatasetReader
 from aiqa_model.adapters.sklearn.diagnostics import SklearnFeatureDiagnostician
@@ -37,11 +37,13 @@ class SklearnBenchmark:
         evaluation_plan: EvaluationPlan,
         random_seed: int,
     ) -> None:
-        pipeline_builder = partial(
-            build_model_pipeline,
-            feature_set=feature_set,
-            random_seed=random_seed,
-        )
+        def pipeline_builder(profile: ModelProfile) -> Pipeline:
+            return build_model_pipeline(
+                feature_set=feature_set,
+                profile=profile,
+                random_seed=random_seed,
+            )
+
         self._datasets = CsvModelDatasetReader(dataset_dir, feature_set)
         self._profiles = profiles
         self._feature_names = feature_set.feature_names
