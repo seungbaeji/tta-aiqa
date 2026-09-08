@@ -24,6 +24,15 @@
 [`apps/grafana_dashboard_importer/README.md`](../../apps/grafana_dashboard_importer/README.md)를
 따른다.
 
+Portal에서 복사한 문자열은
+[`scripts/platform/write_alloy_secret_files.sh`](../../scripts/platform/write_alloy_secret_files.sh)
+위쪽 변수에 넣고 실행한다. 값은 출력하지 않으며 권한은 `600`이다. 채운
+스크립트는 Git에 커밋하지 않는다.
+
+```bash
+bash scripts/platform/write_alloy_secret_files.sh
+```
+
 여기까지는 로컬 Docker Compose가 읽을 파일을 준비하는 절차다. 파일을
 작성하거나 권한을 `600`으로 바꾸는 작업은 Kubernetes 클러스터를 변경하지
 않는다.
