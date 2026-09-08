@@ -190,6 +190,10 @@ def test_kubernetes_deploys_alloy_but_no_monitoring_backend() -> None:
     )
     assert container["securityContext"]["readOnlyRootFilesystem"] is True
     assert container["securityContext"]["allowPrivilegeEscalation"] is False
+    assert container["securityContext"]["runAsNonRoot"] is True
+    assert container["securityContext"]["runAsUser"] == 473
+    assert alloy["spec"]["template"]["spec"]["securityContext"]["runAsUser"] == 473
+    assert alloy["spec"]["template"]["spec"]["securityContext"]["fsGroup"] == 473
 
 
 def test_alloy_collects_all_aiqa_workload_logs_and_otlp_traces() -> None:
