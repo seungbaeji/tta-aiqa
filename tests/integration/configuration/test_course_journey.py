@@ -202,13 +202,21 @@ def test_chapter_guides_link_to_the_journey() -> None:
     assert "labs/run/" in labs
     assert "labs/exercises/" in labs
     assert "`scripts/`는 환경 준비" in labs
-    assert "labs/run/log_development.py" in labs
+    assert "03_log_student_mlp.ipynb" in labs
     assert "(chapters/ch02/README.md#2-남는-시간-실습)" not in labs
-    assert Path("labs/run/log_development.py").is_file()
+    assert Path("labs/chapters/ch02/03_log_student_mlp.ipynb").is_file()
     assert Path("labs/run/development.yaml").is_file()
     assert Path("labs/run/README.md").is_file()
+    run_guide = Path("labs/run/README.md").read_text(encoding="utf-8")
+    assert "03_log_student_mlp.ipynb" in run_guide
+    assert "uv run python labs/run/log_development.py" not in run_guide
+    assert "freeze_student.py" not in run_guide
+    assert "finalize_student.py" not in run_guide
+    assert "student-mlp-train-valid" in run_guide
+    assert "docs/evidence/model-v2/" in run_guide
     ch02 = Path("labs/chapters/ch02/README.md").read_text(encoding="utf-8")
     assert "02_trace_model_lineage.ipynb" in ch02
+    assert "03_log_student_mlp.ipynb" in ch02
     assert "DVC → MLflow Run → 모델 묶음 → release manifest" in ch02
     instructor_guide = Path(
         "labs/chapters/ch02/INSTRUCTOR_GUIDE.md"

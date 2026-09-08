@@ -257,15 +257,19 @@ curl "${AIQA_MLFLOW_TRACKING_URI%/}/health"
 uv run jupyter nbconvert --to notebook --execute \
   labs/chapters/ch02/02_trace_model_lineage.ipynb \
   --output /tmp/ch02-model-lineage.ipynb \
-  --ExecutePreprocessor.timeout=300
+  --ExecutePreprocessor.timeout=600
+uv run jupyter nbconvert --to notebook --execute \
+  labs/chapters/ch02/03_log_student_mlp.ipynb \
+  --output /tmp/ch02-student-mlp.ipynb \
+  --ExecutePreprocessor.timeout=600
 ```
 
 값이 없거나 `/health`가 실패하면 화면 미확인을 따로 적고, 공식 실행 번호는
-JSON에서만 읽습니다. 노트북은 역사적 V2에서 reconciliation된 범위와 복원할 수
-없는 DVC/Git 상태를 먼저 구분한 뒤 model/metadata SHA-256과 release manifest를
-연결하고 `labs/run/log_development.py`를 호출합니다. 학생 Candidate B Run은
-검증된 동일 train/valid 파일을 학습과 dataset input에 사용하고 parameter,
-validation metric, bundle과 MLflow Logged Model을 함께 남기지만 공식 실행
+JSON에서만 읽습니다. `02_trace_model_lineage.ipynb`는 역사적 V2에서
+reconciliation된 범위와 복원할 수 없는 DVC/Git 상태를 구분한 뒤
+model/metadata SHA-256과 release manifest를 연결합니다. 학생 MLP는
+`03_log_student_mlp.ipynb`에서 YAML, pandas, sklearn, mlflow API로 직접
+학습합니다. 학생 Run은 검증된 동일 train/valid 파일을 사용하지만 공식 실행
 번호를 대체하지 않습니다. Kubernetes 매니페스트는
 `deploy/k8s/base/mlflow.yaml`에 참고용으로만 두며, `kustomization.yaml`
 resources에는 넣지 않습니다.

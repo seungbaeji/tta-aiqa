@@ -156,7 +156,7 @@ def write_contract(tmp_path: Path) -> Path:
                 "profile_name": "candidate-b",
                 "data_revision": "v2",
                 "tracking_uri_environment_variable": "AIQA_MLFLOW_TRACKING_URI",
-                "run_name": "student-train-valid",
+                "run_name": "student-mlp-train-valid",
                 "data_roles": ["train", "valid"],
                 "paths": {
                     "train": "data/splits-v2/train.csv",
@@ -190,10 +190,12 @@ def test_contract_owns_student_experiment_name() -> None:
 
     assert contract.experiment_name == "student-development-tracking"
     assert contract.experiment_name != OFFICIAL_EXPERIMENT
-    assert contract.profile_name == "candidate-b"
+    assert contract.profile_name == "candidate-c"
     assert contract.data_revision == "v2"
     assert contract.data_roles == ("train", "valid")
     assert contract.tracking_uri_environment_variable == "AIQA_MLFLOW_TRACKING_URI"
+    assert contract.run_name == "student-mlp-train-valid"
+    assert contract.paths["profiles"] == "configs/model-v2/student-profiles.yaml"
 
 
 def test_module_source_does_not_default_to_local_or_official_tracking() -> None:

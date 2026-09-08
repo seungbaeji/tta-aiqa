@@ -37,8 +37,27 @@ class ProfileDocument(BaseModel):
             candidate_id=self.candidate_id,
             kind=self.kind,
             threshold=self.threshold,
-            params=tuple(sorted(self.params.items())),
+            params=tuple(
+                sorted(
+                    (
+                        name,
+                        immutable_profile_param(self.kind, name, value),
+                    )
+                    for name, value in self.params.items()
+                )
+            ),
         )
+
+
+def immutable_profile_param(kind: ModelKind, name: str, value: object) -> object:
+    """Freeze YAML parameter values that sklearn estimators require as tuples."""
+    if kind is ModelKind.MLP_CLASSIFIER and name == "hidden_layer_sizes":
+        if not isinstance(value, (list, tuple)) or not value:
+            raise ValueError(
+                "mlp_classifier hidden_layer_sizes must be a non-empty sequence"
+            )
+        return tuple(int(item) for item in value)
+    return value
 
 
 class ProfilesDocument(BaseModel):

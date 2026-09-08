@@ -126,5 +126,5 @@ curl "${AIQA_MLFLOW_TRACKING_URI%/}/health"
 
 The student development experiment is `student-development-tracking`. The
 server does not default the official experiment name
-`tta-aiqa-physionet-2012-v2`. Students log that run with
-`uv run python labs/run/log_development.py`.
+`tta-aiqa-physionet-2012-v2`. Students log that run from
+`labs/chapters/ch02/03_log_student_mlp.ipynb`.
