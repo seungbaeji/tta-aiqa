@@ -168,21 +168,24 @@ uv run python labs/run/model_status.py --revision v2
 
 ### DVC revision과 MLflow run이 같은 model evidence lineage를 가리키는지 확인한다
 
-[2장 model lineage walkthrough](chapters/ch02/README.md) 하나에서
+[2장 model lineage walkthrough](chapters/ch02/README.md)에서
 **DVC → MLflow Run → 모델 묶음 → release manifest**를 순서대로 확인합니다.
 역사적 Candidate B의 Git 기록, 서로 다른 DVC lock 지문과 dataset SHA-256,
 모델 Run과 최종 Run, model/metadata/feature contract SHA-256을 한 표로
 연결합니다. 원본 frozen lock과 clean worktree가 없는 V2의 사후 reconciliation을
 완전 재현으로 설명하지 않습니다.
 
-Compose MLflow가 준비되면 같은 노트북이
-`labs/run/log_development.py`를 호출해 train/valid 학생 MLP Run
-(`candidate-c`)을 만들고, dataset input, 설정, iteration 지표, bundle과
-MLflow Logged Model을 다시 조회합니다. 공식 승인 모델은 Candidate B입니다. 학생 Run은 `split-revision.json`과 일치하는 동일 train/valid
-파일을 학습과 기록에 사용합니다. 역사적 Run ID는 JSON evidence이고 학생 Run은
-구조를 관찰하는 새 실행입니다. 두 Run을 같은 실행 번호나 승인 근거로 취급하지
-않습니다. MLflow가 없으면 역사적 연결 표와 구현 코드 읽기는 계속하고 학생
-Run만 `MLFLOW_NOT_RUNNING`으로 기록합니다. 강사용 설명 순서와 문제 해결은
+Compose MLflow가 준비되면 이어서
+[`03_log_student_mlp.ipynb`](chapters/ch02/03_log_student_mlp.ipynb)에서
+train/valid 학생 MLP(`candidate-c`)를 YAML, pandas, sklearn, mlflow API로
+직접 학습합니다. `train.loss`가 내려가는데 `valid.*`가 평평하거나 나빠지면
+과적합입니다. 공식 승인 모델은 Candidate B입니다. 학생 Run은
+`split-revision.json`과 일치하는 동일 train/valid 파일을 사용하며 공식
+승인이나 봉인 평가를 바꾸지 않습니다. 3장 서빙은 Candidate B를 유지합니다.
+역사적 Run ID는 JSON evidence이고 학생 Run은 구조를 관찰하는 새 실행입니다.
+두 Run을 같은 실행 번호나 승인 근거로 취급하지 않습니다. MLflow가 없으면
+표와 그림, 역사적 연결은 계속하고 학생 Run만 `MLFLOW_NOT_RUNNING`으로
+기록합니다. 강사용 설명 순서와 문제 해결은
 [`INSTRUCTOR_GUIDE.md`](chapters/ch02/INSTRUCTOR_GUIDE.md)를 따릅니다.
 
 ## API

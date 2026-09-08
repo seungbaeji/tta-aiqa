@@ -1,4 +1,6 @@
 # Student-development catalog. Official V2 freeze stays in profiles.yaml.
+# Course-valid metrics are recorded for every configured max_iter step.
+# sklearn early_stopping and inner tol stopping are not part of this catalog.
 schema_version: 1
 random_seed: 43
 profiles:
@@ -16,5 +18,3 @@ profiles:
       max_iter: 30
       batch_size: 64
       early_stopping: false
-      n_iter_no_change: 10
-      tol: 0.0001

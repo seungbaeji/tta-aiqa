@@ -53,12 +53,19 @@ profile 이름으로 연결한 역사적 reconstruction입니다. 당시 frozen 
 확인된 데이터·metric·bundle 지문과 복원 불가능한 범위는 노트북의 첫 표에서
 함께 봅니다.
 
-현재 학생 Run은 관찰 가능한 정상 개발 기록을 새로 만듭니다. 학생 Run은
-Candidate B, train 2,900건, valid 600건, Random Forest와 임계값 0.35를 사용하고
-dataset input, parameter, validation metric, bundle 두 파일과 MLflow Logged
-Model을 experiment `student-development-tracking`에 기록합니다. 같은
-train/valid 파일의 revision, 경로, 행 수와 SHA-256을 검증한 뒤 학습과 MLflow
-입력에 함께 사용하며, 공식 승인이나 봉인 평가를 바꾸지 않습니다.
+이 노트북은 공식 lineage JSON만 읽습니다. 학생 MLP를 직접 학습하는 본편은
+다음 단계입니다.
+
+### 1-5. 학생 MLP를 YAML, pandas, sklearn, mlflow로 직접 학습한다
+
+`03_log_student_mlp.ipynb`를 위에서 아래로 실행합니다. 패키지 로더 없이
+`student-profiles.yaml`을 읽고, train 2,900행과 valid 600행만 연 뒤
+`MLPClassifier`를 iteration마다 학습합니다. `train.loss`가 내려가는데
+`valid.roc_auc`가 평평하거나 나빠지면 과적합입니다. 교실 MLflow가 켜져 있으면
+같은 숫자를 experiment `student-development-tracking`의 Run
+`student-mlp-train-valid`에 남깁니다. `/health`가 실패하면 표와 그림만 보고
+공식 승인은 JSON으로 확인합니다. 학생 MLP는 공식 승인이나 봉인 평가를
+바꾸지 않습니다. 3장 서빙은 Candidate B를 유지합니다.
 
 강의 전 이미지 build, bind mount 권한, 화면별 설명 순서와 Teach-back 질문은
 [`INSTRUCTOR_GUIDE.md`](INSTRUCTOR_GUIDE.md)를 먼저 확인합니다.
@@ -72,16 +79,14 @@ tunnel을 만들지 않습니다. `http://127.0.0.1:5000`은 닫힌망 기본 �
 docker compose -f deploy/compose.yaml up -d --no-build --wait mlflow
 curl "${AIQA_MLFLOW_TRACKING_URI%/}/health"
 uv run jupyter nbconvert --to notebook --execute \
-  labs/chapters/ch02/02_trace_model_lineage.ipynb \
-  --output /tmp/ch02-model-lineage.ipynb \
+  labs/chapters/ch02/03_log_student_mlp.ipynb \
+  --output /tmp/ch02-student-mlp.ipynb \
   --ExecutePreprocessor.timeout=600
 ```
 
-노트북은 내부에서 [`labs/run/log_development.py`](../../run/log_development.py)를
-한 번 호출하고 방금 만든 Run을 API로 다시 조회합니다. 값이 없거나 `/health`가
-실패하면 `MLFLOW_NOT_RUNNING`으로 멈추되, 역사적 JSON 연결 표와 코드 읽기
-순서는 끝까지 확인할 수 있습니다. MLflow 화면의 Tags, Parameters, Metrics,
-Datasets, Artifacts와 Logged Models를 각각 실제 logging API와 연결합니다.
+값이 없거나 `/health`가 실패해도 학습 표와 그림, 역사적 JSON 연결은 확인할
+수 있습니다. MLflow 화면이 있으면 Tags, Parameters, Metrics를 노트북에서
+호출한 `mlflow.log_params` / `mlflow.log_metric(..., step=)`과 연결합니다.
 학생 client는 `artifacts/mlflow/`에 직접 쓰지 않지만 Compose MLflow server는
 받은 Run과 artifact를 그 bind mount에 지속합니다. DVC 또는 MLflow 개별 API
 문법이 더 필요할 때만 Appendix 09와 13을 참고합니다.

@@ -1,9 +1,9 @@
 # 2장 강사용 모델 계보 가이드
 
-이 문서는 강사가 `DVC → MLflow Run → 모델 묶음 → release manifest`를 직접
-실행하고, 화면과 코드를 오가며 설명하기 위한 진행안입니다. 수강생에게 새 공식
-모델을 만들게 하는 절차가 아니라, 준비된 V2 evidence와 새 학생 개발 Run을
-구분해 읽는 수업입니다.
+이 문서는 강사가 `DVC → MLflow Run → 모델 묶음 → release manifest`를
+JSON에서 읽고, 이어서 학생 MLP를 초보자용 노트북에서 직접 학습하기 위한
+진행안입니다. 수강생에게 새 공식 모델을 만들게 하는 절차가 아니라, 준비된
+V2 evidence와 학생 개발 실행을 구분해 읽는 수업입니다.
 
 ## 1. 강의 목표와 한 문장 설명
 
@@ -105,7 +105,7 @@ tunnel이나 `http://127.0.0.1:5000`을 수강생 기본 경로로 안내하지 
 | 5–12분 | 노트북 1–2단계 | `v2`와 DVC lock SHA는 왜 다른가 |
 | 12–20분 | 역사적 한계 표 | V2에서 확인한 것과 복원하지 못한 것은 무엇인가 |
 | 20–27분 | bundle과 reconstruction | 일반 artifact, bundle, 공식 Run 기록을 어떻게 구분하는가 |
-| 27–37분 | 학생 Run 실행과 UI | 화면의 각 값은 어느 logging API에서 생기는가 |
+| 27–37분 | 학생 MLP 노트북과 UI | 손실은 내려가는데 검증은 왜 멈출 수 있는가 |
 | 37–42분 | 정상 lifecycle 코드 | freeze 전후로 model Run과 final Run이 왜 나뉘는가 |
 | 42–45분 | Teach-back | 수강생이 전체 연결을 자기 문장으로 설명할 수 있는가 |
 
@@ -116,11 +116,15 @@ uv run jupyter nbconvert --to notebook --execute \
   labs/chapters/ch02/02_trace_model_lineage.ipynb \
   --output /tmp/ch02-model-lineage.ipynb \
   --ExecutePreprocessor.timeout=600
+uv run jupyter nbconvert --to notebook --execute \
+  labs/chapters/ch02/03_log_student_mlp.ipynb \
+  --output /tmp/ch02-student-mlp.ipynb \
+  --ExecutePreprocessor.timeout=600
 ```
 
-노트북을 대화형으로 열 때도 셀 순서를 바꾸지 않습니다. 실행 결과가
-`DATA_NOT_PREPARED`이면 `uv run python labs/run/prepare_data.py`를 먼저
-실행합니다. `MLFLOW_NOT_RUNNING`이면 정적 evidence와 역사적 한계까지는 설명할
+노트북을 대화형으로 열 때도 셀 순서를 바꾸지 않습니다. `02`는 공식 JSON만
+읽습니다. `03`에서 학습/검증 파일이 없으면 `prepare_data.py`를 먼저
+실행합니다. `MLFLOW_NOT_RUNNING`이면 표와 그림, 정적 evidence까지는 설명할
 수 있지만 MLflow UI 관찰은 완료한 것이 아닙니다.
 
 ## 5. 역사적 V2와 정상 lifecycle
@@ -174,30 +178,25 @@ V2 historical evidence를 다시 실행하는 대신 새 revision 번호로 이 
 
 1. Experiment가 `student-development-tracking`인지 확인합니다. MLflow 3 UI
    왼쪽의 `GenAI`가 켜져 있으면 `Model training`으로 바꿉니다. `Default`
-   experiment의 Overview/Models는 학생 학습 Run이 아닙니다.
+   experiment의 Overview/Models는 학생 학습 Run이 아닙니다. 이 화면은
+   `03_log_student_mlp.ipynb`를 실행한 뒤에 엽니다.
 2. Run tag의 `not_official_evidence=true`와 `aiqa.profile=candidate-c`를 봅니다.
-3. Parameters에서 `model_kind=mlp_classifier`와 Git/DVC/data/config 지문을 확인합니다.
-4. Metrics에서 `train.loss`와 `valid.*`가 iteration `step`으로 보이는지 확인합니다.
-5. Datasets에서 train/valid 두 입력의 name, context, source와 MLflow digest를 봅니다.
-6. Artifacts의 `bundle/model.joblib`, `bundle/metadata.json`을 확인합니다.
-7. Logged Models에서 model ID, URI, signature, input example과 sklearn flavor를 봅니다.
-
-Datasets의 32자리 digest는 `mlflow_dataset_digest()`가 원본 CSV SHA-256의
-앞 32자를 MLflow dataset 필드에 맞춰 전달한 축약 identity입니다. 원본 CSV
-byte의 64자리 SHA-256은 Parameters의 `train_data_hash`, `valid_data_hash`에
-온전히 남습니다. 축약값으로 원본 무결성 검증을 대신하지 않습니다.
+3. Parameters에서 `model_kind=mlp_classifier`, `max_iter`, `train_data_hash`,
+   `valid_data_hash`를 확인합니다.
+4. Metrics에서 `train.loss`와 `valid.roc_auc`가 iteration `step`으로 보이는지
+   확인합니다. `train.loss`가 내려가는데 `valid.roc_auc`가 평평하거나 나빠지면
+   과적합입니다. 공식 승인은 Candidate B입니다.
+5. Logged Models에서 sklearn flavor로 올라간 model을 봅니다.
+6. 학생 노트북은 Datasets `log_input`이나 `bundle/model.joblib`을 올리지
+   않습니다. 파일 지문은 Parameters의 64자리 SHA-256입니다. 공식 Candidate B
+   bundle은 `02_trace_model_lineage.ipynb`의 JSON에서 읽습니다.
 
 ### 6-2. 화면과 구현 연결
 
-| MLflow 화면 | 코드 | 설명 |
-|---|---|---|
-| Experiment와 artifact destination | `packages/aiqa_model/adapters/mlflow/runtime.py::configure_tracking` | remote server는 server-side artifact 기본값을 사용 |
-| Tags | `MlflowModelTracker.record()`의 `mlflow.set_tags()` | Run 검색과 역할 구분 |
-| Parameters | `mlflow.log_params()` | 모델 조건과 provenance |
-| Metrics | `mlflow.log_metric(..., step=iteration)` | MLP iteration 곡선과 최종 FN/CI |
-| Datasets | `mlflow_dataset_digest()`, `from_pandas()`, `log_input()` | 원본 SHA-256과 연결된 축약 dataset identity |
-| Artifacts | `mlflow.log_artifacts()` | 외부 runtime용 bundle 파일 |
-| Logged Models | `mlflow.sklearn.log_model()` | MLflow load용 signature와 flavor |
+학생 Run은 `03_log_student_mlp.ipynb`의 `mlflow.set_tags`, `mlflow.log_params`,
+`mlflow.log_metric(..., step=)`, `mlflow.sklearn.log_model()`이 만듭니다.
+공식 trainer의 dataset input, bundle artifact, registry 부재는 02 노트북의
+코드 표와 아래 패키지에서 읽습니다.
 
 현재 코드는 `register_model()`이나 `registered_model_name`을 사용하지 않으므로
 Model Registry version/alias 등록은 하지 않습니다. `Logged Models`와 `Model
@@ -212,31 +211,31 @@ MLflow server는 받은 Run metadata와 artifact를 그 host bind mount에
 ## 7. 코드 읽기 순서
 
 1. `dvc.yaml`, `dvc.lock`, `docs/evidence/data-v2/split-revision.json`
-2. `labs/run/development.yaml`
-3. `labs/run/log_development.py::verify_development_lineage`
-4. `labs/run/log_development.py::run_student_development`
-5. `packages/aiqa_model/adapters/mlflow/runtime.py::configure_tracking`
-6. `packages/aiqa_model/adapters/mlflow/model.py::MlflowModelTracker.record`
-7. `packages/aiqa_model/adapters/bundles/joblib.py::persist_model_bundle`
-8. `apps/model_trainer/application/bundles.py::bootstrap_models`
-9. `apps/model_trainer/application/finalization.py::run_final`
-10. `apps/model_trainer/adapters/release_provenance.py`
+2. `labs/run/development.yaml`, `configs/model-v2/student-profiles.yaml`
+3. `labs/chapters/ch02/03_log_student_mlp.ipynb`
+4. `packages/aiqa_model/adapters/mlflow/runtime.py::configure_tracking`
+5. `packages/aiqa_model/adapters/mlflow/model.py::MlflowModelTracker.record`
+6. `packages/aiqa_model/adapters/bundles/joblib.py::persist_model_bundle`
+7. `apps/model_trainer/application/bundles.py::bootstrap_models`
+8. `apps/model_trainer/application/finalization.py::run_final`
+9. `apps/model_trainer/adapters/release_provenance.py`
 
-처음 일곱 항목은 학생 Run과 화면을 설명합니다. 마지막 세 항목은 새 공식
-revision의 freeze, sealed evaluation과 manifest lifecycle을 설명합니다.
+처음 세 항목은 학생이 YAML·pandas·sklearn·mlflow로 직접 보는 개발 실행입니다.
+그 다음 항목은 공식 trainer가 같은 화면 값을 어떻게 남기는지 읽는 코드입니다.
+마지막 세 항목은 새 공식 revision의 freeze, sealed evaluation과 manifest
+lifecycle을 설명합니다.
 
 ## 8. 문제 해결
 
 | 증상 | 의미 | 확인 순서 |
 |---|---|---|
-| `DATA_NOT_PREPARED` | 역할별 입력 파일 없음 | `prepare_data.py` 실행 후 `dvc status` |
-| dataset digest mismatch | 입력이 V2 evidence와 달라짐 | 파일을 임의 수정하지 말고 DVC 재현 상태 확인 |
+| `FileNotFoundError` | 역할별 입력 파일 없음 | `prepare_data.py` 실행 후 `dvc status` |
+| SHA-256 assert 실패 | 입력이 V2 evidence와 달라짐 | 파일을 임의 수정하지 말고 DVC 재현 상태 확인 |
 | `MLFLOW_NOT_RUNNING` | URI 없음 또는 `/health` 실패 | 환경 변수, DNS/TLS, proxy와 server health |
 | UI가 permission 또는 Failed to load chart data | 공개 HTTPS Origin의 POST가 CORS 403 | server log의 `Blocked cross-origin request`, `--cors-allowed-origins *` |
 | `Default` Overview/Models만 보임 | GenAI 화면이거나 잘못된 experiment | `Model training`과 `student-development-tracking` |
 | SQLite permission error | server bind mount 쓰기 불가 | 강의 전 `chown` 초기화 재실행 |
-| Run은 있으나 bundle 없음 | logging이 중간 실패했을 가능성 | Run status와 server log 확인 |
-| bundle은 있으나 Logged Model 없음 | `log_model()` 단계 실패 가능성 | Run log와 Logged Models 화면 확인 |
+| 학생 Run에 bundle이 없음 | 학생 노트북은 bundle을 올리지 않음 | 공식 bundle은 lineage JSON으로 설명 |
 | 공식 historical Run이 UI에 없음 | 과거 server가 현재 교실 server가 아님 | 정적 evidence reconstruction으로만 설명 |
 
 강의 종료 후 다른 Compose 실습과 자원을 격리하려면 다음 명령을 실행합니다.
@@ -253,11 +252,11 @@ docker compose -f deploy/compose.yaml stop mlflow
 2. V2 historical evidence에서 확인된 연결과 복원 불가능한 범위는 무엇인가.
 3. model Run과 final Run은 왜 분리되는가.
 4. model bundle과 MLflow Logged Model은 왜 둘 다 기록하는가.
-5. 학생 Run의 dataset input이 실제 학습 파일과 같다는 것을 어디서 보장하는가.
+5. 학생 MLP 노트북에서 train/valid SHA-256을 확인한 뒤 같은 파일로 학습하는가.
 6. release manifest가 있어도 실제 배포 완료를 별도로 확인하는 이유는 무엇인가.
 
 정답은 각각 “이름과 구체 상태”, “reconciliation boundary”, “개발과 봉인 평가”,
-“외부 runtime과 MLflow contract”, “lineage path·row·digest 검증”, “승인과
+“외부 runtime과 MLflow contract”, “같은 CSV 지문”, “승인과
 runtime state의 분리”를 포함해야 합니다.
 
 ## 10. 도입 체크리스트

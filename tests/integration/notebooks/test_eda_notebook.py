@@ -15,6 +15,7 @@ STUDENT_NOTEBOOKS = (
     Path("labs/chapters/ch02/00b_trace_valid_model_selection.ipynb"),
     Path("labs/chapters/ch02/01_compare_model_evidence.ipynb"),
     Path("labs/chapters/ch02/02_trace_model_lineage.ipynb"),
+    Path("labs/chapters/ch02/03_log_student_mlp.ipynb"),
     Path("labs/chapters/ch03/01_verify_risk_api.ipynb"),
     Path("labs/chapters/ch04/01_inspect_dashboard_contract.ipynb"),
     Path("labs/chapters/ch05/00_compare_input_distributions.ipynb"),
@@ -318,8 +319,10 @@ def test_observability_notebook_reads_panel_level_datasources() -> None:
     assert "dashboard_observation" in source
     assert "target_observation" not in source
     assert "접속 정보, Alloy와 대시보드는 강사 또는 환경 담당자가 준비" in source
-    assert 'LOCAL_API_URL = "http://127.0.0.1:8000"' in source
+    assert 'LOCAL_API_URL = "http://127.0.0.1:8000"' not in source
     assert "AIQA_RISK_API_URL" not in source
+    assert "grafana_cloud" in source
+    assert "local_observation" not in source
     assert "heatmap" in source
     assert "5xx" in source
     assert "record_id" in source
@@ -430,14 +433,14 @@ def test_model_lineage_notebook_connects_the_complete_teaching_record() -> None:
     assert "docs/evidence/model-v2/release-freeze.json" in source
     assert "docs/evidence/model-v2/release-manifest.json" in source
     assert "serialized-bundle-verification.json" in source
-    assert "labs/run/log_development.py" in source
+    assert "labs/chapters/ch02/03_log_student_mlp.ipynb" in source
     assert "packages/aiqa_model/adapters/mlflow/model.py" in source
     assert "apps/model_trainer/application/bundles.py" in source
     assert "apps/model_trainer/adapters/release_provenance.py" in source
     assert "official_model_run" in source
     assert "official_final_run" in source
-    assert "bundle_model_sha256" in source
-    assert "bundle_metadata_sha256" in source
+    assert 'candidate_bundle["model_sha256"]' in source
+    assert 'candidate_bundle["metadata_sha256"]' in source
     assert "feature_contract_sha256" in source
     assert "student-development-tracking" in source
     assert "공식 Run과 학생 Run은 서로 다른 실행" in source
@@ -464,6 +467,38 @@ def test_model_lineage_notebook_connects_the_complete_teaching_record() -> None:
         for cell in json.loads(path.read_text(encoding="utf-8"))["cells"]
         if cell["cell_type"] == "code"
     )
+
+
+def test_student_mlp_notebook_is_vanilla_sklearn_and_mlflow() -> None:
+    """Keep the student MLP walkthrough on YAML, pandas, sklearn, and mlflow APIs."""
+    path = Path("labs/chapters/ch02/03_log_student_mlp.ipynb")
+    cells = json.loads(path.read_text(encoding="utf-8"))["cells"]
+    source = "\n".join("".join(cell["source"]) for cell in cells)
+    code = "\n".join(
+        "".join(cell["source"]) for cell in cells if cell["cell_type"] == "code"
+    )
+
+    assert "configs/model-v2/student-profiles.yaml" in source
+    assert "labs/run/development.yaml" in source
+    assert "yaml.safe_load" in code
+    assert "pd.read_csv" in code
+    assert "MLPClassifier" in code
+    assert "warm_start" in code
+    assert "early_stopping=False" in code
+    assert "mlflow.set_experiment" in code
+    assert "mlflow.log_metric" in code
+    assert "student-development-tracking" in source
+    assert "student-mlp-train-valid" in source
+    assert "AIQA_MLFLOW_TRACKING_URI" in source
+    assert "MLFLOW_NOT_RUNNING" in code
+    assert "from aiqa_model" not in code
+    assert "from aiqa_core" not in code
+    assert "log_development.py" not in source
+    assert "subprocess" not in code
+    assert "test.csv" not in code
+    assert "operational.csv" not in code
+    assert "sqlite" not in code.lower()
+    assert "http://127.0.0.1:5000" not in code
 
 
 @pytest.mark.parametrize("relative_path", CORE_AND_LEFTOVER_NOTEBOOKS)
@@ -613,10 +648,10 @@ def test_chapter_guides_mark_leftover_notebooks_as_optional() -> None:
     assert "## 2. 남는 시간 실습" in ch01
     assert "### 2-1. " in ch01
     assert "02_inspect_dvc_revision_practice.ipynb" in ch01
-    assert "labs/run/log_development.py" in ch01
+    assert "03_log_student_mlp.ipynb" in ch01
     assert "## 2. 남는 시간 실습" not in ch02
     assert "02_log_development_mlflow_run_practice.ipynb" not in ch02
-    assert "labs/run/log_development.py" in ch02
+    assert "03_log_student_mlp.ipynb" in ch02
     assert "student-development-tracking" in ch02
 
 

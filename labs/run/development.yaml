@@ -3,7 +3,7 @@ experiment_name: student-development-tracking
 profile_name: candidate-c
 data_revision: v2
 tracking_uri_environment_variable: AIQA_MLFLOW_TRACKING_URI
-run_name: student-train-valid
+run_name: student-mlp-train-valid
 data_roles:
   - train
   - valid

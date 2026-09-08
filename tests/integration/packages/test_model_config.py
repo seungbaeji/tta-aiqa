@@ -56,6 +56,8 @@ def test_student_development_catalog_owns_the_mlp_classifier() -> None:
     assert profile.parameter_dict()["hidden_layer_sizes"] == (32, 16)
     assert profile.parameter_dict()["max_iter"] == 30
     assert profile.parameter_dict()["early_stopping"] is False
+    assert "n_iter_no_change" not in profile.parameter_dict()
+    assert "tol" not in profile.parameter_dict()
 
 
 def test_evaluation_plan_preserves_repeated_cv_and_bootstrap() -> None:

@@ -155,7 +155,7 @@ def test_classroom_mlflow_is_compose_and_k8s_yaml_is_unapplied_reference() -> No
     assert "kustomization.yaml" in guide
     assert "AIQA_MLFLOW_TRACKING_URI" in guide
     assert "student-development-tracking" in guide
-    assert "labs/run/log_development.py" in guide
+    assert "labs/chapters/ch02/03_log_student_mlp.ipynb" in guide
     assert "AIQA_MLFLOW_TRACKING_URI" in section
     assert "0.0.0.0:${AIQA_MLFLOW_BIND_PORT:-5000}:5000" in compose
     assert "--allowed-hosts" in compose
