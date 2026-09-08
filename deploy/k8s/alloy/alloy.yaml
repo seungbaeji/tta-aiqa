@@ -17,6 +17,9 @@ spec:
       serviceAccountName: alloy
       securityContext:
         runAsNonRoot: true
+        runAsUser: 473
+        runAsGroup: 473
+        fsGroup: 473
         seccompProfile:
           type: RuntimeDefault
       containers:
@@ -44,6 +47,9 @@ spec:
             capabilities:
               drop: ["ALL"]
             readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 473
+            runAsGroup: 473
           volumeMounts:
             - name: config
               mountPath: /etc/alloy
